@@ -3,12 +3,43 @@
 Docker Compose runtime for self-hosting VeySur. Being built up phase by phase; today it holds
 the core stack (nginx, API, MySQL, Redis), the production Dockerfiles and the static error pages.
 
-## Run the stack
+## Install
 
 ```bash
 cd deploy
-cp .env.example .env
-# Fill in the domain and every empty secret in .env, then:
+./scripts/config-generate.sh
+./scripts/deploy.sh
+./scripts/admin-account-bootstrap.sh --email you@example.com
+```
+
+`config-generate.sh` asks for the domain, TLS mode, administrator e-mail and SMTP relay, generates
+every secret and key, and writes `deploy/.env` after showing a diff (secrets hidden). Re-run it to
+change settings. `deploy.sh` is idempotent: it starts MySQL and Redis, runs migrations, starts the
+rest and checks `/api/ping`. `deploy.sh --dry-run` prints the resolved configuration with secrets
+hidden. Pre-flight requires 4 GB RAM and 10 GB free disk (`VEYSUR_SKIP_PREFLIGHT=1` to override).
+
+## Update
+
+```bash
+./scripts/update.sh --tag 1.2.0
+```
+
+Forward-only. It pulls the images (or loads `*.tar` archives with `--offline <dir>`), snapshots
+every database to `deploy/backups/` (aborting if that fails), runs migrations, recreates the
+containers and checks health. If the new release is unhealthy it re-pins the previous tag and
+restarts it; a failed migration leaves the snapshot as the recovery path. Skipping a major version
+needs `--force`.
+
+## Operate
+
+```bash
+./scripts/veysur.sh status
+./scripts/veysur.sh logs api
+```
+
+Manual control is plain Compose:
+
+```bash
 docker compose up -d --wait
 curl http://localhost/api/ping
 ```
