@@ -23,6 +23,7 @@ Usage: $0 [--domain <domain>] [--yes] [--non-interactive]
                       generated secrets); implies --non-interactive
   --help, -h          Show this help
 
+Environment: VEYSUR_HTTP_PORT and VEYSUR_HTTPS_PORT override the published host ports.
 Writes: $ENV_FILE
 USAGE
 }
@@ -90,6 +91,9 @@ echo
 
 # --- domain and TLS -------------------------------------------------------
 [ -z "$DOMAIN_ARG" ] || env_set API_WEB_DOMAIN "$DOMAIN_ARG" "$WORK"
+# Host ports can be overridden from the environment, for example when 80 is taken.
+[ -z "${VEYSUR_HTTP_PORT:-}" ] || env_set VEYSUR_HTTP_PORT "$VEYSUR_HTTP_PORT" "$WORK"
+[ -z "${VEYSUR_HTTPS_PORT:-}" ] || env_set VEYSUR_HTTPS_PORT "$VEYSUR_HTTPS_PORT" "$WORK"
 ask API_WEB_DOMAIN "Primary domain (no scheme)" "veysur.example.com"
 domain=$(current API_WEB_DOMAIN)
 env_set API_DOMAIN "$domain" "$WORK"
@@ -114,7 +118,8 @@ if $NON_INTERACTIVE; then tls_choice=$tls_default; else
 fi
 case $tls_choice in
   1) env_set VEYSUR_TLS_SNIPPET ./caddy/tls-auto.caddy "$WORK"; env_set VEYSUR_SITE_ADDRESS "" "$WORK"
-     ask VEYSUR_ACME_EMAIL "Contact e-mail for Let's Encrypt" "$(current VEYSUR_ADMIN_EMAIL)" ;;
+     ask VEYSUR_ACME_EMAIL "Contact e-mail for Let's Encrypt" "$(current VEYSUR_ADMIN_EMAIL || true)"
+     [ -n "$(current VEYSUR_ACME_EMAIL)" ] || env_set VEYSUR_ACME_EMAIL "admin@$domain" "$WORK" ;;
   2) env_set VEYSUR_TLS_SNIPPET ./caddy/tls-custom.caddy "$WORK"; env_set VEYSUR_SITE_ADDRESS "" "$WORK" ;;
   3) env_set VEYSUR_TLS_SNIPPET ./caddy/tls-internal.caddy "$WORK"; env_set VEYSUR_SITE_ADDRESS "" "$WORK" ;;
   4) env_set VEYSUR_TLS_SNIPPET ./caddy/tls-none.caddy "$WORK"; env_set VEYSUR_SITE_ADDRESS ":80" "$WORK" ;;

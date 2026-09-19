@@ -100,6 +100,13 @@ require_env_keys() {
     [ -n "$(env_get "$key")" ] || missing+=("$key")
   done
   [ ${#missing[@]} -eq 0 ] || die "empty in $ENV_FILE: ${missing[*]}. Run ./scripts/config-generate.sh."
+
+  # Caddy cannot parse its automatic-TLS snippet without a contact e-mail.
+  case "$(env_get VEYSUR_TLS_SNIPPET)" in
+    "" | *tls-auto*)
+      [ -n "$(env_get VEYSUR_ACME_EMAIL)" ] || die "VEYSUR_ACME_EMAIL is empty in $ENV_FILE but automatic TLS needs a contact e-mail."
+      ;;
+  esac
 }
 
 # Waits for the front door to answer the API health endpoint through nginx.

@@ -3,10 +3,28 @@
 Docker Compose runtime for self-hosting VeySur. Being built up phase by phase; today it holds
 the core stack (nginx, API, MySQL, Redis), the production Dockerfiles and the static error pages.
 
+## Release package and installer
+
+`./scripts/release-package.sh <version>` writes `dist/veysur-<version>.tar.gz` (about 16 KB): the
+Compose file, nginx, Caddy and MySQL config, operator scripts, `install.sh` and this README, with
+`VEYSUR_IMAGE_TAG` pinned to the version. `--images` adds `docker save` archives of every image for
+air-gapped installs (about 450 MB); `--build-images` builds `veysur/api` and `veysur/nginx` at that
+version first. On a target host:
+
+```bash
+tar -xzf veysur-1.2.0.tar.gz && cd veysur
+./install.sh
+```
+
+`install.sh` offers to install Docker (via Docker's official script) if it is missing, loads any
+bundled images, runs `config-generate.sh` and then `deploy.sh`. `--yes --domain <domain>` makes it
+non-interactive. Set `VEYSUR_HTTP_PORT`/`VEYSUR_HTTPS_PORT` when 80/443 are taken. For a local trial
+without a public domain, choose the local test certificate in `config-generate.sh`: with an ACME
+contact e-mail, Caddy insists on a publicly issuable name and `localhost` never qualifies.
+
 ## Install
 
 ```bash
-cd deploy
 ./scripts/config-generate.sh
 ./scripts/deploy.sh
 ./scripts/admin-account-bootstrap.sh --email you@example.com
