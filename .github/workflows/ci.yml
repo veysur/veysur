@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+      - run: ./scripts/check-no-private-repo-refs.sh
+      - run: ./scripts/check-survey-aliases.sh
+      - run: ./scripts/check-survey-element-casts.sh
+
+  stack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Build images
+        run: |
+          docker build -f deploy/docker/Dockerfile.api -t veysur/api:ci .
+          docker build -f deploy/docker/Dockerfile.nginx -t veysur/nginx:ci .
+      - name: Configure
+        working-directory: deploy
+        run: |
+          VEYSUR_HTTP_PORT=8081 VEYSUR_HTTPS_PORT=8444 ./scripts/config-generate.sh --non-interactive --domain localhost
+          sed -i 's/^VEYSUR_IMAGE_TAG=.*/VEYSUR_IMAGE_TAG=ci/' .env
+      - name: Deploy
+        working-directory: deploy
+        run: ./scripts/deploy.sh
+      - name: Smoke test
+        working-directory: deploy
+        run: |
+          ./scripts/admin-account-bootstrap.sh --email admin@example.com
+          docker compose exec -T nginx wget -qO- http://127.0.0.1/api/ping | grep '"status":"ok"'
+          for path in /account/ /survey/ /docs/; do
+            docker compose exec -T nginx wget -q --spider "http://127.0.0.1$path"
+          done
+      - name: Task manager runs
+        working-directory: deploy
+        run: |
+          sleep 75
+          docker compose logs task-manager | grep -q "Completed taskManager.run"
+      - name: Package installs on a clean directory
+        run: ./deploy/scripts/release-package.sh 0.0.0-ci
+      - name: Logs on failure
+        if: failure()
+        working-directory: deploy
+        run: docker compose logs --tail 200
