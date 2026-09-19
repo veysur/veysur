@@ -1,7 +1,20 @@
 # deploy
 
 Docker Compose runtime for self-hosting VeySur. Being built up phase by phase; today it holds
-the production Dockerfiles and the static error pages.
+the core stack (nginx, API, MySQL, Redis), the production Dockerfiles and the static error pages.
+
+## Run the stack
+
+```bash
+cd deploy
+cp .env.example .env
+# Fill in the domain and every empty secret in .env, then:
+docker compose up -d --wait
+curl http://localhost/api/ping
+```
+
+`.env` is the single configuration file. `API_COMPOSITION_MODULE` is intentionally not a key:
+leaving it unset keeps the API on plain core composition.
 
 ## Images
 

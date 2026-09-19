@@ -1,0 +1,137 @@
+# VeySur self-hosted stack. Configuration comes from `.env` (copy .env.example).
+# API_COMPOSITION_MODULE is deliberately never set: its absence keeps the API on
+# plain core composition.
+
+x-api-environment: &api-environment
+  DEPLOYMENT_MODE: self-hosted
+  NODE_ENV: production
+  API_BRAND_NAME: ${API_BRAND_NAME:-VeySur}
+  API_WEB_DOMAIN: ${API_WEB_DOMAIN:?set API_WEB_DOMAIN in .env}
+  API_DOMAIN: ${API_DOMAIN:?set API_DOMAIN in .env}
+  API_SERVER_PORT: "3838"
+  API_CORS_ALLOWED_DOMAINS: ${API_CORS_ALLOWED_DOMAINS:-${API_WEB_DOMAIN}}
+  API_PROJECT_OWNER_ID: ${API_PROJECT_OWNER_ID:-}
+  API_JWT_KEY: ${API_JWT_KEY:?set API_JWT_KEY in .env}
+
+  MYSQL_HOST: mysql
+  MYSQL_DATABASE: ${MYSQL_DATABASE:-veysurAccount}
+  MYSQL_DATABASE_IP_LOCATION: ${MYSQL_DATABASE_IP_LOCATION:-veysurIpLocation}
+  MYSQL_USER: ${MYSQL_USER:-veysur}
+  MYSQL_PASSWORD: ${MYSQL_PASSWORD:?set MYSQL_PASSWORD in .env}
+
+  REDIS_ENABLED: "true"
+  REDIS_HOST: redis
+  REDIS_PORT: "6379"
+  REDIS_PASSWORD: ${REDIS_PASSWORD:?set REDIS_PASSWORD in .env}
+
+  API_S3_TYPE: local
+  API_S3_LOCAL_PATH: /data/files
+  API_S3_PUBLIC_BUCKET: veysur-files
+  API_S3_PRIVATE_BUCKET: veysur-private
+  API_S3_PUBLIC_BASE_URL: ${API_S3_PUBLIC_BASE_URL:?set API_S3_PUBLIC_BASE_URL in .env}
+  API_S3_ACCESS_KEY_ID: ${API_S3_ACCESS_KEY_ID:-}
+  API_S3_SECRET_ACCESS_KEY: ${API_S3_SECRET_ACCESS_KEY:-}
+  API_S3_LOCAL_SECRET: ${API_S3_LOCAL_SECRET:-}
+
+  API_MAIL_HOST: ${API_MAIL_HOST:-}
+  API_MAIL_PORT: ${API_MAIL_PORT:-587}
+  API_MAIL_TRANSPORT_TYPE: ${API_MAIL_TRANSPORT_TYPE:-smtp}
+  API_MAIL_SECURE: ${API_MAIL_SECURE:-false}
+  API_MAIL_CANARY_TO: ${API_MAIL_CANARY_TO:-}
+  API_MAIL_AUTH_USER: ${API_MAIL_AUTH_USER:-}
+  API_MAIL_AUTH_PASS: ${API_MAIL_AUTH_PASS:-}
+
+  API_ENCRYPTION_PUBLIC_KEY: ${API_ENCRYPTION_PUBLIC_KEY:-}
+  API_ENCRYPTION_PRIVATE_KEY: ${API_ENCRYPTION_PRIVATE_KEY:-}
+  API_ENCRYPTION_PRIVATE_KEY_PASSWORD: ${API_ENCRYPTION_PRIVATE_KEY_PASSWORD:-}
+
+  BUGSINK_DSN: ""
+
+services:
+  nginx:
+    image: veysur/nginx:${VEYSUR_IMAGE_TAG:-latest}
+    restart: unless-stopped
+    ports:
+      - "${VEYSUR_HTTP_PORT:-80}:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      api:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 256M
+
+  api:
+    image: veysur/api:${VEYSUR_IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment: *api-environment
+    volumes:
+      - veysur-files:/data/files
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    stop_grace_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 500M
+
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-veysurAccount}
+      MYSQL_DATABASE_IP_LOCATION: ${MYSQL_DATABASE_IP_LOCATION:-veysurIpLocation}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD in .env}
+      MYSQL_USER: ${MYSQL_USER:-veysur}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?set MYSQL_PASSWORD in .env}
+    volumes:
+      - veysur-mysql-data:/var/lib/mysql
+      - veysur-mysql-logs:/var/log/mysql
+      - ./mysql/custom.cnf:/etc/mysql/conf.d/custom.cnf:ro
+      - ./mysql/init-database.sh:/docker-entrypoint-initdb.d/init-database.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 2G
+
+  redis:
+    image: redis:7.2-alpine
+    restart: unless-stopped
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?set REDIS_PASSWORD in .env}
+    command:
+      - sh
+      - -c
+      - >-
+        exec redis-server --requirepass "$$REDIS_PASSWORD"
+        --maxmemory 256mb --maxmemory-policy allkeys-lru
+        --save "" --appendonly no
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a $$REDIS_PASSWORD ping | grep PONG"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
+volumes:
+  veysur-files:
+  veysur-mysql-data:
+  veysur-mysql-logs:

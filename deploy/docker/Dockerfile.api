@@ -120,6 +120,10 @@ COPY --from=builder --chown=nodejs:nodejs /app/package/api ./package/api
 # Fix ownership of corepack cache for nodejs user
 RUN chown -R nodejs:nodejs /home/nodejs/.cache
 
+# Local-disk file storage mount point. A fresh named volume mounted here
+# inherits this ownership, so the non-root user can write to it.
+RUN mkdir -p /data/files && chown nodejs:nodejs /data/files
+
 # Install all dependencies and link workspace packages (without --prod to include peer dependencies)
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile --ignore-scripts
