@@ -82,6 +82,57 @@ services:
           cpus: "0.5"
           memory: 500M
 
+  # Runs the task manager once a minute with the same entrypoint the Kubernetes
+  # CronJob used. The timeout stops a hung run from stalling the loop; the
+  # heartbeat file drives the healthcheck.
+  task-manager:
+    image: veysur/api:${VEYSUR_IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      <<: *api-environment
+      API_TASK: taskManager
+      API_ACTION: run
+    entrypoint:
+      - sh
+      - -c
+      - >-
+        while true; do
+        timeout -s KILL 600 node dist/run.js;
+        touch /tmp/task-manager-heartbeat;
+        sleep 60;
+        done
+    volumes:
+      - veysur-files:/data/files
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "find /tmp/task-manager-heartbeat -mmin -12 | grep -q ."]
+      interval: 60s
+      timeout: 5s
+      retries: 3
+      start_period: 15m
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
+  # One-shot migration runner, not started by `up`. Arguments are appended:
+  #   docker compose run --rm migrate [--dry-run] [--verbose]
+  migrate:
+    image: veysur/api:${VEYSUR_IMAGE_TAG:-latest}
+    profiles: ["tools"]
+    environment:
+      <<: *api-environment
+      MYSQL_ENSURE_DATABASE: "true"
+    entrypoint: ["node", "dist/script/migrate.js", "--datasource", "account"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+
   mysql:
     image: mysql:8.4
     restart: unless-stopped

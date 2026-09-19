@@ -13,6 +13,17 @@ docker compose up -d --wait
 curl http://localhost/api/ping
 ```
 
+Migrations are a one-shot container, not part of `up`:
+
+```bash
+docker compose run --rm migrate --dry-run
+docker compose run --rm migrate
+```
+
+The `task-manager` service runs the scheduled-task runner once a minute. Its healthcheck fails if
+no run has finished for 12 minutes; a single run is killed after 10 minutes so it cannot stall
+the loop.
+
 `.env` is the single configuration file. `API_COMPOSITION_MODULE` is intentionally not a key:
 leaving it unset keeps the API on plain core composition.
 
