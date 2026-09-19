@@ -1,0 +1,43 @@
+# syntax=docker/dockerfile:1
+# cspell:ignore yarnpkg
+# Development image for the API and the app dev server. Dependencies and the
+# built workspace libraries are baked in; compose.dev.yaml bind-mounts the
+# source directories over the copies here, so edits apply without a rebuild.
+# Build from the repository root.
+FROM node:26-alpine
+
+RUN rm -f /usr/local/bin/yarn /usr/local/bin/yarnpkg && npm install -g corepack && corepack enable && corepack prepare pnpm@10.33.0 --activate
+
+WORKDIR /app
+ENV NODE_ENV=development
+
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY package/common/package.json ./package/common/
+COPY package/theme/package.json ./package/theme/
+COPY package/api/package.json ./package/api/
+COPY package/app/package.json ./package/app/
+COPY package/docsite/package.json ./package/docsite/
+COPY external/s3-adaptor/package.json ./external/s3-adaptor/
+COPY external/mzen/package/mzen-id/package.json ./external/mzen/package/mzen-id/
+COPY external/mzen/package/mzen-migrate/package.json ./external/mzen/package/mzen-migrate/
+COPY external/mzen/package/mzen-om/package.json ./external/mzen/package/mzen-om/
+COPY external/mzen/package/mzen-schema/package.json ./external/mzen/package/mzen-schema/
+COPY external/mzen/package/mzen-server/package.json ./external/mzen/package/mzen-server/
+
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --ignore-scripts
+
+COPY external/mzen ./external/mzen
+COPY external/s3-adaptor ./external/s3-adaptor
+COPY package/common ./package/common
+COPY package/theme ./package/theme
+COPY package/api ./package/api
+COPY package/app ./package/app
+
+RUN for pkg in mzen-id mzen-schema mzen-om mzen-migrate mzen-server; do \
+      pnpm --dir external/mzen/package/$pkg build || exit 1; \
+    done && \
+    pnpm --dir external/s3-adaptor build && \
+    pnpm --dir package/common build
+
+CMD ["sh"]

@@ -18,6 +18,20 @@ change settings. `deploy.sh` is idempotent: it starts MySQL and Redis, runs migr
 rest and checks `/api/ping`. `deploy.sh --dry-run` prints the resolved configuration with secrets
 hidden. Pre-flight requires 4 GB RAM and 10 GB free disk (`VEYSUR_SKIP_PREFLIGHT=1` to override).
 
+## Development
+
+`compose.dev.yaml` layers over the production file for contributors:
+
+```bash
+./scripts/config-generate.sh --dev
+cd .. && pnpm dev:migrate && pnpm dev
+```
+
+It builds one dev image (`Dockerfile.dev`, dependencies baked in), bind-mounts `package/*/src`, runs
+the API with `tsx watch` and the app with the rsbuild dev server behind `nginx.dev.conf`, and leaves
+Caddy and the task manager off. Migrations run from compiled output (the patch scanner would
+otherwise load test files).
+
 ## Update
 
 ```bash

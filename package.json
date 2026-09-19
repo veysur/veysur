@@ -9,6 +9,8 @@
     "pnpm": ">=9.0.0"
   },
   "scripts": {
+    "dev": "docker compose --project-directory deploy -f deploy/compose.yaml -f deploy/compose.dev.yaml watch",
+    "dev:migrate": "docker compose --project-directory deploy -f deploy/compose.yaml -f deploy/compose.dev.yaml run --rm migrate",
     "dev:api": "pnpm --filter veysur-api start",
     "dev:admin": "pnpm --filter veysur-app devAdmin",
     "dev:survey": "pnpm --filter veysur-app devSurvey",

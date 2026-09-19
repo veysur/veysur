@@ -10,6 +10,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh"
 ASSUME_YES=false
 NON_INTERACTIVE=false
 DOMAIN_ARG=""
+DEV_MODE=false
 
 usage() {
   cat <<USAGE
@@ -18,6 +19,8 @@ Usage: $0 [--domain <domain>] [--yes] [--non-interactive]
   --domain <domain>   Primary domain (skips that prompt)
   --yes, -y           Write without asking for confirmation
   --non-interactive   Accept every default; generate every empty secret
+  --dev               Local development settings (localhost, plain HTTP on 8080,
+                      generated secrets); implies --non-interactive
   --help, -h          Show this help
 
 Writes: $ENV_FILE
@@ -29,6 +32,7 @@ while [ $# -gt 0 ]; do
     --domain) DOMAIN_ARG=$2; shift 2 ;;
     --yes | -y) ASSUME_YES=true; shift ;;
     --non-interactive) NON_INTERACTIVE=true; ASSUME_YES=true; shift ;;
+    --dev) DEV_MODE=true; NON_INTERACTIVE=true; ASSUME_YES=true; DOMAIN_ARG=localhost; shift ;;
     --help | -h) usage; exit 0 ;;
     *) usage >&2; die "unknown option: $1" ;;
   esac
@@ -123,6 +127,15 @@ else
   env_set API_S3_PUBLIC_BASE_URL "https://$domain" "$WORK"
 fi
 
+if $DEV_MODE; then
+  env_set VEYSUR_TLS_SNIPPET ./caddy/tls-none.caddy "$WORK"
+  env_set VEYSUR_SITE_ADDRESS ":80" "$WORK"
+  env_set VEYSUR_HTTP_PORT 8080 "$WORK"
+  env_set API_S3_PUBLIC_BASE_URL "http://localhost:8080" "$WORK"
+  env_set API_MAIL_HOST fake-smtp "$WORK"
+  env_set API_MAIL_PORT 1025 "$WORK"
+fi
+
 # --- administrator and mail ----------------------------------------------
 echo
 ask VEYSUR_ADMIN_EMAIL "Administrator e-mail (used by the first-account bootstrap)" "admin@$domain"
@@ -177,4 +190,8 @@ umask 077
 cat "$WORK" >"$ENV_FILE"
 chmod 600 "$ENV_FILE"
 ok "Wrote $ENV_FILE"
-echo "Next: ./scripts/deploy.sh"
+if $DEV_MODE; then
+  echo "Next: pnpm dev:migrate && pnpm dev   (from the repository root)"
+else
+  echo "Next: ./scripts/deploy.sh"
+fi

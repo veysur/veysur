@@ -1,0 +1,110 @@
+# Contributor dev loop. Layer over the production stack:
+#   docker compose -f compose.yaml -f compose.dev.yaml watch
+# Plain HTTP on http://localhost:${VEYSUR_HTTP_PORT}; Caddy does not start.
+# Source is bind-mounted, so edits apply live. `watch` rebuilds the dev image
+# when dependencies change.
+
+x-dev-image: &dev-image
+  build:
+    context: ..
+    dockerfile: deploy/docker/Dockerfile.dev
+  image: veysur/dev:local
+
+x-dev-sources: &dev-sources
+  - ../package/api/src:/app/package/api/src
+  - ../package/common/src:/app/package/common/src
+  - veysur-files:/data/files
+
+services:
+  caddy:
+    profiles: ["disabled"]
+
+  nginx:
+    image: nginx:1.30.4-alpine
+    ports:
+      - "${VEYSUR_HTTP_PORT:-8080}:80"
+    volumes:
+      - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
+      - ./error-pages:/usr/share/nginx/html/errors:ro
+    depends_on:
+      api:
+        condition: service_healthy
+      app-dev:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  api:
+    <<: *dev-image
+    entrypoint: ["pnpm", "exec", "tsx", "watch", "--clear-screen=false", "src/run.ts"]
+    working_dir: /app/package/api
+    environment:
+      NODE_ENV: development
+      API_MAIL_HOST: fake-smtp
+      API_MAIL_PORT: "1025"
+    volumes: *dev-sources
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3838/api/ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 20s
+    develop:
+      watch:
+        - action: rebuild
+          path: ../pnpm-lock.yaml
+        - action: rebuild
+          path: ../package/api/package.json
+
+  app-dev:
+    <<: *dev-image
+    entrypoint: ["pnpm", "run", "dev", "--", "--host", "0.0.0.0"]
+    working_dir: /app/package/app
+    environment:
+      NODE_ENV: development
+      BROWSER: none
+      PUBLIC_EDITION: self-hosted
+      PUBLIC_PROJECT_SCOPE: single
+      PUBLIC_REST_API_BASE_PATH: /api
+      PUBLIC_AUTHENTICATION_DOMAIN: ""
+      PUBLIC_BASE_ACCOUNT: /account
+      PUBLIC_ASSET_PREFIX: ""
+    volumes:
+      - ../package/app/src:/app/package/app/src
+      - ../package/common/src:/app/package/common/src
+    develop:
+      watch:
+        - action: rebuild
+          path: ../pnpm-lock.yaml
+        - action: rebuild
+          path: ../package/app/package.json
+
+  task-manager:
+    profiles: ["disabled"]
+
+  # Migrations run from compiled output: the patch scanner loads every .ts file
+  # it finds, and only the build config excludes the test files. The dist
+  # volume keeps the incremental build cache between runs.
+  migrate:
+    <<: *dev-image
+    entrypoint:
+      - sh
+      - -c
+      - pnpm run build:dev >/dev/null && exec node dist/script/migrate.js --datasource account "$$@"
+      - migrate
+    working_dir: /app/package/api
+    volumes:
+      - ../package/api/src:/app/package/api/src
+      - ../package/common/src:/app/package/common/src
+      - veysur-api-dist:/app/package/api/dist
+
+  fake-smtp:
+    image: haravich/fake-smtp-server:latest
+    ports:
+      - "${VEYSUR_MAIL_UI_PORT:-5080}:5080"
+
+volumes:
+  veysur-api-dist:

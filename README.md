@@ -22,7 +22,14 @@ rather than filing a public issue.
 
 ```bash
 pnpm install
+./deploy/scripts/config-generate.sh --dev   # once: writes deploy/.env for local development
+pnpm dev:migrate                            # create or update the local database
+pnpm dev                                    # API, app dev server and proxy with live reload
 ```
+
+Open <http://localhost:8080>. Only Docker (Compose 2.22 or later) is needed; there is no
+Kubernetes tooling. Outgoing mail lands in a local inbox at <http://localhost:5080>. API and app
+source edits reload live; a change to `pnpm-lock.yaml` or a `package.json` rebuilds the dev image.
 
 The self-host runtime is Docker Compose. See [deploy/](./deploy) for the Compose
 stack and operator scripts; both are being built up phase by phase.
