@@ -56,12 +56,13 @@ export class AuthDomainConfig implements AuthDomainConfigInterface {
    * conventions.
    */
   getAuthDomainHomePath = (): string => {
-    if (process.env.PUBLIC_AUTHENTICATION_DOMAIN_HOME_PATH) {
-      return process.env.PUBLIC_AUTHENTICATION_DOMAIN_HOME_PATH
-    }
-    const baseAccount = process.env.PUBLIC_BASE_ACCOUNT
-    if (baseAccount) {
-      return baseAccount.endsWith('/') ? baseAccount : `${baseAccount}/`
+    // The build bakes `PUBLIC_BASE_ACCOUNT` into the explicit variable when it
+    // is unset, so both sources need the same normalisation.
+    const homePath =
+      process.env.PUBLIC_AUTHENTICATION_DOMAIN_HOME_PATH ||
+      process.env.PUBLIC_BASE_ACCOUNT
+    if (homePath) {
+      return homePath.endsWith('/') ? homePath : `${homePath}/`
     }
     return '/'
   }

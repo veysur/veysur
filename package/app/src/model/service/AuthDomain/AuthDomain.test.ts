@@ -118,6 +118,15 @@ describe('AuthDomain', () => {
       )
     })
 
+    it('normalises the trailing slash of an explicit home path, as the build bakes it', () => {
+      process.env.PUBLIC_AUTHENTICATION_DOMAIN = ''
+      process.env.PUBLIC_AUTHENTICATION_DOMAIN_HOME_PATH = '/account'
+      expect(AuthDomain.getAccountUrl()).toBe('https://example.com/account/')
+      expect(AuthDomain.getAccountUrl('password-reset')).toBe(
+        'https://example.com/account/password-reset',
+      )
+    })
+
     it('falls back to PUBLIC_BASE_ACCOUNT (trailing-slash-normalised) when no explicit home path is set', () => {
       process.env.PUBLIC_AUTHENTICATION_DOMAIN = ''
       delete process.env.PUBLIC_AUTHENTICATION_DOMAIN_HOME_PATH
