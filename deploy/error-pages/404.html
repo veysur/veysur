@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>404 — VeySur</title>
+    <style>
+      :root {
+        --bg: oklch(0.97 0.001 106.424);
+        --fg: oklch(0.147 0.004 49.25);
+        --muted: oklch(0.374 0.01 67.558);
+        --border: oklch(0.869 0.005 56.366);
+        --primary: oklch(43.039% 0.11754 137.924);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: oklch(0.191 0 0);
+          --fg: oklch(0.985 0 0);
+          --muted: oklch(0.708 0 0);
+          --border: oklch(0.29 0 0);
+        }
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        background-color: var(--bg);
+        color: var(--fg);
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 2rem;
+      }
+      .container {
+        text-align: center;
+        max-width: 480px;
+      }
+      .logo {
+        margin-bottom: 2rem;
+      }
+      .logo svg {
+        height: 48px;
+        width: auto;
+      }
+      .code {
+        font-size: 6rem;
+        font-weight: 700;
+        line-height: 1;
+        background: linear-gradient(90deg, oklch(from var(--primary) calc(l * 1.24) calc(c * 1.24) h), oklch(from var(--primary) calc(l * 0.94) calc(c * 0.94) h));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1rem;
+      }
+      .heading {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+      }
+      .message {
+        color: var(--muted);
+        line-height: 1.6;
+        margin-bottom: 2rem;
+      }
+      .divider {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin-bottom: 2rem;
+      }
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.15s;
+      }
+      .back-link:hover {
+        color: var(--fg);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="148 117 280 295" aria-label="VeySur">
+          <defs>
+            <style>
+              #vg-start { stop-color: oklch(from var(--primary) calc(l * 1.24) calc(c * 1.24) h); }
+              #vg-end   { stop-color: oklch(from var(--primary) calc(l * 0.94) calc(c * 0.94) h); }
+            </style>
+            <linearGradient id="vg" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop id="vg-start" offset="15%" />
+              <stop id="vg-end" offset="85%" />
+            </linearGradient>
+          </defs>
+          <path
+            fill="url(#vg)"
+            d="M383.419800,130.315704
+              C396.050323,124.669411 408.663361,120.229607 421.909668,117.757393
+              C422.692749,120.015701 421.147736,120.554230 420.173279,121.226318
+              C376.987610,151.011200 344.621918,190.643295 316.882507,234.514847
+              C292.524261,273.038940 272.126587,313.616730 254.093643,355.417572
+              C252.648560,358.767303 250.836517,360.299042 247.027237,360.240112
+              C233.035538,360.023590 219.037827,360.007416 205.045120,360.162292
+              C201.133759,360.205597 199.069580,358.745483 197.469177,355.202515
+              C181.226913,319.245789 164.870956,283.340210 148.429092,247.474289
+              C146.892807,244.123093 147.488419,242.425507 150.792953,240.883896
+              C162.109390,235.604553 173.369675,230.199234 184.555099,224.648010
+              C188.040115,222.918427 189.770355,223.510101 191.415787,227.157440
+              C201.548264,249.617661 211.890717,271.983185 222.183731,294.370850
+              C222.993759,296.132721 223.358643,298.244812 225.507629,299.163330
+              C227.789001,298.194305 228.217743,295.870178 229.183899,294.030579
+              C252.363831,249.895401 280.889954,209.744400 317.522217,175.667358
+              C337.150574,157.408127 358.671204,141.835632 383.419800,130.315704 z"
+          />
+        </svg>
+      </div>
+      <div class="code">404</div>
+      <h1 class="heading">Page not found</h1>
+      <p class="message">
+        The page you're looking for doesn't exist or may have been moved.
+      </p>
+      <hr class="divider" />
+      <a class="back-link" href="/" onclick="history.length>1&&(history.back(),event.preventDefault())">
+        ← Go back
+      </a>
+    </div>
+  </body>
+</html>

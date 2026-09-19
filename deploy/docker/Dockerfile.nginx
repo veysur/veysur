@@ -1,0 +1,115 @@
+# syntax=docker/dockerfile:1
+# cspell:ignore yarnpkg
+# Multi-stage build for the self-hosted VeySur nginx image: the three React
+# sub-apps (admin, survey, account) plus the documentation site, served by
+# nginx. Build from the repository root:
+#   docker build -f deploy/docker/Dockerfile.nginx -t veysur/nginx .
+
+# Stage 1: Build React applications
+FROM node:26-alpine AS builder
+
+RUN rm -f /usr/local/bin/yarn /usr/local/bin/yarnpkg && npm install -g corepack && corepack enable && corepack prepare pnpm@10.33.0 --activate
+
+WORKDIR /app
+
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+
+COPY package/common/package.json ./package/common/
+COPY package/theme/package.json ./package/theme/
+COPY package/app/package.json ./package/app/
+COPY external/mzen/package/mzen-id/package.json ./external/mzen/package/mzen-id/
+COPY external/mzen/package/mzen-schema/package.json ./external/mzen/package/mzen-schema/
+
+RUN pnpm install --frozen-lockfile --ignore-scripts
+
+COPY external/mzen/package/mzen-id ./external/mzen/package/mzen-id
+COPY external/mzen/package/mzen-schema ./external/mzen/package/mzen-schema
+COPY package/common ./package/common
+COPY package/theme ./package/theme
+COPY package/app ./package/app
+
+WORKDIR /app/external/mzen/package/mzen-id
+RUN pnpm build
+
+WORKDIR /app/external/mzen/package/mzen-schema
+RUN pnpm build
+
+WORKDIR /app/package/common
+RUN pnpm build
+
+# rsbuild inlines every PUBLIC_* value into the bundle at build time, so these
+# are fixed per image, not read at runtime. PUBLIC_EDITION falls back to
+# "cloud" when unset, so the self-hosted default here is load-bearing.
+WORKDIR /app/package/app
+ARG BUILD_VERSION=dev
+ARG PUBLIC_EDITION=self-hosted
+ARG PUBLIC_PROJECT_SCOPE=single
+ARG PUBLIC_REST_API_BASE_PATH=/api
+ARG PUBLIC_AUTHENTICATION_DOMAIN=
+ARG PUBLIC_BASE_ACCOUNT=/account
+ARG PUBLIC_ASSET_PREFIX=
+ARG PUBLIC_GA_TAG_ID_ACCOUNT=
+ARG PUBLIC_SITE_ACCESS_KEY=
+ARG PUBLIC_SITE_UNAVAILABLE_TITLE=
+ARG PUBLIC_SITE_UNAVAILABLE_MESSAGE=
+ENV BUILD_VERSION=$BUILD_VERSION \
+    PUBLIC_EDITION=$PUBLIC_EDITION \
+    PUBLIC_PROJECT_SCOPE=$PUBLIC_PROJECT_SCOPE \
+    PUBLIC_REST_API_BASE_PATH=$PUBLIC_REST_API_BASE_PATH \
+    PUBLIC_AUTHENTICATION_DOMAIN=$PUBLIC_AUTHENTICATION_DOMAIN \
+    PUBLIC_BASE_ACCOUNT=$PUBLIC_BASE_ACCOUNT \
+    PUBLIC_ASSET_PREFIX=$PUBLIC_ASSET_PREFIX \
+    PUBLIC_GA_TAG_ID_ACCOUNT=$PUBLIC_GA_TAG_ID_ACCOUNT \
+    PUBLIC_SITE_ACCESS_KEY=$PUBLIC_SITE_ACCESS_KEY \
+    PUBLIC_SITE_UNAVAILABLE_TITLE=$PUBLIC_SITE_UNAVAILABLE_TITLE \
+    PUBLIC_SITE_UNAVAILABLE_MESSAGE=$PUBLIC_SITE_UNAVAILABLE_MESSAGE
+# The prebuild hook runs generate-cloud-composition.mjs, which falls back to
+# the committed *Default.* stubs when no commercial generator is present.
+RUN pnpm build
+
+# Stage 2: Build documentation site
+FROM node:26-alpine AS docs-builder
+
+RUN rm -f /usr/local/bin/yarn /usr/local/bin/yarnpkg && npm install -g corepack && corepack enable && corepack prepare pnpm@10.33.0 --activate
+
+WORKDIR /app
+
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY package/theme/package.json ./package/theme/
+COPY package/docsite/package.json ./package/docsite/
+
+RUN pnpm install --frozen-lockfile --ignore-scripts
+
+COPY package/theme ./package/theme
+COPY package/docsite ./package/docsite
+
+WORKDIR /app/package/docsite
+RUN pnpm build
+
+# Stage 3: Production nginx server
+FROM nginx:1.30.4-alpine
+
+RUN rm /etc/nginx/conf.d/default.conf
+
+COPY --from=builder /app/package/app/dist/admin   /usr/share/nginx/html/admin
+COPY --from=builder /app/package/app/dist/survey  /usr/share/nginx/html/survey
+COPY --from=builder /app/package/app/dist/account /usr/share/nginx/html/account
+COPY --from=builder /app/package/app/dist/static  /usr/share/nginx/html/static
+
+COPY --from=builder /app/package/app/dist/image       /usr/share/nginx/html/image
+COPY --from=builder /app/package/app/dist/favicon.svg /usr/share/nginx/html/favicon.svg
+COPY --from=builder /app/package/app/dist/favicon.png /usr/share/nginx/html/favicon.png
+
+RUN echo "healthy" > /usr/share/nginx/html/health
+
+COPY deploy/error-pages /usr/share/nginx/html/errors
+
+COPY --from=docs-builder /app/package/docsite/dist /usr/share/nginx/html/docs
+
+# The server config is mounted at runtime, not baked into the image.
+EXPOSE 80
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost/health || exit 1
+
+CMD ["nginx", "-g", "daemon off;"]

@@ -1,0 +1,142 @@
+# cspell:ignore yarnpkg
+# Multi-stage Docker build for VeySur API
+#
+# IMPORTANT: Corepack Cache Preservation
+# ========================================
+# This Dockerfile uses corepack to manage pnpm. To prevent pnpm from being
+# downloaded on every container start, we MUST copy the corepack cache directory
+# (/root/.cache/node/corepack) from the builder stage to the runner stage.
+# The pnpm version MUST match the "packageManager" field in package.json files.
+#
+# Stage 1: Install dependencies
+FROM node:26-alpine AS deps
+
+# Install pnpm (version must match packageManager in package.json)
+RUN rm -f /usr/local/bin/yarn /usr/local/bin/yarnpkg && npm install -g corepack && corepack enable && corepack prepare pnpm@10.33.0 --activate
+
+WORKDIR /app
+
+# Copy monorepo root files
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+
+# Copy package manifests for all workspaces
+COPY package/common/package.json ./package/common/
+COPY package/api/package.json ./package/api/
+COPY external/s3-adaptor/package.json ./external/s3-adaptor/
+
+# Copy mzen package manifests
+COPY external/mzen/package/mzen-id/package.json ./external/mzen/package/mzen-id/
+COPY external/mzen/package/mzen-om/package.json ./external/mzen/package/mzen-om/
+COPY external/mzen/package/mzen-migrate/package.json ./external/mzen/package/mzen-migrate/
+COPY external/mzen/package/mzen-schema/package.json ./external/mzen/package/mzen-schema/
+COPY external/mzen/package/mzen-server/package.json ./external/mzen/package/mzen-server/
+
+# Install all dependencies (ignore scripts since we'll build in the builder stage)
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --ignore-scripts
+
+# Stage 2: Build application
+FROM node:26-alpine AS builder
+
+RUN rm -f /usr/local/bin/yarn /usr/local/bin/yarnpkg && npm install -g corepack && corepack enable && corepack prepare pnpm@10.33.0 --activate
+
+WORKDIR /app
+
+# Copy dependencies from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/package ./package
+
+# Copy source code
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY external/mzen ./external/mzen
+COPY external/s3-adaptor ./external/s3-adaptor
+COPY package/common ./package/common
+COPY package/api ./package/api
+
+# Restore per-package node_modules from deps stage
+# (.dockerignore excludes local node_modules; these provide tsc and other build tools)
+COPY --from=deps /app/external/mzen/package/mzen-id/node_modules ./external/mzen/package/mzen-id/node_modules
+COPY --from=deps /app/external/mzen/package/mzen-schema/node_modules ./external/mzen/package/mzen-schema/node_modules
+COPY --from=deps /app/external/mzen/package/mzen-om/node_modules ./external/mzen/package/mzen-om/node_modules
+COPY --from=deps /app/external/mzen/package/mzen-migrate/node_modules ./external/mzen/package/mzen-migrate/node_modules
+COPY --from=deps /app/external/mzen/package/mzen-server/node_modules ./external/mzen/package/mzen-server/node_modules
+COPY --from=deps /app/external/s3-adaptor/node_modules ./external/s3-adaptor/node_modules
+
+# Build mzen packages first (in dependency order)
+WORKDIR /app/external/mzen/package/mzen-id
+RUN pnpm build
+
+WORKDIR /app/external/mzen/package/mzen-schema
+RUN pnpm build
+
+WORKDIR /app/external/mzen/package/mzen-om
+RUN pnpm build
+
+WORKDIR /app/external/mzen/package/mzen-migrate
+RUN pnpm build
+
+WORKDIR /app/external/mzen/package/mzen-server
+RUN pnpm build
+
+# Build s3-adaptor
+WORKDIR /app/external/s3-adaptor
+RUN pnpm build
+
+# Build common package
+WORKDIR /app/package/common
+RUN pnpm build
+
+WORKDIR /app/package/api
+RUN pnpm build
+
+# Stage 3: Production runtime
+FROM node:26-alpine AS runner
+
+# Enable corepack first
+RUN rm -f /usr/local/bin/yarn /usr/local/bin/yarnpkg && npm install -g corepack && corepack enable
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
+# Copy corepack cache from builder stage to preserve pnpm installation
+# This prevents corepack from downloading pnpm on every container start
+COPY --from=builder /root/.cache/node/corepack /root/.cache/node/corepack
+COPY --from=builder /root/.cache/node/corepack /home/nodejs/.cache/node/corepack
+
+# Copy built packages and config files
+COPY --from=builder --chown=nodejs:nodejs /app/package.json ./
+COPY --from=builder --chown=nodejs:nodejs /app/pnpm-workspace.yaml ./
+COPY --from=builder --chown=nodejs:nodejs /app/pnpm-lock.yaml ./
+COPY --from=builder --chown=nodejs:nodejs /app/external/mzen ./external/mzen
+COPY --from=builder --chown=nodejs:nodejs /app/external/s3-adaptor ./external/s3-adaptor
+COPY --from=builder --chown=nodejs:nodejs /app/package/common ./package/common
+COPY --from=builder --chown=nodejs:nodejs /app/package/api ./package/api
+
+# Fix ownership of corepack cache for nodejs user
+RUN chown -R nodejs:nodejs /home/nodejs/.cache
+
+# Install all dependencies and link workspace packages (without --prod to include peer dependencies)
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --ignore-scripts
+
+ENV COREPACK_HOME=/home/nodejs/.cache/node/corepack
+
+USER nodejs
+
+EXPOSE 3838
+
+# Health check using API ping endpoint
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3838/api/ping', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+
+WORKDIR /app/package/api
+
+ARG BUILD_VERSION=dev
+ENV BUILD_VERSION=$BUILD_VERSION
+
+CMD ["node", "--enable-source-maps", "dist/run.js"]

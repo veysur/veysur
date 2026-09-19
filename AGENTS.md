@@ -22,8 +22,8 @@ A pnpm workspace monorepo. As packages land here, expect this shape:
 - **`package/theme`** - shared design tokens and CSS consumed by the
   frontend
 - **`package/docsite`** - user-facing documentation site
-- **`deploy/`** - the Kubernetes/Helm chart and installer scripts for
-  self-hosting
+- **`deploy/`** - the Docker Compose stack, production Dockerfiles and
+  operator scripts for self-hosting
 - **`external/`** - git submodules for standalone shared libraries this
   project depends on
 

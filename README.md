@@ -22,12 +22,11 @@ rather than filing a public issue.
 
 ```bash
 pnpm install
-./deploy/scripts/kind/install-kind.sh   # one-time: local kind cluster + registry
-pnpm tilt-up                             # full stack with hot reload
 ```
 
-See [deploy/](./deploy) for the Helm chart and dev-environment scripts.
+The self-host runtime is Docker Compose. See [deploy/](./deploy) for the Compose
+stack and operator scripts; both are being built up phase by phase.
 
 ## Status
 
-Bootstrapping. Package contents are still being added to this repository.
+Bootstrapping. The Compose deploy layer is still being added to this repository.
