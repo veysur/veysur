@@ -162,6 +162,36 @@ describe('AuthDomain', () => {
       )
     })
 
+    it('does not repeat the port when the host already carries one', () => {
+      process.env.PUBLIC_BASE_ADMIN = '/admin'
+      AuthDomain.browserInterface.getLocation = jest.fn().mockReturnValue({
+        protocol: 'http:',
+        origin: 'http://localhost:8080',
+        host: 'localhost:8080',
+        port: '8080',
+        search: '',
+      })
+      AuthDomain.resetServices()
+      expect(AuthDomain.getAdminUrl('localhost:8080', '/team')).toBe(
+        'http://localhost:8080/admin/team',
+      )
+    })
+
+    it('adds the current port to a host that has none', () => {
+      process.env.PUBLIC_BASE_ADMIN = '/admin'
+      AuthDomain.browserInterface.getLocation = jest.fn().mockReturnValue({
+        protocol: 'http:',
+        origin: 'http://project-1.veysur.local:8080',
+        host: 'project-1.veysur.local:8080',
+        port: '8080',
+        search: '',
+      })
+      AuthDomain.resetServices()
+      expect(AuthDomain.getAdminUrl('project-1.veysur.local')).toBe(
+        'http://project-1.veysur.local:8080/admin',
+      )
+    })
+
     it('appends a path after the admin base path', () => {
       process.env.PUBLIC_BASE_ADMIN = '/admin'
       expect(AuthDomain.getAdminUrl('project-1.veysur.test', '/login')).toBe(

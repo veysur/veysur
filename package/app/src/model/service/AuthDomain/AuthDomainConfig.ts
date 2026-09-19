@@ -132,7 +132,10 @@ export class AuthDomainConfig implements AuthDomainConfigInterface {
   getAdminUrl = (host: string, path = ''): string => {
     const { protocol, port } = this.browserInterface.getLocation()
     const adminBasePath = process.env.PUBLIC_BASE_ADMIN || '/admin'
-    return `${protocol}//${host}${port ? `:${port}` : ''}${adminBasePath}${path}`
+    // Cloud passes a bare project hostname and inherits the page's port;
+    // self-hosted passes `window.location.host`, which already carries it.
+    const hostWithPort = /:\d+$/.test(host) || !port ? host : `${host}:${port}`
+    return `${protocol}//${hostWithPort}${adminBasePath}${path}`
   }
 
   /**
