@@ -1,0 +1,32 @@
+# deploy
+
+Docker Compose runtime for self-hosting VeySur. Being built up phase by phase; today it holds
+the production Dockerfiles and the static error pages.
+
+## Images
+
+Build from the repository root:
+
+```bash
+docker build -f deploy/docker/Dockerfile.api -t veysur/api .
+docker build -f deploy/docker/Dockerfile.nginx -t veysur/nginx .
+```
+
+## Build-time values (nginx image)
+
+`rsbuild` inlines every `PUBLIC_*` value into the frontend bundle when the image is built, so
+these are fixed per image. Setting them in a runtime `.env` has no effect. The defaults below
+are the self-hosted configuration; override with `--build-arg` only for a custom install.
+
+| Build arg | Default | Effect |
+|---|---|---|
+| `PUBLIC_EDITION` | `self-hosted` | Unset resolves to the commercial edition, so this default must stay |
+| `PUBLIC_PROJECT_SCOPE` | `single` | Admin app resolves its one project without a per-project subdomain |
+| `PUBLIC_REST_API_BASE_PATH` | `/api` | API path on the single origin |
+| `PUBLIC_BASE_ACCOUNT` | `/account` | Account app mount path, also the "Manage Account" link target |
+| `PUBLIC_AUTHENTICATION_DOMAIN` | empty | Separate auth domain; empty on a single origin |
+| `PUBLIC_ASSET_PREFIX` | empty | Asset URL prefix |
+| `PUBLIC_GA_TAG_ID_ACCOUNT` | empty | Analytics tag; empty disables it |
+| `PUBLIC_SITE_ACCESS_KEY` | empty | Optional access gate |
+| `PUBLIC_SITE_UNAVAILABLE_TITLE` / `_MESSAGE` | empty | Gate copy |
+| `BUILD_VERSION` | `dev` | Version string shown in the app |
