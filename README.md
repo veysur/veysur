@@ -32,8 +32,8 @@ Open <http://localhost:8080>. Only Docker (Compose 2.22 or later) is needed; the
 Kubernetes tooling. Outgoing mail lands in a local inbox at <http://localhost:1080>. API and app
 source edits reload live; a change to `pnpm-lock.yaml` or a `package.json` rebuilds the dev image.
 
-The self-host runtime is Docker Compose. See [deploy/](./deploy) for the Compose
-stack and operator scripts; both are being built up phase by phase.
+The self-host runtime is Docker Compose. See [docs/](./docs/README.md) for architecture, deployment, configuration, TLS and
+development, and [deploy/](./deploy) for the Compose stack and operator scripts.
 
 ## Status
 
