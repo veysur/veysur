@@ -14,7 +14,8 @@
   ],
   "moduleDirectories": [
     "<rootDir>/src/",
-    "<rootDir>/node_modules/"
+    "<rootDir>/node_modules/",
+    "node_modules"
   ],
   "transform": {
     ".*\\.(ts|tsx)$": "ts-jest"
