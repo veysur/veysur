@@ -1,0 +1,9 @@
+# cspell:ignore zstd
+# Front door: terminates TLS and proxies everything to the internal nginx.
+# The TLS mode is chosen by which snippet compose.yaml mounts at
+# /etc/caddy/tls.caddy (see VEYSUR_TLS_SNIPPET in .env.example).
+{$VEYSUR_SITE_ADDRESS} {
+	import /etc/caddy/tls.caddy
+	encode zstd gzip
+	reverse_proxy nginx:80
+}

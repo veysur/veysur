@@ -1,0 +1,3 @@
+# Automatic Let's Encrypt certificate and renewal for a public domain.
+# Needs ports 80 and 443 reachable from the internet.
+tls {$VEYSUR_ACME_EMAIL}

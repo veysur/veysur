@@ -1,0 +1,2 @@
+# Bring your own certificate: place tls.crt and tls.key in deploy/certs/.
+tls /certs/tls.crt /certs/tls.key

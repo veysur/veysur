@@ -24,6 +24,13 @@ The `task-manager` service runs the scheduled-task runner once a minute. Its hea
 no run has finished for 12 minutes; a single run is killed after 10 minutes so it cannot stall
 the loop.
 
+Caddy is the front door: it publishes ports 80 and 443, terminates TLS and proxies to nginx, which
+is not published. Choose the TLS mode with `VEYSUR_TLS_SNIPPET` in `.env`: automatic Let's Encrypt
+(default, needs a public domain and `VEYSUR_ACME_EMAIL`), your own certificate in `deploy/certs/`,
+Caddy's local CA for trials, or none when a load balancer already terminates TLS. Certificates live
+in the `veysur-caddy-data` volume and survive restarts. Renewal problems show in
+`docker compose logs caddy`.
+
 `.env` is the single configuration file. `API_COMPOSITION_MODULE` is intentionally not a key:
 leaving it unset keeps the API on plain core composition.
 

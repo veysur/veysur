@@ -1,0 +1,2 @@
+# No TLS here: for installs behind a load balancer or reverse proxy that
+# already terminates TLS. Set VEYSUR_SITE_ADDRESS=:80 with this snippet.

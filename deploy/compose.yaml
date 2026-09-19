@@ -48,11 +48,34 @@ x-api-environment: &api-environment
   BUGSINK_DSN: ""
 
 services:
-  nginx:
-    image: veysur/nginx:${VEYSUR_IMAGE_TAG:-latest}
+  caddy:
+    image: caddy:2-alpine
     restart: unless-stopped
     ports:
       - "${VEYSUR_HTTP_PORT:-80}:80"
+      - "${VEYSUR_HTTPS_PORT:-443}:443"
+      - "${VEYSUR_HTTPS_PORT:-443}:443/udp"
+    environment:
+      VEYSUR_SITE_ADDRESS: ${VEYSUR_SITE_ADDRESS:-${API_WEB_DOMAIN}}
+      VEYSUR_ACME_EMAIL: ${VEYSUR_ACME_EMAIL:-}
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${VEYSUR_TLS_SNIPPET:-./caddy/tls-auto.caddy}:/etc/caddy/tls.caddy:ro
+      - ./certs:/certs:ro
+      - veysur-caddy-data:/data
+      - veysur-caddy-config:/config
+    depends_on:
+      nginx:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 128M
+
+  nginx:
+    image: veysur/nginx:${VEYSUR_IMAGE_TAG:-latest}
+    restart: unless-stopped
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
@@ -186,3 +209,5 @@ volumes:
   veysur-files:
   veysur-mysql-data:
   veysur-mysql-logs:
+  veysur-caddy-data:
+  veysur-caddy-config:
