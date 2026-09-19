@@ -143,39 +143,5 @@
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.62.1",
     "webpack-bundle-analyzer": "^5.3.0"
-  },
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "jsdom",
-    "fakeTimers": {
-      "enableGlobally": true
-    },
-    "testMatch": [
-      "<rootDir>/src/**/*.test.{ts,tsx}"
-    ],
-    "modulePaths": [
-      "<rootDir>/src"
-    ],
-    "moduleNameMapper": {
-      "^p-limit$": "<rootDir>/../../../../node_modules/.pnpm/p-limit@3.1.0/node_modules/p-limit/index.js",
-      "^ansi-regex$": "<rootDir>/../../../../node_modules/.pnpm/ansi-regex@5.0.1/node_modules/ansi-regex/index.js",
-      "^@/(.*)$": "<rootDir>/src/$1",
-      "\\.(css|less|scss|sass)$": "identity-obj-proxy",
-      "^.+\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/tests/mocks/fileMock.ts",
-      "^.+\\.(css|less|scss|sass)$": "<rootDir>/tests/mocks/styleMock.ts",
-      "(assets|models|services)": "<rootDir>/tests/mocks/fileMock.ts"
-    },
-    "transform": {
-      ".*\\.(ts|tsx)$": "ts-jest"
-    },
-    "transformIgnorePatterns": [
-      "/node_modules/.+$"
-    ],
-    "setupFilesAfterEnv": [
-      "<rootDir>/tests/setupTests.ts"
-    ],
-    "testEnvironmentOptions": {
-      "errorOnUnhandledPromises": false
-    }
   }
 }

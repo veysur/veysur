@@ -1,0 +1,35 @@
+{
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "fakeTimers": {
+    "enableGlobally": true
+  },
+  "testMatch": [
+    "<rootDir>/src/**/*.test.{ts,tsx}",
+    "<rootDir>/test/**/*.test.{ts,tsx}"
+  ],
+  "testPathIgnorePatterns": [
+    "/node_modules/",
+    "\\.integration\\.test\\.ts$"
+  ],
+  "moduleDirectories": [
+    "<rootDir>/src/",
+    "<rootDir>/node_modules/"
+  ],
+  "transform": {
+    ".*\\.(ts|tsx)$": "ts-jest"
+  },
+  "transformIgnorePatterns": [
+    "/node_modules/.+$"
+  ],
+  "moduleNameMapper": {
+    "^pretty-format$": "<rootDir>/../../../../node_modules/.pnpm/pretty-format@29.7.0/node_modules/pretty-format/build/index.js",
+    "^p-limit$": "<rootDir>/../../../../node_modules/.pnpm/p-limit@3.1.0/node_modules/p-limit/index.js",
+    "^ansi-regex$": "<rootDir>/../../../../node_modules/.pnpm/ansi-regex@5.0.1/node_modules/ansi-regex/index.js",
+    "^entities/decode$": "<rootDir>/../../../../node_modules/.pnpm/entities@7.0.1/node_modules/entities/dist/commonjs/decode.js",
+    "^entities$": "<rootDir>/../../../../node_modules/.pnpm/entities@7.0.1/node_modules/entities/dist/commonjs/index.js",
+    "^@noble/hashes/(.*)$": "<rootDir>/../../../../node_modules/.pnpm/@noble+hashes@1.8.0/node_modules/@noble/hashes/$1.js",
+    "^@noble/ciphers/(.*)$": "<rootDir>/../../../../node_modules/.pnpm/@noble+ciphers@1.3.0/node_modules/@noble/ciphers/$1.js",
+    "^jest-util$": "<rootDir>/../../node_modules/.pnpm/jest-util@30.5.1/node_modules/jest-util/build/index.js"
+  }
+}
