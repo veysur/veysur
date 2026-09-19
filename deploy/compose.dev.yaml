@@ -104,7 +104,7 @@ services:
   fake-smtp:
     image: haravich/fake-smtp-server:latest
     ports:
-      - "${VEYSUR_MAIL_UI_PORT:-5080}:5080"
+      - "${VEYSUR_MAIL_UI_PORT:-1080}:1080"
 
 volumes:
   veysur-api-dist:

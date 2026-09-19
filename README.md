@@ -29,7 +29,7 @@ pnpm dev:admin --email you@example.com      # in another terminal: create the fi
 ```
 
 Open <http://localhost:8080>. Only Docker (Compose 2.22 or later) is needed; there is no
-Kubernetes tooling. Outgoing mail lands in a local inbox at <http://localhost:5080>. API and app
+Kubernetes tooling. Outgoing mail lands in a local inbox at <http://localhost:1080>. API and app
 source edits reload live; a change to `pnpm-lock.yaml` or a `package.json` rebuilds the dev image.
 
 The self-host runtime is Docker Compose. See [deploy/](./deploy) for the Compose
