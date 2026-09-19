@@ -17,6 +17,7 @@ USAGE
 
 require_docker
 require_env_file
+detect_dev
 
 case "${1:-}" in
   status) compose ps ;;

@@ -47,7 +47,8 @@ cd .. && pnpm dev:migrate && pnpm dev
 
 It builds one dev image (`Dockerfile.dev`, dependencies baked in), bind-mounts `package/*/src`, runs
 the API with `tsx watch` and the app with the rsbuild dev server behind `nginx.dev.conf`, and leaves
-Caddy and the task manager off. Migrations run from compiled output (the patch scanner would
+Caddy and the task manager off. The app is at <http://localhost:8080> (not port 80). Create the first
+account with `pnpm dev:admin --email you@example.com`; the script detects the dev stack. Migrations run from compiled output (the patch scanner would
 otherwise load test files).
 
 ## Update

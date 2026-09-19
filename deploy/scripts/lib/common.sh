@@ -21,8 +21,21 @@ die() {
   exit 1
 }
 
+# VEYSUR_DEV=1 layers compose.dev.yaml over the production file.
 compose() {
-  docker compose --env-file "$ENV_FILE" -f "$DEPLOY_DIR/compose.yaml" "$@"
+  local files=(-f "$DEPLOY_DIR/compose.yaml")
+  [ "${VEYSUR_DEV:-0}" != 1 ] || files+=(-f "$DEPLOY_DIR/compose.dev.yaml")
+  docker compose --env-file "$ENV_FILE" "${files[@]}" "$@"
+}
+
+# Sets VEYSUR_DEV=1 when the running api container is the dev image, so scripts
+# act on the dev stack without being told.
+detect_dev() {
+  local id
+  id=$(docker compose --env-file "$ENV_FILE" -f "$DEPLOY_DIR/compose.yaml" ps -q api 2>/dev/null | head -n 1)
+  if [ -n "$id" ] && [ "$(docker inspect -f '{{.Config.Image}}' "$id" 2>/dev/null)" = "veysur/dev:local" ]; then
+    export VEYSUR_DEV=1
+  fi
 }
 
 require_docker() {

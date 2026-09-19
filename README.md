@@ -25,6 +25,7 @@ pnpm install
 ./deploy/scripts/config-generate.sh --dev   # once: writes deploy/.env for local development
 pnpm dev:migrate                            # create or update the local database
 pnpm dev                                    # API, app dev server and proxy with live reload
+pnpm dev:admin --email you@example.com      # in another terminal: create the first account
 ```
 
 Open <http://localhost:8080>. Only Docker (Compose 2.22 or later) is needed; there is no

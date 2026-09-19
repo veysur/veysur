@@ -30,6 +30,17 @@ done
 [ -n "$EMAIL" ] || die "--email is required"
 require_docker
 require_env_file
+detect_dev
+
+# The dev stack runs the API from source; production runs the compiled build.
+if [ "${VEYSUR_DEV:-0}" = 1 ]; then
+  run_api=(pnpm exec tsx src/run.ts)
+  recreate=(api)
+  info "Dev stack detected"
+else
+  run_api=(node dist/run.js)
+  recreate=(api task-manager)
+fi
 
 json_escape() { printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'; }
 options="{\"email\":\"$(json_escape "$EMAIL")\""
@@ -45,7 +56,7 @@ if $DRY_RUN; then
 fi
 
 info "Creating account"
-output=$(compose exec -T -e API_TASK=user -e API_ACTION=createAccount -e API_TASK_JSON="$options" api node dist/run.js 2>&1) || {
+output=$(compose exec -T -e API_TASK=user -e API_ACTION=createAccount -e API_TASK_JSON="$options" api "${run_api[@]}" 2>&1) || {
   echo "$output"
   die "account creation failed"
 }
@@ -59,8 +70,8 @@ generated_password=$(field password)
 [ -n "$user_id" ] || die "createAccount returned no userId: $result"
 
 env_set API_PROJECT_OWNER_ID "$user_id"
-info "Recreating api and task-manager to pick up the project owner"
-compose up -d --wait api task-manager
+info "Recreating ${recreate[*]} to pick up the project owner"
+compose up -d --wait "${recreate[@]}"
 
 ok "Administrator created"
 echo "  Email:    $(field email)"
