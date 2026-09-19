@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "allowJs": false,
+    "strict": false,
+    "noImplicitAny": false,
+    "outDir": "./dist/cjs",
+    "rootDir": "./src",
+    "baseUrl": "./src",
+    "ignoreDeprecations": "6.0",
+    "types": ["node", "jest"],
+    "paths": {
+      "*": ["*"]
+    },
+    "removeComments": true,
+    "esModuleInterop": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src"]
+}

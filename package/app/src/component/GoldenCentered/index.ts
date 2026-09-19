@@ -1,0 +1,1 @@
+export { GoldenCentered } from './GoldenCentered'

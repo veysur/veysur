@@ -1,0 +1,91 @@
+---
+title: Invite Participants
+description: How to add participants to a survey and send them invitation emails in VeySur.
+---
+
+import Video from '../../../components/Video.astro'
+
+This guide covers the full process of getting participants into a survey and sending them an invitation email.
+
+<Video path="tutorials/managing-participants" title="Managing participants in VeySur" />
+
+Prefer to watch? The video above covers the same steps. See all [Video Tutorials](/video-tutorials/).
+
+## Before starting
+
+Make sure your survey has at least one active publication. Participants can be added at any time, but they will only receive a working link if a publication is active.
+
+## Step 1: Open the Participants tab
+
+Open your survey and click **Participants** in the left navigation.
+
+## Step 2: Add participants
+
+You can add participants individually or in bulk.
+
+### Adding participants individually
+
+Click **Add Participant** and fill in the form:
+
+| Field | Notes |
+|-------|-------|
+| First Name | Required. |
+| Last Name | Required. |
+| Email | Required. This is where the invitation will be sent. |
+| Language | The language the survey will be presented in to this participant. |
+| Token | Leave blank to auto-generate. The token is the unique identifier in the participant's survey link. |
+
+Click **Save** to add the participant to the list.
+
+### Importing participants in bulk
+
+Click **Import** to upload a file containing multiple participants. The system validates the data and reports any errors. Correct the file and re-upload if errors are found.
+
+## Step 3: Send invitation emails
+
+Once your participants are added, click **Send Invites**.
+
+A confirmation dialog asks you to confirm before sending. Click **Send Invites** to proceed.
+
+A progress dialog shows:
+
+- How many emails have been sent
+- How many errors have occurred
+- Overall progress
+
+Emails are added to a queue and released in small batches to protect delivery reputation, so a large send is spread over a longer period. A participant whose email is still waiting shows "Queued" in the **Send Status** and **Invite Sent** columns. Once the email is dispatched, the **Invite Sent** column is updated with the timestamp. The summary reports the total queued or sent and any errors.
+
+If some emails failed, the error list shows the email address and the reason for each failure.
+
+## Step 4: Send reminders
+
+If some participants did not respond after receiving their invitation, click **Send Reminders**. This sends a follow-up email to every invited participant who has not yet completed the survey, including those who started but did not finish. The same progress dialog is shown.
+
+The **Reminder Sent** column is updated for each participant once their reminder has been sent.
+
+## Email eligibility rules
+
+Invite and reminder emails always follow the same two rules, regardless of a participant's current status:
+
+- An invite email is sent only to a participant who has not started the survey.
+- A reminder email is sent only to a participant who has not completed the survey.
+
+Resetting a participant's invite or reminder status does not send an email by itself; it only makes them eligible again. The next **Send Invites** run still only reaches participants who have not started, and the next **Send Reminders** run still only reaches participants who have not completed.
+
+## Email status reference
+
+| Status | Meaning |
+|--------|---------|
+| Pending | The address has not been verified. This is the default. |
+| Verified | The participant has opened the survey through the link in their invitation email. |
+| Invalid | An email to the address bounced, so it is treated as undeliverable. |
+
+Email status is a record of past delivery outcomes, not a setting. Updating a participant's email address automatically resets the status to Pending, so it can be re-verified.
+
+A status of Verified is set only when the participant follows the link in their invitation email. A delivered invitation that is never opened stays Pending. Invalid means an invitation or reminder to that address bounced, or the recipient marked it as spam.
+
+### When a bounce is recorded
+
+A bounce is not recorded immediately. The receiving mail server has to reject the message and return a bounce notice, which VeySur then processes on a short cycle. A change to Invalid normally appears within about 15 minutes of sending. A slow or deferred rejection can take several hours.
+
+Only a hard bounce or a spam complaint sets the status to Invalid. A soft bounce, such as a full mailbox or a temporary server problem, does not change the status.

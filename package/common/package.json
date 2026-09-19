@@ -1,0 +1,108 @@
+{
+  "name": "veysur-common",
+  "version": "0.0.1",
+  "description": "",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/cjs/index.d.ts",
+  "sideEffects": false,
+  "typesVersions": {
+    "*": {
+      "model/constructor": [
+        "./dist/cjs/model/constructor/index.d.ts"
+      ],
+      "model/schema": [
+        "./dist/cjs/model/schema/index.d.ts"
+      ],
+      "util/generateSurveyHash": [
+        "./dist/cjs/util/generateSurveyHash.d.ts"
+      ]
+    }
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/cjs/index.d.ts"
+    },
+    "./model/constructor": {
+      "import": "./dist/esm/model/constructor/index.js",
+      "require": "./dist/cjs/model/constructor/index.js",
+      "types": "./dist/cjs/model/constructor/index.d.ts"
+    },
+    "./model/schema": {
+      "import": "./dist/esm/model/schema/index.js",
+      "require": "./dist/cjs/model/schema/index.js",
+      "types": "./dist/cjs/model/schema/index.d.ts"
+    },
+    "./util/generateSurveyHash": {
+      "import": "./dist/esm/util/generateSurveyHash.js",
+      "require": "./dist/cjs/util/generateSurveyHash.js",
+      "types": "./dist/cjs/util/generateSurveyHash.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "sh build.sh",
+    "format": "prettier --write ./src",
+    "clean": "rm -fr ./dist ./dist.new ./dist.old",
+    "test": "jest",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "license-checker": "license-checker-rseidelsohn --production --onlyAllow \"MIT;ISC;BSD;BSD-2-Clause;BSD-3-Clause;Apache-2.0;0BSD;CC0-1.0;Unlicense;WTFPL;Python-2.0;BlueOak-1.0.0;(MIT OR EUPL-1.1+);(MIT AND ISC);(MIT AND Zlib);(MPL-2.0 OR Apache-2.0);(Apache-2.0 AND BSD-3-Clause);MIT*;UNLICENSED;UNKNOWN\""
+  },
+  "keywords": [],
+  "author": "",
+  "packageManager": "pnpm@10.33.0",
+  "dependencies": {
+    "bson-objectid": "^2.0.4",
+    "jsep": "^1.4.0",
+    "markdown-it": "^14.3.0",
+    "moment-timezone": "^0.6.2",
+    "mzen-id": "workspace:*",
+    "mzen-schema": "workspace:*",
+    "sanitize-html": "2.13.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/jest": "^30.0.0",
+    "@types/markdown-it": "^14.1.2",
+    "@types/node": "^26.1.1",
+    "@types/sanitize-html": "^2.16.1",
+    "license-checker-rseidelsohn": "^5.0.1",
+    "eslint": "^10.8.1",
+    "globals": "^17.4.0",
+    "jest": "^30.4.2",
+    "prettier": "^3.9.6",
+    "ts-jest": "^29.4.11",
+    "tsc-alias": "^1.9.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.67.0"
+  },
+  "files": [
+    "/dist/*"
+  ],
+  "jest": {
+    "preset": "ts-jest",
+    "fakeTimers": {
+      "enableGlobally": true
+    },
+    "testMatch": [
+      "<rootDir>/src/**/*.test.{ts,tsx}"
+    ],
+    "moduleDirectories": [
+      "<rootDir>/src/",
+      "<rootDir>/node_modules/",
+      "node_modules"
+    ],
+    "transform": {
+      ".*\\.(ts|tsx)$": "ts-jest"
+    },
+    "transformIgnorePatterns": [
+      "/node_modules/.+$"
+    ],
+    "moduleNameMapper": {
+      "^p-limit$": "<rootDir>/../../../../node_modules/.pnpm/p-limit@3.1.0/node_modules/p-limit/index.js",
+      "^ansi-regex$": "<rootDir>/../../../../node_modules/.pnpm/ansi-regex@5.0.1/node_modules/ansi-regex/index.js"
+    }
+  }
+}

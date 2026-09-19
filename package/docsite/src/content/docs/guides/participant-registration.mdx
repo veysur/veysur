@@ -1,0 +1,55 @@
+---
+title: Participant Registration
+description: How to allow participants to register themselves for a survey using the Public Registration access setting.
+---
+
+import Video from '../../../components/Video.astro'
+
+Public Registration allows unregistered visitors to sign up for a survey by submitting their name and email address. VeySur then creates a participant record and sends an invitation email containing their unique access link.
+
+<Video path="tutorials/public-registration" title="Public registration in VeySur" />
+
+## Enabling registration
+
+1. Open the survey in the editor and go to the **Settings** tab.
+2. Scroll to the **Access** section.
+3. Enable **Public Registration**.
+4. Save the settings and publish the survey for the change to take effect.
+
+{/* CAPTCHA for Registration is not yet implemented, re-enable this paragraph once it ships.
+Optionally enable **CAPTCHA for Registration** in the same section to add bot protection to the registration form.
+*/}
+
+## Access mode reference
+
+The combination of **Open access** and **Public Registration** determines how visitors without a token are handled.
+
+| Open access | Public Registration | Visitor without a token |
+|-------------|---------------------|-------------------------|
+| Off | Off | Blocked — invitation token required |
+| Off | On | Must register to gain access |
+| On | Off | Admitted anonymously — no registration required |
+| On | On | Must register — open access is overridden |
+
+## Registration form
+
+When a visitor without a token reaches a survey with Public Registration enabled, they are directed to a registration form. The form collects:
+
+- First name
+- Last name
+- Email address
+- Language (if the survey has multiple languages configured)
+- Any custom participant attributes that are not marked **Internal**
+
+See [Participant Attributes](/reference/survey-editor/participant-attributes/) for details on which attributes appear on the registration form.
+
+## After registration
+
+Once the visitor submits the form, VeySur:
+
+1. Creates a participant record and generates a unique access token.
+2. Sends an invitation email containing a direct link to the survey.
+
+The participant appears in the [Participants](/reference/survey-editor/participants/) tab and can be managed like any other participant.
+
+If a visitor submits the form using an email address that is already registered, no duplicate record is created. The existing access token is resent to that address instead.

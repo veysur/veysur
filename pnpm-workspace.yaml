@@ -1,0 +1,55 @@
+packages:
+  - package/app
+  - package/api
+  - package/common
+  - package/theme
+  - package/docsite
+  # Include packages from git submodules in external/
+  - external/mzen/package/*
+  - external/s3-adaptor
+
+overrides:
+  # tsc-alias@1.9.5 mis-rewrites the relative `export ... from './repo'` in
+  # external/mzen/package/mzen-om/src/repo/index.ts to `require('./index.js')`
+  # (self-import), causing infinite getter recursion (RangeError: Maximum call
+  # stack size exceeded) at runtime. 1.9.1 (what another lockfile pinning the
+  # same dependency happens to still pin) does not have this regression.
+  # Remove once a fixed tsc-alias release is confirmed safe.
+  tsc-alias: "1.9.1"
+  # @tiptap/starter-kit@3.29.2 (pinned in package/app/package.json, matching
+  # every other direct @tiptap/* dependency) does not itself pin most of its
+  # ~20 @tiptap/extension-* sub-dependencies to an exact version. A fresh
+  # lockfile resolution (as generated here) picks up whatever is
+  # newest-compatible at generation time — 3.31.3 changed the @tiptap/core
+  # API surface these extensions expect (ESModulesLinkingError /
+  # unmet-peer-dependency at build time: `getPreviousBlockSibling` etc. no
+  # longer exported the same way). Another lockfile pinning the same
+  # dependency happens to have every one of these still pinned at 3.29.2
+  # (matching core), which is why it isn't broken there. This list is exactly
+  # the set of @tiptap/* packages that other lockfile resolves to 3.29.2
+  # that this lockfile independently resolved to 3.31.3 instead — bump all of
+  # them in lockstep whenever the @tiptap/* versions in package/app/package.json
+  # are bumped (cross-check both lockfiles' `@tiptap/` entries again then).
+  '@tiptap/extension-blockquote': "3.29.2"
+  '@tiptap/extension-bold': "3.29.2"
+  '@tiptap/extension-bubble-menu': "3.29.2"
+  '@tiptap/extension-bullet-list': "3.29.2"
+  '@tiptap/extension-code': "3.29.2"
+  '@tiptap/extension-code-block': "3.29.2"
+  '@tiptap/extension-document': "3.29.2"
+  '@tiptap/extension-dropcursor': "3.29.2"
+  '@tiptap/extension-floating-menu': "3.29.2"
+  '@tiptap/extension-gapcursor': "3.29.2"
+  '@tiptap/extension-hard-break': "3.29.2"
+  '@tiptap/extension-heading': "3.29.2"
+  '@tiptap/extension-horizontal-rule': "3.29.2"
+  '@tiptap/extension-italic': "3.29.2"
+  '@tiptap/extension-list': "3.29.2"
+  '@tiptap/extension-list-item': "3.29.2"
+  '@tiptap/extension-list-keymap': "3.29.2"
+  '@tiptap/extension-ordered-list': "3.29.2"
+  '@tiptap/extension-paragraph': "3.29.2"
+  '@tiptap/extension-strike': "3.29.2"
+  '@tiptap/extension-text': "3.29.2"
+  '@tiptap/extension-underline': "3.29.2"
+  '@tiptap/extensions': "3.29.2"

@@ -1,0 +1,22 @@
+---
+// cspell:ignore astrojs
+import Default from '@astrojs/starlight/components/Footer.astro'
+import CookieConsentBanner from '../components/CookieConsentBanner'
+import CookieSettingsButton from '../components/CookieSettingsButton'
+import GoogleAnalytics from '../components/GoogleAnalytics'
+
+const gaTagId = import.meta.env.PUBLIC_GA_TAG_ID_DOCS ?? ''
+const websiteDomain = import.meta.env.PUBLIC_WEBSITE_DOMAIN || 'www.veysur.com'
+const websiteUrl = `https://${websiteDomain}`
+---
+
+<Default {...Astro.props}><slot /></Default>
+<div class="flex items-center justify-between px-4 py-2">
+  <CookieSettingsButton client:only="react" />
+  <a
+    href={websiteUrl}
+    class="text-xs text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+  >← {websiteDomain}</a>
+</div>
+<CookieConsentBanner client:only="react" />
+<GoogleAnalytics tagId={gaTagId} client:only="react" />

@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import 'tailwindcss';
+@import 'veysur-theme/palette.css';
+@import 'veysur-theme/brand.css';
+
+/* ── Starlight brand overrides ── */
+:root {
+  --sl-font: 'Inter', system-ui, -apple-system, sans-serif;
+  --sl-line-height: 1.6;
+
+  --sl-color-accent-low: oklch(0.85 0.06 var(--brand-hue));
+  --sl-color-accent: var(--brand-primary);
+  --sl-color-accent-high: var(--brand-primary);
+
+  --sl-color-bg: oklch(0.9624 0.0025 48.72);
+  --sl-color-bg-nav: oklch(0.923 0.003 48.717);
+  --sl-color-bg-sidebar: oklch(0.923 0.003 48.717);
+
+  --sl-color-text: oklch(0.147 0.004 49.25);
+  --sl-color-text-accent: var(--brand-primary);
+}
+
+:root[data-theme='dark'] {
+  --sl-color-accent-low: oklch(0.25 0.08 var(--brand-hue));
+  --sl-color-accent: oklch(0.55 0.12 var(--brand-hue));
+  --sl-color-accent-high: oklch(0.78 0.1 var(--brand-hue));
+
+  --sl-color-bg: oklch(0.21 0 0);
+  --sl-color-bg-nav: oklch(0.191 0 0);
+  --sl-color-bg-sidebar: oklch(0.191 0 0);
+
+  --sl-color-text: oklch(0.985 0 0);
+  --sl-color-text-accent: oklch(0.65 0.12 var(--brand-hue));
+}
+
+/* ── Semantic aliases — website-compatible names delegating to Starlight vars ── */
+:root {
+  --background: var(--sl-color-bg);
+  --foreground: var(--sl-color-text);
+  --primary: var(--sl-color-accent);
+  --primary-foreground: oklch(0.97 0.001 106.424);
+  --muted: var(--sl-color-bg-sidebar);
+  --muted-foreground: var(--sl-color-gray-3);
+  --border: var(--sl-color-hairline);
+  --radius: 0.45rem;
+}
+
+/* ── Tailwind theme — exposes aliases as utility classes ── */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+}

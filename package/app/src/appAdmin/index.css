@@ -1,0 +1,56 @@
+@layer base {
+  * {
+    scrollbar-color: var(--scrollbar-thumb) var(--color-background);
+  }
+
+  /* Tiptap editor styles */
+  .tiptap-editor-content {
+    font-family: unset;
+    font-size: unset;
+  }
+
+  .tiptap-editor-content:has(> p:only-child) > p:only-child {
+    margin: 0;
+    padding: 0;
+  }
+
+  #survey-container .tiptap-editor-content {
+    padding: 0;
+  }
+
+  /* Tiptap placeholder styles */
+  .tiptap-editor-content p.is-editor-empty:first-child::before {
+    color: var(--muted-foreground);
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+  }
+
+  /* Tiptap link styles */
+  .tiptap-editor-content a {
+    color: var(--color-primary);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  /* Tiptap focus styles */
+  .tiptap-editor-content:focus {
+    outline: none;
+  }
+
+  /* Tiptap bubble menu styles */
+  /* Must render above the shadcn Dialog (z-index: 50) — the bubble menu portal
+     is a persistent, page-lifetime DOM node, so it can't rely on portal mount
+     order to stack above dialogs that portal in after it. */
+  .tiptap-bubble-menu {
+    z-index: 60;
+  }
+
+  /* Tiptap editor wrapper */
+  .tiptap-editor-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+}

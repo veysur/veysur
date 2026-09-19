@@ -1,0 +1,28 @@
+{{#> layout-email title="Support Ticket Reply" }} {{#*inline "content"}}
+<div>
+  Hello {{user.nameFirst}},
+  <br /><br />
+  The customer has replied to a support ticket assigned to you:<br />
+  <strong>{{ticketSubject}}</strong>
+  <br /><br />
+  <table
+    width="500"
+    align="center"
+    style="
+      padding: 10px;
+      border: 0;
+      margin: auto;
+      font-size: 14px;
+      line-height: 125%;
+    "
+    cellspacing="0"
+    cellpadding="0"
+  >
+    <tbody>
+      <tr>
+        <td align="center">{{> button href=viewUrl text="View Ticket" }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+{{/inline}} {{/layout-email}}

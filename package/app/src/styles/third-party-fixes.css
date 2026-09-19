@@ -1,0 +1,27 @@
+/* Workarounds for browser extensions and native browser chrome. */
+
+/* Hide LastPass autofill icons on inputs opted out of autocomplete */
+input[autocomplete='do-not-autofill'] + div[data-lastpass-icon-root] {
+  opacity: 0 !important;
+}
+
+/* LastPass inserts a zero-size marker div (data-lastpass-icon-root) as a DOM
+   sibling immediately next to any input it decides to enhance with its vault
+   icon. Inside a Tailwind `space-y-*` container this extra sibling matches
+   the `> * + *` spacing rule and picks up its own margin-top, stacking on
+   top of the margin the following element already had — doubling the gap
+   and shifting that field out of alignment with row-mates LastPass didn't
+   target. Zeroing its margin collapses it back to a single gap wherever
+   this occurs across the app, so individual components don't need to
+   special-case the injected element. */
+div[data-lastpass-icon-root] {
+  margin: 0 !important;
+}
+
+/* Override browser's native blue autofill highlight to match theme */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  box-shadow: 0 0 0px 1000px var(--background) inset !important;
+  -webkit-text-fill-color: var(--foreground) !important;
+}

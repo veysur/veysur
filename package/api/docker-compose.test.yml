@@ -1,0 +1,20 @@
+# cspell:ignore testpw
+# Ephemeral MySQL for the api integration suites (*.integration.test.ts).
+# Started/stopped by script/test-integration.sh — not part of any real environment.
+# Data lives in tmpfs, so the container is fast to start and holds no state between runs.
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: veysur-api-test-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-testpw}
+    ports:
+      - '33306:3306'
+    tmpfs:
+      - /var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-p${MYSQL_PASSWORD:-testpw}']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+      start_period: 5s

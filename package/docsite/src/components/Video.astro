@@ -1,0 +1,30 @@
+---
+interface Props {
+  path: string
+  title: string
+  poster?: string
+}
+
+const { path, title, poster } = Astro.props
+---
+
+<video
+  class="video"
+  controls
+  preload="none"
+  poster={poster ?? `/media/${path}.jpg`}
+  aria-label={title}
+>
+  <source src={`/media/${path}.mp4`} type="video/mp4" />
+</video>
+
+<style>
+  .video {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    margin: 1.5rem 0;
+    border: 1px solid var(--sl-color-gray-5, #2a2a2a);
+    border-radius: var(--radius, 0.45rem);
+    background: #000;
+  }
+</style>

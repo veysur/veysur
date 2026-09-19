@@ -1,0 +1,66 @@
+#!/bin/bash
+#
+# Pre-commit hook
+#
+
+# Spell-check staged source files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+if [ -n "$STAGED_FILES" ]; then
+    if ! echo "$STAGED_FILES" | pnpm exec cspell lint --config cspell.json --no-progress --no-summary --no-must-find-files --file-list stdin; then
+        echo ""
+        echo "Spell check failed. Fix typos above or add words to .cspell-words.txt"
+        echo "To bypass: git commit --no-verify"
+        echo ""
+        exit 1
+    fi
+fi
+
+# Survey section/element guards — run when staged files touch package source
+if echo "$STAGED_FILES" | grep -qE '^package/(common|api|app)/'; then
+    for GUARD in scripts/check-survey-aliases.sh scripts/check-survey-element-casts.sh; do
+        if ! bash "$GUARD"; then
+            echo ""
+            echo "Survey guard failed ($GUARD). Fix the matches above before committing."
+            echo "To bypass: git commit --no-verify"
+            echo ""
+            exit 1
+        fi
+    done
+fi
+
+# Private-repo-name leak guard — run on every commit, any file may leak it
+if ! bash scripts/check-no-private-repo-refs.sh; then
+    echo ""
+    echo "Private-repo-ref guard failed. Fix the matches above before committing."
+    echo "To bypass: git commit --no-verify"
+    echo ""
+    exit 1
+fi
+
+# Lint staged source files for each package that has an ESLint config
+LINT_TARGETS=(
+    "package/app:ts|tsx|js|jsx"
+    "package/api:ts|js"
+    "package/common:ts|js"
+    "package/docsite:ts|tsx|js|jsx"
+)
+
+for TARGET in "${LINT_TARGETS[@]}"; do
+    PKG_DIR="${TARGET%%:*}"
+    EXT_PATTERN="${TARGET#*:}"
+
+    STAGED_PKG_FILES=$(echo "$STAGED_FILES" | grep -E "^${PKG_DIR}/.*\.(${EXT_PATTERN})\$")
+    if [ -n "$STAGED_PKG_FILES" ]; then
+        RELATIVE_PKG_FILES=$(echo "$STAGED_PKG_FILES" | sed "s|^${PKG_DIR}/||")
+        if ! (cd "$PKG_DIR" && echo "$RELATIVE_PKG_FILES" | xargs pnpm exec eslint); then
+            echo ""
+            echo "ESLint failed. Fix the errors above before committing."
+            echo "To bypass: git commit --no-verify"
+            echo ""
+            exit 1
+        fi
+    fi
+done
+
+# Continue with commit
+exit 0

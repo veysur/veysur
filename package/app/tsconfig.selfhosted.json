@@ -1,0 +1,11 @@
+{
+  // Proves the app still type-checks with veysur-app-cloud/veysur-common-cloud
+  // genuinely absent (the shape a source-available `veysur` build ships).
+  // `pretypecheck:selfhosted` regenerates the composition-seam gate files
+  // (src/appAccount/cloudComposition.ts, src/appAdmin/cloudFeatureGate.ts) as
+  // their self-hosted-safe defaults before this runs, so nothing here needs
+  // excluding for a gated require()/typeof import() any more.
+  // Run: pnpm --filter veysur-app typecheck:selfhosted
+  "extends": "./tsconfig.json",
+  "exclude": ["dist", "node_modules"]
+}

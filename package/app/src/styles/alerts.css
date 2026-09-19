@@ -1,0 +1,185 @@
+/* Alert / toast colour palette and component classes.
+   Vars shared by alert.tsx and FlashMessage/hook.tsx; the toast-* classes
+   repeat the alert-* rules with !important to override the toast library. */
+:root {
+  --alert-border-mix: 50%;
+  --alert-bg-mix: 40%;
+  --alert-icon-mix: 70%;
+
+  --alert-success-border: color-mix(
+    in oklch,
+    var(--color-green-400) var(--alert-border-mix),
+    transparent
+  );
+  --alert-success-bg: color-mix(
+    in oklch,
+    var(--color-green-100) var(--alert-bg-mix),
+    transparent
+  );
+  --alert-success-fg: var(--color-green-900);
+  --alert-success-icon: var(--alert-success-fg);
+
+  --alert-warning-border: color-mix(
+    in oklch,
+    var(--color-yellow-400) var(--alert-border-mix),
+    transparent
+  );
+  --alert-warning-bg: color-mix(
+    in oklch,
+    var(--color-yellow-200) var(--alert-bg-mix),
+    transparent
+  );
+  --alert-warning-fg: var(--color-yellow-900);
+  --alert-warning-icon: var(--alert-warning-fg);
+
+  --alert-error-border: color-mix(
+    in oklch,
+    var(--destructive) var(--alert-border-mix),
+    transparent
+  );
+  --alert-error-bg: color-mix(
+    in oklch,
+    var(--color-red-200) var(--alert-bg-mix),
+    transparent
+  );
+  --alert-error-fg: var(--color-red-900);
+  --alert-error-icon: var(--alert-error-fg);
+
+  --alert-info-border: color-mix(
+    in oklch,
+    var(--color-blue-400) var(--alert-border-mix),
+    transparent
+  );
+  --alert-info-bg: color-mix(
+    in oklch,
+    var(--color-blue-200) var(--alert-bg-mix),
+    transparent
+  );
+  --alert-info-fg: var(--color-blue-900);
+  --alert-info-icon: var(--alert-info-fg);
+}
+
+.dark {
+  --alert-success-bg: color-mix(
+    in oklch,
+    var(--color-green-950) var(--alert-bg-mix),
+    transparent
+  );
+  --alert-success-fg: var(--color-green-300);
+  --alert-success-icon: color-mix(
+    in oklch,
+    var(--color-green-400) var(--alert-icon-mix),
+    transparent
+  );
+
+  --alert-warning-bg: color-mix(
+    in oklch,
+    var(--color-yellow-950) var(--alert-bg-mix),
+    transparent
+  );
+  --alert-warning-fg: var(--color-yellow-300);
+  --alert-warning-icon: color-mix(
+    in oklch,
+    var(--color-yellow-400) var(--alert-icon-mix),
+    transparent
+  );
+
+  --alert-error-border: var(--destructive);
+  --alert-error-bg: color-mix(
+    in oklch,
+    var(--color-red-950) var(--alert-bg-mix),
+    transparent
+  );
+  --alert-error-fg: var(--color-red-300);
+  --alert-error-icon: var(--color-red-400);
+
+  /* Field-level error background — mixed against --background (not transparent)
+     so it reads as a dim tint of the page rather than a bright block of red. */
+  --field-error-bg: color-mix(
+    in oklch,
+    var(--color-red-950) 16%,
+    var(--background)
+  );
+
+  --alert-info-bg: color-mix(
+    in oklch,
+    var(--color-blue-950) var(--alert-bg-mix),
+    transparent
+  );
+  --alert-info-fg: var(--color-blue-300);
+  --alert-info-icon: color-mix(
+    in oklch,
+    var(--color-blue-400) var(--alert-icon-mix),
+    transparent
+  );
+}
+
+@layer components {
+  /* Alert variants — used by alert.tsx */
+  .alert-success {
+    border-color: var(--alert-success-border);
+    background-color: var(--alert-success-bg);
+    color: var(--alert-success-fg);
+    & > svg {
+      color: var(--alert-success-icon);
+    }
+  }
+  .alert-warning {
+    border-color: var(--alert-warning-border);
+    background-color: var(--alert-warning-bg);
+    color: var(--alert-warning-fg);
+    & > svg {
+      color: var(--alert-warning-icon);
+    }
+  }
+  .alert-error {
+    border-color: var(--alert-error-border);
+    background-color: var(--alert-error-bg);
+    color: var(--alert-error-fg);
+    & > svg {
+      color: var(--alert-error-icon);
+    }
+  }
+  .alert-info {
+    border-color: var(--alert-info-border);
+    background-color: var(--alert-info-bg);
+    color: var(--alert-info-fg);
+    & > svg {
+      color: var(--alert-info-icon);
+    }
+  }
+
+  /* Toast variants — used by FlashMessage/hook.tsx (!important overrides toast library defaults) */
+  .toast-success {
+    border-color: var(--alert-success-border) !important;
+    background-color: var(--alert-success-bg) !important;
+    color: var(--alert-success-fg) !important;
+    & > svg {
+      color: var(--alert-success-icon) !important;
+    }
+  }
+  .toast-warning {
+    border-color: var(--alert-warning-border) !important;
+    background-color: var(--alert-warning-bg) !important;
+    color: var(--alert-warning-fg) !important;
+    & > svg {
+      color: var(--alert-warning-icon) !important;
+    }
+  }
+  .toast-error {
+    border-color: var(--alert-error-border) !important;
+    background-color: var(--alert-error-bg) !important;
+    color: var(--alert-error-fg) !important;
+    & > svg {
+      color: var(--alert-error-icon) !important;
+    }
+  }
+  .toast-info {
+    border-color: var(--alert-info-border) !important;
+    background-color: var(--alert-info-bg) !important;
+    color: var(--alert-info-fg) !important;
+    & > svg {
+      color: var(--alert-info-icon) !important;
+    }
+  }
+}

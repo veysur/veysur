@@ -1,0 +1,6 @@
+{
+  "type": "adminDetail",
+  "lang": "en",
+  "subject": "Detailed Survey Report: {{survey.name}}",
+  "body": "<h1>Detailed Survey Activity Report</h1><p>Hello Administrator,</p><p>This is a detailed report for <strong>{{survey.name}}</strong> in {{project.name}}.</p><div class=\"detail-box\"><div class=\"detail-row\"><span class=\"detail-label\">Participant:</span><span class=\"detail-value\">{{participant.nameFirst}}</span></div><div class=\"detail-row\"><span class=\"detail-label\">Survey:</span><span class=\"detail-value\">{{survey.name}}</span></div><div class=\"detail-row\"><span class=\"detail-label\">Project:</span><span class=\"detail-value\">{{project.name}}</span></div><div class=\"detail-row\"><span class=\"detail-label\">Status:</span><span class=\"detail-value\">Response Recorded</span></div></div><p>A survey response has been successfully recorded. Please log in to the admin panel to view the complete details and analysis.</p><div class=\"footer\"><p>This is a detailed automated notification from {{project.name}}. This email was sent to project administrators.</p></div>"
+}

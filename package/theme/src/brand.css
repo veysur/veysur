@@ -1,0 +1,12 @@
+/* Canonical brand colour — the single source of truth.
+   Change these values here and nowhere else:
+   - app / website / blog pick it up via veysur-theme/tokens.css (--primary-base)
+   - docsite picks it up via a direct veysur-theme/brand.css import (Starlight
+     does not consume tokens.css, so it imports this file on its own).
+   Import this after @import 'tailwindcss'. */
+:root {
+  --brand-l: 43.039%;
+  --brand-c: 0.11754;
+  --brand-hue: 137.924;
+  --brand-primary: oklch(var(--brand-l) var(--brand-c) var(--brand-hue));
+}

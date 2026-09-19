@@ -1,0 +1,74 @@
+---
+title: Create a Conditional Question
+description: How to make a question or group visible only when specific conditions are met in VeySur.
+---
+
+import Video from '../../../components/Video.astro'
+
+A conditional question is one that is shown to the participant only when a previous answer meets a defined criterion. This lets you build branching surveys without showing irrelevant questions to every participant.
+
+<Video path="tutorials/conditional-question" title="Conditional questions in VeySur" />
+
+Prefer to watch? The video above covers the same steps. See all [Video Tutorials](/video-tutorials/).
+
+## What can be conditioned
+
+Conditions can be applied to individual questions, controlling whether each question is visible, or to entire question groups, which hides or shows all questions within the group.
+
+## Restriction: forward references
+
+Conditions may only reference questions that appear **before** the conditioned element. A question can reference any earlier question in the survey. A group can reference any question from a preceding group. This prevents circular dependencies.
+
+## Step 1: Select the element to condition
+
+In the survey editor, click the question or group you want to apply a condition to. It becomes focused and its attributes appear in the panel on the right.
+
+## Step 2: Open the condition editor
+
+In the attributes panel, find the **Condition** attribute and click its condition icon (git-branch icon). The condition editor opens.
+
+## Step 3: Build the condition
+
+The editor opens in **Builder mode** by default.
+
+### Adding a condition row
+
+Click **Add condition**. Each condition row begins by selecting the **target type**:
+
+- **Question** - target a question's answer. Then select which earlier question to check. For choice questions you can further specify what to match against:
+  - A fixed value
+  - A specific selected answer option
+  - The "Other" free-text value (for choice questions where the participant selected "Other" and provided a custom value)
+- **Participant** - target a participant attribute. The list is specific to this survey and includes built-in fields (first name, last name, email, language, token) plus any custom attributes defined for it, including internal ones. Then select the value type (text, number, or boolean) and enter the value to match.
+
+After selecting the target, choose an **operator** (for example, equals, does not equal, greater than) and provide the comparison value.
+
+### Combining conditions
+
+To require more than one condition to be true, add multiple rows and use an **AND group**. All conditions in an AND group must pass for the overall condition to be satisfied.
+
+To allow any one of several conditions to trigger the question, use an **OR group**. At least one condition in an OR group must pass.
+
+Groups cannot be nested. Complex logic can be built by organising conditions into multiple groups combined with AND or OR.
+
+### Previewing the expression
+
+As you build, a preview pane at the bottom of the editor shows the equivalent JavaScript expression. This is the expression that is evaluated when a participant reaches this point in the survey.
+
+## Using Code mode
+
+If you prefer to write the condition directly, click **Code mode**. Type a JavaScript expression that returns true when the question should be shown.
+
+Switching back to Builder mode will attempt to parse the expression into the visual builder. If the expression uses constructs that cannot be represented in the builder, it remains in Code mode.
+
+## Step 4: Save and test
+
+Close the condition editor to save the condition. The condition is now active.
+
+Open the **Preview** tab, navigate to the triggering question, and answer it in a way that meets the condition. Confirm that the conditioned question or group appears. Then answer in a way that does not meet the condition and confirm that it is hidden.
+
+## Editing a survey with existing conditions
+
+A later structural edit, such as deleting an answer option or subquestion, changing a question's type, or reordering a question or group, can invalidate a condition defined elsewhere. VeySur checks for this before the edit is applied and shows a warning naming the affected condition. Proceeding keeps the condition string in place but marks it invalid; it is never deleted automatically.
+
+An invalid condition shows a warning icon in the survey editor and in the condition editor. During survey-taking, an invalid condition is treated as absent, so the conditioned question or group always shows. Open the condition editor for the affected question or group to correct the expression.

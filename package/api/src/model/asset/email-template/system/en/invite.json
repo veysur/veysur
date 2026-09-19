@@ -1,0 +1,6 @@
+{
+  "type": "invite",
+  "lang": "en",
+  "subject": "You're invited: {{survey.name}}",
+  "body": "<h1>You're invited to participate</h1><p>Dear {{participant.nameFirst}},</p><p>We would like to invite you to participate in <strong>{{survey.name}}</strong> as part of {{project.name}}.</p><p>Your input is valuable to us and will help us improve our services. The survey should take approximately 10-15 minutes to complete.</p><p><a href=\"{{survey.link}}\" class=\"btn\"><span style=\"color:#ffffff\">Start Survey</span></a></p><p>If the button above doesn't work, you can copy and paste this link into your browser:<br>{{survey.link}}</p><p>Thank you for your time and participation!</p><div class=\"footer\"><p>This is an automated message from {{project.name}}. Please do not reply to this email.</p></div>"
+}

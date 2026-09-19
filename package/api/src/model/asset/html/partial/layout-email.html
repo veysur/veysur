@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--[if !mso]><!-->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!--<![endif]-->
+  </head>
+  <body
+    leftmargin="0"
+    topmargin="0"
+    marginwidth="0"
+    marginheight="0"
+    style="width: 100%; height: 100%; margin: 0; min-width: 100%"
+  >
+    <div
+      style="
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: #ffffff;
+        text-align: center;
+        font-family: arial, verdana, sans-serif;
+        color: #1c1917;
+        font-size: 15px;
+      "
+    >
+      <center>
+        <table
+          width="600"
+          style="
+            margin: 0;
+            padding: 0 30px;
+            border: 0;
+            background: #f6f6f5;
+            border-top: 5px solid #006533;
+            border-bottom: 2px solid #006533;
+            max-width: 600px;
+          "
+          cellspacing="0"
+        >
+          <tbody>
+            <tr>
+              <td align="center" style="padding: 0">
+                <table
+                  width="480"
+                  style="
+                    padding: 0;
+                    margin: 0;
+                    border: 0;
+                    font-size: 15px;
+                    border-spacing: 0;
+                    max-width: 480px;
+                  "
+                  cellspacing="0"
+                  cellpadding="0"
+                >
+                  <tbody>
+                    <tr>
+                      <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                      <td
+                        valign="top"
+                        align="left"
+                        style="border-spacing: 0; font-size: 24px"
+                      >
+                        {{#if logoUrl}}
+                        <img
+                          src="{{logoUrl}}"
+                          alt="{{companyName}}"
+                          height="40"
+                          style="
+                            display: block;
+                            border: 0;
+                            outline: none;
+                            text-decoration: none;
+                          "
+                        />
+                        {{else}} {{companyName}} {{/if}}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        align="center"
+                        style="border-bottom: 1px solid #d6d3d1"
+                      >
+                        &nbsp;
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                      <td valign="top" align="center" style="border-spacing: 0">
+                        <table
+                          width="480"
+                          align="center"
+                          cellpadding="0"
+                          cellspacing="0"
+                          border="0"
+                          style="border-spacing: 0; text-align: left"
+                        >
+                          <tbody>
+                            <tr>
+                              <td
+                                style="
+                                  font-weight: bold;
+                                  font-size: 18px;
+                                  padding: 0;
+                                  color: #292524;
+                                "
+                              >
+                                {{#if title}} {{ title }} {{/if}}
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <table
+                                  width="480"
+                                  align="center"
+                                  cellpadding="0"
+                                  cellspacing="0"
+                                  border="0"
+                                  style="
+                                    line-height: 22px;
+                                    font-size: 15px;
+                                    border-spacing: 0;
+                                    margin-top: 15px;
+                                    color: #1c1917;
+                                    word-break: break-word;
+                                  "
+                                >
+                                  <tbody>
+                                    <tr>
+                                      <td>
+                                        <div>{{> content }}</div>
+                                      </td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>&nbsp;</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="border-bottom: 1px solid #d6d3d1">
+                &nbsp;
+              </td>
+            </tr>
+            <tr>
+              <td
+                align="center"
+                style="padding: 22px 60px; font-size: 10px; line-height: 12px"
+              >
+                {{#if companyName}} © {{ companyName }}. All Rights Reserved
+                {{currentYear}}.<br />
+                {{/if}} {{#if ip}}
+                <span style="font-size: 8px; margin-top: 8px">
+                  The person who requested this email had an IP Address of:
+                  {{ip}}
+                </span>
+                {{/if}}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </center>
+    </div>
+  </body>
+</html>

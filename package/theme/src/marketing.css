@@ -1,0 +1,42 @@
+/* Marketing-site chrome shared by package/website and package/blogsite:
+   the hero-glow variables and the tiled survey-paper texture behind <main>.
+   Import after veysur-theme/tokens.css. Each site still ships its own
+   /image/survey-bg-{light,dark}.jpg asset. */
+:root {
+  --highlights-opacity: 0.14;
+  --hero-glow: radial-gradient(
+    ellipse 90% 60% at 50% -5%,
+    oklch(from var(--primary) l calc(c * 0.5) h / var(--highlights-opacity)),
+    transparent 90%
+  );
+  --highlights-gradient: radial-gradient(
+    ellipse at center,
+    oklch(from var(--primary) l calc(c * 0.7) h / 0.08),
+    transparent 80%
+  );
+}
+
+.dark {
+  --highlights-opacity: 0.04;
+}
+
+@layer base {
+  main {
+    position: relative;
+    isolation: isolate;
+  }
+  main::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url('/image/survey-bg-light.jpg');
+    background-repeat: repeat;
+    background-size: 480px;
+    opacity: 0.06;
+    pointer-events: none;
+    z-index: -1;
+  }
+  .dark main::before {
+    background-image: url('/image/survey-bg-dark.jpg');
+  }
+}

@@ -1,0 +1,7 @@
+export * from './PageLogin'
+export * from './PageTeam'
+export * from './PageLogout'
+export * from './PageSetting'
+export * from './PageSurvey'
+export * from './PageTest'
+export * from './PageSurveyEdit'

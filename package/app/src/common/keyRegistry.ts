@@ -1,0 +1,12 @@
+export const KEY_REGISTRY_REST_CLIENT = 'restClient'
+export const KEY_REGISTRY_API_GEO = 'serviceGeo'
+export const KEY_REGISTRY_API_AUTH = 'serviceAuth'
+export const KEY_REGISTRY_API_PROJECT = 'serviceProject'
+export const KEY_REGISTRY_FEATURE_GATE_PROVIDER = 'featureGateProvider'
+export const KEY_REGISTRY_ACCOUNT_FOOTER_EXTRA_NAV = 'accountFooterExtraNav'
+export const KEY_REGISTRY_LOGIN_EXTRA_CONTENT = 'loginExtraContent'
+export const KEY_REGISTRY_PROJECT_SWITCHER = 'projectSwitcher'
+export const KEY_REGISTRY_PROFILE_DANGER_ZONE_EXTRA = 'profileDangerZoneExtra'
+export const KEY_REGISTRY_ACCOUNT_NAV_PROVIDER = 'accountNavProvider'
+export const KEY_REGISTRY_SINGLE_PROJECT_REDIRECT_RESOLVER =
+  'singleProjectRedirectResolver'

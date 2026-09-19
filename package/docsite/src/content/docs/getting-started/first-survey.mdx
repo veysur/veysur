@@ -1,0 +1,67 @@
+---
+title: First Survey
+description: A step-by-step guide to creating, publishing, and sharing your first survey in VeySur.
+---
+
+import Video from '../../../components/Video.astro'
+
+This page walks through the full process of setting up a survey from scratch: building the content, previewing it, publishing it, and inviting participants.
+
+<Video path="tutorials/getting-started" title="Getting started with VeySur" />
+
+Prefer to watch? The video above covers the same steps. See all [Video Tutorials](/video-tutorials/).
+
+## 1. Create a survey
+
+After logging in, you will land on the Surveys list. Click **New Survey** to open the creation form, enter a name for the survey, and confirm. The survey editor opens automatically.
+
+## 2. Name the question group
+
+Questions in VeySur are organised into groups. A group acts as a page or section. There is one group by default. Give the group a name by clicking it in the editor and typing directly.
+
+## 3. Add a question
+
+Within a group, click the **+** button below the group and select **Add Question**. A question type selector appears with question-type categories. Choose a category, then pick a question type. For a first survey, **Text** (under Simple) or **Checkbox** (under Choice) are good starting points.
+
+Once the question is added, click it to focus it. The focused question is highlighted with a background colour. Enter the question text in the editor area. Use the attributes panel on the right to mark the question as **required** or to adjust type-specific options such as minimum/maximum values or answer options.
+
+To add more questions, repeat this step or add a new group.
+
+## 4. Preview the survey
+
+Click **Preview** in the left navigation. The survey is rendered exactly as a participant would see it. Check that the questions read clearly, the order is correct, and any conditional logic behaves as expected. No responses are recorded in Preview.
+
+## 5. Publish the survey
+
+When the content is ready, click **Publish** in the top right of the Edit tab. A modal opens where you can review final settings, optionally add a label (for example, "Wave 1") and notes, then confirm to publish.
+
+If you want to set a start or end date, configure the schedule in the publish modal (you can also configure this on the **Settings** tab under **Publish**). Once a publication is active, its status shows as **Published**.
+
+## 6. Invite participants
+
+Go to the **Participants** tab. Add a participant manually by clicking **Add Participant** and filling in their first name, last name, and email address. To add many participants at once, use the **Import** option to upload a `.csv` file.
+
+Once participants are added, click **Send Invites**. VeySur sends an invitation email to each participant who has not yet received one. A progress indicator shows how many emails have been sent.
+
+Participants receive a link that takes them directly to the survey.
+
+## 7. View responses
+
+Once participants submit the survey, go to the **Responses** tab. A table lists each submission with the participant name, email, completion status, and submission date.
+
+- Use the **search bar** to find a response by ID, name, or email
+- Use the **filter toolbar** to narrow by date range, completion status, or publication
+- Click a row to open the full response and read each answer in detail
+- Click the **download** icon to export all responses as a CSV file
+
+## 8. View statistics
+
+Click **Stats** in the left navigation (bar-chart icon). Each question is displayed as a card showing a chart of answer distribution (bar, horizontal bar, or pie, selectable per chart via its settings icon) and the count and percentage for each answer option.
+
+Use the same date-range, completion status, and publication filters as the Responses tab to focus on a specific subset of submissions.
+
+## Next steps
+
+- See [Survey structure](/reference/survey-editor/survey-structure/) for a detailed explanation of how a survey is organised
+- See [Question Types](/reference/survey-editor/question-types/simple/) for the full list of available question formats
+- See [Responses](/reference/survey-editor/responses/) for information on viewing and exporting results.

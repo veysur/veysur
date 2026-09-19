@@ -1,0 +1,31 @@
+# Local
+.DS_Store
+*.local
+*.log*
+*.tmp.md
+
+# Dist
+node_modules
+dist/
+*.tsbuildinfo
+
+# Astro generated types/cache (docsite, blogsite, website)
+.astro/
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# Generated secrets (setup-secrets.sh) — never commit generated passwords/keys
+deploy/secrets/
+
+# Operator-editable post-install config overlay (project owner id, mail
+# settings, resource limits, etc.) — machine/install-specific, never shared
+deploy/values-local.yaml
+
+# kind extraMounts hostPath for local file storage
+data/
+
+# kind kubeconfig symlink target, if ever written here by mistake
+kubeconfig

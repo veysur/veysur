@@ -1,0 +1,76 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`ServiceSurveyStats.getStats matches the pinned getStats output shape 1`] = `
+{
+  "filter": {
+    "completed": undefined,
+    "dateField": undefined,
+    "endDate": undefined,
+    "publicationId": undefined,
+    "startDate": undefined,
+  },
+  "questionStats": [
+    {
+      "optionStats": [
+        {
+          "count": 2,
+          "optionCode": "yes",
+          "optionId": "yes",
+          "optionLabel": {
+            "en": "Yes",
+          },
+          "percentage": 66.7,
+        },
+        {
+          "count": 1,
+          "optionCode": "no",
+          "optionId": "no",
+          "optionLabel": {
+            "en": "No",
+          },
+          "percentage": 33.3,
+        },
+      ],
+      "questionCode": "Q001",
+      "questionId": "q1",
+      "questionText": L10n {
+        "en": "Do you agree?",
+      },
+      "questionType": "yesNo",
+      "totalResponses": 3,
+    },
+    {
+      "optionStats": [
+        {
+          "count": 0,
+          "optionCode": "yes",
+          "optionId": "yes",
+          "optionLabel": {
+            "en": "Yes",
+          },
+          "percentage": 0,
+        },
+        {
+          "count": 0,
+          "optionCode": "no",
+          "optionId": "no",
+          "optionLabel": {
+            "en": "No",
+          },
+          "percentage": 0,
+        },
+      ],
+      "questionCode": "Q002",
+      "questionId": "q2",
+      "questionText": L10n {
+        "en": "Are you sure?",
+      },
+      "questionType": "yesNo",
+      "totalResponses": 3,
+    },
+  ],
+  "snapshotId": "snap-1",
+  "surveyId": "survey-1",
+  "totalResponses": 3,
+}
+`;

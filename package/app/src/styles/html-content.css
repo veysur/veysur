@@ -1,0 +1,140 @@
+/* Rich-text rendering: the TipTap/TinyMCE editing surface (.mce-content-body)
+   and the generic .html-content class applied to any container showing stored
+   rich HTML (survey text, descriptions, etc.). */
+@layer base {
+  .mce-content-body {
+    @apply w-full;
+  }
+
+  .mce-content-body {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
+    line-height: inherit !important;
+    color: inherit !important;
+  }
+
+  .mce-content-body p {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: inherit !important;
+  }
+
+  /* Participant-facing content elements render a notch smaller than the
+     surrounding question text. Headings/lists/code below use `em`, so they
+     scale relative to this. The editor surface (.tiptap-editor-content) is
+     unaffected. */
+  .survey-content.html-content {
+    font-size: 0.875rem;
+  }
+
+  /* Generic HTML content styles - apply this class to any container with rich HTML content */
+  .html-content h1 {
+    font-size: 2em;
+    font-weight: 700;
+    margin: 0.67em 0;
+    line-height: 1.2;
+  }
+
+  .html-content h2 {
+    font-size: 1.5em;
+    font-weight: 700;
+    margin: 0.75em 0;
+    line-height: 1.3;
+  }
+
+  .html-content h3 {
+    font-size: 1.17em;
+    font-weight: 700;
+    margin: 0.83em 0;
+    line-height: 1.4;
+  }
+
+  .html-content h4 {
+    font-size: 1em;
+    font-weight: 700;
+    margin: 1em 0;
+    line-height: 1.4;
+  }
+
+  .html-content p {
+    margin: 0.5em 0;
+  }
+
+  .html-content img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Tailwind's preflight resets `list-style: none` on ul/ol, so the markers
+     must be restored explicitly for rendered list markup to show. */
+  .html-content ul,
+  .html-content ol {
+    padding-left: 1.5em;
+    margin: 0.5em 0;
+  }
+
+  .html-content ul {
+    list-style: disc;
+  }
+
+  .html-content ol {
+    list-style: decimal;
+  }
+
+  .html-content li {
+    margin: 0.25em 0;
+  }
+
+  .html-content blockquote {
+    margin: 0.5em 0;
+    padding-left: 1em;
+    border-left: 3px solid var(--border);
+    color: var(--muted-foreground);
+  }
+
+  /* Links inside stored rich content. Toolbar-inserted links carry no class
+     (see ContentEditor.tsx), so the survey/participant view has nothing to
+     style them with unless we do it here - mirrors the editor's default
+     `text-primary underline` fallback. */
+  .html-content a {
+    color: var(--primary);
+    text-decoration: underline;
+  }
+
+  .html-content strong {
+    font-weight: 700;
+  }
+
+  .html-content em {
+    font-style: italic;
+  }
+
+  .html-content code {
+    background-color: var(--muted);
+    padding: 0.125em 0.25em;
+    border-radius: 0.25em;
+    font-family: monospace;
+    font-size: 0.875em;
+  }
+
+  .html-content pre {
+    background-color: var(--muted);
+    padding: 0.75em 1em;
+    border-radius: 0.375em;
+    margin: 0.5em 0;
+    overflow-x: auto;
+    font-size: 0.875em;
+    line-height: 1.5;
+  }
+
+  /* The block wrapper owns the background/padding; the nested <code> is a
+     bare monospace run inside it. */
+  .html-content pre code {
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
+    font-size: inherit;
+  }
+}

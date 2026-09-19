@@ -1,0 +1,1 @@
+export { getSurveyResponseApi } from './getSurveyResponseApi'

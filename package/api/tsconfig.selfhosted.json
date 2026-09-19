@@ -1,0 +1,11 @@
+{
+  // WS5 — proves the API still type-checks with no cloud/platform code
+  // reachable (the shape a source-available `veysur` build ships). The
+  // platform-layer trees now live entirely in the separate `veysur-api-cloud`
+  // package (api-cloud extraction), so there is nothing left under `src/` to
+  // exclude — this config exists to make that property explicit and
+  // independently checkable.
+  // Run: DEPLOYMENT_MODE=self-hosted pnpm --filter veysur-api exec tsc -p tsconfig.selfhosted.json
+  "extends": "./tsconfig.json",
+  "exclude": ["dist", "node_modules"]
+}

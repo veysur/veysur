@@ -1,0 +1,32 @@
+{{#> layout-email title="Email Verification" }} {{#*inline "content"}}
+<div>
+  Hello {{user.nameFirst}},
+  <br />
+  Thank you for registering.<br /><br />
+  <table
+    width="500"
+    align="center"
+    style="
+      padding: 10px;
+      border: 0;
+      margin: auto;
+      font-size: 14px;
+      line-height: 125%;
+    "
+    cellspacing="0"
+    cellpadding="0"
+  >
+    <tbody>
+      <tr>
+        <td align="center">
+          Click here to verify your email address: {{> button href=verifyUrl
+          text="Verify My Email Address" }}<br /><br />
+
+          If you are viewing this email on a different device, use this code to
+          verify your email address: {{> ref text=token }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+{{/inline}} {{/layout-email}}

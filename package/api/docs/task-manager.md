@@ -1,0 +1,324 @@
+# Task Manager
+
+Scheduled task execution system for recurring jobs like payment processing, email sends, and cleanup operations.
+
+## Quick Start
+
+```typescript
+const repoTask = modelManager.getRepo<RepoTask>('task')
+
+await repoTask.create({
+  name: 'Delete Soft-Deleted Files',
+  description: 'Permanently delete files soft-deleted more than 1 hour ago',
+  enabled: true,
+  start: new Date('2026-01-01T03:00:00.000Z'), // First run date
+  interval: 3600, // 1 hour in seconds
+  concurrency: 1, // Max 1 concurrent execution
+  timeout: 30, // Minutes before timeout
+  task: 'fileDeletion', // Service name
+  action: 'hardDeleteAll', // Method name
+  options: { olderThan: 'PT1H' },
+})
+```
+
+Executes `modelManager.services.fileDeletion.hardDeleteAll(options, config)` hourly.
+
+**Timezone note**: `start`/`interval` are plain UTC epoch math (`getCurrentSlot()` in `ServiceTaskManager.ts`) — there is no timezone-aware scheduling. A daily task anchored away from `00:00 UTC` can be used to guarantee it always runs after a specific calendar day (in some other timezone) has definitely started — see whichever service's own docs explain why it needs that margin, if any.
+
+## Task Properties
+
+| Property         | Type    | Default | Description                                                                                            |
+| ---------------- | ------- | ------- | ------------------------------------------------------------------------------------------------------ |
+| name             | string  | -       | Human-readable task name                                                                               |
+| description      | string  | -       | Task description                                                                                       |
+| enabled          | boolean | true    | Task can run                                                                                           |
+| start            | Date    | -       | First run date                                                                                         |
+| interval         | number  | -       | Seconds between runs                                                                                   |
+| concurrency      | number  | 1       | Max concurrent executions                                                                              |
+| timeout          | number  | 10      | Minutes before timeout                                                                                 |
+| task             | string  | -       | Service name                                                                                           |
+| action           | string  | -       | Service method name                                                                                    |
+| options          | object  | {}      | Parameters passed to service                                                                           |
+| failOnErrorCount | boolean | false   | Treat a run that resolves with `{ errors\|failed > 0 }` as a failed execution (see Soft failure below) |
+
+## Adding a New Scheduled Task
+
+Seed a `Task` record via a migration rather than creating it ad hoc — see `src/migrate/2026/02/2026-02-16_1200_seed-initial-tasks.ts` for the canonical example (it seeds `processDuePayments` and other initial tasks). Follow the same pattern: insert one `Task` document per job with `task`/`action` pointing at an existing service method. See [database-migrations.md](database-migrations.md) for general migration mechanics (naming, running, dry-run).
+
+## Architecture
+
+```
+CronJob (1min) → ServiceTaskManager.run()
+                       ↓
+          ┌────────────┼────────────┐
+          ↓            ↓            ↓
+     Monitor      Cleanup      Execute
+     Timeouts    Old Logs     Drain due
+```
+
+**Phase 1: Monitor** — Detect and mark timed-out executions
+**Phase 2: Cleanup** — Delete old execution records (keep last 10 successful, last 50 failed per task)
+**Phase 3: Execute** — Drain due tasks in-process, bounded by a per-run task count
+(`maxConcurrency`), a wall-clock budget (`TASK_RUN_BUDGET_MS`, 45s, checked before each
+task so a running one is never interrupted), and the DB-wide running-execution guard.
+Candidates run in `lateness()` order (time since last run as a multiple of the task's own
+interval, most-behind first), so a run that hits its budget defers the tasks least harmed
+by waiting.
+
+**Key design decisions:**
+
+- In-process execution (no separate pods)
+- Drain, not one-per-tick. A one-task-per-CronJob-run limit starved short-interval tasks:
+  the 60s `email`/`processQueue` queue fell behind for 6 to 15 min at every hour boundary
+  when a batch of hourly and `start`-anchored daily tasks came due together, tripping
+  `task-stale`. The three budgets above cap resource use instead.
+- Exponential backoff on failure (5min → 15min → 1h → 6h → 24h, then held at the
+  24h cap). No task is ever auto-disabled — it keeps retrying, and the health alerts
+  below keep firing, until the underlying issue is fixed or an operator sets
+  `enabled: false` by hand
+- **Soft failure** (`failOnErrorCount: true` tasks): when a task action resolves with
+  `errors > 0` / `failed > 0` in its return shape, the execution is recorded as `failed`
+  and the backoff counter advances, but the process exit stays `0` (the CronJob is not
+  marked failed). Opt-in per task via the `failOnErrorCount` field — currently set on
+  `email`, `emailBounceProcessor`, and `mailCanary` (their actions report internal errors
+  via the return shape rather than throwing). Tasks without it are exempt — e.g. the
+  payment scheduler returns a `failed` count for a single bad row on an otherwise healthy
+  run and must not be backed off for that. Set it in the seed migration alongside
+  `task`/`action`.
+
+### Health alerts (BugSink → Slack)
+
+The monitor phase raises a `captureException` (grouped by a stable fingerprint, so
+Slack notifies once per episode) for:
+
+| Fingerprint                 | Condition                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `task-failing`              | any task has failed 2+ consecutive times — one failed run is treated as a transient blip and not alerted, so a real outage surfaces after ~2 intervals                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `task-persistently-failing` | any task has failed 6+ consecutive times and is pinned at the capped 24h backoff (higher-severity escalation of `task-failing`)                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `task-execution-timeout`    | a running execution exceeds its `timeout` and is killed                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `task-stale`                | an enabled, not-backed-off task's `lastRunAt` is older than `max(2 × interval, 10 min)` **and** it stayed stale for one further scheduling cycle (`max(interval, 2 min)`). The 10-minute floor stops sub-minute-interval tasks (e.g. the 60s mail queue) from alerting on the tick gap a deploy causes while the task-manager CronJob image cuts over. The confirmation window suppresses a false alarm when a deploy resets a task's interval or clears its backoff; `staleSinceAt` is recorded on the first observation and cleared when the task next runs |
+
+These depend on `BUGSINK_DSN` being set and the BugSink `veysur-api` project's Slack
+alert being configured (see `package/k8s/docs/error-tracking.md`).
+
+## Task Lifecycle
+
+```
+[Created] → [Due] → [Running] → [Completed]
+              ↓                      ↓
+         [Backed Off]           [Next Run]
+              ↑  ↓
+         [Failed] → backoff grows to a 24h cap, then holds there
+                    (never auto-disabled; alerts keep firing).
+                    [Disabled] only via a manual enabled: false.
+```
+
+**Schedule calculation:**
+
+- First run: `now >= task.start`
+- Subsequent runs: `now >= lastRunAt + interval`
+
+## Concurrency Control
+
+| Level      | Configuration                             | Purpose                                                                        |
+| ---------- | ----------------------------------------- | ------------------------------------------------------------------------------ |
+| Global max | `config.taskManager.maxConcurrency: 5`    | Prevent pod overload; also the per-run task-count budget for the Phase 3 drain |
+| K8s policy | `concurrencyPolicy: Allow/Forbid/Replace` | K8s-level control                                                              |
+| Per-task   | `Task.concurrency: 1`                     | Task-specific limit                                                            |
+
+**Run duration vs. interval**: most tasks complete in well under a second, far shorter
+than their interval. `email`/`processQueue` is an exception by design — under a large
+backlog (e.g. right after a mail relay or task manager outage) it intentionally paces its
+dispatches across close to its full 60s interval to avoid bursting the shared relay, see
+[mail-queue-pacing.md](mail-queue-pacing.md). When a run overruns into the next
+scheduled tick, `canStartTask()` finds the task still running (`concurrency: 1`) and
+skips that tick — logged as "at concurrency limit", not an error, and
+`consecutiveFailures` backoff is unaffected. Net effect: effective cadence during a large
+recovery backlog can occasionally stretch to ~2x the interval for one tick, not a strict
+60s.
+
+The Phase 3 drain runs `email`/`processQueue` in the same tick as any hour-boundary batch
+of quicker tasks, so the mail queue is no longer starved for minutes each hour. If a
+never-cleared backlog of other work keeps hitting the 45s wall-clock budget, a low-lateness
+task like the freshly-run mail queue can still slip a tick or two, but its `lateness()`
+score climbs each tick it is skipped and pulls it to the front, so recovery is bounded to a
+tick or two, well inside the `task-stale` threshold.
+
+## Distributed Locking
+
+`Task.concurrency` limits how many executions of the _same_ task run at once, but some tasks fan out work across independent resources (e.g. one payment run per project) where two different tasks — or two overlapping runs of the same task — must never touch the same resource concurrently. `RepoTaskLock` provides that resource-level lock, independent of task concurrency.
+
+```typescript
+const acquired = await repoTaskLock.acquireLock(
+  `payment-project-${projectId}`, // lockKey — unique per resource
+  executionId, // identifies the holder
+  300, // ttlSeconds (default 300)
+  'payment', // resourceType
+  projectId, // resourceId
+)
+if (!acquired) return // another execution holds the lock
+
+try {
+  // ... do the work ...
+} finally {
+  await repoTaskLock.releaseLock(`payment-project-${projectId}`, executionId)
+}
+```
+
+- **Acquire**: creates the lock if none exists, takes it over if expired, or extends it if already held by the same `executionId`. Returns `false` if another live execution holds it.
+- **Race safety**: relies on a unique index on `lockKey`; a duplicate-key error (`code 11000`) on insert is treated as "lost the race" and returns `false`.
+- **Expiry**: locks are TTL-based (`expires`), not tied to process lifetime — a crashed holder's lock is simply taken over once expired.
+- **Cleanup**: `cleanupExpiredLocks()` removes stale lock documents.
+
+**Example**: a service handling a per-project recurring job can acquire a `<task>-project-<projectId>` lock before doing its work, so overlapping scheduler runs (e.g. a slow run plus the next minute's tick) can't process the same project twice.
+
+## Failure Handling
+
+| Failures | Backoff         | Status                                            |
+| -------- | --------------- | ------------------------------------------------- |
+| 1        | 5 min           | Enabled                                           |
+| 2        | 15 min          | Enabled — `task-failing` alert fires              |
+| 3        | 1 hour          | Enabled                                           |
+| 4        | 6 hours         | Enabled                                           |
+| 5        | 24 hours        | Enabled                                           |
+| 6+       | 24 hours (held) | Enabled — `task-persistently-failing` alert fires |
+
+No task is ever auto-disabled — the backoff is held at the 24h cap and the task
+keeps retrying until the underlying issue is fixed or an operator sets
+`enabled: false` by hand. See [Health alerts](#health-alerts-bugsink--slack) above.
+
+Successful execution resets `consecutiveFailures` to 0.
+
+The schedule is defined once as `BACKOFF_STEPS_MS` in `RepoTask.ts`.
+
+## Configuration
+
+**Kubernetes (values.yaml):**
+
+```yaml
+taskManager:
+  enabled: true
+  schedule: '*/1 * * * *'
+  concurrencyPolicy: Allow
+```
+
+**API (config/default.js):**
+
+```javascript
+module.exports = { taskManager: { maxConcurrency: 5 } }
+```
+
+## Monitoring
+
+```bash
+# CronJob status
+kubectl get cronjobs -n namespace
+
+# Logs
+kubectl logs -l app.kubernetes.io/component=task-manager -f -n namespace
+```
+
+```typescript
+// Recent executions
+const executions = await repoTaskExecution.find(
+  { taskName: 'Process Due Payments' },
+  { sort: { started: -1 }, limit: 20 },
+)
+```
+
+**Execution record fields:**
+
+- `log` — console output captured during execution (`console.log/warn/error/info`), prefixed with `[level]`; `null` if no output
+- `error` — error message string on failure; `null` on success
+
+## Manual Triggering
+
+Use `task/run.sh` (in `package/k8s/scripts/task/`) to invoke any service action outside the scheduler — useful for development testing and production one-off fixes.
+
+For creating/managing the initial admin/user account specifically, see [admin-account-bootstrap.md](admin-account-bootstrap.md) — it uses this exact same `--task`/`--action`/`--options` mechanism, just for a one-off administrative action rather than a scheduled task.
+
+**In Tilt dev, this is not just a convenience — it's the only way anything runs.** `values-tilt.yaml` sets `taskManager.suspend: true`, so the `veysur-task-manager` CronJob is deployed but Kubernetes never schedules a `Job` from it (`kubectl get cronjob` shows `SUSPEND: True`, `LAST SCHEDULE: <none>`). No task in this repo — payments, mail canary, mail queue processing, file cleanup, etc. — fires on its own in Tilt; every one needs a manual `task/run.sh` invocation.
+
+**Development** (exec into running pod):
+
+```bash
+./package/k8s/scripts/task/run.sh --task payment --action processDuePayments
+```
+
+**Production** (isolated K8s Job):
+
+```bash
+./package/k8s/scripts/task/run.sh --job --namespace veysur-prod \
+  --task payment --action processDuePayments
+```
+
+**With options** (passed as JSON via `API_TASK_JSON`):
+
+```bash
+./package/k8s/scripts/task/run.sh --job --task payment --action processDuePayments \
+  --options '{"dryRun": true}'
+```
+
+**File cleanup** — regular files (soft-deleted >1 month ago, runs automatically but can be triggered manually):
+
+```bash
+./package/k8s/scripts/task/run.sh --job --task fileDeletion --action hardDeleteAll
+# With a custom threshold:
+./package/k8s/scripts/task/run.sh --job --task fileDeletion --action hardDeleteAll \
+  --options '{"olderThan": "P1W"}'
+./package/k8s/scripts/task/run.sh --job --task fileDeletion --action hardDeleteAll \
+  --options '{"olderThan": "PT5M"}'
+```
+
+**Temp file cleanup** (not automatic — must be triggered manually):
+Temp files are often created for data export purposes and should be deleted once the file has downloaded.
+We cant know exactly when the file finishes downloading so we preset the file deletion time
+to some point in the future (6 hours).
+To delete temp files with future deletion time use a negative duration (e.g. "-PT6H").
+
+```bash
+./package/k8s/scripts/task/run.sh --job --task fileDeletion --action hardDeleteAll \
+  --options '{"olderThan": "-PT6H", "fileContext": "temp"}'
+./package/k8s/scripts/task/run.sh --job --task fileDeletion --action hardDeleteAll \
+  --options '{"olderThan": "-PT6H"}'
+```
+
+**Mail queue processing** — dispatches due rows from the paced bulk invite/reminder queue (see `mail-queue-pacing.md`); runs automatically every 60s in stage/prod, but never on its own in Tilt (see note above):
+
+```bash
+# cd ./package/k8s
+./scripts/task/run.sh --task email --action processQueue
+```
+
+Both the task entrypoint and `processQueue()` itself log what they're doing, so a manual run prints a full trail:
+
+```
+[Task] Running email.processQueue
+[MailQueue] 31 due candidate(s) found (batch cap 200)
+[MailQueue] Project eYhnVnWh253Kt7K: rate 150/hour -> cap 3/run
+[MailQueue] Run complete: 3 dispatched, 0 failed, 0 skipped (paused), 0 skipped (quota)
+[Task] Completed email.processQueue: {"dispatched":3,"failed":0,"skippedPaused":0,"skippedQuota":0,"errors":[]}
+```
+
+This `[Task] Running <task>.<action>` / `[Task] Completed <task>.<action>: <result>` pair comes from `src/run.ts` itself, so it applies to every manual task invocation above, not just this one.
+
+**IP country database ingestion** — downloads ip-to-country CSV, caches in S3, ingests into `veysurIpLocation` (IPv4 only by default; runs as a K8s Job with 512Mi/2h):
+
+```bash
+./package/k8s/scripts/task/ip-country-ingest.sh
+# Also ingest IPv6:
+./package/k8s/scripts/task/ip-country-ingest.sh --ipv6
+# Truncate first (full re-ingest):
+./package/k8s/scripts/task/ip-country-ingest.sh --truncate
+```
+
+See `task/run.sh --help` for all options.
+
+## Key Files
+
+- [ServiceTaskManager.ts](../src/model/service/ServiceTaskManager.ts) — Main orchestration service
+- [TaskHealthMonitor.ts](../src/model/service/TaskHealthMonitor.ts) — Stale detection, timeout alerts, failure back-off / BugSink escalation
+- [RepoTask.ts](../src/model/repo/RepoTask.ts) — Task repository
+- [RepoTaskExecution.ts](../src/model/repo/RepoTaskExecution.ts) — Execution tracking
+- [RepoTaskLock.ts](../src/model/repo/RepoTaskLock.ts) — Distributed resource locking
+- [Task.ts](../../common/src/model/constructor/Task.ts) — Task model

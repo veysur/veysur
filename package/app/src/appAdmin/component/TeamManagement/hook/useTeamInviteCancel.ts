@@ -1,0 +1,22 @@
+import { useProjectDomain } from 'appAdmin/hook'
+import { useInvalidatingMutation } from 'hook'
+
+import { getTeamManagementApi } from '../registry'
+
+export function useTeamInviteCancel() {
+  const project = useProjectDomain()
+
+  const mutation = useInvalidatingMutation({
+    mutationFn: async (projectAdminId: string) => {
+      if (!project?._id) return
+      await getTeamManagementApi().cancelInvite(project._id, projectAdminId)
+    },
+    invalidateKeys: [['teamMembers']],
+  })
+
+  return {
+    cancelInvite: mutation.mutateAsync,
+    isLoading: mutation.isPending,
+    error: mutation.error instanceof Error ? mutation.error.message : null,
+  }
+}

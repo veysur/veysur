@@ -1,0 +1,1 @@
+export { GoldenEmptyState } from './GoldenEmptyState'

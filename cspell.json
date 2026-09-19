@@ -1,0 +1,34 @@
+{
+  "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/packages/cspell-types/cspell.schema.json",
+  "version": "0.2",
+  "language": "en-GB",
+  "import": [
+    "@cspell/dict-typescript",
+    "@cspell/dict-node",
+    "@cspell/dict-npm",
+    "@cspell/dict-software-terms"
+  ],
+  "dictionaries": ["project-words"],
+  "dictionaryDefinitions": [
+    { "name": "project-words", "path": "./.cspell-words.txt", "addWords": true }
+  ],
+  "allowCompoundWords": true,
+  "ignoreRegExpList": [
+    "\\b[0-9a-fA-F]{8,}\\b",
+    "#[0-9a-fA-F]{3,8}",
+    "https?://[^\\s]+"
+  ],
+  "minWordLength": 4,
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/.rsbuild/**",
+    "**/coverage/**",
+    "package/docsite/.astro/**",
+    "package/common/src/Iso639v1.ts",
+    "pnpm-lock.yaml",
+    "external/**",
+    "package/api/src/locale/!(en)/**"
+  ]
+}

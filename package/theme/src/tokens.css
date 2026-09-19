@@ -1,0 +1,133 @@
+@import './brand.css';
+
+:root {
+  --dim-brightness: 0.9;
+  --radius: 0.45rem;
+  --background: oklch(0.9702 0 0);
+  --foreground: oklch(0.147 0.004 49.25);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.268 0.007 34.298);
+  --header: var(--card);
+  --header-foreground: var(--card-foreground);
+  --footer: var(--card);
+  --footer-foreground: var(--card-foreground);
+  --popover: oklch(0.97 0.001 106.424);
+  --popover-foreground: oklch(0.374 0.01 67.558);
+  --primary-base: var(--brand-primary);
+  --primary: var(--primary-base);
+  --primary-foreground-base: oklch(0.97 0.001 106.424);
+  --primary-foreground: var(--primary-foreground-base);
+  --secondary: oklch(92% 0.0001 271.152);
+  --secondary-foreground: oklch(0.374 0.01 67.558);
+  --muted: oklch(0.9191 0.0029 84.56);
+  --muted-foreground: oklch(0.374 0.01 67.558);
+  --accent: oklch(0.8678 0 0);
+  --accent-foreground: oklch(0.216 0.006 56.043);
+  --destructive-base: oklch(45.976% 0.188 28.106);
+  --destructive: var(--destructive-base);
+  --destructive-foreground: oklch(1 0 0);
+  --success-base: oklch(0.54 0.15 155);
+  --success: var(--success-base);
+  --success-foreground: oklch(1 0 0);
+  --border: oklch(0.869 0.005 56.366);
+  --input: oklch(0.62 0.08 155);
+  --ring-base: oklch(
+    from var(--primary) calc(l * 1.2) calc(c * 1.2) h / 0.6
+  );
+  --ring: var(--ring-base);
+  --brand-gradient: linear-gradient(
+    90deg,
+    oklch(from var(--primary) calc(l * 1.24) calc(c * 1.24) h),
+    oklch(from var(--primary) calc(l * 0.94) calc(c * 0.94) h)
+  );
+}
+
+/* Dark mode. Several tokens below are not fresh colours but the light-mode value
+   dimmed: `oklch(from <light-value> calc(l * var(--dim-brightness))
+   calc(c * var(--dim-brightness)) h)` scales lightness and chroma down by
+   --dim-brightness while keeping the hue, so brand/semantic colours stay on-brand
+   but recede against the dark background. */
+.dark {
+  --background: oklch(0.178 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.151 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.269 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(
+    from var(--primary-base) calc(l * var(--dim-brightness))
+      calc(c * var(--dim-brightness)) h
+  );
+  --primary-foreground: oklch(
+    from var(--primary-foreground-base) calc(l * var(--dim-brightness))
+      calc(c * var(--dim-brightness)) h
+  );
+  --secondary: oklch(0.371 0 0);
+  --secondary-foreground: oklch(0.923 0.003 48.717);
+  --muted: oklch(0.24 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.271 0 0);
+  --accent-foreground: oklch(0.923 0.003 48.717);
+  --destructive: var(--color-red-500);
+  --destructive-foreground: oklch(0.985 0 0);
+  --success: oklch(
+    from var(--success-base) calc(l * var(--dim-brightness))
+      calc(c * var(--dim-brightness)) h
+  );
+  --success-foreground: oklch(0.78 0.1 145);
+  --border: oklch(0.29 0 0);
+  --input: oklch(0.39 0 0);
+  --ring: oklch(
+    from var(--ring-base) calc(l * var(--dim-brightness))
+      calc(c * var(--dim-brightness)) h
+  );
+  --brand-gradient: linear-gradient(
+    90deg,
+    oklch(
+      from var(--primary-base) calc(l * var(--dim-brightness))
+        calc(c * var(--dim-brightness)) h
+    ),
+    oklch(
+      from var(--primary-base) calc(l * var(--dim-brightness) * 0.8)
+        calc(c * var(--dim-brightness)) h
+    )
+  );
+}
+
+@theme inline {
+  --text-xs: 0.75rem;
+  --text-xs--line-height: calc(1 / 0.75);
+  --text-sm: 0.85rem;
+  --text-sm--line-height: calc(1.25 / 0.85);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-header: var(--header);
+  --color-header-foreground: var(--header-foreground);
+  --color-footer: var(--footer);
+  --color-footer-foreground: var(--footer-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}

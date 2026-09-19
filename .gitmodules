@@ -1,0 +1,6 @@
+[submodule "external/mzen"]
+	path = external/mzen
+	url = git@github.com:kevin-foster-uk/mzen.git
+[submodule "external/s3-adaptor"]
+	path = external/s3-adaptor
+	url = git@github.com:kevin-foster-uk/s3-adaptor.git

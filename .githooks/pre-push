@@ -1,0 +1,65 @@
+#!/bin/bash
+# cspell:ignore unpushed
+#
+# Pre-push hook: verify all submodule commits exist on their remotes
+# before pushing the parent repo.
+#
+# Prevents the "not our ref" error on fresh clones caused by pushing
+# a submodule pointer update before pushing the submodule itself.
+#
+
+# git invokes this hook with GIT_DIR/GIT_WORK_TREE already set for the
+# repo being pushed. Left inherited, every nested `git -C <submodule>`
+# call below ignores -C and keeps operating on that outer repo instead of
+# the submodule's own .git - so `cat-file -e` always reports the pinned
+# commit as missing, even when it exists. Unset them so `-C` actually
+# takes effect.
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE
+
+FAILED=0
+
+while IFS= read -r line; do
+    # Only check submodule entries (mode 160000)
+    submodule_path=$(echo "$line" | awk '{print $2}')
+done
+
+# Get list of submodules and their pinned commits
+while IFS= read -r submodule_path; do
+    commit=$(git ls-files -s -- "$submodule_path" | awk '{print $2}')
+    if [ -z "$commit" ]; then
+        continue
+    fi
+
+    remote_url=$(git config --file .gitmodules "submodule.$submodule_path.url")
+
+    # Check if the commit exists on the remote
+    if ! git -C "$submodule_path" cat-file -e "$commit" 2>/dev/null; then
+        echo "❌ Submodule '$submodule_path' commit $commit does not exist locally — cannot verify remote."
+        FAILED=1
+        continue
+    fi
+
+    # Check if the commit is reachable from any remote ref
+    if ! git -C "$submodule_path" branch -r --contains "$commit" 2>/dev/null | grep -q .; then
+        echo ""
+        echo "❌ Pre-push blocked: submodule '$submodule_path' has unpushed commits."
+        echo ""
+        echo "   The parent repo is pinned to commit $commit"
+        echo "   but that commit has not been pushed to the submodule remote:"
+        echo "   $remote_url"
+        echo ""
+        echo "   Fix: push the submodule first, then re-push the parent repo:"
+        echo "     cd $submodule_path && git push && cd - && git push"
+        echo ""
+        FAILED=1
+    fi
+done < <(git submodule foreach --quiet 'echo $displaypath')
+
+if [ "$FAILED" -ne 0 ]; then
+    echo "To bypass this check (not recommended):"
+    echo "  git push --no-verify"
+    echo ""
+    exit 1
+fi
+
+exit 0

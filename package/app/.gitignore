@@ -1,0 +1,21 @@
+# Local
+.DS_Store
+*.local
+*.log*
+*.tmp.md
+
+# Dist
+node_modules
+dist/
+
+# Generated composition-seam gate files (scripts/generate-cloud-composition.mjs) —
+# materialised from *Default.* before every dev/build; see the "Composition
+# gate" comment in src/appAccount/cloudCompositionDefault.tsx
+src/appAccount/cloudComposition.tsx
+src/appAdmin/cloudFeatureGate.ts
+src/cloudTailwindSource.css
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea

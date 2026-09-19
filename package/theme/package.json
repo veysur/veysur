@@ -1,0 +1,15 @@
+{
+  "name": "veysur-theme",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.33.0",
+  "exports": {
+    "./tokens.css": "./src/tokens.css",
+    "./palette.css": "./src/palette.css",
+    "./brand.css": "./src/brand.css",
+    "./base.css": "./src/base.css",
+    "./marketing.css": "./src/marketing.css"
+  },
+  "files": ["src"]
+}

@@ -1,0 +1,1 @@
+export { MultipleChoiceImageEdit } from './MultipleChoiceImageEdit'

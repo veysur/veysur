@@ -1,0 +1,6 @@
+{
+  "type": "reminder",
+  "lang": "en",
+  "subject": "Reminder: {{survey.name}}",
+  "body": "<h1>Reminder: Your response is needed</h1><p>Dear {{participant.nameFirst}},</p><p>This is a friendly reminder that you have not yet completed the survey: <strong>{{survey.name}}</strong> for {{project.name}}.</p><div class=\"highlight\"><p><strong>Your input matters!</strong> We value your feedback and would appreciate if you could take a few minutes to complete the survey.</p></div><p><a href=\"{{survey.link}}\" class=\"btn btn-warning\"><span style=\"color:#ffffff\">Continue Survey</span></a></p><p>If the button above doesn't work, you can copy and paste this link into your browser:<br>{{survey.link}}</p><p>Thank you for your time and participation!</p><div class=\"footer\"><p>This is an automated reminder from {{project.name}}. Please do not reply to this email.</p></div>"
+}

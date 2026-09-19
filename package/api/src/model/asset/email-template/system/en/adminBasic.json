@@ -1,0 +1,6 @@
+{
+  "type": "adminBasic",
+  "lang": "en",
+  "subject": "Survey Activity: {{survey.name}}",
+  "body": "<h1>Survey Activity Notification</h1><p>Hello Administrator,</p><p>This is a notification regarding recent activity for <strong>{{survey.name}}</strong> in {{project.name}}.</p><div class=\"info-box\"><p><strong>Participant:</strong> {{participant.nameFirst}}</p><p>A survey response has been recorded.</p></div><p>For more details, please log in to the admin panel.</p><div class=\"footer\"><p>This is an automated notification from {{project.name}}. This email was sent to project administrators.</p></div>"
+}

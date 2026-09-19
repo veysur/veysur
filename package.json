@@ -1,0 +1,52 @@
+{
+  "name": "veysur",
+  "version": "0.0.1",
+  "private": true,
+  "description": "VeySur - self-hostable survey platform",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "tilt-up": "tilt up",
+    "tilt-down": "tilt down",
+    "dev:api": "pnpm --filter veysur-api start",
+    "dev:admin": "pnpm --filter veysur-app devAdmin",
+    "dev:survey": "pnpm --filter veysur-app devSurvey",
+    "dev:account": "pnpm --filter veysur-app devAccount:selfhosted",
+    "dev:docsite": "pnpm --filter veysur-docsite dev",
+    "build": "pnpm -r build",
+    "build:common": "pnpm --filter veysur-common build",
+    "build:api": "pnpm --filter veysur-api build",
+    "build:app": "pnpm --filter veysur-app build",
+    "build:docsite": "pnpm --filter veysur-docsite build",
+    "test": "pnpm -r test",
+    "test:app": "pnpm --filter veysur-app test",
+    "test:api": "pnpm --filter veysur-api test",
+    "test:common": "pnpm --filter veysur-common test",
+    "lint": "pnpm -r lint",
+    "format": "pnpm -r format",
+    "typecheck": "pnpm -r typecheck",
+    "clean": "pnpm -r clean && rm -rf node_modules && rm -rf package/*/dist package/*/build",
+    "clean:dist": "rm -rf package/*/dist package/*/build",
+    "commit": "cz",
+    "prepare": "git config core.hooksPath .githooks && git config commit.template .git-commit-template.txt"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-customizable"
+    }
+  },
+  "devDependencies": {
+    "@cspell/dict-node": "^5.0.9",
+    "@cspell/dict-npm": "^5.2.38",
+    "@cspell/dict-software-terms": "^5.2.2",
+    "@cspell/dict-typescript": "^3.2.3",
+    "commitizen": "^4.3.1",
+    "cspell": "^9.7.0",
+    "cz-customizable": "^7.5.4",
+    "prettier": "^3.8.1",
+    "typescript": "^5.9.3"
+  }
+}

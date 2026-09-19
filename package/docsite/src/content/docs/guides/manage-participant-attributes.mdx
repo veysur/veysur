@@ -1,0 +1,98 @@
+---
+title: Manage Participant Attributes
+description: How to define, label, and use custom participant attributes in VeySur surveys.
+---
+
+import Video from '../../../components/Video.astro'
+
+<Video path="tutorials/manage-custom-attributes" title="Manage custom attributes in VeySur" />
+
+Prefer to watch? The video above covers the same steps. See all [Video Tutorials](/video-tutorials/).
+
+VeySur has a fixed set of **system attributes** for every participant: First Name (`nameFirst`), Last Name (`nameLast`), Email (`email`), Language (`language`), and Token (`token`). For survey-specific data, **custom attributes** can be defined: named string fields (up to 256 characters) scoped to a single survey.
+
+For a full field-level reference see [Participant Attributes](/reference/survey-editor/participant-attributes/).
+
+## System vs custom attributes
+
+| | System | Custom |
+|---|---|---|
+| Predefined | Yes | No, user-defined |
+| Per-survey scope | No, shared across all surveys | Yes |
+| Multilingual labels | No | Yes |
+| Editable in admin forms | Yes | Yes |
+| Exported in CSV | Yes | Yes, appended after system columns |
+| Internal flag | No | Yes, hides from participant signup |
+
+## Open the attribute management panel
+
+1. Open your survey and go to the **Participants** tab.
+2. Click the **Manage Attributes** button in the toolbar.
+
+The panel shows system attributes (read-only) followed by any custom attributes you have defined.
+
+## Add a custom attribute
+
+1. In the Manage Attributes panel, click **Add Attribute**.
+2. Enter a valid attribute name (letters, digits, `_`, `$`; cannot start with a digit; max 64 characters; cannot shadow a system attribute or JavaScript reserved word).
+3. Optionally check **Required** if participants must provide this value.
+4. Optionally enter an **Example value** to guide CSV importers.
+5. Click **Save**.
+
+## Internal attributes
+
+Check **Internal** on an attribute to make it admin-only. Internal attributes:
+
+- Do not appear in the participant signup form
+- Are included in CSV export columns and accepted during CSV import like any other custom attribute
+- Remain readable and editable from the admin Participants tab
+
+Use this for values you populate via import or API that participants should not see or fill in. Internal attributes remain available when building [conditions](/reference/survey-editor/conditional-questions/).
+
+## Add multilingual labels
+
+1. Use the language selector at the top of the panel to switch language.
+2. Click the **label** or **description** field of the attribute you want to translate and enter the text.
+3. Save the translation.
+
+When the survey-taking flow shows attribute prompts, it uses the participant's language, falling back to the survey's default language, then to the attribute `name` if no label is configured.
+
+## Reorder attributes
+
+Drag the handle on the left of each custom attribute row, or use the reorder buttons, to reorder. The order determines the column order in CSV exports.
+
+## Rename a custom attribute
+
+Click the attribute's name field and edit it. When you leave the field, a confirmation dialog warns you that renaming **updates the stored key in every existing participant record** and cannot be undone. Confirm to proceed.
+
+> **This is destructive.** The old key is removed from all participant records and replaced with the new key. Any CSV or API integrations that use the old name will need to be updated.
+
+## Delete a custom attribute
+
+Click the **Delete** (trash) icon on the attribute row. A confirmation dialog warns you that deletion **permanently removes the stored value from every participant** in this survey and cannot be undone.
+
+> **This is destructive.** All participant records lose the value for this attribute.
+
+## Attributes and publications
+
+When you publish a survey, VeySur freezes the current attribute definitions (names, Required flags, Internal flags, and language labels) into the publication snapshot. Participants who sign up under that publication always see the frozen set.
+
+Changes you make to attributes after publishing (adding, deleting, renaming, toggling Internal/Required, editing labels) take effect only in new publications; the active publication is unaffected.
+
+> **Note.** If you add a required attribute after publishing, existing participants are not prompted for it. Create a new publication to apply the new attribute set.
+
+See [Publications](/reference/survey-editor/publications/) for how snapshots work.
+
+## CSV import/export
+
+The participant CSV export appends one column per custom attribute (by `name`) after the standard system columns. The column header is the attribute `name`, making the file round-trip-safe on re-import.
+
+During import, any column whose header matches a defined custom attribute name is loaded into that attribute on each participant. Values longer than 256 characters are truncated. Existing attribute values on a participant that are **not** present in the CSV are left unchanged (partial update).
+
+See [Invite Participants](./invite-participants) for full CSV import/export instructions.
+
+## Survey import/export
+
+Custom attribute definitions are included in VSST and VSSA survey exports, so the attribute schema transfers when you export a survey template and import it elsewhere. VSSP publication exports include definitions via the publication snapshot.
+
+See [Import / Export](/reference/import-export/) for format details.

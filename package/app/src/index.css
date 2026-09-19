@@ -1,0 +1,38 @@
+@import 'tailwindcss';
+/*
+ * Composition-gate partial (see docs/core-cloud/seams.md, "Composition
+ * gate") — generated/gitignored with the cloud edition's real Tailwind
+ * `@source` scan path in a cloud build, or the committed no-op default
+ * otherwise. Never hand-edit this @import's target directly.
+ */
+@import './cloudTailwindSource.css';
+@import 'tw-animate-css';
+@import 'veysur-theme/palette.css';
+@import 'veysur-theme/tokens.css';
+@import 'veysur-theme/base.css';
+@import './styles/alerts.css';
+@import './styles/tokens-app.css';
+@import './styles/third-party-fixes.css';
+@import './styles/html-content.css';
+
+@custom-variant dark (&:is(.dark *));
+
+.dark a,
+.dark [data-slot='button'].text-primary {
+  --primary: var(--primary-base);
+}
+
+@layer base {
+  /* border-color, font-family, body bg/fg/line-height: veysur-theme/base.css */
+  * {
+    @apply outline-ring/50;
+  }
+  html,
+  body,
+  #root {
+    @apply min-h-screen;
+  }
+  #survey-container .html-editor-focused {
+    @apply border-0 outline-0;
+  }
+}
