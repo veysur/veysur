@@ -2,7 +2,7 @@ export { DataTable } from './DataTable'
 export { DataTableSkeleton } from './DataTableSkeleton'
 export { DataTableEmpty } from './DataTableEmpty'
 export { SortableHeader } from './SortableHeader'
-export { dateColumn, moneyColumn, codeColumn } from './columns'
+export { dateColumn } from './columns'
 export type {
   DataTableProps,
   ColumnDefinition,

@@ -16,16 +16,6 @@ export class User {
       token: VerifyToken[]
     }
   }
-  billingAddress?: {
-    line1?: string
-    line2?: string
-    city?: string
-    state?: string
-    postcode?: string
-    country?: string
-  }
-  taxId?: string
-  businessName?: string
   twoFactorSecret?: string
   twoFactorMeta?: {
     enabled: boolean
@@ -33,7 +23,6 @@ export class User {
     prompt: { dismissed: boolean }
   }
   role: string
-  stripeCustomerId?: string
   createdAt: Date
   updatedAt: Date
   deletedAt?: Date | null // Timestamp when account was soft-deleted (null = active)

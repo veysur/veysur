@@ -1,7 +1,5 @@
 import { Api, ErrorRest } from 'model'
 
-import { BillingAddressFormData } from '../schema/SchemaBillingAddress'
-
 export class UserProfileApi extends Api {
   async updateBasicInfo(data: {
     nameFirst: string
@@ -69,28 +67,6 @@ export class UserProfileApi extends Api {
           password: data.password,
           passwordCurrent: data.passwordCurrent,
         },
-      })
-    } catch (error) {
-      throw ErrorRest.fromRequestError(error as Error)
-    }
-  }
-
-  async updateBillingAddress(
-    billingAddress: BillingAddressFormData,
-  ): Promise<void> {
-    try {
-      await this.getClient().put('user/profile', {
-        data: { billingAddress },
-      })
-    } catch (error) {
-      throw ErrorRest.fromRequestError(error as Error)
-    }
-  }
-
-  async updateTaxId(taxId: string, businessName: string): Promise<void> {
-    try {
-      await this.getClient().put('user/profile', {
-        data: { taxId, businessName },
       })
     } catch (error) {
       throw ErrorRest.fromRequestError(error as Error)

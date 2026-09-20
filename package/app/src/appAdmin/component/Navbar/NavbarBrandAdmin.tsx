@@ -26,8 +26,7 @@ import { AuthLink } from 'component/AuthLink'
 import { NavbarBrand } from 'component/Navbar'
 import { AuthDomain } from 'model/service/AuthDomain/AuthDomain'
 import { useAuth, useProjectDomain } from 'appAdmin/hook'
-import { getProjectSwitcher } from 'registry'
-import { PlanUsageDialog } from './PlanUsageDialog'
+import { getAdminNavbarExtra, getProjectSwitcher } from 'registry'
 
 interface NavbarBrandAdminProps {
   children?: ReactNode
@@ -38,6 +37,7 @@ interface NavbarBrandAdminProps {
 // component reference (satisfies react-hooks/static-components) — same
 // pattern as AccountFooter.tsx's getAccountFooterExtraNav() usage.
 const ProjectSwitcherComponent = getProjectSwitcher()
+const AdminNavbarExtraComponent = getAdminNavbarExtra()
 
 export const NavbarBrandAdmin: React.FC<NavbarBrandAdminProps> = (props) => {
   const navigate = useNavigate()
@@ -113,7 +113,7 @@ export const NavbarBrandAdmin: React.FC<NavbarBrandAdminProps> = (props) => {
           )}
         </DropdownMenuContent>
       </DropdownMenu>
-      <PlanUsageDialog />
+      {AdminNavbarExtraComponent && <AdminNavbarExtraComponent />}
     </nav>
   )
   const accountMenu = (

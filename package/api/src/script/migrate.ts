@@ -275,7 +275,7 @@ function mergeResults(
  * The default (cloud) edition runs a second pass over whatever patch directory
  * and meta table the resolved `composition.migrate` names (populated by the
  * commercial edition's composition module, see `model-manager.ts`) — those
- * patches seed billing/pricing/platform data whose repos and `task:` services
+ * patches cover data owned by the commercial edition, whose repos and `task:` services
  * are absent from a self-hosted deployment. `--datasource project` never
  * carries platform migrations, so the second pass is account-only.
  */

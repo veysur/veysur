@@ -12,7 +12,6 @@ Metadata fields marked `†` are redacted before storage — see [event-log.md](
 
 | Action | Data source | Metadata | Service |
 |---|---|---|---|
-| `user.signup` | account | — | ServiceSignup |
 | `user.login` | account | — | ServiceAuthEmailPassword |
 | `user.login.2fa` | account | — | ServiceTwoFactor |
 | `user.login.2fa.setup` | account | — | ServiceTwoFactor |
@@ -30,8 +29,6 @@ Metadata fields marked `†` are redacted before storage — see [event-log.md](
 |---|---|---|---|
 | `user.email.updated` | account | `email`† | ServiceUser |
 | `user.name.updated` | account | `nameFirst`, `nameLast` | ServiceUser |
-| `user.billingAddress.updated` | account | — | ServiceUser |
-| `user.taxId.updated` | account | — | ServiceUser |
 | `user.password.updated` | account | — | ServiceUser |
 | `user.password.reset` | account | — | ServicePassword |
 
@@ -45,24 +42,6 @@ Metadata fields marked `†` are redacted before storage — see [event-log.md](
 | `project.restored` | account | `projectId` | ServiceProject |
 | `project.anonymized` | account | `projectId` | ServiceProject |
 | `project.anonymizedImmediately` | account | `projectId` | ServiceProject |
-
-## Subscriptions
-
-| Action | Data source | Metadata | Service |
-|---|---|---|---|
-| `project.subscription.updated` | project | `subscriptionCode`, `period`, `projectSubscriptionId` | ServiceProjectSubscription |
-| `project.subscription.scheduled` | project | `subscriptionCode`, `period`, `startsAt`, `queuedOnDelete` | ServiceProjectSubscription |
-| `project.subscription.scheduleCancelled` | project | — | ServiceProjectSubscription |
-| `project.subscription.deletionQueueCancelled` | project | `projectSubscriptionId` | ServiceProjectSubscription — restore undoing a deletion-triggered downgrade before it took effect |
-
-## Payment Methods
-
-| Action | Data source | Metadata | Service |
-|---|---|---|---|
-| `user.paymentMethod.added` | account | `methodId`, `brand`, `last4` | ServicePaymentMethod |
-| `user.paymentMethod.updated` | account | `methodId` | ServicePaymentMethod |
-| `user.paymentMethod.deleted` | account | `methodId` | ServicePaymentMethod |
-| `user.paymentMethod.defaultSet` | account | `methodId` | ServicePaymentMethod |
 
 ## Surveys
 

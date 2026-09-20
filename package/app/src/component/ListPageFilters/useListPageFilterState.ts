@@ -38,8 +38,8 @@ export interface UseListPageFilterStateReturn {
 
 /**
  * Builds the FilterToolbar field/value config and apply handler shared by the
- * billing list pages (invoices, credit notes, payments) across appAccount and
- * appPlatform. Every page has the same date-range field plus zero or more
+ * list pages that filter by a date range and select fields, across every
+ * sub-app. Every page has the same date-range field plus zero or more
  * extra select fields (status, project); this hook generalises that shape.
  * Free-text ID filter inputs render page-local (via IdFilterInput) since they
  * use the returned `setParam` directly rather than going through FilterToolbar.

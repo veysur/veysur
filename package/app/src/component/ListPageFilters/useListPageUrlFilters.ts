@@ -20,8 +20,7 @@ export interface UseListPageUrlFiltersReturn {
 
 /**
  * Owns the page-reset-on-filter-change effect and clear-filters action shared
- * by the platform/account billing list pages (invoices, credit notes,
- * payments). Filter field definitions and their rendering stay page-local
+ * by list pages that filter through the URL. Filter field definitions and their rendering stay page-local
  * since they genuinely differ (free-text ID inputs vs FilterToolbar selects).
  */
 export function useListPageUrlFilters({

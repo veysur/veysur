@@ -1,4 +1,3 @@
-import type Stripe from 'stripe'
 
 export interface RateLimitRule {
   /** Regex pattern string matched against req.path (case-insensitive). */
@@ -25,10 +24,6 @@ export interface AppConfig {
   edition: 'self-hosted' | 'cloud'
   brandName: string
   companyName: string
-  companyNumber: string
-  companyVatNumber: string
-  companyOssVatNumber: string
-  companyAddressLines: string[]
   webDomain: string
   accountDomain: string
   accountBasePath: string
@@ -81,14 +76,6 @@ export interface AppConfig {
   sms: {
     logOnly: boolean
   }
-  payment: {
-    stripe: {
-      publishKey: string
-      secretKey: string
-      webhookSecretKey: string
-      connectClientId: string
-    }
-  }
   userNetwork: {
     facebook: {
       appId: string
@@ -126,9 +113,6 @@ export interface AppConfig {
   asset: {
     dir: string
     html: Record<string, unknown>
-  }
-  ref: {
-    stripeClient: Stripe | null
   }
   cors: {
     /** Base domains (without scheme) that may make cross-origin requests.

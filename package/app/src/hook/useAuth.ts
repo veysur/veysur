@@ -16,41 +16,37 @@ import { PreAuthData } from 'model/api/ApiAuth'
 
 import { authRefreshWithRetry as authRefreshWithRetryUtil } from './useAuth/authRefreshWithRetry'
 
+/**
+ * The authenticated user as the client sees it. An overlay adds its own fields by
+ * declaration merging, so core carries none of them.
+ */
+export interface AuthUser {
+  nameFirst: string
+  nameLast: string
+  email: string
+  emailMeta?: {
+    verify: {
+      status: {
+        isVerified: boolean
+        isVerifiedAt: Date | null
+      }
+    }
+  }
+  twoFactorMeta?: {
+    enabled: boolean
+    enabledAt?: Date | null
+    prompt?: { dismissed: boolean }
+  }
+  deletedAt?: Date | null
+  projectOwn: Array<PropsOf<Project>>
+  projectAdmin: Array<PropsOf<ProjectAdmin>>
+}
+
 export type AuthData = {
   client: {
     _id: string
   }
-  user: {
-    nameFirst: string
-    nameLast: string
-    email: string
-    emailMeta?: {
-      verify: {
-        status: {
-          isVerified: boolean
-          isVerifiedAt: Date | null
-        }
-      }
-    }
-    billingAddress?: {
-      line1?: string
-      line2?: string
-      city?: string
-      state?: string
-      postcode?: string
-      country?: string
-    }
-    taxId?: string
-    businessName?: string
-    twoFactorMeta?: {
-      enabled: boolean
-      enabledAt?: Date | null
-      prompt?: { dismissed: boolean }
-    }
-    deletedAt?: Date | null
-    projectOwn: Array<PropsOf<Project>>
-    projectAdmin: Array<PropsOf<ProjectAdmin>>
-  }
+  user: AuthUser
   accessToken: {
     token: string
     ip: string

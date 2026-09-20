@@ -10,8 +10,14 @@ import {
   specMetaHistoryVerifiable,
 } from './SchemaUserSpec'
 
+type SchemaShape = Parameters<ReturnType<typeof sb.schema>['shape']>[0]
+
 export class SchemaUser extends Schema {
-  constructor() {
+  /**
+   * @param extraShape Fields an overlay adds to the `user` schema. The schema
+   * is strict, so any stored field must be declared here or by the overlay.
+   */
+  constructor(extraShape: SchemaShape = {}) {
     super(
       sb
         .schema('user')
@@ -37,16 +43,6 @@ export class SchemaUser extends Schema {
               token: specVerifyTokenArray,
             },
           },
-          billingAddress: sb.object({
-            line1: sb.string().maxLength(140).trim(),
-            line2: sb.string().maxLength(140).trim(),
-            city: sb.string().maxLength(140).trim(),
-            state: sb.string().maxLength(70).trim(),
-            postcode: sb.string().maxLength(30).trim(),
-            country: sb.string().maxLength(2).trim(),
-          }),
-          taxId: sb.string().maxLength(50).trim(),
-          businessName: sb.string().maxLength(140).trim(),
           twoFactorSecret: sb.string().privateValue().encrypt(),
           twoFactorMeta: sb.object({
             enabled: sb.boolean().default(false),
@@ -65,11 +61,11 @@ export class SchemaUser extends Schema {
             .string()
             .inArray([USER_ROLE_CUSTOMER, USER_ROLE_PLATFORM_ADMIN])
             .default(USER_ROLE_CUSTOMER),
-          stripeCustomerId: sb.string(),
           createdAt: sb.date().default('now'),
           deletedAt: sb.date().default(null),
           deletionReminderSentAt: sb.date().default(null),
           anonymizedAt: sb.date().default(null),
+          ...extraShape,
         })
         .build(),
     )

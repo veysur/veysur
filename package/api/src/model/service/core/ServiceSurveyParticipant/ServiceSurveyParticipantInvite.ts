@@ -42,9 +42,9 @@ export class ServiceSurveyParticipantEmail extends Service {
   }
 
   /**
-   * The project's hourly invite-send rate. Core (self-hosted) has no plan
-   * model, so it is the flat default. The platform guarded subclass overrides
-   * this to read the project's EMAIL_SEND_RATE_PER_HOUR plan feature. WS4 seam.
+   * The project's hourly invite-send rate. Core (self-hosted) has no
+   * per-project limits, so it is the flat default. An overlay overrides this to
+   * supply a per-project rate. Overlay seam.
    */
   protected async emailSendRatePerHour(_projectId: string): Promise<number> {
     return FALLBACK_MAX_PER_HOUR

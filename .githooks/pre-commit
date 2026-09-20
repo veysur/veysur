@@ -37,6 +37,15 @@ if ! bash scripts/check-no-private-repo-refs.sh; then
     exit 1
 fi
 
+# Billing-logic guard — run on every commit, any file may reintroduce it
+if ! bash scripts/check-no-billing-logic.sh; then
+    echo ""
+    echo "Billing-logic guard failed. Fix the matches above before committing."
+    echo "To bypass: git commit --no-verify"
+    echo ""
+    exit 1
+fi
+
 # Lint staged source files for each package that has an ESLint config
 LINT_TARGETS=(
     "package/app:ts|tsx|js|jsx"

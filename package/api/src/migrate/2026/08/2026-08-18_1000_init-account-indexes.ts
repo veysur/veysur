@@ -3,7 +3,8 @@ import { ModelManager } from 'mzen-om'
 
 /**
  * Initialize database indexes for all 'account' datasource repositories
- * not covered by their own dedicated migration.
+ * not covered by their own dedicated migration. An overlay's own repositories
+ * are indexed by its own patches.
  */
 export default class InitAccountIndexes implements DatabasePatchInterface {
   version = '2026-08-18_1000'
@@ -13,24 +14,15 @@ export default class InitAccountIndexes implements DatabasePatchInterface {
   async update(modelManager: ModelManager): Promise<void> {
     const dbRepoNames = [
       'email',
-      'fxRate',
-      'payment',
-      'paymentMethod',
       'project',
       'projectAdmin',
-      'projectSubscription',
-      'subscriptionPlan',
       'user',
       'userClient',
       'task',
       'taskExecution',
       'taskLock',
       'eventLogSystem',
-      'supportTicketMeta',
-      'supportTicket',
-      'vatValidation',
       'emailSuppression',
-      'projectUsageHistory',
     ]
 
     console.log('\nCreating indexes for account datasource repositories...')

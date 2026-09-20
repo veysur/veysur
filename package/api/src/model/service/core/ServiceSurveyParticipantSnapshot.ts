@@ -140,8 +140,8 @@ export class ServiceSurveyParticipantSnapshot extends Service {
 
   /**
    * Load the project's survey presentation settings, suppressing noBrand if the
-   * project's current subscription plan no longer permits branding removal
-   * (e.g. after a downgrade) even though the setting itself is still stored as true.
+   * project no longer qualifies for branding removal (see isNoBrandAvailable),
+   * even though the setting itself is still stored as true.
    */
   private async getGatedSettingSurvey(
     projectId: string,
@@ -166,8 +166,8 @@ export class ServiceSurveyParticipantSnapshot extends Service {
 
   /**
    * Suppress the survey's own (publish-time-frozen) presentation.noBrand if the
-   * project's current subscription plan no longer permits branding removal
-   * (e.g. after a downgrade) even though the value was baked in as true at publish.
+   * project no longer qualifies for branding removal (see isNoBrandAvailable),
+   * even though the value was baked in as true at publish.
    */
   private async getGatedSurveyPresentation(survey: Survey, projectId: string) {
     if (!survey?.presentation?.noBrand) {
@@ -186,8 +186,8 @@ export class ServiceSurveyParticipantSnapshot extends Service {
 
   /**
    * Whether the no-brand presentation option applies for this project. Core
-   * (self-hosted) has no plan model, so it is always available. The platform
-   * guarded subclass overrides this to consult the subscription plan. WS4 seam.
+   * (self-hosted) has no per-project entitlements, so it is always available.
+   * An overlay overrides this. Overlay seam.
    */
   protected async isNoBrandAvailable(_projectId: string): Promise<boolean> {
     return true

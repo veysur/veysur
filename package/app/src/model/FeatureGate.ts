@@ -3,6 +3,8 @@ export interface FeatureGateStatus {
   unlimited: boolean
   limit: number | null
   used?: number
+  /** What is metered, for display, e.g. "Responses in the current period". */
+  label?: string
 }
 
 export type FeatureGateMap = Record<string, FeatureGateStatus | undefined>

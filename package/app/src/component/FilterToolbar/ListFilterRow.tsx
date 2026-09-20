@@ -7,8 +7,8 @@ export interface ListFilterRowProps {
 
 /**
  * Shared two-column filter row layout used by list pages that pair free-text
- * ID filters with a FilterToolbar — identical across the invoice, payment
- * and credit note platform list pages.
+ * ID filters with a FilterToolbar — identical across every list page that
+ * uses it.
  */
 export const ListFilterRow: React.FC<ListFilterRowProps> = ({
   idFilters,

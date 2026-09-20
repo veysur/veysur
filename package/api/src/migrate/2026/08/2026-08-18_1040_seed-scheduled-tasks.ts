@@ -6,7 +6,7 @@ import { Task } from 'veysur-common'
  * Seed the core background scheduled tasks in their final configuration.
  * Idempotent per task - skips any task whose (task, action) pair already exists.
  *
- * The platform-layer tasks (billing, FX, email enforcement, usage warnings) were
+ * The platform-layer tasks were
  * split out into `platform/2026/08/2026-08-18_1041_seed-platform-scheduled-tasks`
  * (WS5) — their `task:` services are not registered in a self-hosted deployment.
  */

@@ -1,15 +1,4 @@
 export const KEY_REGISTRY_API_USER_PROFILE = 'serviceUserProfile'
 export { KEY_REGISTRY_API_PROJECT } from 'common/keyRegistry'
-export const KEY_REGISTRY_API_PROJECT_SUBSCRIPTION =
-  'serviceProjectSubscription'
-export const KEY_REGISTRY_API_SUBSCRIPTION = 'serviceSubscription'
-export const KEY_REGISTRY_API_PAYMENT = 'servicePayment'
-export const KEY_REGISTRY_API_INVOICE = 'serviceInvoice'
-export const KEY_REGISTRY_API_CREDIT_NOTE = 'serviceCreditNote'
-export const KEY_REGISTRY_API_PAYMENT_METHOD = 'servicePaymentMethod'
-export const KEY_REGISTRY_API_VAT = 'serviceVat'
 export const KEY_REGISTRY_API_PROJECT_ADMIN_INVITE = 'serviceProjectAdminInvite'
 export const KEY_REGISTRY_API_USER_TWO_FACTOR = 'serviceUserTwoFactor'
-export const KEY_REGISTRY_API_SUPPORT_TICKET = 'serviceSupportTicket'
-export const KEY_REGISTRY_API_USER_ACCOUNT_DELETION =
-  'serviceUserAccountDeletion'

@@ -124,7 +124,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       ).not.toHaveBeenCalled()
     })
 
-    test('does not record billing usage for an incomplete save', async () => {
+    test('does not record usage for an incomplete save', async () => {
       mockRepoSurveyResponse.findOne.mockResolvedValue(null)
 
       await service.save({
@@ -419,7 +419,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       expect(updateArg.$set.completedAt).toBeNull()
     })
 
-    test('still fires billing/eventLog/completion-email side effects when data.timestamp is disabled', async () => {
+    test('still fires the usage/eventLog/completion-email side effects when data.timestamp is disabled', async () => {
       mockRepoSurveySnapshot.findOne.mockResolvedValue(
         snapshotWithTimestampSetting(false),
       )

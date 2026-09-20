@@ -1,6 +1,9 @@
+import { Schema, sb } from 'mzen-schema'
+
 import type { ModelConfig } from './config/types'
 
 const modelManagerConfigs: ModelConfig[] = []
+const addedSchemas: Schema[][] = []
 
 // composeModel.ts pulls in acl/role-assessor/AuthedAdmin.ts, which imports
 // model-manager.ts at module scope — that module eagerly require()s the
@@ -18,7 +21,9 @@ jest.mock('mzen-server', () => {
       modelManagerConfigs.push(config as ModelConfig)
     }
     addConstructors(): void {}
-    addSchemas(): void {}
+    addSchemas(schemas: Schema[]): void {
+      addedSchemas.push(schemas)
+    }
     addRepos(): void {}
     addServices(): void {}
     addInitialisers(): void {}
@@ -33,6 +38,7 @@ import { composeModel } from './composeModel'
 describe('composeModel', () => {
   beforeEach(() => {
     modelManagerConfigs.length = 0
+    addedSchemas.length = 0
   })
 
   it('passes only the self-hosted base dataSources when composition is empty', () => {
@@ -69,5 +75,27 @@ describe('composeModel', () => {
       enable: true,
       registry: { maxSize: 20, idleTimeout: 1800000 },
     })
+  })
+  it('registers extraSchemas after core schemas so an overlay schema replaces a core one by name', () => {
+    // mzen-om's ModelManager.addSchema assigns `schemas[name] = schema`, so the
+    // last registration under a name wins. An overlay that supplies its own
+    // `user` schema therefore overrides core's without a dedicated seam.
+    class OverlayUserSchema extends Schema {
+      constructor() {
+        super(sb.schema('user').shape({ _id: sb.string() }).build())
+      }
+    }
+
+    composeModel({ extraSchemas: [OverlayUserSchema] })
+
+    const registered = addedSchemas[0]
+    const userIndexes = registered
+      .map((schema, index) => (schema.getName() === 'user' ? index : -1))
+      .filter((index) => index >= 0)
+
+    expect(userIndexes.length).toBeGreaterThan(1)
+    expect(registered[userIndexes[userIndexes.length - 1]]).toBeInstanceOf(
+      OverlayUserSchema,
+    )
   })
 })

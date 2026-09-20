@@ -45,7 +45,7 @@ export class ServiceFileDeletion extends Service {
 
   /**
    * Called after a project's stored files change (a deletion completes), so a
-   * subclass can react (e.g. invalidate a usage cache). No-op in core. WS4 seam.
+   * subclass can react (e.g. invalidate a usage cache). No-op in core. Overlay seam.
    */
   protected async onProjectStorageChanged(_projectId: string): Promise<void> {}
 

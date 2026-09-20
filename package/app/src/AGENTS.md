@@ -150,7 +150,7 @@ Reference: `component/LoginForm/LoginForm.tsx`, `appAccount/page/PageVerifyEmail
 
 `backUrl` is only used as a fallback; it does not need to encode "where the user actually came from". `PageHeader` shows the back button whenever **either** condition holds — `hasInAppBackHistory()` is true **or** `backUrl` is a non-empty string — and hides it only when both are absent (fresh tab / direct link with no fallback given). So a page can pass `backUrl` when it has an obvious parent (e.g. an edit page always goes back to its list), pass nothing when there's no sensible fallback and in-app history alone is enough, or pass a fallback anyway to also support fresh tabs / direct links.
 
-Example: the appPlatform payment/invoice/credit-note list pages (`appPlatform/page/PagePaymentList.tsx`, `PageInvoiceList.tsx`, `PageCreditNoteList.tsx`) are linked from both the project view page (`?projectId=`) and the user view page (`?userId=`). `common/platformListBackUrl.ts` computes a fallback from whichever ID is present, defaulting to `/user` if neither is set:
+Example: a list page linked from both a project view page (`?projectId=`) and a user view page (`?userId=`). A helper computes a fallback from whichever ID is present, defaulting to a top-level list if neither is set:
 
 ```typescript
 backUrl={platformListBackUrl(projectId, userId)}

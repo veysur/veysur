@@ -20,7 +20,6 @@
     "start-background": "node dist/run.js &",
     "migrate": "MYSQL_ENSURE_DATABASE=true node dist/script/migrate.js",
     "migrate:dry-run": "MYSQL_ENSURE_DATABASE=true node dist/script/migrate.js --dry-run",
-    "seed:e2e": "node dist/script/seed-e2e.js",
     "test": "./script/test.sh --passWithNoTests",
     "test:watch": "./script/test.sh --watch",
     "test:integration": "./script/test-integration.sh",
@@ -62,7 +61,6 @@
     "path": "^0.12.7",
     "pdfkit": "^0.19.1",
     "s3-adaptor": "workspace:*",
-    "stripe": "^22.3.1",
     "tar-stream": "^3.2.0",
     "util": "^0.12.5",
     "veysur-common": "workspace:*"

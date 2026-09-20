@@ -28,9 +28,7 @@ build neither exists, so both hooks fail open (see below).
 
 appAdmin, appPlatform and appSurvey do not use `CountryAccessGate` at all — appAdmin/appPlatform have no signup route of their own (account creation is exclusively an appAccount concept), and appSurvey intentionally has no country gating (survey-taking and participant registration are unaffected by country blocking at the frontend level; see server-side enforcement below).
 
-`useCountryAccess()` (`package/app/src/hook/useCountryAccess.ts`) resolves country as:
-1. Saved billing address country, if authenticated (`auth.user.billingAddress.country`).
-2. Otherwise, server IP-based detection via `geo/access-check`.
+`useCountryAccess()` (`package/app/src/hook/useCountryAccess.ts`) resolves country by server IP-based detection via `geo/access-check`. The gate sits on the signup route, where the visitor is not authenticated, so there is no saved country to consult.
 
 If blocked, the gated route renders a "Service Unavailable in Your Country" card. **Fails open** if the `access-check` request errors (e.g. network failure).
 

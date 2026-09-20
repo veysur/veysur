@@ -107,7 +107,7 @@ Every mutation hook must invalidate every query key whose underlying data the mu
 
 - **A get-hook and every mutate-hook that affects its data must reference the same exported `KEY_STATE_*` constant.** Never duplicate the string literal by hand — a re-typed copy can drift or go stale silently (no error, no warning; the query just never refreshes).
 - When a mutation affects several related caches, invalidate all of them via the same `invalidateKeys` array/function (see `useSurveyResponseUpdate.ts` for the reference example). Shared invalidation helpers (e.g. `surveyResponseQueryKeys.ts`) are pure functions returning `QueryKey[]`, never functions that call `queryClient.invalidateQueries` themselves — see the mutation-cache-invalidation doc for why.
-- `appAccount` and `appPlatform` each have a `common/keyState.ts`. If you add or touch a query key in either app, add/use a `KEY_STATE_*` constant there — do not add another raw string literal.
+- Each sub-app keeps its query keys in a `keyState.ts` beside its other shared constants. If you add or touch a query key, add/use a `KEY_STATE_*` constant there — do not add another raw string literal.
 - Invalidation is independent of persistence — `invalidateQueries()` is sufficient; you don't need to touch `BrowserPersister` or clear storage manually (see Query Persistence above).
 
 **Reviewer checklist for any new/changed mutation hook:**
@@ -206,9 +206,3 @@ return (
 ```
 
 This makes future layout changes a single edit and reduces overall component size.
-
-# Packages
-
-<!-- include package/api/AGENTS.md -->
-<!-- include package/app/AGENTS.md -->
-<!-- include package/k8s/AGENTS.md -->

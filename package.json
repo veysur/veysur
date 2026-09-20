@@ -26,7 +26,7 @@
     "test:app": "pnpm --filter veysur-app test",
     "test:api": "pnpm --filter veysur-api test",
     "test:common": "pnpm --filter veysur-common test",
-    "lint": "pnpm -r lint",
+    "lint": "pnpm -r lint && ./scripts/check-no-billing-logic.sh",
     "format": "pnpm -r format",
     "typecheck": "pnpm -r typecheck",
     "clean": "pnpm -r clean && rm -rf node_modules && rm -rf package/*/dist package/*/build",

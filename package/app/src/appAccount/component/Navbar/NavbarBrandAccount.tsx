@@ -55,7 +55,7 @@ export const NavbarBrandAccount: React.FC<NavbarBrandAccountProps> = (
   // app has no per-project domain to resolve against.
   const isOwner = isSelfHosted() && (auth?.user?.projectOwn?.length ?? 0) > 0
 
-  // Which items appear here (Projects+Billing vs. a single Surveys link) is
+  // Which items appear here (the edition's own entries vs. a single Surveys link) is
   // edition-specific - see `model/AccountUiExtension.ts`'s `AccountNavProvider`
   // and `registry/getAccountNavProvider.ts`.
   const navItems: AccountNavItem[] = accountNavProvider.getNavItems()

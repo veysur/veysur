@@ -2,10 +2,13 @@ import React, { useState } from 'react'
 import { Button } from 'component/shadcn/button'
 import { Switch } from 'component/shadcn/switch'
 
-import { cookieCatalog } from './cookieCatalog'
+import { getExtraCookies } from 'registry'
+
+import { cookieCatalog as coreCookieCatalog, mergeExtraCookies } from './cookieCatalog'
 import { useCookieConsent } from './useCookieConsent'
 
 export const CookieConsentBanner: React.FC = () => {
+  const cookieCatalog = mergeExtraCookies(coreCookieCatalog, getExtraCookies())
   const {
     hasConsented,
     functional,

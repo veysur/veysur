@@ -10,7 +10,7 @@ export const SCHEMA_LENGTH_MAX_ELEMENT_TEXT = 5000
 // fields, so validation fails a bad id before the INSERT does.
 export const SCHEMA_LENGTH_MAX_INTERNAL_ID = 17
 
-// Third-party ids (Stripe, etc.) stored in fields that carry an explicit
+// Third-party ids stored in fields that carry an explicit
 // index typeHint (VARCHAR(255) column, not the CHAR(17) default).
 export const SCHEMA_LENGTH_MAX_EXTERNAL_ID = 64
 export const SCHEMA_LENGTH_MAX_LANG = 2

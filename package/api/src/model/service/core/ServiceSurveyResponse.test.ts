@@ -100,7 +100,7 @@ describe('ServiceSurveyResponse', () => {
       expect(result.publicationId).toBeNull()
     })
 
-    test('inserts a completed manually created response without touching subscription usage', async () => {
+    test('inserts a completed manually created response without touching usage', async () => {
       // Manually created responses never count toward any plan-level usage
       // limit a commercial edition may enforce, regardless of completion.
       const result = await service.create({

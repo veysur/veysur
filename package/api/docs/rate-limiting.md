@@ -15,7 +15,6 @@ Configured in `config/default.ts`:
 
 | Rule | Pattern | Action | Default limit | Window |
 |---|---|---|---|---|
-| Stripe webhook | `^/stripe/webhook$` | skip | — | — |
 | Auth refresh | `^/auth/refresh$` | limit | 40 requests | 5 min (300 s) |
 | Login / signup | `^/(auth-email-password\|signup)/` | limit | 30 requests | 15 min (900 s) |
 | Geo country | `^/geo/detect-country$` | limit | 30 requests | 1 hour (3600 s) |

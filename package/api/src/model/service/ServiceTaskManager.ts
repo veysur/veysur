@@ -373,8 +373,8 @@ export class ServiceTaskManager extends Service {
    * failed execution so it shows in history and drives the health alerts, rather
    * than being silently recorded as completed.
    *
-   * Opt-in per task via `Task.failOnErrorCount`: other tasks (e.g. the payment
-   * scheduler) return a `failed` count for a single bad row on an otherwise
+   * Opt-in per task via `Task.failOnErrorCount`: other tasks (e.g. a batch
+   * processor) return a `failed` count for a single bad row on an otherwise
    * healthy run, and must not be backed off for that.
    *
    * Returns a summary string when the result is a soft failure, otherwise null.

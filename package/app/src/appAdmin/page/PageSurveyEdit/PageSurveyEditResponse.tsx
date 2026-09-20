@@ -275,7 +275,7 @@ export const PageSurveyEditResponse: React.FC = () => {
             !responsesEntry.unlimited &&
             responsesEntry.used != null && (
               <UsageMeter
-                label="Responses this billing period"
+                label={responsesEntry.label ?? 'Responses'}
                 used={responsesEntry.used}
                 limit={responsesEntry.limit!}
                 className="max-w-sm mb-4"

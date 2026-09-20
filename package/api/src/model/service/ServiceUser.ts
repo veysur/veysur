@@ -21,10 +21,18 @@ import {
   User,
 } from 'model'
 import { attachProjectOwn } from 'model/common'
-import type { VatServiceContract } from 'model/common'
 import { ServiceEmailDomainCheck } from './ServiceEmailDomainCheck'
 
 const ACCOUNT_DELETION_RETENTION = 'P1M'
+
+/**
+ * What an overlay adds to a profile update: extra fields for the same `$set`
+ * as core's own, and the audit event actions to log once that write succeeds.
+ */
+export interface ProfileExtension {
+  update: Record<string, unknown>
+  eventActions: string[]
+}
 const ERROR_DISPOSABLE_EMAIL_DOMAIN = 'ERROR_DISPOSABLE_EMAIL_DOMAIN'
 
 export class ServiceUser extends Service {
@@ -78,17 +86,8 @@ export class ServiceUser extends Service {
 
     if (data.nameFirst) updateData.nameFirst = data.nameFirst
     if (data.nameLast) updateData.nameLast = data.nameLast
-    if (data.billingAddress !== undefined)
-      updateData.billingAddress = data.billingAddress
-    if (data.taxId !== undefined) updateData.taxId = data.taxId
-    if (data.businessName !== undefined)
-      updateData.businessName = data.businessName
-    if (data.billingAddress !== undefined || data.taxId !== undefined) {
-      this.assertVatCountryMatchesBillingForUpdate(data, user)
-    }
-    if (data.taxId !== undefined || data.businessName !== undefined) {
-      this.assertBusinessNameProvidedForUpdate(data, user)
-    }
+    const extension = await this.prepareProfileExtension({ data, user })
+    Object.assign(updateData, extension.update)
     if (data.email && data.email != user.email) {
       // eslint-disable-next-line no-useless-assignment -- kept pending the TODO below to re-enable the recent-auth check
       requireRecentAuth = true
@@ -221,29 +220,14 @@ export class ServiceUser extends Service {
           },
         })
       }
-      if (updateData.billingAddress !== undefined) {
-        await this.modelManager.services.eventLog.log({
-          action: 'user.billingAddress.updated',
-          userId,
-        })
-      }
-      if (updateData.taxId !== undefined) {
-        await this.modelManager.services.eventLog.log({
-          action: 'user.taxId.updated',
-          userId,
-        })
-      }
-      if (updateData.businessName !== undefined) {
-        await this.modelManager.services.eventLog.log({
-          action: 'user.businessName.updated',
-          userId,
-        })
-      }
       if (updateData.password) {
         await this.modelManager.services.eventLog.log({
           action: 'user.password.updated',
           userId,
         })
+      }
+      for (const action of extension.eventActions) {
+        await this.modelManager.services.eventLog.log({ action, userId })
       }
     }
 
@@ -258,47 +242,23 @@ export class ServiceUser extends Service {
   }
 
   /**
-   * billingAddress and taxId can each be updated independently, so validate
-   * the resulting pair (incoming value where provided, else whatever is
-   * already stored) rather than only the field being changed — otherwise a
-   * mismatched pair could be saved one field at a time.
+   * Extension point for profile fields an overlay adds. Called after core has
+   * read its own fields from `data` and before validation and the write, so an
+   * overlay can validate, and reject, against the stored `user`. Core has none.
    */
-  private assertVatCountryMatchesBillingForUpdate(
-    data: Partial<User>,
-    user: User,
-  ): void {
-    const effectiveTaxId =
-      data.taxId !== undefined ? data.taxId : (user.taxId ?? null)
-    const effectiveCountry =
-      data.billingAddress !== undefined
-        ? data.billingAddress?.country
-        : user.billingAddress?.country
-    const vat = this.getService('vat') as unknown as
-      VatServiceContract | undefined
-    vat?.assertVatCountryMatchesBilling(effectiveTaxId, effectiveCountry)
+  protected async prepareProfileExtension(_args: {
+    data: Partial<User>
+    user: User
+  }): Promise<ProfileExtension> {
+    return { update: {}, eventActions: [] }
   }
 
   /**
-   * taxId and businessName can each be updated independently, so validate the
-   * resulting pair (incoming value where provided, else whatever is already
-   * stored) rather than only the field being changed — a business providing a
-   * VAT number must also have a registered business name on file.
+   * Extension point for stored fields an overlay must scrub, alongside core's,
+   * when a soft-deleted user is anonymised. Core has none.
    */
-  private assertBusinessNameProvidedForUpdate(
-    data: Partial<User>,
-    user: User,
-  ): void {
-    const effectiveTaxId =
-      data.taxId !== undefined ? data.taxId : (user.taxId ?? null)
-    const effectiveBusinessName =
-      data.businessName !== undefined
-        ? data.businessName
-        : (user.businessName ?? null)
-    if (effectiveTaxId && !effectiveBusinessName) {
-      throw new ServerErrorForbidden(
-        'Business name is required when a VAT/tax number is provided',
-      )
-    }
+  protected getAnonymisedExtensionFields(): Record<string, null> {
+    return {}
   }
 
   async validatePasswordCurrent({ value, aclContext }) {
@@ -387,9 +347,8 @@ export class ServiceUser extends Service {
    * removed - RepoPayment and other accounting records reference userId
    * independently of this row, and anonymising in place (rather than hard
    * deleting) keeps those references valid for as long as accounting/tax
-   * retention requires. stripeCustomerId and any still soft-deleted owned
-   * projects are left untouched - projects purge independently via
-   * ServiceProject.hardDeleteAll.
+   * retention requires. Any still soft-deleted owned projects are left
+   * untouched - projects purge independently via ServiceProject.hardDeleteAll.
    */
   async anonymizeAll(
     options: { olderThan?: string } = {},
@@ -415,8 +374,7 @@ export class ServiceUser extends Service {
               email: `deleted-${user._id}@deleted.invalid`,
               nameFirst: 'Deleted',
               nameLast: 'User',
-              billingAddress: null,
-              taxId: null,
+              ...this.getAnonymisedExtensionFields(),
               password: null,
               twoFactorSecret: null,
               twoFactorMeta: {

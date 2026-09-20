@@ -10,7 +10,7 @@ export interface IdFilterInputProps {
   onChange: (key: string, value: string) => void
 }
 
-/** A labelled free-text ID filter input, e.g. Project ID / User ID / Subscription ID on platform list pages. */
+/** A labelled free-text ID filter input, e.g. Project ID / User ID on list pages. */
 export const IdFilterInput: React.FC<IdFilterInputProps> = ({
   label,
   paramKey,

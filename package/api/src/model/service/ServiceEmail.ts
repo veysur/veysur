@@ -22,8 +22,8 @@ export interface SendDirectOptions {
 }
 
 /** Default per-project hourly send rate. Used as-is by the self-hosted edition
- * (no plan model) and as the fallback when a project's plan has no
- * EMAIL_SEND_RATE_PER_HOUR entry yet - see docs/mail-queue-pacing.md. */
+ * (no per-project limits) and as the fallback when an overlay supplies no rate
+ * for a project - see docs/mail-queue-pacing.md. */
 const FALLBACK_MAX_PER_HOUR = 150
 
 export interface ProcessQueueResult {
@@ -41,9 +41,9 @@ export class ServiceEmail extends Service {
   }
 
   /**
-   * The project's hourly send rate. Core (self-hosted) has no plan model, so it
-   * is the flat default. The platform guarded subclass overrides this to read
-   * the project's EMAIL_SEND_RATE_PER_HOUR plan feature. WS4 seam.
+   * The project's hourly send rate. Core (self-hosted) has no per-project
+   * limits, so it is the flat default. An overlay overrides this to supply a
+   * per-project rate. Overlay seam.
    */
   protected async emailSendRatePerHour(_projectId: string): Promise<number> {
     return FALLBACK_MAX_PER_HOUR
@@ -293,7 +293,7 @@ export class ServiceEmail extends Service {
 
   /**
    * Dispatch due rows from the pending email queue, paced per-project according to each
-   * project's EMAIL_SEND_RATE_PER_HOUR plan limit. Dispatch attempts within a run are
+   * project's hourly send rate (see emailSendRatePerHour). Dispatch attempts within a run are
    * also spread evenly across the tick interval (see dispatchDelayMs below) so a large
    * simultaneous backlog across many projects - e.g. right after an outage - can't burst
    * the shared relay, even though no single project's own cap is ever exceeded. Invoked

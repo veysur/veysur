@@ -4,7 +4,7 @@
  */
 export class TaskLock {
   _id: string
-  lockKey: string // Unique identifier (e.g., "payment-project-abc123")
+  lockKey: string // Unique identifier (e.g., "export-project-abc123")
   resourceType: string // Type of resource ("project", "survey", etc.)
   resourceId: string // ID of the resource being locked
   executionId: string // TaskExecution ID holding the lock

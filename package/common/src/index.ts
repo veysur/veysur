@@ -1,6 +1,5 @@
 export * from './model'
 export * from './Logger'
-export * from './Money'
 export * from './StringRandom'
 export * from './Iso639v1'
 export * from './util/isEqual'
@@ -19,8 +18,8 @@ export * from './util/subdomain-validator'
 export * from './util/emailLayoutStyle'
 export * from './constants'
 
-// Billing, pricing, tax, invoice, and the subscription model live in the
-// commercial-only veysur-common-cloud package — not part of the self-hosted edition.
+// Commercial-edition models live in the overlay package veysur-common-cloud,
+// not in this one.
 
 // Note: generateSurveyHash is NOT exported from index to avoid pulling Node.js 'crypto' into browser bundles
 // Import directly from './util/generateSurveyHash' when needed (server-side only)

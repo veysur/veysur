@@ -9,10 +9,6 @@ import { ServerConfig } from './types'
 const {
   API_BRAND_NAME,
   API_COMPANY_NAME,
-  API_COMPANY_NUMBER,
-  API_COMPANY_VAT_NUMBER,
-  API_COMPANY_OSS_VAT_NUMBER,
-  API_COMPANY_ADDRESS_LINES,
   // webDomain
   // - with subdomain e.g `www` which may be replaced with
   // - `account` or `platform` where needed
@@ -108,11 +104,6 @@ const {
   API_S3_FORCE_PATH_STYLE,
   // CORS
   API_CORS_ALLOWED_DOMAINS,
-  // Stripe
-  API_STRIPE_PUBLISH_KEY,
-  API_STRIPE_SECRET_KEY,
-  API_STRIPE_WEBHOOK_SECRET_KEY,
-  API_STRIPE_CONNECT_CLIENT_ID,
   // Google
   API_GOOGLE_FIREBASE_ENABLE,
   // MySQL
@@ -161,14 +152,6 @@ export const app = {
   edition: getEdition(),
   brandName: API_BRAND_NAME ? API_BRAND_NAME : 'VeySur',
   companyName: API_COMPANY_NAME ? API_COMPANY_NAME : 'MyCompany',
-  companyNumber: API_COMPANY_NUMBER ? API_COMPANY_NUMBER : '',
-  companyVatNumber: API_COMPANY_VAT_NUMBER ? API_COMPANY_VAT_NUMBER : '',
-  companyOssVatNumber: API_COMPANY_OSS_VAT_NUMBER
-    ? API_COMPANY_OSS_VAT_NUMBER
-    : '',
-  companyAddressLines: API_COMPANY_ADDRESS_LINES
-    ? API_COMPANY_ADDRESS_LINES.split('|').map((line: string) => line.trim())
-    : [],
   webDomain,
   accountDomain:
     API_ACCOUNT_DOMAIN ||
@@ -290,18 +273,6 @@ export const app = {
   sms: {
     logOnly: API_SMS_LOG_ONLY ? API_SMS_LOG_ONLY == 'true' : true,
   },
-  payment: {
-    stripe: {
-      publishKey: API_STRIPE_PUBLISH_KEY ? API_STRIPE_PUBLISH_KEY : '',
-      secretKey: API_STRIPE_SECRET_KEY ? API_STRIPE_SECRET_KEY : '',
-      webhookSecretKey: API_STRIPE_WEBHOOK_SECRET_KEY
-        ? API_STRIPE_WEBHOOK_SECRET_KEY
-        : '',
-      connectClientId: API_STRIPE_CONNECT_CLIENT_ID
-        ? API_STRIPE_CONNECT_CLIENT_ID
-        : '',
-    },
-  },
   userNetwork: {
     facebook: {
       appId: API_FACEBOOK_APP_ID ? API_FACEBOOK_APP_ID : '',
@@ -356,18 +327,9 @@ export const app = {
     dir: dirname + '/../model/asset/',
     html: {},
   },
-  ref: {
-    stripeClient: null,
-  },
   rateLimit: {
     enabled: RATE_LIMIT_ENABLED !== 'false',
     rules: [
-      // Stripe webhook — cryptographic signature verification is sufficient
-      {
-        pattern: '^/stripe/webhook$',
-        tierKey: 'stripe',
-        skip: true,
-      },
       // Auth refresh — fires before every authenticated request; low risk,
       // legitimately high volume (multi-tab, long sessions, retry backoff).
       // Short window so a burst clears quickly rather than locking a user

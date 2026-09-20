@@ -9,7 +9,7 @@ jest.mock('../registry', () => ({
   getProjectAdminInviteApi: jest.fn(),
 }))
 
-// AccountPageLayout pulls in the full `appAccount/hook` barrel (billing/subscription hooks
+// AccountPageLayout pulls in the full `appAccount/hook` barrel (hooks
 // using `import.meta.env`, incompatible with Jest's CJS transform) — stub it with a passthrough
 // since this test only exercises the invite-accept content, not the shared page chrome.
 jest.mock('appAccount/component/Layout', () => ({
@@ -19,7 +19,7 @@ jest.mock('appAccount/component/Layout', () => ({
 const acceptNewAccountMock = jest.fn()
 
 // Mocked as a standalone module (not spread over jest.requireActual('../hook')) — the real
-// barrel re-exports billing/subscription hooks that use `import.meta.env`, which Jest's CJS
+// barrel re-exports hooks that use `import.meta.env`, which Jest's CJS
 // transform can't parse. This test only needs the three invite hooks.
 jest.mock('../hook', () => ({
   useProjectAdminInviteAccept: () => ({

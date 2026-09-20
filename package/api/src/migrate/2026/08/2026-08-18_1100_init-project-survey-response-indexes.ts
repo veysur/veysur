@@ -5,7 +5,7 @@ import { ModelManager, DataSourceContext } from 'mzen-om'
 export default class InitProjectSurveyResponseIndexes implements DatabasePatchInterface {
   version = '2026-08-18_1100'
   description =
-    'Create indexes for surveyResponse, including completedAt for billing-window usage counts'
+    'Create indexes for surveyResponse, including completedAt for completion-time queries'
   dataSourceName = 'project'
 
   async update(

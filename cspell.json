@@ -27,6 +27,7 @@
     "**/coverage/**",
     "package/docsite/.astro/**",
     "package/common/src/Iso639v1.ts",
+    "package/api/assets/test-data/**",
     "pnpm-lock.yaml",
     "external/**",
     "package/api/src/locale/!(en)/**"

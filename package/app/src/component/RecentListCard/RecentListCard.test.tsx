@@ -77,17 +77,17 @@ describe('RecentListCard', () => {
     render(
       <MemoryRouter>
         <RecentListCard
-          title="Recent Invoices"
-          viewAllHref="/invoice"
+          title="Recent Surveys"
+          viewAllHref="/survey"
           data={[]}
           columns={columns}
           getRowId={(row: Row) => row.id}
-          emptyMessage="No invoices"
+          emptyMessage="No surveys"
         />
       </MemoryRouter>,
     )
 
-    expect(screen.getByText('No invoices')).toBeInTheDocument()
+    expect(screen.getByText('No surveys')).toBeInTheDocument()
   })
 
   test('calls onRowClick when a row is clicked', () => {
@@ -97,13 +97,13 @@ describe('RecentListCard', () => {
     render(
       <MemoryRouter>
         <RecentListCard
-          title="Recent Invoices"
-          viewAllHref="/invoice"
+          title="Recent Surveys"
+          viewAllHref="/survey"
           data={data}
           columns={columns}
           getRowId={(row: Row) => row.id}
           onRowClick={onRowClick}
-          emptyMessage="No invoices"
+          emptyMessage="No surveys"
         />
       </MemoryRouter>,
     )
@@ -118,12 +118,12 @@ describe('RecentListCard', () => {
     render(
       <MemoryRouter>
         <RecentListCard
-          title="Recent Credit Notes"
-          viewAllHref="/credit-note"
+          title="Recent Responses"
+          viewAllHref="/response"
           data={data}
           columns={columns}
           getRowId={(row: Row) => row.id}
-          emptyMessage="No credit notes"
+          emptyMessage="No responses"
         />
       </MemoryRouter>,
     )

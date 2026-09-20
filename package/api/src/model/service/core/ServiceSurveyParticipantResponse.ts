@@ -28,7 +28,7 @@ export class ServiceSurveyParticipantResponse extends Service {
 
   /**
    * Called before persisting the first answer to a response, so a subclass can
-   * reject the write (e.g. plan response-limit reached). No-op in core. WS4 seam.
+   * reject the write (e.g. a response limit was reached). No-op in core. Overlay seam.
    */
   protected async onResponseFirstAnswerGuard(
     _projectId: string,
@@ -36,7 +36,7 @@ export class ServiceSurveyParticipantResponse extends Service {
 
   /**
    * Called after the first answer to a response has been persisted, so a
-   * subclass can record billing-period usage. No-op in core. WS4 seam.
+   * subclass can record usage. No-op in core. Overlay seam.
    */
   protected async onResponseFirstAnswerRecorded(
     _projectId: string,

@@ -19,12 +19,6 @@ export const cookieCatalog: CookieCategory[] = [
       'Required for the application to function. Cannot be disabled.',
     cookies: [
       {
-        name: '__stripe_mid',
-        description:
-          'Set by Stripe to detect fraud and ensure secure payment processing.',
-        duration: '1 year',
-      },
-      {
         name: 'veysur-theme',
         description: 'Stores your light or dark theme preference.',
         duration: '1 year',
@@ -56,3 +50,17 @@ export const cookieCatalog: CookieCategory[] = [
     ],
   },
 ]
+
+/**
+ * Adds an overlay's cookies to core's catalogue, category by category. Core's
+ * categories, and the order of cookies within them, are unchanged.
+ */
+export function mergeExtraCookies(
+  catalog: CookieCategory[],
+  extra: Partial<Record<CookieCategory['id'], CookieInfo[]>>,
+): CookieCategory[] {
+  return catalog.map((category) => ({
+    ...category,
+    cookies: [...category.cookies, ...(extra[category.id] ?? [])],
+  }))
+}

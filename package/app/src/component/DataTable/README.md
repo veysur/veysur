@@ -330,23 +330,17 @@ If you have existing tables using the old pattern, here's how to migrate:
 
 ### Shared Column Factories
 
-For common cell shapes — dates, money amounts, short code/reference strings — use the factories in `columns.tsx` instead of writing the render function inline:
+For date cells, use `dateColumn` in `columns.tsx` instead of writing the render function inline:
 
 ```typescript
-import { dateColumn, moneyColumn, codeColumn } from 'component/DataTable'
+import { dateColumn } from 'component/DataTable'
 
 const columns = [
-  dateColumn<Invoice>({ key: 'date', getDate: (inv) => inv.created }),
-  codeColumn<Invoice>({
-    key: 'invoiceNumber',
-    title: 'Invoice',
-    getCode: (inv) => inv.invoiceNumber,
-  }),
-  moneyColumn<Invoice>({ key: 'total', getAmount: (inv) => inv.total }),
+  dateColumn<Survey>({ key: 'created', getDate: (survey) => survey.createdAt }),
 ]
 ```
 
-`moneyColumn` supports `highlightNegative: true` to apply `text-destructive` styling to negative amounts (e.g. refunds). All three accept a `className` override and, where relevant, a `format`/`title` override — see `columns.tsx` for full signatures.
+It accepts a `className` override and a `format`/`title` override; see `columns.tsx` for the full signature. An overlay adds its own column factories beside its own pages rather than here.
 
 ## Notes
 
