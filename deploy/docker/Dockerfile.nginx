@@ -64,7 +64,7 @@ ENV BUILD_VERSION=$BUILD_VERSION \
     PUBLIC_SITE_UNAVAILABLE_TITLE=$PUBLIC_SITE_UNAVAILABLE_TITLE \
     PUBLIC_SITE_UNAVAILABLE_MESSAGE=$PUBLIC_SITE_UNAVAILABLE_MESSAGE
 # The prebuild hook runs generate-cloud-composition.mjs, which falls back to
-# the committed *Default.* stubs when no commercial generator is present.
+# the committed *Default.* stubs when no extension generator is present.
 RUN pnpm build
 
 # Stage 2: Build documentation site

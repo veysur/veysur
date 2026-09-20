@@ -1,6 +1,6 @@
 # VeySur
 
-Source-available, self-hostable edition of VeySur.
+Source-available, self-hostable VeySur.
 
 This repository is the canonical home for the VeySur survey product, the
 application people use to build, publish, and take surveys.

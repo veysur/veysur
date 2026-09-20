@@ -72,7 +72,7 @@ package/api/
 │   └── 2026/
 │       └── 02/
 │           ├── 2026-02-05_1000_init-indexes.ts
-│           └── 2026-02-05_1001_subscription-seed.ts
+│           └── 2026-02-05_1001_task-seed.ts
 └── src/
     └── script/
         └── migrate.ts            # Migration CLI runner
@@ -84,7 +84,7 @@ VeySur has two datasources:
 
 | DataSource | Description | Usage | Context Required |
 |------------|-------------|-------|------------------|
-| `account` | Account-level database (veysurAccount) | User accounts, subscriptions, global data | No |
+| `account` | Account-level database (veysurAccount) | User accounts, global data | No |
 | `project` | Project-specific databases (veysurProject_*) | Survey data, project-specific content | Yes (`projectId`) |
 
 **Account Database Migrations:**
@@ -94,10 +94,10 @@ VeySur has two datasources:
 export default class AccountMigration implements DatabasePatchInterface {
   dataSourceName = 'account'
   version = '2026-02-06_1000'
-  description = 'Add subscription indexes'
+  description = 'Add task indexes'
 
   async update(modelManager: ModelManager): Promise<void> {
-    const repo = modelManager.getRepo('subscription')
+    const repo = modelManager.getRepo('task')
     await repo.createIndexes()
   }
 }
@@ -139,7 +139,7 @@ async update(modelManager: ModelManager): Promise<void> {
   // Account database repos
   const userRepo = modelManager.getRepo('user')
   const projectRepo = modelManager.getRepo('project')
-  const subscriptionRepo = modelManager.getRepo('subscription')
+  const taskRepo = modelManager.getRepo('task')
 
   // Example: Create indexes
   await userRepo.createIndexes()
@@ -166,7 +166,7 @@ export default class InitIndexes implements DatabasePatchInterface {
   dataSourceName = 'account'
 
   async update(modelManager: ModelManager): Promise<void> {
-    const repoNames = ['user', 'project', 'subscription']
+    const repoNames = ['user', 'project', 'task']
 
     for (const repoName of repoNames) {
       try {
@@ -189,28 +189,30 @@ export default class InitIndexes implements DatabasePatchInterface {
 ### Example 2: Account Database - Seeding Data (Idempotent)
 
 ```typescript
-import { INITIAL_SUBSCRIPTIONS } from 'veysur-common'
+const DEFAULT_TASKS = [
+  { name: 'Mail Queue Process', task: 'email', action: 'processQueue', interval: 60 },
+]
 
-export default class SeedSubscriptions implements DatabasePatchInterface {
+export default class SeedTasks implements DatabasePatchInterface {
   version = '2026-02-05_1001'
-  description = 'Seed initial subscription tiers'
+  description = 'Seed default scheduled tasks'
   dataSourceName = 'account'
 
   async update(modelManager: ModelManager): Promise<void> {
-    const repo = modelManager.getRepo('subscription')
+    const repo = modelManager.getRepo('task')
 
     // Check if already seeded (idempotent)
     const existingCount = await repo.count({})
     if (existingCount > 0) {
-      console.log(`⚠ Found ${existingCount} existing subscriptions, skipping`)
+      console.log(`⚠ Found ${existingCount} existing tasks, skipping`)
       return
     }
 
     // Seed data
-    console.log(`Seeding ${INITIAL_SUBSCRIPTIONS.length} subscriptions...`)
-    for (const data of INITIAL_SUBSCRIPTIONS) {
+    console.log(`Seeding ${DEFAULT_TASKS.length} tasks...`)
+    for (const data of DEFAULT_TASKS) {
       await repo.create(data)
-      console.log(`✓ Created: ${data.code}`)
+      console.log(`✓ Created: ${data.name}`)
     }
   }
 }

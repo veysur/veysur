@@ -3,7 +3,7 @@ import { ModelManager } from 'mzen-om'
 
 /**
  * Initialize database indexes for all 'account' datasource repositories
- * not covered by their own dedicated migration. An overlay's own repositories
+ * not covered by their own dedicated migration. An extension's own repositories
  * are indexed by its own patches.
  */
 export default class InitAccountIndexes implements DatabasePatchInterface {

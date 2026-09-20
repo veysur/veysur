@@ -37,7 +37,7 @@ export function useProjectDomain() {
   useEffect(() => {
     if (!isAuthed || !auth?.user) return
 
-    // The scoping source is pluggable (subdomain for cloud, single for
+    // The scoping source is pluggable (subdomain-based by default, single for
     // self-hosted) — see resolveActiveProject / PUBLIC_PROJECT_SCOPE.
     const locatedProject =
       resolveActiveProject(

@@ -22,7 +22,7 @@ import { ServiceEmailTemplate } from '../ServiceEmailTemplate'
 import { ServiceEmail } from '../../ServiceEmail'
 import { EmailVerifyToken } from './EmailVerifyToken'
 
-/** Default hourly invite-send rate. Used as-is by the self-hosted edition (no
+/** Default hourly invite-send rate. Used as-is by the self-hosted deployment (no
  * plan model), and as the fallback when a project's plan has no
  * EMAIL_SEND_RATE_PER_HOUR entry yet. */
 const FALLBACK_MAX_PER_HOUR = 150
@@ -43,8 +43,8 @@ export class ServiceSurveyParticipantEmail extends Service {
 
   /**
    * The project's hourly invite-send rate. Core (self-hosted) has no
-   * per-project limits, so it is the flat default. An overlay overrides this to
-   * supply a per-project rate. Overlay seam.
+   * per-project limits, so it is the flat default. An extension overrides this to
+   * supply a per-project rate. Extension seam.
    */
   protected async emailSendRatePerHour(_projectId: string): Promise<number> {
     return FALLBACK_MAX_PER_HOUR

@@ -8,11 +8,11 @@ import tailwindcssPostcss from '@tailwindcss/postcss'
 
 // This combined all-in-one dev/build config is only ever used as a local
 // convenience (one dev server bundles every sub-app together).
-// The commercial app-cloud package never ships in the self-hosted/public
-// edition, so the platform entry is added conditionally on its presence —
+// The app-cloud extension package never ships in the self-hosted/public
+// build, so the platform entry is added conditionally on its presence —
 // never a hardcoded reference to a sibling package that may not exist in
-// that build. A commercial checkout places that package four levels up from
-// this file, outside this repo entirely, hence the four `../`.
+// that build. When present, that package sits four levels up from this file,
+// outside this repo entirely, hence the four `../`.
 const appCloudPlatformEntry = resolve(
   __dirname,
   '../../../../package/app-cloud/src/appPlatform/index.tsx',
@@ -46,10 +46,10 @@ window.gtag('consent', 'default', {
 
 export default defineConfig({
   source: {
-    // The commercial veysur-app-cloud package ships raw TS/TSX source (no build step) — Rsbuild
+    // The veysur-app-cloud extension package ships raw TS/TSX source (no build step) — Rsbuild
     // excludes node_modules from its SWC transform by default, so the
     // workspace-linked package (reached from the account entry's gated
-    // billing/support require()) needs an explicit include.
+    // extension route require()) needs an explicit include.
     include: [/node_modules[\\/]veysur-app-cloud[\\/]/],
     entry: {
       admin: './src/appAdmin/index.tsx',
@@ -74,7 +74,7 @@ export default defineConfig({
         process.env.PUBLIC_BASE_ACCOUNT || '',
       ),
       // Default matches the route paths' historical shape (routes no longer
-      // hardcode '/survey' themselves — see appSurvey/Router.tsx) so cloud's
+      // hardcode '/survey' themselves — see appSurvey/Router.tsx) so existing
       // served URLs are unchanged; a self-hosted deployment may override.
       'process.env.PUBLIC_BASE_SURVEY': JSON.stringify(
         process.env.PUBLIC_BASE_SURVEY || '/survey',

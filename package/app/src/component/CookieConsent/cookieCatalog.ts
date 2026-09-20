@@ -52,7 +52,7 @@ export const cookieCatalog: CookieCategory[] = [
 ]
 
 /**
- * Adds an overlay's cookies to core's catalogue, category by category. Core's
+ * Adds an extension's cookies to core's catalogue, category by category. Core's
  * categories, and the order of cookies within them, are unchanged.
  */
 export function mergeExtraCookies(

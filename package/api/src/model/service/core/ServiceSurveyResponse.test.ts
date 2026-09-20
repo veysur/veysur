@@ -102,7 +102,7 @@ describe('ServiceSurveyResponse', () => {
 
     test('inserts a completed manually created response without touching usage', async () => {
       // Manually created responses never count toward any plan-level usage
-      // limit a commercial edition may enforce, regardless of completion.
+      // limit a deployment may enforce, regardless of completion.
       const result = await service.create({
         response: { answers: { q1: 'a' }, completedAt: new Date('2026-01-01') },
         surveyId: 'survey_1',

@@ -20,7 +20,7 @@ export interface RateLimitRule {
  * This defines the structure of the app property within the model configuration
  */
 export interface AppConfig {
-  /** Deployment edition — 'self-hosted' | 'cloud'. Defaults to 'cloud'. */
+  /** Deployment mode, read via DEPLOYMENT_MODE. */
   edition: 'self-hosted' | 'cloud'
   brandName: string
   companyName: string

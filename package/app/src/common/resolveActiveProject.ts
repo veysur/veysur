@@ -1,5 +1,5 @@
 /**
- * `subdomain`/`domain` are cloud-only project fields - core's `Project` type
+ * `subdomain`/`domain` are extension-only project fields - core's `Project` type
  * (self-hosted's single, config-sourced project) doesn't carry them, so this
  * generic constraint is declared locally rather than derived from `Project`.
  */
@@ -12,8 +12,8 @@ interface ProjectWithDomain {
 /**
  * How the admin app decides which project it is operating on.
  *
- * - `subdomain` (cloud default): match `window.location.host` against each of
- *   the user's projects' `subdomain` / `domain`. Cloud serves one project per
+ * - `subdomain` (default): match `window.location.host` against each of
+ *   the user's projects' `subdomain` / `domain`. One project is served per
  *   subdomain.
  * - `single` (self-hosted): there is one project (one DB, initialised at
  *   install), so return it regardless of host.

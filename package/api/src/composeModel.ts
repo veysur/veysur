@@ -37,9 +37,8 @@ type RepoClass = new () => Repo<unknown>
 type SchemaClass = new () => Schema
 
 /**
- * WS5 — the seam the cloud edition composes the API model through. Core registers
- * the self-hosted set; the cloud entrypoint passes the platform-layer additions
- * (`model-composition-cloud.ts`).
+ * WS5 — the seam an extension composes the API model through. Core registers
+ * the self-hosted set; an extension's entrypoint passes its additions.
  */
 export interface ModelComposition {
   extraServices?: Array<new () => unknown>
@@ -53,15 +52,15 @@ export interface ModelComposition {
   /**
    * core repo name → replacement class. Needed because repos (unlike
    * services) are deduped by name with core's entry winning ties (core is
-   * spread first into the merged array) — a cloud repo sharing a name with a
+   * spread first into the merged array) — an extension repo sharing a name with a
    * core repo (e.g. both 'project') would otherwise be silently discarded.
    */
   repoOverrides?: Map<string, RepoClass>
-  /** Cloud-only role assessors appended to core's ACL set. */
+  /** Extension role assessors appended to core's ACL set. */
   extraRoleAssessors?: ServerAclRoleAssessor[]
   /**
-   * Extra dataSource entries appended after core's base list (e.g. cloud's
-   * `ipLocation` mysql datasource and `project` dynamic datasource — see
+   * Extra dataSource entries appended after core's base list (e.g. an
+   * `ipLocation` mysql datasource and a `project` dynamic datasource — see
    * `config/default.ts`'s WS6 comment for why self-hosted has neither).
    */
   extraDataSources?: ModelConfig['dataSources']
@@ -74,7 +73,7 @@ export interface ModelComposition {
     registry: { maxSize: number; idleTimeout: number }
   }
   /**
-   * Second migration pass — cloud's platform patch directory and context
+   * Second migration pass — an extension's patch directory and context
    * resolver, run against its own meta table (see `script/migrate.ts`).
    */
   migrate?: {
@@ -126,7 +125,7 @@ export function composeModel(c: ModelComposition = {}): ComposedModel {
     ...(c.extraConstructors ?? {}),
   })
 
-  // The cloud composition feeds in the platform barrels, which re-export the
+  // An extension's composition may feed in barrels, which re-export the
   // core barrel — dedupe by mzen name so a re-exported core class registered
   // once as core is not registered again as an "extra".
   const dedupeByName = <T extends { getName?: () => string }>(

@@ -274,8 +274,6 @@ useEffect(() => {
 
 | Page                                                | SPA         |
 | --------------------------------------------------- | ----------- |
-| `page/PageUserList.tsx`                             | appPlatform |
-| `page/PageProjectList.tsx`                          | appPlatform |
 | `page/PageSurvey/PageSurvey.tsx`                    | appAdmin    |
 | `page/PageSurveyEdit/PageSurveyEditParticipant.tsx` | appAdmin    |
 | `page/PageSurveyEdit/PageSurveyEditResponse.tsx`    | appAdmin    |

@@ -18,7 +18,7 @@ export * from './util/subdomain-validator'
 export * from './util/emailLayoutStyle'
 export * from './constants'
 
-// Commercial-edition models live in the overlay package veysur-common-cloud,
+// Models added by an extension live in the extension package veysur-common-cloud,
 // not in this one.
 
 // Note: generateSurveyHash is NOT exported from index to avoid pulling Node.js 'crypto' into browser bundles

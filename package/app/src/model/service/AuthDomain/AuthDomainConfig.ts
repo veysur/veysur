@@ -123,11 +123,11 @@ export class AuthDomainConfig implements AuthDomainConfigInterface {
   }
 
   /**
-   * Gets the full URL to a project's admin app given its host (the cloud
-   * per-project admin subdomain, e.g. from `CloudProject.subdomain`), optionally
+   * Gets the full URL to a project's admin app given its host (a per-project
+   * admin subdomain supplied by an extension), optionally
    * with a path appended. Centralizes the `PUBLIC_BASE_ADMIN` path prefix so it
    * isn't hand-copied at every project-navigation call site (project switcher,
-   * project list, billing pages).
+   * project list).
    */
   getAdminUrl = (host: string, path = ''): string => {
     const { protocol, port } = this.browserInterface.getLocation()

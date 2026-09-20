@@ -14,7 +14,7 @@ describe('cookieCatalog', () => {
 describe('mergeExtraCookies', () => {
   const extra = {
     necessary: [
-      { name: 'extra_cookie', description: 'Set by an overlay.', duration: '1 day' },
+      { name: 'extra_cookie', description: 'Set by an extension.', duration: '1 day' },
     ],
   }
 

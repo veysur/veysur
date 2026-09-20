@@ -18,9 +18,8 @@ import { RepoProject } from 'model/repo'
  * and `timezone` are only ever set from config on first creation, and are
  * DB-authoritative (editable via `updateTimezone`) after that.
  *
- * The cloud edition overrides this service entirely via the commercial
- * package's composition, with a real multi-tenant implementation backed by
- * its own repo.
+ * An extension can override this service entirely via its composition,
+ * with a multi-project implementation backed by its own repo.
  */
 export class ServiceProject extends Service {
   repos: {

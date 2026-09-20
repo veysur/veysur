@@ -21,8 +21,8 @@ export interface SendDirectOptions {
   envelopeFrom?: string
 }
 
-/** Default per-project hourly send rate. Used as-is by the self-hosted edition
- * (no per-project limits) and as the fallback when an overlay supplies no rate
+/** Default per-project hourly send rate. Used as-is by the self-hosted deployment
+ * (no per-project limits) and as the fallback when an extension supplies no rate
  * for a project - see docs/mail-queue-pacing.md. */
 const FALLBACK_MAX_PER_HOUR = 150
 
@@ -42,8 +42,8 @@ export class ServiceEmail extends Service {
 
   /**
    * The project's hourly send rate. Core (self-hosted) has no per-project
-   * limits, so it is the flat default. An overlay overrides this to supply a
-   * per-project rate. Overlay seam.
+   * limits, so it is the flat default. An extension overrides this to supply a
+   * per-project rate. Extension seam.
    */
   protected async emailSendRatePerHour(_projectId: string): Promise<number> {
     return FALLBACK_MAX_PER_HOUR

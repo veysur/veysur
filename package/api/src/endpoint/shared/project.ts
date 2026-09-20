@@ -1,12 +1,11 @@
 import { isSelfHosted } from 'config/edition'
 
 /**
- * Cloud mounts its own, richer `/project/*` surface (create/rename/delete/
- * restore/subdomain, plus its own `putProjectTimezone`) from the commercial
- * package, unconditionally merged into the endpoint list alongside this core
+ * An extension may mount its own, richer `/project/*` surface (including its
+ * own `putProjectTimezone`), unconditionally merged into the endpoint list alongside this core
  * config (see `composeModel.ts` — there is no dedup across endpoint configs,
  * unlike services/repos/schemas). Gate `putProjectTimezone` here to
- * self-hosted only, or cloud would register two conflicting handlers for the
+ * self-hosted only, or an extension would register two conflicting handlers for the
  * same route.
  */
 export const projectConfig = {

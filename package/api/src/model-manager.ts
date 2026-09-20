@@ -9,11 +9,10 @@ import {
  * Generic composition-extension seam. When API_COMPOSITION_MODULE names a module
  * (resolved relative to this file, so both relative and absolute values work),
  * core loads whatever ModelComposition it default-exports and merges it in via
- * composeModel(). Core has no built-in notion of "cloud" — it only knows it can
- * be extended by an externally configured module. The commercial edition's
- * deployment config points this at its own compiled composition module;
- * self-hosted deployments leave it unset and get the plain self-hosted
- * composition ({}).
+ * composeModel(). Core only knows it can be extended by an externally
+ * configured module. A deployment that adds an extension points this at that
+ * extension's compiled composition module; otherwise it is left unset and the
+ * plain self-hosted composition ({}) is used.
  */
 const compositionModulePath = process.env.API_COMPOSITION_MODULE
 

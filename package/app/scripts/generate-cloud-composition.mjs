@@ -4,7 +4,7 @@
 // src/cloudTailwindSource.css — all gitignored, see package/app/.gitignore)
 // before every dev/build run.
 //
-// A commercial checkout drops its own private generator at
+// A checkout that includes the extension drops its own private generator at
 // `<repo-root>/scripts/generate-cloud-composition.mjs` — one level above
 // this whole submodule, never committed here — which knows how to wire in
 // the real `veysur-app-cloud` package. When that file isn't present (a

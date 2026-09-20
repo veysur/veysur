@@ -1,13 +1,13 @@
 # Bundle Optimisation
 
-The four apps (`appAdmin`, `appSurvey`, `appAccount`, `appPlatform`) have very different
+The apps (`appAdmin`, `appSurvey`, `appAccount`) have very different
 dependency footprints. `appSurvey` is a public-facing survey-taking interface; it needs a small
-subset of `veysur-common` and none of the billing, admin, or validation logic. The configuration
+subset of `veysur-common` and none of the admin or validation logic. The configuration
 described here ensures each app's bundle contains only what it actually uses.
 
 ## Route and component-level code-splitting
 
-All four `Router.tsx` files use `lazyWithChunkReload` (`common/lazyWithChunkReload.ts`) for route-level imports. This wraps `React.lazy()` and auto-reloads the page once on `ChunkLoadError`, preventing blank screens after a deployment invalidates old chunk hashes.
+Every `Router.tsx` file use `lazyWithChunkReload` (`common/lazyWithChunkReload.ts`) for route-level imports. This wraps `React.lazy()` and auto-reloads the page once on `ChunkLoadError`, preventing blank screens after a deployment invalidates old chunk hashes.
 
 - **Routes** — each `Router.tsx` lazy-loads all page components. Each app's `App.tsx` wraps `RouterProvider` in `<Suspense fallback={<RouteLoading />}>` to show a spinner while the initial route chunk fetches.
 - **Question type components** — `component/SurveyQuestionType/getQuestionType.ts` uses `React.lazy()` for every registry entry. Each type (including the heavy `QuestionTypeRanking` with dnd-kit, and `QuestionTypeMatrix`) becomes its own chunk fetched only when a question of that type is first rendered. `SurveyQuestionRenderer` provides a per-question `Suspense` boundary that catches these suspensions.
@@ -18,7 +18,7 @@ RSBuild handles the chunking automatically — no configuration changes are need
 
 ## Separate bundles per app
 
-`rsbuild.config.ts` defines four entry points:
+`rsbuild.config.ts` defines one entry point per app:
 
 ```ts
 source: {
@@ -26,13 +26,12 @@ source: {
     admin:    './src/appAdmin/index.tsx',
     survey:   './src/appSurvey/index.tsx',
     account:  './src/appAccount/index.tsx',
-    platform: './src/appPlatform/index.tsx',
   }
 }
 ```
 
 Each entry produces an isolated bundle. Code imported only by `appAdmin` (survey editor,
-validation, patch buffering, billing) is never included in the `appSurvey` bundle. RSBuild traces
+validation, patch buffering) is never included in the `appSurvey` bundle. RSBuild traces
 the import graph from each entry independently.
 
 Per-app configs (`rsbuild.survey.config.ts`, `rsbuild.admin.config.ts`, etc.) exist for focused

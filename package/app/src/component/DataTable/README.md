@@ -340,7 +340,7 @@ const columns = [
 ]
 ```
 
-It accepts a `className` override and a `format`/`title` override; see `columns.tsx` for the full signature. An overlay adds its own column factories beside its own pages rather than here.
+It accepts a `className` override and a `format`/`title` override; see `columns.tsx` for the full signature. An extension adds its own column factories beside its own pages rather than here.
 
 ## Notes
 

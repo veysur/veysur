@@ -33,8 +33,8 @@ function setHtml(
  * keyed by its path relative to `assetDir` (see `setHtml`), and registers any
  * files under a `partial/` directory as Handlebars partials.
  *
- * Exported so the cloud composition (`api-cloud`) can call it a second time
- * against its own asset directory, merging platform-only templates into the
+ * Exported so an extension can call it a second time
+ * against its own asset directory, merging extra templates into the
  * same `htmlConfig` object without core needing to know about them.
  */
 export const scanHtmlAssets = function (

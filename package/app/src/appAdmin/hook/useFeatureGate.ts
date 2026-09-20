@@ -10,8 +10,7 @@ const FEATURE_GATE_STALE_TIME_MS = 60 * 1000 // 1 minute — mirrors server-side
 
 /**
  * Feature-gate hints for the admin UI. Backed by a pluggable
- * `FeatureGateProvider` (registry-injected) so core carries no
- * commercial (plan or billing) vocabulary — the cloud edition supplies the real
+ * `FeatureGateProvider` (registry-injected). An extension may supply the real
  * provider; self-hosted keeps the no-op default, which returns an empty map.
  *
  * When gate data is unavailable (self-hosted, or the query is disabled) the

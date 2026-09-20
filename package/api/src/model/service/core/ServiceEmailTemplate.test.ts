@@ -56,7 +56,7 @@ describe('ServiceEmailTemplate', () => {
   describe('getProjectAll', () => {
     // Regression test: this previously called `this.getRepo('project')` to resolve
     // a default language, which is `undefined` in self-hosted (no `project` repo
-    // in that edition — see `_getProjectDefaultLang`). The mocked `getRepo` above
+    // in self-hosted — see `_getProjectDefaultLang`). The mocked `getRepo` above
     // deliberately has no `project` key, so this fails the same way production did
     // if that dependency is ever reintroduced.
     it('resolves without a project repo and defaults the language to en', async () => {

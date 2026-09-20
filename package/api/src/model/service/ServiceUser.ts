@@ -26,7 +26,7 @@ import { ServiceEmailDomainCheck } from './ServiceEmailDomainCheck'
 const ACCOUNT_DELETION_RETENTION = 'P1M'
 
 /**
- * What an overlay adds to a profile update: extra fields for the same `$set`
+ * What an extension adds to a profile update: extra fields for the same `$set`
  * as core's own, and the audit event actions to log once that write succeeds.
  */
 export interface ProfileExtension {
@@ -242,9 +242,9 @@ export class ServiceUser extends Service {
   }
 
   /**
-   * Extension point for profile fields an overlay adds. Called after core has
+   * Extension point for profile fields an extension adds. Called after core has
    * read its own fields from `data` and before validation and the write, so an
-   * overlay can validate, and reject, against the stored `user`. Core has none.
+   * extension can validate, and reject, against the stored `user`. Core has none.
    */
   protected async prepareProfileExtension(_args: {
     data: Partial<User>
@@ -254,7 +254,7 @@ export class ServiceUser extends Service {
   }
 
   /**
-   * Extension point for stored fields an overlay must scrub, alongside core's,
+   * Extension point for stored fields an extension must scrub, alongside core's,
    * when a soft-deleted user is anonymised. Core has none.
    */
   protected getAnonymisedExtensionFields(): Record<string, null> {

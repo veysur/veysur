@@ -6,8 +6,7 @@
 
 ## Context
 
-The mail relay handles both transactional email (verify, password reset, subscription
-confirmation) and project survey invitations/reminders. When an admin triggers a bulk
+The mail relay handles both transactional email (verify, password reset) and project survey invitations/reminders. When an admin triggers a bulk
 "send invites" or "send reminders" batch, all recipients were emailed essentially at
 once. If a project's list has spam-trap or complaint issues, the entire batch went out
 before any feedback-loop report could arrive — putting the shared mail relay's sender
@@ -35,11 +34,10 @@ infrastructure:
 - The enqueue-time spread window is sized dynamically per batch:
   `spreadWindowHours = batch.length / perProjectMaxPerHour`, so a small batch sends
   almost immediately and a large one is spread proportionally further.
-- `EMAIL_SEND_RATE_PER_HOUR` is a new `SUBSCRIPTION_FEATURES` entry, sourced per plan
-  tier (and per-project override) via the existing `UsageGuard`/`ServiceProjectSubscription`
-  feature-map mechanism, not a flat config constant — every tier defines a finite numeric
-  limit (no "unlimited" option), since this exists purely to protect shared relay
-  reputation.
+- The per-project hourly send rate comes from `ServiceEmail.emailSendRatePerHour()`, which
+  defaults to a flat finite limit (no "unlimited" option), since this exists purely to
+  protect shared relay reputation. A deployment can override the method to supply its own
+  rate per project.
 
 Only the admin-triggered bulk paths (`ServiceSurveyParticipantEmail.send()`/
 `.sendReminders()`) are changed. `ServiceAuthParticipant._sendRegistrationEmail()` and
@@ -64,7 +62,7 @@ See [../../mail-queue-pacing.md](../../mail-queue-pacing.md) for the operational
 automatically (matches prior synchronous behaviour); a transient SMTP failure
 permanently skips that participant until an admin manually re-triggers, visible via
 `RepoEmail.error` but not proactively alerted on. The enqueue-time spread window has no
-maximum cap, so a very large campaign against a low-tier rate limit can compute a
+maximum cap, so a very large campaign against a low rate limit can compute a
 multi-day window — accepted as intended, since holding the configured rate is the whole
 point regardless of campaign size.
 

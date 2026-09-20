@@ -47,21 +47,20 @@ Rules: always follow pattern order; use explicit action suffixes (`/edit`, `/vie
 
 ## Application Structure
 
-| App           | Purpose                                                  | OSS/self-install eligible?                                                  |
-| ------------- | -------------------------------------------------------- | --------------------------------------------------------------------------- |
-| `appAdmin`    | Survey management interface for project owners           | Yes                                                                         |
-| `appSurvey`   | Survey-taking interface for participants                 | Yes                                                                         |
-| `appAccount`  | Account management — profile, billing, subscriptions     | Yes (UI shell); may call `/api/platform` endpoints that are stripped in OSS |
-| `appPlatform` | Internal platform admin                                   | No — lives entirely in a private commercial overlay, not part of this repo |
+| App           | Purpose                                              |
+| ------------- | ---------------------------------------------------- |
+| `appAdmin`    | Survey management interface for project owners       |
+| `appSurvey`   | Survey-taking interface for participants             |
+| `appAccount`  | Account management, including profile                |
 
-**Key distinction**: The `/api/platform/` URL prefix marks backend functionality that is platform-specific and would be excluded from any OSS release. This is independent of which frontend app makes the request — `appAccount` legitimately calls `/api/platform/` endpoints for billing. When deciding where code belongs, ask whether the _feature_ would exist in a self-hosted OSS deployment.
+An extension may add further sub-apps (such as `appPlatform`) and `/api/platform/` endpoints. Those trees are not part of this repo, and the `/api/platform/` prefix is independent of which frontend app makes the request.
 
 ### Import boundary (lint-enforced)
 
 Shared code (`src/component/**`, `src/hook/**`, `src/common/**`, `src/registry/**`) **may
 not import** any sub-app tree (`appAdmin/**`, `appSurvey/**`, `appAccount/**`,
-`appPlatform/**`). `appAdmin/**` and `appSurvey/**` (both shipped self-hosted) **may not
-import** `appPlatform/**`, `appAccount/billing/**`, or `veysur-common-cloud`. `pnpm lint`
+`appPlatform/**`). `appAdmin/**` and `appSurvey/**` **may not
+import** `appPlatform/**`, `appAccount/billing/**`, or the extension package `veysur-common-cloud`. `pnpm lint`
 enforces this (`no-restricted-imports` in `eslint.config.mjs`).
 
 The rule runs at `error` — `pnpm lint` fails on any violation.
@@ -147,9 +146,9 @@ export function useEntityList() {
 
 **Build every authenticated `useQuery` in `appAdmin`/`appAccount`/`appPlatform` with `useAuthdQuery`** (`/package/app/src/hook/useAuthdQuery.ts`), not a raw `useQuery`. `RestClient`'s JWT refresh (`jwtRefresher`) is registered by whichever `useAuth()`-calling component's `useEffect` happens to mount first — there is no single provider owning it, so a query that fires before any `useAuth()` instance has registered can go out with a stale token and 401 intermittently. `useAuthdQuery` closes this deterministically by awaiting `authRefreshWithRetry()` from its own local `useAuth()` instance before running `queryFn`, regardless of mount order. `useInvalidatingMutation` does the same for `mutationFn`, so mutation hooks get this for free. Exceptions (leave on plain `useQuery`): `useAuth.ts`'s own `[KEY_STATE_AUTH]` query (would be circular), local-persistence-only hooks with no network call (e.g. `usePaginationPerPage.ts`, `useCookieConsent.ts`), and genuinely unauthenticated/pre-login queries (e.g. geo/VAT lookups in `useBlockedCountries.ts`, `useCountryAccess.ts`, `useVatContext.ts`).
 
-**`authRefresh(true)` calls must stay.** Force-refresh after any mutation that changes auth-related user data (email verification, subscription change, 2FA toggle) to reload React auth state. This is distinct from keeping the JWT fresh — it pushes a server-side change into the React layer.
+**`authRefresh(true)` calls must stay.** Force-refresh after any mutation that changes auth-related user data (email verification, 2FA toggle) to reload React auth state. This is distinct from keeping the JWT fresh — it pushes a server-side change into the React layer.
 
-**`authRefresh(true)` calls must stay.** Force-refresh after any mutation that changes auth-related user data (email verification, subscription change, 2FA toggle) to reload React auth state. This is distinct from keeping the JWT fresh — it pushes a server-side change into the React layer.
+**`authRefresh(true)` calls must stay.** Force-refresh after any mutation that changes auth-related user data (email verification, 2FA toggle) to reload React auth state. This is distinct from keeping the JWT fresh — it pushes a server-side change into the React layer.
 
 ## Detailed Implementation Patterns
 

@@ -136,7 +136,7 @@ Events land in the DLQ when:
 DLQ entries are stored in Redis with no TTL — they persist until retried or Redis is flushed.
 
 The core edition exposes no endpoint to inspect or retry DLQ entries. `ServiceEventLog` provides the
-health and DLQ methods, and a composing overlay can expose them over HTTP.
+health and DLQ methods, and a deployment can expose them over HTTP through an extension.
 
 ## Database Storage
 

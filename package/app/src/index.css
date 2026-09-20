@@ -1,9 +1,9 @@
 @import 'tailwindcss';
 /*
- * Composition-gate partial (see docs/core-cloud/seams.md, "Composition
- * gate") — generated/gitignored with the cloud edition's real Tailwind
- * `@source` scan path in a cloud build, or the committed no-op default
- * otherwise. Never hand-edit this @import's target directly.
+ * Composition-gate partial (see the "Composition gate" comment in
+ * appAccount/cloudCompositionDefault.tsx) — generated/gitignored with an
+ * extension's real Tailwind `@source` scan path when one is present, or the
+ * committed no-op default otherwise. Never hand-edit this @import's target directly.
  */
 @import './cloudTailwindSource.css';
 @import 'tw-animate-css';

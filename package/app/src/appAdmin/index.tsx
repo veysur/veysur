@@ -14,14 +14,14 @@ import 'common/initMoment'
 // package/app/.gitignore): a self-hosted-safe no-op stub in a
 // standalone/self-hosted build, or the real `veysur-app-cloud`
 // `registerFeatureGateProvider` wiring (imported here for its side effect)
-// in a commercial build. See the "Composition gate" comment in
+// in a build that includes the extension. See the "Composition gate" comment in
 // appAccount/cloudCompositionDefault.tsx for the generator mechanism this
 // mirrors.
 if (!isSelfHosted() && !isGenerated) {
   throw new Error(
-    'appAdmin/cloudFeatureGate.ts is still the self-hosted stub in a cloud ' +
-      'build. Run `pnpm run generate-cloud-composition` (or `pnpm build`/`pnpm ' +
-      'dev`, which do this automatically) from a commercial checkout before ' +
+    'appAdmin/cloudFeatureGate.ts is still the self-hosted stub in a build ' +
+      'that includes the extension. Run `pnpm run generate-cloud-composition` (or `pnpm build`/`pnpm ' +
+      'dev`, which do this automatically) with the extension package present before ' +
       'building appAdmin. See the "Composition gate" comment in ' +
       'appAccount/cloudCompositionDefault.tsx.',
   )

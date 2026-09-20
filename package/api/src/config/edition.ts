@@ -2,8 +2,8 @@
  * Deployment edition.
  *
  * One `self-hosted | cloud` concept, read from `DEPLOYMENT_MODE`. Anything other
- * than the exact string `self-hosted` (including unset) resolves to `cloud`, so
- * the commercial edition's behaviour never changes without an explicit opt-in.
+ * than the exact string `self-hosted` (including unset) resolves to the other
+ * value, so behaviour never changes without an explicit opt-in.
  *
  * This module is intentionally branch-free. Later workstreams add the actual
  * `isSelfHosted()` / `isCloud()` call sites; adding one here would be dead code.

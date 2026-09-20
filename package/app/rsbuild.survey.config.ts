@@ -11,7 +11,7 @@ export default defineConfig({
         process.env.PUBLIC_EDITION || 'cloud',
       ),
       // Default matches the route paths' historical shape (routes no longer
-      // hardcode '/survey' themselves — see appSurvey/Router.tsx) so cloud's
+      // hardcode '/survey' themselves — see appSurvey/Router.tsx) so existing
       // served URLs are unchanged; a self-hosted deployment may override.
       'process.env.PUBLIC_BASE_SURVEY': JSON.stringify(
         process.env.PUBLIC_BASE_SURVEY || '/survey',

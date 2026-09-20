@@ -1,6 +1,6 @@
 # VeySur documentation
 
-Developer and operator documentation for the self-hostable edition. Start with the document that
+Developer and operator documentation for the self-hostable VeySur. Start with the document that
 matches what you are doing.
 
 | Document | Read it to |

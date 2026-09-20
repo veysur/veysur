@@ -51,7 +51,7 @@ with `docker build --build-arg` only for a custom install.
 
 | Build argument | Default | Effect |
 |---|---|---|
-| `PUBLIC_EDITION` | `self-hosted` | Unset resolves to the commercial edition, so this default must stay |
+| `PUBLIC_EDITION` | `self-hosted` | Leave at `self-hosted`; an unset value selects a different, unsupported mode |
 | `PUBLIC_PROJECT_SCOPE` | `single` | Admin resolves its one project without a per-project subdomain |
 | `PUBLIC_REST_API_BASE_PATH` | `/api` | API path on the single origin |
 | `PUBLIC_BASE_ACCOUNT` | `/account` | Account app path, also the "Manage Account" link target |

@@ -26,7 +26,7 @@ const routes = createRoutesFromElements(
 
 // Route paths are basename-relative (no hardcoded `/survey` prefix) — the
 // `/survey` shape comes entirely from the basename, defaulting to `/survey`
-// so cloud's served URLs (and the `/survey/:id[...]` links built by
+// so existing served URLs (and the `/survey/:id[...]` links built by
 // PageSurveyEditShare.tsx and EmailVerifyToken.buildSurveyLink) are
 // unchanged. A self-hosted single-origin deployment can still override
 // PUBLIC_BASE_SURVEY to serve from elsewhere.

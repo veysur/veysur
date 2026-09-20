@@ -2,7 +2,7 @@ import type { ComponentType } from 'react'
 import type { AuthData } from 'hook'
 
 /**
- * Extension points the cloud edition uses to inject cloud-only UI into shared
+ * Extension points an extension uses to inject its own UI into shared
  * `appAccount` shell components/pages without core knowing what that UI is.
  * See `registry/getAccountFooterExtraNav.ts` / `registry/getLoginExtraContent.ts`.
  */
@@ -26,7 +26,7 @@ export type ProfileDangerZoneExtra = ComponentType
 export interface AccountNavItem {
   label: string
   // A generic component shape, not lucide-react's own `LucideIcon` type -
-  // the cloud edition has its own separate `lucide-react` install, and
+  // an extension may have its own separate `lucide-react` install, and
   // typing this against the exact `LucideIcon` type causes a cross-package
   // nominal mismatch even though the actual icon components are
   // structurally compatible.
@@ -51,9 +51,9 @@ export interface AccountNavProvider {
  * usable project to work in - consulted only from the login-redirect flow
  * (`AuthDomain.handleAuthed()`), never on a later, ordinary visit to the
  * account app's root. Self-hosted's default (defined alongside
- * `AuthDomain.handleAuthed()` itself, since self-hosted has no cloud project
+ * `AuthDomain.handleAuthed()` itself, since self-hosted has no multi-project
  * data to inspect) always returns the current host's admin URL - self-hosted
- * only ever has the one project. Cloud registers a resolver that inspects
+ * only ever has the one project. An extension can register a resolver that inspects
  * `auth.user.projectOwn`/`projectAdmin` and only returns a URL when there is
  * exactly one usable (active) project.
  */

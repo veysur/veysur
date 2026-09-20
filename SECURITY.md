@@ -8,8 +8,7 @@ Email **admin@veysur.com** with:
 
 - A description of the vulnerability and its potential impact.
 - Steps to reproduce, or a proof-of-concept if you have one.
-- The version/commit you tested against, and whether it's the self-hosted
-  edition or the hosted VeySur.com service.
+- The version/commit you tested against.
 
 We aim to acknowledge reports within 3 business days.
 
@@ -27,11 +26,9 @@ We aim to acknowledge reports within 3 business days.
 
 ## Supported versions
 
-Only the latest released version of the self-hosted edition receives
+Only the latest released version receives
 security fixes. There is no long-term-support branch at this time.
 
 ## Scope
 
-This policy covers the code in this repository. Found something affecting
-the hosted VeySur.com service instead? Use the same email address above
-rather than a public issue here.
+This policy covers the code in this repository.

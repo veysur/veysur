@@ -91,15 +91,6 @@ RepoEmail row persisted                              │
   below. This is a deliberate simplification (core has no `RepoProject`/multi-tenant
   project machinery — see `model/service/ServiceProject.ts`), not an oversight —
   self-hosted's mail volume is the operator's own concern.
-- The cloud edition has its own per-project pause/quota enforcement layered on top of this
-  same queue, implemented and tracked separately in the commercial package's own
-  documentation — not covered here.
-
-## Per-plan send-rate limits
-
-A commercial edition may additionally cap the hourly send rate per plan tier, layered on
-top of the queue pacing described above — tracked in the commercial package's own
-documentation, not covered here.
 
 ## Configuration
 
@@ -110,7 +101,7 @@ documentation, not covered here.
 | `mail.queue.processBatchSize` | `API_MAIL_QUEUE_PROCESS_BATCH_SIZE` | 200     | Max rows dispatched per `processQueue` run |
 
 This is operational tuning (how much work one task run does), not a customer-facing
-entitlement, so it stays flat config rather than a subscription feature.
+limit, so it stays flat config.
 
 ## Manual troubleshooting (dev stack)
 
@@ -142,10 +133,3 @@ ORDER BY jdoc->>'$.scheduledAt';
 
 Per-row dispatch failures are recorded on `RepoEmail.error` (row stays `status: 'error'`,
 not retried automatically) — visible via the query above but not proactively alerted on.
-
-## How this relates to per-project daily quota and abuse pause
-
-Queue pacing (this doc) only controls _when_ a project's queued batch sends, spread over
-time — it is core, self-hosted-eligible, and independent of any per-project daily quota
-or abuse-driven pause a given edition may layer on top. Those are a separate concern,
-tracked in the commercial package's own documentation, not covered here.

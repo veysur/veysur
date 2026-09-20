@@ -40,7 +40,7 @@ export class ServiceSurveyResponse extends Service {
 
   /**
    * Manually created (admin) responses never count toward any plan-level
-   * response usage limit a commercial edition may enforce, regardless of
+   * response usage limit a deployment may enforce, regardless of
    * completion status — this method intentionally never calls a usage guard.
    */
   async create({

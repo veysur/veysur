@@ -49,8 +49,8 @@ real example.
 ### `card` / `card-foreground`
 
 - Utilities: `bg-card`, `text-card-foreground`.
-- Use for: any raised content panel: cards, accordion items, articles, the pricing
-  comparison table, the legal-doc body. In `package/app` prefer the `<Card>`
+- Use for: any raised content panel: cards, accordion items, articles, comparison
+  tables, the legal-doc body. In `package/app` prefer the `<Card>`
   primitive (`src/component/shadcn/card.tsx:10`); `package/website` and
   `package/blogsite` apply the same class string by hand.
 - `--header` and `--footer` (with their `-foreground` pairs) currently alias
@@ -206,8 +206,7 @@ There is no single "highlight" token. Pick by intent:
 | Active element in the survey editor | the `bg-editor-active` utility (`package/app/src/styles/tokens-app.css`) |
 
 Current drift to be aware of: selected rows appear as `bg-muted`, `bg-muted/70` and
-`bg-accent/30` in different components; the app subscription tier card uses
-`border-primary` where the website pricing card uses a full `bg-primary` fill.
+`bg-accent/30` in different components.
 
 ## Cross-package notes
 

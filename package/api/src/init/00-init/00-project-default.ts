@@ -5,8 +5,8 @@ import { isSelfHosted } from 'config/edition'
 
 /**
  * Self-hosted has exactly one project, provisioned at install time under the
- * fixed id DEFAULT_PROJECT_ID. Cloud derives X-Project-Id from the request's
- * subdomain, via its own init step in the commercial package; self-hosted has
+ * fixed id DEFAULT_PROJECT_ID. An extension may derive X-Project-Id from the request's
+ * subdomain, via its own init step; self-hosted has
  * no subdomain to derive it from, so it's supplied unconditionally here
  * instead.
  */

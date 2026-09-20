@@ -17,7 +17,7 @@ import { PreAuthData } from 'model/api/ApiAuth'
 import { authRefreshWithRetry as authRefreshWithRetryUtil } from './useAuth/authRefreshWithRetry'
 
 /**
- * The authenticated user as the client sees it. An overlay adds its own fields by
+ * The authenticated user as the client sees it. An extension adds its own fields by
  * declaration merging, so core carries none of them.
  */
 export interface AuthUser {

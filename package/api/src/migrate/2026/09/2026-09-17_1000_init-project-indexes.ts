@@ -20,7 +20,7 @@ export default class InitProjectIndexes implements DatabasePatchInterface {
   async update(modelManager: ModelManager): Promise<void> {
     const repo = modelManager.getRepo('project')
     if (!repo) {
-      console.log('✓ No project repository in this edition, skipping\n')
+      console.log('✓ No project repository in this deployment, skipping\n')
       return
     }
 

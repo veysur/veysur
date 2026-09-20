@@ -7,7 +7,7 @@ const addedSchemas: Schema[][] = []
 
 // composeModel.ts pulls in acl/role-assessor/AuthedAdmin.ts, which imports
 // model-manager.ts at module scope — that module eagerly require()s the
-// compiled commercial-only api-cloud package (unresolvable under this
+// compiled extension package (unresolvable under this
 // package's jest config), so it's stubbed out here rather than letting the
 // real cross-package require() run during a unit test.
 jest.mock('model-manager', () => ({ modelManager: {}, composition: {} }))
@@ -76,17 +76,17 @@ describe('composeModel', () => {
       registry: { maxSize: 20, idleTimeout: 1800000 },
     })
   })
-  it('registers extraSchemas after core schemas so an overlay schema replaces a core one by name', () => {
+  it('registers extraSchemas after core schemas so an extension schema replaces a core one by name', () => {
     // mzen-om's ModelManager.addSchema assigns `schemas[name] = schema`, so the
-    // last registration under a name wins. An overlay that supplies its own
+    // last registration under a name wins. An extension that supplies its own
     // `user` schema therefore overrides core's without a dedicated seam.
-    class OverlayUserSchema extends Schema {
+    class ExtensionUserSchema extends Schema {
       constructor() {
         super(sb.schema('user').shape({ _id: sb.string() }).build())
       }
     }
 
-    composeModel({ extraSchemas: [OverlayUserSchema] })
+    composeModel({ extraSchemas: [ExtensionUserSchema] })
 
     const registered = addedSchemas[0]
     const userIndexes = registered
@@ -95,7 +95,7 @@ describe('composeModel', () => {
 
     expect(userIndexes.length).toBeGreaterThan(1)
     expect(registered[userIndexes[userIndexes.length - 1]]).toBeInstanceOf(
-      OverlayUserSchema,
+      ExtensionUserSchema,
     )
   })
 })

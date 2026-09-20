@@ -11,7 +11,7 @@ describe('ServiceFileDeletion', () => {
   describe('hardDeleteAll', () => {
     // Regression test: this previously called `this.getRepo('project').find({})`
     // unconditionally, which throws in self-hosted — there is no `project` repo in
-    // that edition (single, config-sourced project — see `model/service/ServiceProject.ts`).
+    // self-hosted (single, config-sourced project — see `model/service/ServiceProject.ts`).
     // This is wired up as a recurring scheduled task, so the bug fired on every run.
     it('processes the single default project in self-hosted, without a project repo', async () => {
       process.env.DEPLOYMENT_MODE = 'self-hosted'
@@ -47,7 +47,7 @@ describe('ServiceFileDeletion', () => {
       )
     })
 
-    it('processes every project from the project repo in the cloud edition', async () => {
+    it('processes every project from the project repo when not self-hosted', async () => {
       process.env.DEPLOYMENT_MODE = 'cloud'
       const service = new ServiceFileDeletion()
 

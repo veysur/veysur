@@ -3,8 +3,8 @@
  *
  * Mirrors `package/api/src/config/edition.ts`. The value is baked at build time
  * by rsbuild `source.define` from `PUBLIC_EDITION`. Anything other than the exact
- * string `self-hosted` (including unset) resolves to `cloud`, so the commercial
- * edition's behaviour never changes without an explicit opt-in.
+ * string `self-hosted` (including unset) resolves to the other value, so
+ * behaviour never changes without an explicit opt-in.
  *
  * Branch-free for now (WS1); later workstreams add the `isSelfHosted()` /
  * `isCloud()` call sites. Never imported by `veysur-common`.

@@ -215,7 +215,7 @@ async function resolveContexts(
   if (cliArgs.contextLookup) {
     if (!composition.migrate) {
       console.error(
-        "Error: --context-lookup requires the cloud edition's per-project " +
+        'Error: --context-lookup requires a per-project ' +
           'database topology, which self-hosted does not have (a single ' +
           'database, no dynamic "project" datasource to look up). Omit ' +
           '--context-lookup and target --datasource/--context directly.',
@@ -272,11 +272,10 @@ function mergeResults(
 /**
  * Run one database's migration against the given base MigrationManager config.
  *
- * The default (cloud) edition runs a second pass over whatever patch directory
- * and meta table the resolved `composition.migrate` names (populated by the
- * commercial edition's composition module, see `model-manager.ts`) — those
- * patches cover data owned by the commercial edition, whose repos and `task:` services
- * are absent from a self-hosted deployment. `--datasource project` never
+ * When a composition module is configured, a second pass runs over whatever
+ * patch directory and meta table the resolved `composition.migrate` names (see
+ * `model-manager.ts`) — those patches cover data owned by the extension, whose
+ * repos and `task:` services are absent from a self-hosted deployment. `--datasource project` never
  * carries platform migrations, so the second pass is account-only.
  */
 async function runOne(

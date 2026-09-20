@@ -53,7 +53,7 @@ describe('ServiceVerifyEmail', () => {
   })
 
   describe('sendForUser', () => {
-    test('builds a subdomain verify URL under the default (cloud) config', async () => {
+    test('builds a subdomain verify URL under the default (non-self-hosted) config', async () => {
       await service.sendForUser(user)
 
       expect(mockServiceEmail.send).toHaveBeenCalledWith(

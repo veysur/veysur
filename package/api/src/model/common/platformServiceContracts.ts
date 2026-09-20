@@ -2,7 +2,7 @@
  * Structural contracts for platform-layer collaborators that core/root services
  * consult *when present*. Core resolves them by name via getService()/getRepo()
  * and skips the behaviour entirely when the collaborator is absent (the
- * self-hosted edition, which has no geo / domain-block layer).
+ * self-hosted deployment, which has no geo / domain-block layer).
  *
  * Keeps core free of static imports from the platform service/repo trees.
  */

@@ -3,7 +3,7 @@ import globals from 'globals'
 import ts from 'typescript-eslint'
 
 // Core/shared code may not import platform-layer code. The platform trees
-// themselves live in a separate commercial-only `veysur-api-cloud` package;
+// themselves live in a separate `veysur-api-cloud` extension package;
 // this rule keeps core from reaching back into it other than through
 // model-manager.ts's lazy require().
 const platformImportRule = [
@@ -14,12 +14,12 @@ const platformImportRule = [
         group: ['veysur-api-cloud', 'veysur-api-cloud/**'],
         message:
           'Core/shared/model/init code must not statically import veysur-api-cloud ' +
-          '(commercial-only code, not part of this repo). See package/api/AGENTS.md.',
+          '(extension code, not part of this repo). See package/api/AGENTS.md.',
       },
       {
         group: ['veysur-common-cloud', 'veysur-common-cloud/**'],
         message:
-          'Core/shared code must not import veysur-common-cloud (commercial-only code, ' +
+          'Core/shared code must not import veysur-common-cloud (extension code, ' +
           'not part of this repo).',
       },
     ],

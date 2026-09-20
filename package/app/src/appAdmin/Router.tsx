@@ -260,9 +260,8 @@ const routes = createRoutesFromElements(
   </Route>,
 )
 
-// Basename is configurable so the self-hosted edition can serve admin from a
-// path other than `/admin` (e.g. `/` on a single origin). Defaults to today's
-// cloud value.
+// Basename is configurable so a self-hosted deployment can serve admin from a
+// path other than `/admin` (e.g. `/` on a single origin). Defaults to `/admin`.
 const router = createBrowserRouter(routes, {
   basename: process.env.PUBLIC_BASE_ADMIN || '/admin',
 })

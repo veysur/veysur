@@ -15,11 +15,11 @@ export default class BackfillProjectTimezone implements DatabasePatchInterface {
   async update(modelManager: ModelManager): Promise<void> {
     // Self-hosted has no 'project' repo at all (single, config-sourced Project —
     // see model/service/ServiceProject.ts) — nothing to backfill on a fresh
-    // install of this edition; only the cloud edition's own RepoProject applies.
+    // install; only an extension's own RepoProject applies.
     const repo = modelManager.getRepo('project')
     if (!repo) {
       console.log(
-        '✓ No project repository in this edition, skipping backfill\n',
+        '✓ No project repository in this deployment, skipping backfill\n',
       )
       return
     }

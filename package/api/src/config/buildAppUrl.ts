@@ -3,9 +3,9 @@ import { AppConfig } from './types'
 export type AppUrlTarget = 'account' | 'platform' | 'survey'
 
 /**
- * Builds an absolute URL to another frontend app (account/platform/survey),
+ * Builds an absolute URL to another frontend app (account/survey, plus any app an extension adds),
  * respecting the per-edition domain/path-prefix config in `config/default.ts`
- * (subdomain-per-app in cloud, single-domain path-prefix in self-hosted).
+ * (subdomain-per-app by default, single-domain path-prefix in self-hosted).
  */
 export function buildAppUrl(
   app: Pick<

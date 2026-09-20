@@ -45,7 +45,7 @@ export class ServiceFileUpload extends Service {
 
   /**
    * Called before a genuinely new file record is created, so a subclass can
-   * reject the write (e.g. a storage limit was reached). No-op in core. Overlay seam.
+   * reject the write (e.g. a storage limit was reached). No-op in core. Extension seam.
    *
    * @param fileSizeBytes size of the file about to be stored
    */

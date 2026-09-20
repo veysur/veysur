@@ -13,15 +13,15 @@ const {
   // - with subdomain e.g `www` which may be replaced with
   // - `account` or `platform` where needed
   API_WEB_DOMAIN,
-  // accountDomain override — defaults to a cloud subdomain swap of webDomain, or
+  // accountDomain override — defaults to a subdomain swap of webDomain, or
   // webDomain itself (same origin) in self-hosted
   API_ACCOUNT_DOMAIN,
   // accountBasePath override — path prefix for account app links (password reset,
-  // email verify, team invite). Defaults to '' in cloud, '/account' in self-hosted,
+  // email verify, team invite). Defaults to '' outside self-hosted, '/account' in self-hosted,
   // matching the frontend's PUBLIC_BASE_ACCOUNT basename convention
   API_BASE_ACCOUNT,
   // platformDomain / platformBasePath overrides — mirrors accountDomain/
-  // accountBasePath above, for platform admin links (api-cloud only)
+  // accountBasePath above, for links added by an extension
   API_PLATFORM_DOMAIN,
   API_BASE_PLATFORM,
   API_SERVER_PORT,
@@ -147,8 +147,7 @@ const {
 const webDomain = API_WEB_DOMAIN ? API_WEB_DOMAIN : 'www.mydomain.com'
 
 export const app = {
-  // Deployment edition — 'self-hosted' | 'cloud'. Inert today (WS1); read via
-  // DEPLOYMENT_MODE, defaults to 'cloud'. Exposed here for discoverability.
+  // Deployment mode, read via DEPLOYMENT_MODE. Exposed here for discoverability.
   edition: getEdition(),
   brandName: API_BRAND_NAME ? API_BRAND_NAME : 'VeySur',
   companyName: API_COMPANY_NAME ? API_COMPANY_NAME : 'MyCompany',
@@ -403,12 +402,12 @@ const cacheDbDataSource =
     : []
 
 /**
- * WS6 — the self-hosted edition is one database, initialised at install time by
+ * WS6 — the self-hosted deployment is one database, initialised at install time by
  * `pnpm migrate`. There is no `'project'` datasource at all — self-hosted has no
  * `RepoProject` (the single project is a static config value, see
  * `model/service/ServiceProject.ts`), no `type: 'dynamic'` entry, no
- * `dynamicDataSource` registry, and no `ipLocation` datasource. Cloud overlays all
- * of these back on (database-per-project) via `composeModel()`'s
+ * `dynamicDataSource` registry, and no `ipLocation` datasource. An extension can add all
+ * of these back (database-per-project) via `composeModel()`'s
  * `extraDataSources`/`dynamicDataSource` composition fields (see `composeModel.ts`),
  * alongside the `extraRepos`/`extraInit` that register its own `RepoProject` plus
  * the lookup + ip-lookup steps.

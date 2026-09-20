@@ -28,9 +28,7 @@ export const isAnonymisedTimestamp = (
 export const USER_ROLE_CUSTOMER = 'customer'
 export const USER_ROLE_PLATFORM_ADMIN = 'platformAdmin'
 
-// SUPPORT_TICKET_OPEN_LIMIT (a paid-plan cap) lives in the commercial-only
-// veysur-common-cloud package, not here. The attachment file-validation
-// limits below stay here.
+// The attachment file-validation limits below stay here.
 
 /**
  * S3 file storage constants

@@ -8,8 +8,8 @@ import { ServiceProject } from 'model/service/ServiceProject'
  * it on `ServiceProject`, before the router is mounted — see the docblock on
  * `ServiceProject` for why this must run before any request is served.
  *
- * Cloud overrides `ServiceProject` entirely with `CloudServiceProject`
- * (multi-tenant, no singleton cache to warm), so this is self-hosted only.
+ * An extension can override `ServiceProject` entirely with a multi-project
+ * implementation (no singleton cache to warm), so this is self-hosted only.
  */
 export const initProject = async function (server: Server) {
   if (!isSelfHosted()) return

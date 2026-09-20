@@ -20,9 +20,8 @@ export class ServiceEmailTemplate extends Service {
   }
 
   private async _getProjectDefaultLang(): Promise<string> {
-    // No edition's Project model tracks a language setting (core: no RepoProject
-    // at all — single static project; cloud: RepoProject-backed Project has no
-    // `language` field either) — 'en' is the only real default, matching the
+    // The Project model tracks no language setting (core has no RepoProject
+    // at all, only a single static project) — 'en' is the only real default, matching the
     // fallback every caller of projectDefaultLang already uses.
     return 'en'
   }

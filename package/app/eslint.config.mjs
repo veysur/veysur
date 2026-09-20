@@ -6,9 +6,9 @@ import react from 'eslint-plugin-react/configs/recommended.js'
 import globals from 'globals'
 import ts from 'typescript-eslint'
 
-// Import boundaries between the sub-apps, shared code, and the commercial-only
-// veysur-app-cloud package. appPlatform, appAccount/billing, appAccount/support,
-// and component/billing all live in a separate commercial-only package, never
+// Import boundaries between the sub-apps, shared code, and the extension
+// package veysur-app-cloud. appPlatform, appAccount/billing, appAccount/support,
+// and component/billing all live in that separate package, never
 // in this repo.
 const cloudPackageGroup = {
   group: [
@@ -19,7 +19,7 @@ const cloudPackageGroup = {
   ],
   message:
     'This code must not import veysur-app-cloud or veysur-common-cloud ' +
-    '(commercial-only code, not part of this repo).',
+    '(extension code, not part of this repo).',
 }
 
 const noSubAppGroup = {
@@ -38,14 +38,14 @@ const noSubAppGroup = {
 }
 
 // Shared code (src/component, src/hook, src/common, src/registry): no sub-app
-// imports and no cloud-only code.
+// imports and no extension code.
 const sharedImportRule = [
   'error',
   { patterns: [noSubAppGroup, cloudPackageGroup] },
 ]
 
-// appAdmin / appSurvey ship in the self-hosted edition — they may not import
-// cloud-only code (veysur-app-cloud, veysur-common-cloud).
+// appAdmin / appSurvey ship in the self-hosted build — they may not import
+// extension code (veysur-app-cloud, veysur-common-cloud).
 const selfHostedAppImportRule = ['error', { patterns: [cloudPackageGroup] }]
 
 export default [
@@ -102,8 +102,8 @@ export default [
     },
   },
   {
-    // The public appAccount shell must not import veysur-app-cloud (the
-    // billing/support/project route modules and platform sub-app) so the
+    // The public appAccount shell must not import veysur-app-cloud (its
+    // extra route modules and sub-app) so the
     // self-hosted account build tree-shakes them. Router.tsx reaches it
     // through a PUBLIC_EDITION-gated require() (a runtime dep the
     // no-restricted-imports rule does not inspect).

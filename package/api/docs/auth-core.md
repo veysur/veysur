@@ -17,7 +17,7 @@ Typically, a JWT will have a lifetime of **15 to 30 minutes**.
 ### JWT Types in Our Application
 We use different types of JWT, differentiated by a `type` property. Types are defined in `acl/util/constant.ts` (`JWT_TYPE_ADMIN`, `JWT_TYPE_PARTICIPANT`, `JWT_TYPE_PRE_AUTH`) and signed/verified via the shared `acl/util/Jwt.ts` helper.
 
-- **Admin JWT** (`type: 'admin'`, `SchemaJwtAdmin`): main session token for logged-in users (survey admins, account users, platform admins). Carries `_id`, `clientId`, `email`, `nameFirst`/`nameLast`, `project` (map of `projectId` → owner flag), `role`, `twoFactorEnabled`. Issued by `ServiceAuthDirect.createJsonWebToken` after login, 2FA verification, or refresh. Verified by the `AuthedAdmin` role assessor.
+- **Admin JWT** (`type: 'admin'`, `SchemaJwtAdmin`): main session token for logged-in users (survey admins, account users). Carries `_id`, `clientId`, `email`, `nameFirst`/`nameLast`, `project` (map of `projectId` → owner flag), `role`, `twoFactorEnabled`. Issued by `ServiceAuthDirect.createJsonWebToken` after login, 2FA verification, or refresh. Verified by the `AuthedAdmin` role assessor.
 - **Participant JWT** (`type: 'participant'`, `SchemaJwtParticipant`): anonymous session token for someone taking a survey. Carries `participantId`, `sessionId`, `surveyId`, `snapshotId`, `publicationId`, `projectId`. Issued by `ServiceAuthParticipant`; verified by the `Participant` role assessor. See [auth-participant.md](auth-participant.md).
 - **Pre-auth JWT** (`type: 'pre-auth'`, `SchemaJwtPreAuth`): short-lived intermediate token issued after a correct password but before 2FA is verified. Carries `_id`, `clientId`, `ip`, `userAgent`, device/build info, `requiresTwoFactorSetup`. Issued by `ServiceTwoFactor.createPreAuthJwt`; verified by the `PreAuth` role assessor, then exchanged for a full Admin JWT once 2FA succeeds.
 
@@ -44,7 +44,7 @@ Each time a user authorises a new client, we create a client record.
 
 ## Cross-Domain Authentication
 Our architecture involves:
-- **Account Domain**: `account.veysur.com` – used for account management (project/subscription management).
+- **Account Domain**: `account.veysur.com` – used for account management (account and project management).
 - **Project Domains**: `project-1.veysur.com`, `project-2.veysur.com`, etc.
 
 ### Challenge

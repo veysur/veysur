@@ -14,8 +14,8 @@ import { AuthDomainNavigation } from './AuthDomainNavigation'
 /**
  * Self-hosted default for `SingleProjectRedirectResolver` - unconditional,
  * since self-hosted only ever has the one, config-sourced project (no
- * `auth.user.projectOwn`/`projectAdmin` data to inspect). Cloud overrides
- * this via `Registry`, from the commercial package, with a resolver that
+ * `auth.user.projectOwn`/`projectAdmin` data to inspect). An extension can override
+ * this via `Registry` with a resolver that
  * only returns a URL when the authenticated user has exactly one usable
  * project.
  */

@@ -22,19 +22,19 @@ const PageProfilePassword = lazy(() => import('./page/PageProfilePassword'))
 const PageProfileSecurity = lazy(() => import('./page/PageProfileSecurity'))
 const PageTeamInviteAccept = lazy(() => import('./page/PageTeamInviteAccept'))
 
-// `extraRouteObjects` (and any cloud UI registered into the shared shell's
+// `extraRouteObjects` (and any extension UI registered into the shared shell's
 // extension points — account footer nav, login-page extra content, see
 // model/AccountUiExtension.ts) comes from `./cloudComposition`, a generated
 // file (gitignored — see package/app/.gitignore): a self-hosted-safe default
-// in a standalone/self-hosted build, or the real commercial-only wiring in a
-// commercial build. Deliberately generic here too — this file is committed
-// public source and must not name which commercial-only features exist. See
+// in a standalone/self-hosted build, or the real extension wiring in a
+// build that includes it. Deliberately generic here too — this file is committed
+// public source and must not name which extension features exist. See
 // the "Composition gate" comment in ./cloudCompositionDefault.tsx.
 if (!isSelfHosted() && !isGenerated) {
   throw new Error(
-    'appAccount/cloudComposition.tsx is still the self-hosted stub in a cloud ' +
-      'build. Run `pnpm run generate-cloud-composition` (or `pnpm build`/`pnpm ' +
-      'dev`, which do this automatically) from a commercial checkout before ' +
+    'appAccount/cloudComposition.tsx is still the self-hosted stub in a ' +
+      'build that includes the extension. Run `pnpm run generate-cloud-composition` (or `pnpm build`/`pnpm ' +
+      'dev`, which do this automatically) with the extension package present before ' +
       'building appAccount. See the "Composition gate" comment in ' +
       'cloudCompositionDefault.tsx.',
   )
@@ -96,8 +96,8 @@ routes[0].children = [
   { path: '*', element: <Page404 /> },
 ]
 
-// Configurable basename so the self-hosted edition can serve the account app
-// from a sub-path (e.g. `/account`). Cloud default is empty (origin root).
+// Configurable basename so a self-hosted deployment can serve the account app
+// from a sub-path (e.g. `/account`). The default is empty (origin root).
 const accountBasename = process.env.PUBLIC_BASE_ACCOUNT || undefined
 const router = createBrowserRouter(
   routes,

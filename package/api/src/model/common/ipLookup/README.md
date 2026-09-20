@@ -78,8 +78,7 @@ Returns `country` and `countryCode` only — `region`, `city`, `lat`, `lon`, and
 
 1. Run the migration to create the tables: `pnpm migrate`
 2. Download the CSV from the iplocate repository (extract the zip to get `ip-to-country.csv`)
-3. Ingest (from `package/api-cloud` — the ingest CLI is cloud-only):
-   `pnpm ingest-ip-country -- --csv /path/to/ip-to-country.csv [--truncate]`
+3. Load the CSV into the tables with your own ingest script.
 
 ### Wiring it up
 

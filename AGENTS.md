@@ -6,7 +6,7 @@ coding agents working in this repository.
 ## What this repository is
 
 VeySur is a survey platform: build a survey, publish it, collect responses.
-This repository is the source-available, self-hostable edition, covering
+This repository is the source-available, self-hostable VeySur, covering
 the survey model, the survey editor, the survey-taking application, and
 account management.
 

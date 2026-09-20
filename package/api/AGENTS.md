@@ -44,7 +44,7 @@ real local MySQL are interchangeable. Extra args pass through to jest
 `model/service/core/**`, `model/repo/core/**`, `endpoint/core/**`, `endpoint/shared/**`,
 `model/constructor/**`, `model/schema/**`, `model/entity/**`, `model/common/**`,
 `common/**`, and `init/**` **may not import** `model/**/platform/**`, `endpoint/platform/**`,
-or `veysur-common-cloud`. `pnpm lint` enforces this (`no-restricted-imports` in
+or the extension package `veysur-common-cloud`. `pnpm lint` enforces this (`no-restricted-imports` in
 `eslint.config.mjs`).
 
 The rule runs at `error` — `pnpm lint` fails on any violation.
@@ -53,11 +53,11 @@ The rule runs at `error` — `pnpm lint` fails on any violation.
 
 Two subdirectories plus root-level files:
 
-- **`core/`** — Survey services (open-source eligible): `ServiceSurvey`, `ServiceFile`, `ServiceSurveyParticipant`, `ServiceImportExport`, etc.
-- **`platform/`** — Commercial billing/pricing and platform admin services. Not part of this repo; a private commercial overlay adds this tree via the composition seam (`model-manager.ts`, `config/edition.ts`).
+- **`core/`** — Survey services: `ServiceSurvey`, `ServiceFile`, `ServiceSurveyParticipant`, `ServiceImportExport`, etc.
+- **`platform/`** — Reserved for services that an extension adds. Not part of this repo; an extension supplies this tree through the composition seam (`model-manager.ts`, `config/edition.ts`).
 - **root** — Cross-cutting infrastructure used by both: `ServiceAuth`, `ServiceUser`, `ServiceProject`, `ServiceEmail`, `ServicePing`, etc.
 
-**Decision rule**: Is it billing/subscription/pricing or platform admin? → `platform/`. Would it exist in a self-hosted open-source deployment and isn't survey-specific? → root of `model/service/`. Survey-specific? → `core/`.
+**Decision rule**: Does it belong to an extension rather than this repo? → `platform/`. Is it needed by every deployment and not survey-specific? → root of `model/service/`. Survey-specific? → `core/`.
 
 ### Model Shared Utilities (`src/model/common/`)
 
@@ -82,7 +82,7 @@ Non-model utilities shared across the server. Import via `'common'` or `'common/
 
 ### Endpoints (`src/endpoint/`) and URL prefixes
 
-Directory layout mirrors services (`core/`, `platform/`, `shared/`). All platform endpoints (billing/pricing and platform admin) use an explicit `path: '/platform/<service-name>'` root prefix. Core and shared endpoints have no root `path` — mzen-server derives the URL from the service name automatically.
+Directory layout mirrors services (`core/`, `platform/`, `shared/`). All platform endpoints (those an extension adds) use an explicit `path: '/platform/<service-name>'` root prefix. Core and shared endpoints have no root `path` — mzen-server derives the URL from the service name automatically.
 
 ```typescript
 // Core / shared — URL derived from service name automatically
@@ -91,17 +91,17 @@ export const surveyConfig = {
   endpoints: { ... },
 }
 
-// Platform (billing, subscriptions, admin) — explicit /platform/ prefix
-export const paymentConfig = {
-  service: 'payment',
-  path: '/platform/payment',  // → /platform/payment/*
+// Platform (added by an extension) — explicit /platform/ prefix
+export const exampleConfig = {
+  service: 'example',
+  path: '/platform/example',  // → /platform/example/*
   endpoints: { ... },
 }
 ```
 
-**The `/platform/` prefix is about functionality, not frontend origin.** It marks endpoints that belong to the commercial/hosted platform and would be excluded from any open-source or self-install release. Both `appAccount` and `appPlatform` frontends may call `/platform/` endpoints — for example, `appAccount` calls `/platform/payment` to handle billing. The URL prefix does not indicate which frontend app makes the request; it indicates that the feature is platform-specific.
+**The `/platform/` prefix is about functionality, not frontend origin.** It marks endpoints that an extension adds and that are not part of this repo. The URL prefix does not indicate which frontend app makes the request; it indicates that the feature comes from an extension.
 
-**Frontend reminder**: any API class or fetch call in `package/app` or `package/website` targeting a platform endpoint must include `platform/` in its URL string — e.g. `'platform/payment/history'` not `'payment/history'`.
+**Frontend reminder**: any API class or fetch call in `package/app` targeting a platform endpoint must include `platform/` in its URL string, e.g. `'platform/example/list'` not `'example/list'`.
 
 **Project-scoped endpoints**: for any endpoint operating on a single project's data, use `role: 'projectOwner'`/`'projectAdmin'` ACL rules — not a generic role plus a manual ownership check in the service. See `docs/mzen-acl.md`.
 
@@ -110,10 +110,10 @@ export const paymentConfig = {
 Two subdirectories plus root-level files:
 
 - **`core/`** — project datasource (`dataSource: 'project'`), survey platform repos: `RepoSurvey`, `RepoFile`, `RepoSurveyResponse`, etc.
-- **`platform/`** — default datasource, billing/pricing and platform data. Not part of this repo; see the `core/` note above.
+- **`platform/`** — default datasource, repos that an extension adds. Not part of this repo; see the `platform/` note above.
 - **root** — default datasource, infrastructure: `RepoUser`, `RepoProject`, `RepoEmail`, `RepoTask`, etc.
 
-**Decision rule**: Does the repo use `dataSource: 'project'`? → `core/`. Billing/pricing? → `platform/`. Otherwise → root of `model/repo/`. Data source and category always align — all `core/` repos use the project datasource; `platform/` and root repos use the default.
+**Decision rule**: Does the repo use `dataSource: 'project'`? → `core/`. Added by an extension? → `platform/`. Otherwise → root of `model/repo/`. Data source and category always align — all `core/` repos use the project datasource; `platform/` and root repos use the default.
 
 **Import via barrel** (`from 'model/repo'`) — avoid direct file-path imports.
 

@@ -14,8 +14,8 @@ type SchemaShape = Parameters<ReturnType<typeof sb.schema>['shape']>[0]
 
 export class SchemaUser extends Schema {
   /**
-   * @param extraShape Fields an overlay adds to the `user` schema. The schema
-   * is strict, so any stored field must be declared here or by the overlay.
+   * @param extraShape Fields an extension adds to the `user` schema. The schema
+   * is strict, so any stored field must be declared here or by the extension.
    */
   constructor(extraShape: SchemaShape = {}) {
     super(

@@ -22,7 +22,7 @@ Three subpath export entry points:
 
 | Import | Content |
 |--------|---------|
-| `veysur-common` | Main index: models, utilities, subscription types, Logger, Money |
+| `veysur-common` | Main index: models, utilities, Logger |
 | `veysur-common/model/constructor` | Constructor types only |
 | `veysur-common/model/schema` | Validation schemas only |
 
@@ -42,12 +42,9 @@ Never import this from frontend (`package/app` or `package/website`).
 
 ```
 src/
-├── model/constructor/   # ~20 domain model classes (Survey, User, Payment, etc.)
+├── model/constructor/   # ~20 domain model classes (Survey, SurveyParticipant, Project, etc.)
 ├── model/schema/        # ~40 mzen-schema validation schemas
 ├── model/service/       # Patcher, PatchBuffer, SurveyValidation, SurveyResponseValidator
-├── model/price/         # SubscriptionPriceCalculator
-├── model/invoice/       # Invoice display helpers (billToName, formatInvoicePeriod, REVERSE_CHARGE_NOTICE) shared by api PDF generation and app invoice UI
-├── model/tax/           # VatCalculator, LocalCurrencyFormatter, euVatRates
 ├── util/                # SurveyImportValidator, CodeGenerator, password/subdomain validators
 └── index.ts             # Main exports
 ```

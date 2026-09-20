@@ -68,11 +68,11 @@ only _after_ invalidation has completed, so ordering (invalidate, then do the ex
 is preserved:
 
 ```typescript
-export function useSubscriptionChange() {
+export function useTwoFactorToggle() {
   const { authRefresh } = useAuth()
   return useInvalidatingMutation({
-    mutationFn: async (data: ChangeParams) => getProjectSubscriptionApi().change(...),
-    invalidateKeys: (_data, variables) => billingHistoryQueryKeys(variables.projectId),
+    mutationFn: async (data: ToggleParams) => getUserApi().setTwoFactor(...),
+    invalidateKeys: () => [[KEY_STATE_AUTH]],
     onSuccess: async () => {
       await authRefresh(true)
     },
@@ -82,7 +82,7 @@ export function useSubscriptionChange() {
 
 ## Shared invalidation helpers return `QueryKey[]`, never invalidate directly
 
-A helper shared by several hooks (e.g. `billingHistoryQueryKeys.ts`,
+A helper shared by several hooks (e.g. `surveyParticipantQueryKeys.ts`,
 `surveyResponseQueryKeys.ts`) should be a **pure function that returns
 `QueryKey[]`**, not a function that calls `queryClient.invalidateQueries` itself. That
 keeps the awaiting logic in exactly one place - `useInvalidatingMutation` - instead of
@@ -90,19 +90,18 @@ every helper needing its own (and inevitably some forgetting it):
 
 ```typescript
 // Right: pure key builder, no queryClient involved
-export function billingHistoryQueryKeys(projectId: string): QueryKey[] {
+export function surveyParticipantQueryKeys(surveyId: string): QueryKey[] {
   return [
-    [KEY_STATE_PROJECT_SUBSCRIPTION, projectId],
-    [KEY_STATE_PROJECT_SUBSCRIPTIONS],
-    [KEY_STATE_PAYMENT_HISTORY],
+    [KEY_STATE_SURVEY_PARTICIPANT_LIST, surveyId],
+    [KEY_STATE_SURVEY_PARTICIPANT_ATTRIBUTE_LIST, surveyId],
   ]
 }
 
 // Wrong: helper performs invalidation itself - every caller has to remember
 // to await/return it, and it's easy to forget
-export function invalidateBillingHistoryQueries(queryClient, projectId) {
+export function invalidateSurveyParticipantQueries(queryClient, surveyId) {
   queryClient.invalidateQueries({
-    queryKey: [KEY_STATE_PROJECT_SUBSCRIPTION, projectId],
+    queryKey: [KEY_STATE_SURVEY_PARTICIPANT_LIST, surveyId],
   })
   // ...
 }

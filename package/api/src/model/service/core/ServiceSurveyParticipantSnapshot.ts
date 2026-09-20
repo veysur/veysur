@@ -187,7 +187,7 @@ export class ServiceSurveyParticipantSnapshot extends Service {
   /**
    * Whether the no-brand presentation option applies for this project. Core
    * (self-hosted) has no per-project entitlements, so it is always available.
-   * An overlay overrides this. Overlay seam.
+   * An extension overrides this. Extension seam.
    */
   protected async isNoBrandAvailable(_projectId: string): Promise<boolean> {
     return true
