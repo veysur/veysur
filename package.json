@@ -10,6 +10,7 @@
   },
   "scripts": {
     "dev": "docker compose --project-directory deploy -f deploy/compose.yaml -f deploy/compose.dev.yaml watch",
+    "down": "docker compose --project-directory deploy down",
     "dev:admin-account": "./deploy/scripts/admin-account-bootstrap.sh",
     "dev:migrate": "docker compose --project-directory deploy -f deploy/compose.yaml -f deploy/compose.dev.yaml run --rm migrate",
     "dev:api": "pnpm --filter veysur-api start",
