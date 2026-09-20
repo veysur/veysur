@@ -266,9 +266,8 @@ pool once a project has used `bulkWrite()`), plus the two fixed pools
 (`account`, `ipLocation`). At `maxSize: 20` / `connectionLimit: 5` that's
 `20 × 5 × 2 + 2 × 5 ≈ 210` connections per pod — well down from the previous
 `maxSize: 50` / `connectionLimit: 10` setting's ~1020/pod ceiling, but still
-capable of exceeding the MySQL server's `max_connections` (500 in prod,
-300 in stage — see `package/k8s/veysur/values-prod.yaml` /
-`values-stage.yaml`) if the API HPA scales past 2–3 pods and a meaningful
+capable of exceeding the MySQL server's `max_connections` (200 in
+`deploy/mysql/custom.cnf`) if more than one API instance runs and a meaningful
 fraction of each pod's cached projects are simultaneously transaction-heavy.
 
 This is a soft, probabilistic constraint, not a guarantee: `mysql2` queues

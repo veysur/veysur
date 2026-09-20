@@ -148,7 +148,7 @@ Multi-Part type (`isMultiPartQuestionType`) and validates the second segment aga
 question's `subquestions` (parts) instead of its `answerOptions`.
 
 The value type depends on the part's enforced type — the same fixed type shared by every
-part in the question (see [Multi-Part Question Types](../../../docs/question-types/multi-part.md)).
+part in the question (the multi-part question types).
 
 ### Bare Answer-Option-Code Literals
 

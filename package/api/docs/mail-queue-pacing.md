@@ -112,14 +112,14 @@ documentation, not covered here.
 This is operational tuning (how much work one task run does), not a customer-facing
 entitlement, so it stays flat config rather than a subscription feature.
 
-## Manual troubleshooting (Tilt dev)
+## Manual troubleshooting (dev stack)
 
-The scheduled task never fires on its own in Tilt dev (`taskManager.suspend: true` —
-see [task-manager.md](task-manager.md#manual-triggering)). Trigger a dispatch run with:
+The scheduled task never fires on its own in the dev stack (the overlay disables the
+`task-manager` service, see [task-manager.md](task-manager.md#manual-triggering)). From
+`deploy/`, trigger a dispatch run with:
 
 ```bash
-# cd ./package/k8s
-./scripts/task/run.sh --task email --action processQueue
+docker compose exec -T -e API_TASK=email -e API_ACTION=processQueue api pnpm exec tsx src/run.ts
 ```
 
 This prints a full summary (`[MailQueue] N due candidate(s) found...` /
@@ -128,9 +128,9 @@ example for a full sample run. A run against a large backlog will now visibly ta
 ~60s to complete (inter-row pacing, see Mechanics above) rather than finishing near-
 instantly — this is expected, not a hang.
 
-To inspect queue state directly, connect to MySQL (see
-[database-access.md](../../k8s/docs/infrastructure/database-access.md)) and query the
-`email` table's JSON document column, e.g.:
+To inspect queue state directly, open a MySQL session from `deploy/` with
+`docker compose exec mysql mysql -u root -p` and query the `email` table's JSON document
+column, e.g.:
 
 ```sql
 -- Pending rows for a project, in dispatch order

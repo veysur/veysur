@@ -1,111 +1,82 @@
 # Admin account bootstrap
 
-Creating the first usable account for a fresh install, in both local dev
-(Tilt) and production self-hosted deployments. Public signup leaves email
-unverified (which blocks project-ownership claims in the JWT), so there's no
-way to log in and start using a fresh install without this.
+Creating the first usable account for a fresh install, in both the local dev stack and a production
+self-hosted deployment. Public signup leaves email unverified, which blocks project-ownership claims
+in the JWT, so there is no way to log in and start using a fresh install without this.
 
-Self-hosted's single project is a static, config-sourced value, not a
-database row (see `model/service/ServiceProject.ts`) — creating an account
-does not automatically make it the project owner. Making that user the
-project owner means setting `API_PROJECT_OWNER_ID=<userId>` (the id this tool
-prints), along with `API_PROJECT_NAME`/`API_PROJECT_TIMEZONE` if non-default
-values are wanted. **Don't skip this** — until it's done, the bootstrapped
-user can log in and use `authedAdmin`-gated features (e.g. edit surveys), but
-any `projectOwner`-gated action (e.g. team invites, `/setting/project`) stays
-hidden/403s.
+Self-hosted's single project is a static, config-sourced value, not a database row (see
+`model/service/ServiceProject.ts`). Creating an account does not make it the project owner. That
+needs `API_PROJECT_OWNER_ID=<userId>` in `deploy/.env`, along with `API_PROJECT_NAME` and
+`API_PROJECT_TIMEZONE` if non-default values are wanted. Until it is set, the bootstrapped user can log
+in and use `authedAdmin`-gated features (for example editing surveys), but any `projectOwner`-gated
+action (team invites, `/setting/project`) stays hidden or returns 403.
 
-## Create the first account (Tilt dev)
+## Create the first account
+
+Run from `deploy/`:
 
 ```bash
-./deploy/scripts/admin-account-bootstrap.sh --email admin@veysur.local
+./scripts/admin-account-bootstrap.sh --email admin@example.com
 ```
 
-This creates the account **and** wires it up as the project owner in one
-step — see [Changing settings later](#changing-settings-later-devvalues-localyaml)
-below for how. Omit `--password` to have one generated and printed once
-(prefer this over typing your own, since a password passed on the command
-line lands in local shell history either way). Fails loudly, not silently, if
-the email already exists. Run `--help` for all options.
+The script creates the account, writes `API_PROJECT_OWNER_ID` into `deploy/.env`, and recreates the
+`api` and `task-manager` containers so they pick it up. In the dev stack it runs the API from source
+and only recreates `api`. Omit `--password` to have one generated and printed once; a password passed
+on the command line lands in shell history. It fails loudly if the email already exists. Run `--help`
+for all options, or `--dry-run` to see what it would do.
 
-## Create the first account (production)
+The account is created pre-verified, unlike public signup. See
+[deployment.md](../../../docs/deployment.md) for where this fits in an install.
 
-There's no dedicated production bootstrap script yet — a real production
-install flow (`values-prod.yaml`, packaging docs) doesn't exist in this repo
-yet either (see `deploy/scripts/lib/deploy-common.sh`). Until it does, create
-the account directly:
+## How it works
+
+`ServiceUser` exposes `createAccount`, `listAccounts` and `resetPassword` through the generic
+task-runner dispatch (`API_TASK`, `API_ACTION`, `API_TASK_JSON`, see [task-manager.md](task-manager.md)).
+They are never exposed over HTTP. The script calls `createAccount` with:
 
 ```bash
-./deploy/scripts/task/run.sh --job --task user --action createAccount \
-  --options '{"email":"admin@example.com"}'
+docker compose exec -T \
+  -e API_TASK=user -e API_ACTION=createAccount \
+  -e API_TASK_JSON='{"email":"admin@example.com"}' \
+  api node dist/run.js
 ```
 
-This is a console/CLI tool, not an in-app first-run wizard: `ServiceUser`
-exposes `createAccount`/`listAccounts`/`resetPassword`, invoked via the
-generic task-runner dispatch (`API_TASK`/`API_ACTION`/`API_TASK_JSON`, see
-[task-manager.md](task-manager.md)). No new plumbing, no HTTP endpoint —
-these methods are never exposed over the network.
+Only `email` is required. `password` is generated when omitted, and `nameFirst` and `nameLast` default
+to `Admin` and `User`. The task returns `{ userId, email, password? }`; `password` is present only when
+one was generated.
 
-Omitting `password` generates one that satisfies the password policy and
-prints it once in the task's output. All fields except `email` are optional:
+## Changing settings later
 
-```jsonc
-{
-  "email": "admin@example.com", // required
-  "password": "...", // omit to generate one
-  "nameFirst": "Admin", // default: "Admin"
-  "nameLast": "User", // default: "User"
-}
+Every post-install setting (project owner, project name, mail connection, limits) lives in
+`deploy/.env`. Edit it, then apply it from `deploy/`:
+
+```bash
+./scripts/deploy.sh
 ```
 
-Returns `{ userId, email, password? }` — `password` is only present when one
-was generated. The account is created pre-verified (unlike public signup).
-
-**Next step, required**: set `API_PROJECT_OWNER_ID=<userId>` and apply it via
-`helm upgrade veysur ./deploy -f deploy/values.yaml -f deploy/values-local.yaml`
-(after adding it to `deploy/values-local.yaml` — see below).
-
-## Changing settings later (`deploy/values-local.yaml`)
-
-`deploy/values-local.yaml` is a gitignored, Helm-values-shaped overlay for
-any post-install setting — the project owner id today, and project name,
-mail/SMTP connection details, resource limits, etc. as they're added later.
-Helm value files deep-merge, so this file only ever needs the keys it's
-overriding, e.g.:
-
-```yaml
-api:
-  env:
-    API_PROJECT_OWNER_ID: '<userId>'
-```
-
-Edit it by hand at any time, or let `admin-account-bootstrap.sh` merge the
-one key it knows about into it for you. Making an edit "live" differs by
-environment:
-
-- **Tilt**: automatic — `Tiltfile` watches this file and re-renders/re-applies
-  as soon as it changes (survives `tilt down`/`tilt up` too, since it's a
-  real input file, not a live cluster patch).
-- **Production**: run
-  `helm upgrade veysur ./deploy -f deploy/values.yaml -f deploy/values-local.yaml`
-  after editing, same as for any other config change.
+See [configuration.md](../../../docs/configuration.md) for every key.
 
 ## List accounts
 
+Run from `deploy/`:
+
 ```bash
-./deploy/scripts/task/run.sh --exec --task user --action listAccounts
+docker compose exec -T -e API_TASK=user -e API_ACTION=listAccounts api node dist/run.js
 ```
 
-Returns every user with the project(s) they own (at most one — the single
-configured project, if `API_PROJECT_OWNER_ID` names them as its owner).
+Returns every user with the project they own (at most one: the configured project, if
+`API_PROJECT_OWNER_ID` names them as its owner).
 
 ## Reset a password
 
+Run from `deploy/`:
+
 ```bash
-./deploy/scripts/task/run.sh --exec --task user --action resetPassword \
-  --options '{"email":"admin@example.com"}'
+docker compose exec -T \
+  -e API_TASK=user -e API_ACTION=resetPassword \
+  -e API_TASK_JSON='{"email":"admin@example.com"}' \
+  api node dist/run.js
 ```
 
-Same omit-to-generate behaviour as `createAccount`. Bypasses the normal
-emailed-token reset flow entirely — an operator with infrastructure-level
-access to run this has no code to prove.
+Same generate-when-omitted behaviour as `createAccount`. This bypasses the emailed-token reset flow
+entirely: an operator with infrastructure-level access to run it has no code to prove.

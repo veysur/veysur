@@ -196,7 +196,7 @@ const urlRes2 = await fetch('/api/import-export/import/url/survey', {
 ### S3 Settings
 
 Configure via environment variables in `package/api/src/config/default.ts`:
-- `API_S3_TYPE` - `local` (dev) or `s3` (Garage/S3-compatible)
+- `API_S3_TYPE` - `local` or `s3` (S3-compatible, e.g. Garage)
 - `API_S3_PUBLIC_BUCKET` / `API_S3_PRIVATE_BUCKET` - bucket names
 - `API_S3_REGION` - AWS region (default: `us-east-1`)
 - `API_S3_ACCESS_KEY_ID` / `API_S3_SECRET_ACCESS_KEY` - AWS credentials

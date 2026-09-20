@@ -31,7 +31,7 @@
 | `window.open(targetUrl)` on right-click | Browsers block `window.open` that isn't triggered by a direct user gesture; right-click is not a gesture on the page itself                                                                                   |
 | Add `href` to existing `<button>`       | `<button href>` is not valid HTML; browser behaviour is undefined                                                                                                                                             |
 | Store auth in localStorage for new tabs | localStorage auth data persists across sessions; sessionStorage isolation is intentional for security                                                                                                         |
-| `postMessage` from opener to new tab    | The opener reference is unavailable when the tab is opened via right-click (no `window.opener`); see [BroadcastChannel vs. postMessage](../auth-navigation.md#broadcastchannel-vs-postmessage)                |
+| `postMessage` from opener to new tab    | The opener reference is unavailable when the tab is opened via right-click (no `window.opener`); see [BroadcastChannel vs. postMessage](../../auth-navigation.md#broadcastchannel-vs-postmessage)                |
 | BroadcastChannel for popup signalling   | Rejected in [[auth-domain-popup-reliability]] as over-engineered for that case. Here the problem is different: the tab opened via right-click has no opener reference at all, so postMessage is not an option |
 
 ## Revisit when
@@ -41,7 +41,7 @@
 
 ## Related
 
-- [`AuthLink.tsx`](../../src/component/AuthLink/AuthLink.tsx)
+- [`AuthLink.tsx`](../../../src/component/AuthLink/AuthLink.tsx)
 - [`AuthBroadcastProvider.tsx`](../../../src/component/AuthBroadcastProvider/AuthBroadcastProvider.tsx)
 - [`PageLogin.tsx`](../../../src/appAccount/page/PageLogin.tsx)
 - [`AuthDomain README`](../../../src/model/service/AuthDomain/README.md)

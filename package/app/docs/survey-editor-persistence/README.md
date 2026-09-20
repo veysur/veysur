@@ -2,13 +2,13 @@
 
 ## Overview
 
-The survey editor persistence system is built on the **[Generalized Patchable State Pattern](../generalized-patchable-state.md)**, which provides a reusable solution for managing data with buffered edits and optimistic updates.
+The survey editor persistence system is built on the **[Generalized Patchable State Pattern](../generalised-patchable-state.md)**, which provides a reusable solution for managing data with buffered edits and optimistic updates.
 
 The system enables real-time collaborative editing with optimistic updates and batched API persistence. It provides a robust solution for managing survey modifications across multiple routes while preventing data loss and minimizing API calls.
 
 The implementation uses the generic `usePatchableState` hook with survey-specific adapters (`useSurveyPatchableState`). An immutable PatchBuffer collects changes, validates them with mzen-schema, and persists them in 2-second batches. Changes made on any route (editor, settings, participants, etc.) are shared across the entire survey editing experience.
 
-**Note:** For the general pattern and architecture, see [generalized-patchable-state.md](../generalized-patchable-state.md). This document focuses on survey-specific implementation details.
+**Note:** For the general pattern and architecture, see [generalised-patchable-state.md](../generalised-patchable-state.md). This document focuses on survey-specific implementation details.
 
 ## Key Benefits
 

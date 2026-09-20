@@ -27,7 +27,7 @@ export const initLocaleStatic = function (server: Server) {
         }
         // Content-derived ETag so the browser always revalidates against the actual
         // file rather than trusting a caller-supplied cache-busting query param
-        // (which is a constant 'dev' value in local/Tilt dev, causing stale caches).
+        // (which is a constant 'dev' value in local dev, causing stale caches).
         const etag = `"${crypto.createHash('sha1').update(data).digest('hex')}"`
         res.setHeader('ETag', etag)
         res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate')

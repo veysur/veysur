@@ -2,7 +2,7 @@
 
 ## Overview
 
-The survey editor persistence is built on the **[Generalized Patchable State Pattern](../generalized-patchable-state.md)**. This document covers survey-specific implementation details. For the generic pattern architecture, see the main documentation.
+The survey editor persistence is built on the **[Generalized Patchable State Pattern](../generalised-patchable-state.md)**. This document covers survey-specific implementation details. For the generic pattern architecture, see the main documentation.
 
 ## Core Concepts Overview
 

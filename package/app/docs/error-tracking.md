@@ -1,6 +1,6 @@
 # Error Tracking (BugSink / Sentry SDK)
 
-The four SPAs use `@sentry/react` to capture unhandled errors and report them to the self-hosted BugSink instance. Each app has its own BugSink project and DSN.
+The four SPAs use `@sentry/react` to capture unhandled errors and report them to a BugSink (or any Sentry-compatible) instance. Each app has its own project and DSN.
 
 ## Projects
 
@@ -9,7 +9,6 @@ The four SPAs use `@sentry/react` to capture unhandled errors and report them to
 | appAdmin    | `veysur-admin`    |
 | appSurvey   | `veysur-survey`   |
 | appAccount  | `veysur-account`  |
-| appPlatform | `veysur-platform` |
 
 ## How DSNs are injected
 
@@ -20,17 +19,16 @@ DSNs are **compile-time constants** baked into the bundle by rsbuild's `define` 
 | `PUBLIC_BUGSINK_DSN_ADMIN`    | appAdmin    |
 | `PUBLIC_BUGSINK_DSN_SURVEY`   | appSurvey   |
 | `PUBLIC_BUGSINK_DSN_ACCOUNT`  | appAccount  |
-| `PUBLIC_BUGSINK_DSN_PLATFORM` | appPlatform |
 
-When a variable is absent or empty, `Sentry.init` runs with `enabled: false` — the SDK is a no-op. This is how dev and k3d builds disable tracking without any code changes.
+When a variable is absent or empty, `Sentry.init` runs with `enabled: false` — the SDK is a no-op. This is how dev and self-hosted builds disable tracking without any code changes.
 
 ## Dev behaviour
 
-Error tracking is **disabled in dev** (Tilt / `pnpm dev:*`). The DSN env vars are not set, so `enabled: false` is passed automatically. No BugSink service runs locally.
+Error tracking is **disabled in dev** (`pnpm dev` and `pnpm dev:*`). The DSN env vars are not set, so `enabled: false` is passed automatically. No BugSink service runs locally.
 
-## Testing in stage
+## Testing a deployment
 
-To verify a DSN is wired up correctly, open the browser console on stage and run:
+To verify a DSN is wired up correctly, open the browser console on a build that has one and run:
 
 ```js
 throw new Error('test error')
@@ -45,5 +43,4 @@ The error should appear in BugSink within a few seconds.
 
 ## Related
 
-- BugSink k8s deployment: [`package/k8s/docs/error-tracking.md`](../../k8s/docs/error-tracking.md)
 - API error tracking: [`package/api/docs/error-tracking.md`](../../api/docs/error-tracking.md)

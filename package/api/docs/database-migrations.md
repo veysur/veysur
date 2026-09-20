@@ -4,7 +4,12 @@
 
 VeySur uses [mzen-migrate](../../../external/mzen/package/mzen-migrate/README.md) for controlled database schema changes and data seeding. This guide covers writing migrations in the API package.
 
-For running migrations in a Kubernetes environment, see [Running Migrations (K8s)](../../k8s/docs/database-migrations.md).
+`./scripts/deploy.sh` runs pending migrations for you, through the one-shot `migrate` service. To run them by hand, from `deploy/`:
+
+```bash
+docker compose --profile tools run --rm migrate --dry-run
+docker compose --profile tools run --rm migrate
+```
 
 ## Creating Migrations
 
@@ -50,11 +55,11 @@ export default class AddFeature implements DatabasePatchInterface {
 ### 3. Test Migration
 
 ```bash
-# Always test with dry-run first (from k8s directory)
-./scripts/task/migrations.sh --job --dry-run
+# Always test with dry-run first (from deploy/)
+docker compose --profile tools run --rm migrate --dry-run
 
 # If dry-run looks good, apply
-./scripts/task/migrations.sh --job
+docker compose --profile tools run --rm migrate
 ```
 
 ## VeySur-Specific Configuration
@@ -299,5 +304,4 @@ built) — it's queryable by `runId`, `status`, and `dataSourceName`.
 - **[mzen-migrate Package](../../../external/mzen/package/mzen-migrate/README.md)** - Generic migration system documentation
 - **[mzen-migrate Architecture](../../../external/mzen/package/mzen-migrate/docs/architecture/index.md)** - Technical implementation details
 - **[mzen-migrate Best Practices](../../../external/mzen/package/mzen-migrate/docs/best-practices/index.md)** - Guidelines for writing migrations
-- **[Running Migrations (K8s)](../../k8s/docs/database-migrations.md)** - How to run migrations in Kubernetes environments
 - **[Project Databases](./project-databases.md)** - Per-project database implementation

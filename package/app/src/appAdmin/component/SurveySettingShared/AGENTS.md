@@ -15,16 +15,16 @@ These are stored separately but presented through a unified interface using the 
 
 #### Default Settings Page
 
-- **Page**: [PageSettingSurvey.tsx](../../../page/PageSettingSurvey.tsx)
-- **Component**: [AdminSettingSurvey.tsx](../../AdminSettingSurvey/AdminSettingSurvey.tsx)
+- **Page**: [PageSettingSurvey.tsx](../../page/PageSetting/PageSettingSurvey.tsx)
+- **Component**: [SettingSurvey.tsx](../SettingSurvey/SettingSurvey.tsx)
 - **Purpose**: Configure global default settings that apply to all new surveys
 - **Data Source**: `SettingSurvey` record stored in database
 - **Adapter**: Uses `SettingSurveyAdapter`
 
 #### Survey-Specific Settings Page
 
-- **Page**: [PageSurveyEditSetting.tsx](../../../page/PageSurveyEditSetting.tsx)
-- **Component**: [SurveySetting.tsx](../../SurveySetting/SurveySetting.tsx)
+- **Page**: [PageSurveyEditSetting.tsx](../../page/PageSurveyEdit/PageSurveyEditSetting.tsx)
+- **Component**: [SurveySetting.tsx](../SurveySetting/SurveySetting.tsx)
 - **Purpose**: Configure settings for a specific survey (overrides defaults)
 - **Data Source**: Settings stored directly on the `Survey` record
 - **Adapter**: Uses `SurveyAdapter` with reference to default settings
@@ -218,7 +218,7 @@ useAdminSettingSurvey() → loads SettingSurvey from API
   ↓
 SettingSurveyAdapter(settingSurvey)
   ↓
-AdminSettingSurvey component
+SettingSurvey component
   ↓
 BaseSettingsStandalone → renders settings UI
   ↓

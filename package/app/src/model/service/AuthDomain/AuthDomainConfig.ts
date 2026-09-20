@@ -46,7 +46,7 @@ export class AuthDomainConfig implements AuthDomainConfigInterface {
    * Gets the home path for the auth domain itself. Falls back to
    * `PUBLIC_BASE_ACCOUNT` (the account app's own path prefix, e.g. `/account`
    * in a self-hosted single-origin deployment — see
-   * `package/k8s/docs/infrastructure/self-hosted-routing.md`) rather than a
+   * `docs/architecture.md`) rather than a
    * bare `/`, since on a single origin `getAccountUrl()`'s host falls back to
    * the current host (`getAuthDomain()` below) and a bare `/` would land on
    * whichever app is actually mounted at that origin's root, not the account
@@ -86,7 +86,7 @@ export class AuthDomainConfig implements AuthDomainConfigInterface {
    * path appended (e.g. `getAccountUrl('password-reset')`) — never build this
    * URL by hand-concatenating a domain and path elsewhere, since the home path
    * differs per edition (cloud subdomain vs. self-hosted path-prefix, see
-   * `package/k8s/docs/infrastructure/self-hosted-routing.md`)
+   * `docs/architecture.md`)
    */
   getAccountUrl = (path = ''): string => {
     const protocol = this.browserInterface.getProtocol()

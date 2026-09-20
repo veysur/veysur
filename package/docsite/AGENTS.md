@@ -75,13 +75,10 @@ Use these terms consistently. Do not switch between synonyms for the same concep
 
 Embed a tutorial video with `<Video path="tutorials/<slug>" title="…" />`
 (`src/components/Video.astro`), served from `/media/…`. Source `.mp4` + sibling
-`.jpg` poster live in the `external/media` submodule, never in this package and
-never in the nginx image. Serving differs per environment: k3d/stage/prod nginx
-proxies `/media/` to the Garage `veysur-files` bucket; Tilt's `veysur-tutorial-media`
-resource `kubectl cp`s them into the nginx pod as static files; standalone
-`pnpm dev:docsite` uses `predev` → `scripts/media-sync.mjs` → gitignored
-`public/media/`. Full detail: `package/k8s/docs/infrastructure/garage.md`
-("Tutorial Media").
+`.jpg` poster are never committed to this package. For local `pnpm dev:docsite`, `predev`
+runs `scripts/media-sync.mjs`, which copies them from an `external/media` checkout, if
+present, into the gitignored `public/media/`. Without that checkout the script skips and
+the videos do not load. A deployed docsite needs its own host for `/media/`.
 
 ## Development Commands
 

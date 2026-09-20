@@ -4,7 +4,7 @@
 
 Operations are the public API for modifying surveys. They provide a clean, type-safe interface that handles optimistic updates, validation, and buffering automatically.
 
-The operation factory pattern centralizes all mutation logic while keeping it modular and maintainable. Operations work seamlessly with the **[Generalized Patchable State Pattern](../generalized-patchable-state.md)** - they call `bufferPatches` which is provided by the generic `usePatchableState` hook via the survey adapter.
+The operation factory pattern centralizes all mutation logic while keeping it modular and maintainable. Operations work seamlessly with the **[Generalized Patchable State Pattern](../generalised-patchable-state.md)** - they call `bufferPatches` which is provided by the generic `usePatchableState` hook via the survey adapter.
 
 ## createSurveyOperations Factory
 

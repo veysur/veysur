@@ -3,11 +3,10 @@ import { cp, mkdir, rm } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 
-// Tutorial media (mp4 + sibling jpg poster) is authored in the external/media
-// submodule and copied into public/media/ for local `pnpm dev`. In k3d/stage/prod
-// nginx proxies /media/ straight to the Garage veysur-files bucket instead, so these
-// files must never be committed here or baked into the Docker image (public/media/ is
-// gitignored, and this runs from predev only — never prebuild).
+// Tutorial media (mp4 + sibling jpg poster) is copied from an external/media checkout
+// into public/media/ for local `pnpm dev`. Deployed sites host /media/ separately, so
+// these files must never be committed here or baked into an image (public/media/ is
+// gitignored, and this runs from predev only, never prebuild).
 const dir = path.dirname(fileURLToPath(import.meta.url))
 const sourceDir = path.join(dir, '..', '..', '..', 'external', 'media')
 const outDir = path.join(dir, '..', 'public', 'media')

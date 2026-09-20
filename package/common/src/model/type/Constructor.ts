@@ -1,6 +1,6 @@
 /**
  * Shared constructor-type constraint for the functional mixin composition
- * pattern used by Survey/SettingSurvey (see model/constructor/AGENT.md).
+ * pattern used by Survey/SettingSurvey (see model/constructor/AGENTS.md).
  *
  * The `any[]` here is intentional and isolated to this single declaration:
  * mixin functions accept a `Base` class without knowing its concrete

@@ -8,8 +8,8 @@ The Veysur platform uses an S3-based file management system that provides direct
 The system uses the `s3-adaptor` library which provides a **unified local/S3 backend** — no separate storage service pod is needed.
 
 **Backends** (configured via `API_S3_TYPE`):
-- **`local`** (dev): stores files on a PVC at `API_S3_LOCAL_PATH` (`/data/files`). Files are served by the API's built-in Express middleware at `/storage/:bucket/*`, proxied through nginx.
-- **`s3`** (k3d/stage/prod): stores files in a Garage S3-compatible store using `API_S3_ACCESS_KEY_ID`/`API_S3_SECRET_ACCESS_KEY`. Set `API_S3_ENDPOINT` and `API_S3_FORCE_PATH_STYLE=true` for Garage.
+- **`local`** (the self-hosted default): stores files on a volume at `API_S3_LOCAL_PATH` (`/data/files`, the `veysur-files` Docker volume). Files are served by the API's built-in Express middleware at `/storage/:bucket/*`, proxied through nginx.
+- **`s3`**: stores files in an S3-compatible store using `API_S3_ACCESS_KEY_ID`/`API_S3_SECRET_ACCESS_KEY`. Set `API_S3_ENDPOINT` and `API_S3_FORCE_PATH_STYLE=true` for path-style stores such as Garage.
 
 **Two logical buckets** separate file access levels:
 - **Public Bucket** (`veysur-files`) — General file uploads, served without token
@@ -98,5 +98,5 @@ Project (proj_123/)
 
 ## Related Documentation
 
-- [Survey Publishing](../../../docs/survey-publishing.md) - How files are referenced in snapshots
-- [Snapshot Hash Deduplication](../../../docs/snapshot-hash-deduplication.md) - Snapshot-level deduplication
+- [Survey Publishing](../../../../docs/survey-publishing.md) - How files are referenced in snapshots
+- [Snapshot Hash Deduplication](../../../../docs/snapshot-hash-deduplication.md) - Snapshot-level deduplication

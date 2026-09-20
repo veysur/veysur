@@ -40,7 +40,7 @@ Sensitive string fields in `metadata` are redacted before the event enters the p
 - Field names are matched against `Logger.DEFAULT_REDACT_PATTERNS`: `/password/i`, `/authorization/i`, `/token/i`, `/private/i`, `/secure/i`, `/email/i`, `/phone/i`, `/postcode/i`, `/zipcode/i`
 - Values are partially masked (first chars retained + `█` padding) — length and prefix remain visible for audit tracing
 - Nested objects and arrays are traversed recursively
-- Source: `Logger.serialize()` in [`package/common/src/Logger.ts`](../../../../common/src/Logger.ts)
+- Source: `Logger.serialize()` in [`package/common/src/Logger.ts`](../../common/src/Logger.ts)
 
 Affected metadata fields in the current catalogue are marked `†` in [events-catalogue.md](events-catalogue.md).
 
@@ -111,9 +111,6 @@ If a project's backoff queue exceeds `MAX_BACKLOG_QUEUE_SIZE`, the overflow move
 | Method | Path | Auth | Description |
 |---|---|---|---|
 | `POST` | `/event-log` | authedAdmin | Log an event |
-| `GET` | `/platform/event-log/health` | platformAdmin | Buffer and DLQ stats |
-| `GET` | `/platform/event-log/dlq` | platformAdmin | List dead-letter queue entries |
-| `POST` | `/platform/event-log/dlq/:id/retry` | platformAdmin | Re-queue a DLQ entry |
 
 ### POST /event-log
 
@@ -130,38 +127,6 @@ If a project's backoff queue exceeds `MAX_BACKLOG_QUEUE_SIZE`, the overflow move
 
 **Response:** `{ "id": "generated-event-id" }`
 
-### GET /platform/event-log/health
-
-```json
-{
-  "bufferSizes": { "projectId123": 3, "__system__": 0 },
-  "totalBufferedEvents": 3,
-  "globalBufferUtilization": 0.0003,
-  "backoffProjects": [],
-  "dlqCount": 0,
-  "redisConnected": true
-}
-```
-
-### GET /platform/event-log/dlq
-
-Query params: `page` (default 1), `perPage` (default 20).
-
-```json
-{
-  "entries": [
-    {
-      "id": "...",
-      "action": "survey.created",
-      "failureCount": 5,
-      "failureReason": "max_retries_exceeded",
-      "movedToDlqAt": "2026-03-30T12:00:00.000Z"
-    }
-  ],
-  "total": 1
-}
-```
-
 ## Dead-Letter Queue
 
 Events land in the DLQ when:
@@ -170,15 +135,8 @@ Events land in the DLQ when:
 
 DLQ entries are stored in Redis with no TTL — they persist until retried or Redis is flushed.
 
-**Inspect:**
-```
-GET /platform/event-log/dlq?page=1&perPage=20
-```
-
-**Retry a specific entry** (moves it back into the memory buffer):
-```
-POST /platform/event-log/dlq/:id/retry
-```
+The core edition exposes no endpoint to inspect or retry DLQ entries. `ServiceEventLog` provides the
+health and DLQ methods, and a composing overlay can expose them over HTTP.
 
 ## Database Storage
 
@@ -202,5 +160,4 @@ The project-scoped `event_log` table is created automatically when a project dat
 - [RepoEventLog.ts](../src/model/repo/core/RepoEventLog.ts) — Project-scoped repo (`dataSource: 'project'`)
 - [RepoEventLogSystem.ts](../src/model/repo/RepoEventLogSystem.ts) — System-wide repo (`dataSource: 'account'`)
 - [endpoint/shared/event-log.ts](../src/endpoint/shared/event-log.ts) — Ingest endpoint
-- [endpoint/platform/event-log.ts](../src/endpoint/platform/event-log.ts) — Admin endpoints
 - [config/default.ts](../src/config/default.ts) — `app.eventLog` config block

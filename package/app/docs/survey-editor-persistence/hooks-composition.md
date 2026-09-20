@@ -2,7 +2,7 @@
 
 ## Overview
 
-The survey editor now uses the **[Generalized Patchable State Pattern](../generalized-patchable-state.md)** for persistence. The generic `usePatchableState` hook handles data fetching, buffering, and persistence, while survey-specific hooks provide domain logic and operations.
+The survey editor now uses the **[Generalized Patchable State Pattern](../generalised-patchable-state.md)** for persistence. The generic `usePatchableState` hook handles data fetching, buffering, and persistence, while survey-specific hooks provide domain logic and operations.
 
 This document describes how the hooks compose together. See the main pattern documentation for details on the generic implementation.
 

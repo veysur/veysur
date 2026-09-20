@@ -139,8 +139,10 @@ Temp files have a special lifecycle for server-generated content (exports, repor
 
 **Cleanup**: NOT automatic - must run hard delete manually:
 ```bash
-./package/k8s/scripts/task/run.sh --job --task fileDeletion --action hardDeleteAll \
-  --options '{"olderThan": "P1D", "fileContext": "temp"}'
+docker compose exec -T \
+  -e API_TASK=fileDeletion -e API_ACTION=hardDeleteAll \
+  -e API_TASK_JSON='{"olderThan": "P1D", "fileContext": "temp"}' \
+  api node dist/run.js
 ```
 
 **Workflow**:

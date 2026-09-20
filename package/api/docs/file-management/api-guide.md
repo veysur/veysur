@@ -178,7 +178,7 @@ const result = await serviceFile.createTempDownload({
 Environment variables in `package/api/src/config/default.ts`:
 
 **Backend:**
-- `API_S3_TYPE` - `local` (dev PVC) or `s3` (Garage/S3-compatible)
+- `API_S3_TYPE` - `local` (a volume) or `s3` (S3-compatible, e.g. Garage)
 - `API_S3_ENDPOINT` - custom S3 endpoint URL (required for Garage)
 - `API_S3_FORCE_PATH_STYLE` - `true` for path-style addressing (required for Garage)
 

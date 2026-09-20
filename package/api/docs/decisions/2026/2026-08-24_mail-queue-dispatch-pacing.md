@@ -20,8 +20,7 @@ calls, so a run could fire up to `processBatchSize` (200) sends back-to-back in 
 seconds — bounded only by SMTP round-trip latency.
 
 Whether this actually reaches recipients that fast depends on what sits between the API
-and the outside world. Inspection of the self-hosted Postfix relay config
-(`package/infra/ansible/roles/mail-server/templates/postfix-main.cf.j2`) confirmed **no
+and the outside world. Inspection of the Postfix relay config used at the time confirmed **no
 outbound rate or concurrency limiting is configured at all** — only `message_size_limit`.
 So there is no relay-side backstop: an API-side burst is a burst to recipient mail
 servers, precisely the sender-reputation risk the whole queue system exists to prevent,

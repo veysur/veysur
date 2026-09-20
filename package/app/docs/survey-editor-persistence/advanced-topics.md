@@ -1,6 +1,6 @@
 # Advanced Topics
 
-This document covers advanced features of the survey editor persistence system. The implementation is built on the **[Generalized Patchable State Pattern](../generalized-patchable-state.md)**, which provides these features generically for all patchable entities.
+This document covers advanced features of the survey editor persistence system. The implementation is built on the **[Generalized Patchable State Pattern](../generalised-patchable-state.md)**, which provides these features generically for all patchable entities.
 
 ## Data Loss Prevention
 

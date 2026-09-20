@@ -1,6 +1,6 @@
 # Task Manager
 
-Scheduled task execution system for recurring jobs like payment processing, email sends, and cleanup operations.
+Scheduled task execution system for recurring jobs like email sends and cleanup operations.
 
 ## Quick Start
 
@@ -43,12 +43,12 @@ Executes `modelManager.services.fileDeletion.hardDeleteAll(options, config)` hou
 
 ## Adding a New Scheduled Task
 
-Seed a `Task` record via a migration rather than creating it ad hoc — see `src/migrate/2026/02/2026-02-16_1200_seed-initial-tasks.ts` for the canonical example (it seeds `processDuePayments` and other initial tasks). Follow the same pattern: insert one `Task` document per job with `task`/`action` pointing at an existing service method. See [database-migrations.md](database-migrations.md) for general migration mechanics (naming, running, dry-run).
+Seed a `Task` record via a migration rather than creating it ad hoc — see `src/migrate/2026/02/2026-02-16_1200_seed-initial-tasks.ts` for the canonical example (it seeds the initial tasks). Follow the same pattern: insert one `Task` document per job with `task`/`action` pointing at an existing service method. See [database-migrations.md](database-migrations.md) for general migration mechanics (naming, running, dry-run).
 
 ## Architecture
 
 ```
-CronJob (1min) → ServiceTaskManager.run()
+task-manager loop (1min) → ServiceTaskManager.run()
                        ↓
           ┌────────────┼────────────┐
           ↓            ↓            ↓
@@ -68,7 +68,7 @@ by waiting.
 **Key design decisions:**
 
 - In-process execution (no separate pods)
-- Drain, not one-per-tick. A one-task-per-CronJob-run limit starved short-interval tasks:
+- Drain, not one-per-tick. A one-task-per-run limit starved short-interval tasks:
   the 60s `email`/`processQueue` queue fell behind for 6 to 15 min at every hour boundary
   when a batch of hourly and `start`-anchored daily tasks came due together, tripping
   `task-stale`. The three budgets above cap resource use instead.
@@ -78,12 +78,12 @@ by waiting.
   `enabled: false` by hand
 - **Soft failure** (`failOnErrorCount: true` tasks): when a task action resolves with
   `errors > 0` / `failed > 0` in its return shape, the execution is recorded as `failed`
-  and the backoff counter advances, but the process exit stays `0` (the CronJob is not
-  marked failed). Opt-in per task via the `failOnErrorCount` field — currently set on
+  and the backoff counter advances, but the process exit stays `0` (the run is not
+  treated as crashed). Opt-in per task via the `failOnErrorCount` field — currently set on
   `email`, `emailBounceProcessor`, and `mailCanary` (their actions report internal errors
-  via the return shape rather than throwing). Tasks without it are exempt — e.g. the
-  payment scheduler returns a `failed` count for a single bad row on an otherwise healthy
-  run and must not be backed off for that. Set it in the seed migration alongside
+  via the return shape rather than throwing). Tasks without it are exempt, for example one
+  that returns a `failed` count for a single bad row on an otherwise healthy run and must
+  not be backed off for that. Set it in the seed migration alongside
   `task`/`action`.
 
 ### Health alerts (BugSink → Slack)
@@ -96,10 +96,10 @@ Slack notifies once per episode) for:
 | `task-failing`              | any task has failed 2+ consecutive times — one failed run is treated as a transient blip and not alerted, so a real outage surfaces after ~2 intervals                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `task-persistently-failing` | any task has failed 6+ consecutive times and is pinned at the capped 24h backoff (higher-severity escalation of `task-failing`)                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | `task-execution-timeout`    | a running execution exceeds its `timeout` and is killed                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `task-stale`                | an enabled, not-backed-off task's `lastRunAt` is older than `max(2 × interval, 10 min)` **and** it stayed stale for one further scheduling cycle (`max(interval, 2 min)`). The 10-minute floor stops sub-minute-interval tasks (e.g. the 60s mail queue) from alerting on the tick gap a deploy causes while the task-manager CronJob image cuts over. The confirmation window suppresses a false alarm when a deploy resets a task's interval or clears its backoff; `staleSinceAt` is recorded on the first observation and cleared when the task next runs |
+| `task-stale`                | an enabled, not-backed-off task's `lastRunAt` is older than `max(2 × interval, 10 min)` **and** it stayed stale for one further scheduling cycle (`max(interval, 2 min)`). The 10-minute floor stops sub-minute-interval tasks (e.g. the 60s mail queue) from alerting on the tick gap a deploy causes while the `task-manager` container is recreated. The confirmation window suppresses a false alarm when a deploy resets a task's interval or clears its backoff; `staleSinceAt` is recorded on the first observation and cleared when the task next runs |
 
 These depend on `BUGSINK_DSN` being set and the BugSink `veysur-api` project's Slack
-alert being configured (see `package/k8s/docs/error-tracking.md`).
+alert being configured (see [error-tracking.md](error-tracking.md)).
 
 ## Task Lifecycle
 
@@ -122,8 +122,7 @@ alert being configured (see `package/k8s/docs/error-tracking.md`).
 
 | Level      | Configuration                             | Purpose                                                                        |
 | ---------- | ----------------------------------------- | ------------------------------------------------------------------------------ |
-| Global max | `config.taskManager.maxConcurrency: 5`    | Prevent pod overload; also the per-run task-count budget for the Phase 3 drain |
-| K8s policy | `concurrencyPolicy: Allow/Forbid/Replace` | K8s-level control                                                              |
+| Global max | `config.taskManager.maxConcurrency: 5`    | Prevent overload; also the per-run task-count budget for the Phase 3 drain     |
 | Per-task   | `Task.concurrency: 1`                     | Task-specific limit                                                            |
 
 **Run duration vs. interval**: most tasks complete in well under a second, far shorter
@@ -193,14 +192,11 @@ The schedule is defined once as `BACKOFF_STEPS_MS` in `RepoTask.ts`.
 
 ## Configuration
 
-**Kubernetes (values.yaml):**
-
-```yaml
-taskManager:
-  enabled: true
-  schedule: '*/1 * * * *'
-  concurrencyPolicy: Allow
-```
+**Scheduler** (`deploy/compose.yaml`): the `task-manager` service runs `node dist/run.js` with
+`API_TASK=taskManager` and `API_ACTION=run` in a loop, once a minute, with a 600 second kill
+timeout per run. A heartbeat file drives its healthcheck. The dev overlay (`compose.dev.yaml`)
+disables the service, so in `pnpm dev` nothing runs on a schedule (see
+[Manual triggering](#manual-triggering)).
 
 **API (config/default.js):**
 
@@ -210,18 +206,20 @@ module.exports = { taskManager: { maxConcurrency: 5 } }
 
 ## Monitoring
 
+Run from `deploy/`:
+
 ```bash
-# CronJob status
-kubectl get cronjobs -n namespace
+# Service state and healthcheck
+./scripts/veysur.sh status
 
 # Logs
-kubectl logs -l app.kubernetes.io/component=task-manager -f -n namespace
+./scripts/veysur.sh logs task-manager
 ```
 
 ```typescript
 // Recent executions
 const executions = await repoTaskExecution.find(
-  { taskName: 'Process Due Payments' },
+  { taskName: 'Delete Soft-Deleted Files' },
   { sort: { started: -1 }, limit: 20 },
 )
 ```
@@ -233,61 +231,54 @@ const executions = await repoTaskExecution.find(
 
 ## Manual Triggering
 
-Use `task/run.sh` (in `package/k8s/scripts/task/`) to invoke any service action outside the scheduler — useful for development testing and production one-off fixes.
-
-For creating/managing the initial admin/user account specifically, see [admin-account-bootstrap.md](admin-account-bootstrap.md) — it uses this exact same `--task`/`--action`/`--options` mechanism, just for a one-off administrative action rather than a scheduled task.
-
-**In Tilt dev, this is not just a convenience — it's the only way anything runs.** `values-tilt.yaml` sets `taskManager.suspend: true`, so the `veysur-task-manager` CronJob is deployed but Kubernetes never schedules a `Job` from it (`kubectl get cronjob` shows `SUSPEND: True`, `LAST SCHEDULE: <none>`). No task in this repo — payments, mail canary, mail queue processing, file cleanup, etc. — fires on its own in Tilt; every one needs a manual `task/run.sh` invocation.
-
-**Development** (exec into running pod):
+Run any service action outside the scheduler by executing `run.js` in the running `api` container with
+`API_TASK`, `API_ACTION` and optional `API_TASK_JSON` set. Useful for development testing and
+production one-off fixes. Run from `deploy/`:
 
 ```bash
-./package/k8s/scripts/task/run.sh --task payment --action processDuePayments
+docker compose exec -T -e API_TASK=fileDeletion -e API_ACTION=hardDeleteAll api node dist/run.js
 ```
 
-**Production** (isolated K8s Job):
+The dev stack runs the API from source, so use `pnpm exec tsx src/run.ts` in place of
+`node dist/run.js`. **In the dev stack this is the only way anything runs**: the overlay disables
+the `task-manager` service, so no task (mail queue processing, file cleanup, mail canary, and so on)
+fires on its own.
 
-```bash
-./package/k8s/scripts/task/run.sh --job --namespace veysur-prod \
-  --task payment --action processDuePayments
-```
+For creating and managing the initial admin account, see
+[admin-account-bootstrap.md](admin-account-bootstrap.md). It uses this same mechanism for a one-off
+administrative action rather than a scheduled task.
 
 **With options** (passed as JSON via `API_TASK_JSON`):
 
 ```bash
-./package/k8s/scripts/task/run.sh --job --task payment --action processDuePayments \
-  --options '{"dryRun": true}'
+docker compose exec -T \
+  -e API_TASK=fileDeletion -e API_ACTION=hardDeleteAll \
+  -e API_TASK_JSON='{"olderThan": "P1W"}' \
+  api node dist/run.js
 ```
 
-**File cleanup** — regular files (soft-deleted >1 month ago, runs automatically but can be triggered manually):
+**File cleanup**: regular files (soft-deleted more than a month ago) are deleted automatically, but
+can be triggered manually. `olderThan` takes an ISO 8601 duration; for example `P1W` or `PT5M`.
 
-```bash
-./package/k8s/scripts/task/run.sh --job --task fileDeletion --action hardDeleteAll
-# With a custom threshold:
-./package/k8s/scripts/task/run.sh --job --task fileDeletion --action hardDeleteAll \
-  --options '{"olderThan": "P1W"}'
-./package/k8s/scripts/task/run.sh --job --task fileDeletion --action hardDeleteAll \
-  --options '{"olderThan": "PT5M"}'
-```
-
-**Temp file cleanup** (not automatic — must be triggered manually):
+**Temp file cleanup** (not automatic, must be triggered manually):
 Temp files are often created for data export purposes and should be deleted once the file has downloaded.
-We cant know exactly when the file finishes downloading so we preset the file deletion time
+We can't know exactly when the file finishes downloading so we preset the file deletion time
 to some point in the future (6 hours).
 To delete temp files with future deletion time use a negative duration (e.g. "-PT6H").
 
 ```bash
-./package/k8s/scripts/task/run.sh --job --task fileDeletion --action hardDeleteAll \
-  --options '{"olderThan": "-PT6H", "fileContext": "temp"}'
-./package/k8s/scripts/task/run.sh --job --task fileDeletion --action hardDeleteAll \
-  --options '{"olderThan": "-PT6H"}'
+docker compose exec -T \
+  -e API_TASK=fileDeletion -e API_ACTION=hardDeleteAll \
+  -e API_TASK_JSON='{"olderThan": "-PT6H", "fileContext": "temp"}' \
+  api node dist/run.js
 ```
 
-**Mail queue processing** — dispatches due rows from the paced bulk invite/reminder queue (see `mail-queue-pacing.md`); runs automatically every 60s in stage/prod, but never on its own in Tilt (see note above):
+**Mail queue processing**: dispatches due rows from the paced bulk invite/reminder queue (see
+`mail-queue-pacing.md`). It runs automatically every 60s in a deployed stack, but never on its own in
+the dev stack (see above).
 
 ```bash
-# cd ./package/k8s
-./scripts/task/run.sh --task email --action processQueue
+docker compose exec -T -e API_TASK=email -e API_ACTION=processQueue api node dist/run.js
 ```
 
 Both the task entrypoint and `processQueue()` itself log what they're doing, so a manual run prints a full trail:
@@ -301,18 +292,6 @@ Both the task entrypoint and `processQueue()` itself log what they're doing, so 
 ```
 
 This `[Task] Running <task>.<action>` / `[Task] Completed <task>.<action>: <result>` pair comes from `src/run.ts` itself, so it applies to every manual task invocation above, not just this one.
-
-**IP country database ingestion** — downloads ip-to-country CSV, caches in S3, ingests into `veysurIpLocation` (IPv4 only by default; runs as a K8s Job with 512Mi/2h):
-
-```bash
-./package/k8s/scripts/task/ip-country-ingest.sh
-# Also ingest IPv6:
-./package/k8s/scripts/task/ip-country-ingest.sh --ipv6
-# Truncate first (full re-ingest):
-./package/k8s/scripts/task/ip-country-ingest.sh --truncate
-```
-
-See `task/run.sh --help` for all options.
 
 ## Key Files
 

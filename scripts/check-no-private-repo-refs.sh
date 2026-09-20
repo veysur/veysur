@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Guard against the private commercial monorepo's name leaking into this
-# public, source-available repo (comments, docs, scripts). This repo talks
+# Guard against the private commercial monorepo's name, or paths into its private
+# packages, leaking into this public, source-available repo (comments, docs, scripts). This repo talks
 # about the commercial edition only in generic terms (the composition seam,
 # "a commercial overlay", package names like veysur-app-cloud) — never by the
 # private repo's own name or by pointing at its internal doc paths.
@@ -8,7 +8,9 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-PATTERN='veysur-cloud'
+# The private repo's name, and paths into its infra and k8s packages. package/api-cloud and
+# package/app-cloud are named on purpose: they are the documented composition seam.
+PATTERN='veysur-cloud|package/(k8s|infra)([^a-z-]|$)'
 
 # CLA/CONTRIBUTING's generic "private commercial platform code" disclosure
 # never names the repo, so nothing needs excluding there.

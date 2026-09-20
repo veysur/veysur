@@ -207,15 +207,6 @@ Access from countries without required local legal representation (e.g. Switzerl
 
 Every path where a user sets/changes their own email — signup, survey participant registration, and account profile email change — rejects known disposable/temporary email domains via `ServiceEmailDomainCheck`, which is a no-op unless a deployment registers its own `emailDomainBlock` repo. See `docs/disposable-email-blocking.md`.
 
-## Debug scripts (`src/script/`)
-
-One-off scripts invoked directly via `node dist/script/<name>.js`, never through an HTTP endpoint or `package.json` script. Same pattern as `seed-e2e.ts` and `migrate.ts`.
-
-- **`debug-mint-token.ts`** — mints a valid session (client, JWT, access token) for an existing local-dev user via the internal `ServiceAuthDirect.loginDirect`, bypassing the public login + 2FA flow entirely. Useful for scripting an authenticated browser session (e.g. Playwright) against `platform.veysur.local`/`account.veysur.local` without re-running interactive login each time.
-  - Usage: `kubectl exec <api-pod> -- sh -c "cd /app/package/api && node dist/script/debug-mint-token.js <email>"` — prints the auth JSON between `===AUTH_JSON_START===`/`===AUTH_JSON_END===` markers. Inject it client-side as `localStorage['veysur.authHandoff'] = JSON.stringify({ auth, rememberMe: true })` before the app boots (see `AuthDomainPopup`/`common/queryClient.ts` for how the app consumes this handoff key).
-  - **Not a security hole**: `authDirect` has no config under `src/endpoint/` — mzen-server only exposes methods explicitly declared there (see [Endpoints](#endpoints-srcendpoint-and-url-prefixes) above), so `loginDirect` is unreachable over HTTP regardless of this script's existence. The script itself requires direct process access (`kubectl exec` into the pod) — there is no URL that triggers it.
-  - **Dev-only guard**: refuses to run unless `webDomain` ends in `.veysur.local`, so it cannot execute against stage or production even with direct shell access to those pods.
-
 ## Pagination
 When implementing pagination in service methods:
 - Use `skip` (not `offset`) in repo.find() options - this maps to MongoDB's native skip

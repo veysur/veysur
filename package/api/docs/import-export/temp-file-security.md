@@ -26,11 +26,7 @@ See: `ServiceImportExport.ts`, `ServiceFileTempDownload.ts`, `format/TarGzFormat
 
 ## Previous approaches considered
 
-An encrypted host-level LUKS disk exposed into the API pod (`api.tmpStorage.hostPath` in
-the Helm chart) was evaluated and partially built, but never wired up in any environment.
-The streaming rewrite above eliminated the need for it entirely, so that config was
-removed from the chart rather than finished — no further temp-storage encryption work is
-needed for import/export.
-
-For how encryption at rest works everywhere else in the infrastructure (database volumes,
-Garage buckets, backups), see [`luks-encryption.md`](../../../infra/docs/luks-encryption.md).
+An encrypted host-level disk exposed into the API container was evaluated and partially built, but
+never wired up in any environment. The streaming rewrite above eliminated the need for it entirely,
+so that config was removed rather than finished. No further temp-storage encryption work is needed
+for import/export.

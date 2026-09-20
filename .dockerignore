@@ -5,4 +5,3 @@ package/app/.env
 package/app/.env.local
 package/app/.env.development
 .git
-deploy/secrets

@@ -1,7 +1,5 @@
 # Cookie Consent — App
 
-See [root cookie consent doc](../../../docs/cookie-consent.md) for the shared data shape, banner UX, and how to add categories or reset consent.
-
 ## Cookie Inventory
 
 | Cookie          | Purpose                     | Max-age  | Category   | Set in                         |

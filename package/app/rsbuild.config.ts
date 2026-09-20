@@ -7,7 +7,7 @@ import { pluginReact } from '@rsbuild/plugin-react'
 import tailwindcssPostcss from '@tailwindcss/postcss'
 
 // This combined all-in-one dev/build config is only ever used as a local
-// convenience (Tilt's single app-dev pod bundles every sub-app together).
+// convenience (one dev server bundles every sub-app together).
 // The commercial app-cloud package never ships in the self-hosted/public
 // edition, so the platform entry is added conditionally on its presence —
 // never a hardcoded reference to a sibling package that may not exist in
