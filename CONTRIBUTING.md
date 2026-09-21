@@ -38,9 +38,8 @@ ownership, just granting the licences above.
 3. Keep pull requests focused: one logical change per PR.
 4. Add or update tests for the behaviour you're changing.
 5. Make sure the linter, type-checker, and test suite pass locally before
-   opening the PR. The package-level `AGENTS.md` files, once the code lands
-   here, will have the exact commands; this repository is still being
-   populated (see the README's Status section).
+   opening the PR. The package-level `AGENTS.md` files have the exact
+   commands.
 
 ## Reporting bugs
 

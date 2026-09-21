@@ -7,6 +7,15 @@
 Install, update and operate a self-hosted instance. Requirements: Docker with Compose 2.22 or later, 4 GB RAM,
 10 GB free disk, and a domain pointing at the host for public HTTPS.
 
+## Before you start
+
+- **A domain** whose DNS record points at this host. Automatic HTTPS cannot be issued until it resolves.
+- **Ports 80 and 443** open to the internet, in the host firewall and any cloud firewall. Only Caddy publishes
+  ports; MySQL and Redis stay inside the Docker network.
+- **An SMTP relay** and its credentials, for password resets and survey invitations. See [email.md](./email.md).
+  You can install without one and add it later.
+- **Somewhere to keep backups** away from this server. See [maintenance.md](./maintenance.md).
+
 ## Install
 
 ```bash
@@ -31,7 +40,8 @@ Then create the first account:
 ./scripts/admin-account-bootstrap.sh --email you@example.com
 ```
 
-It prints a generated password once and writes `API_PROJECT_OWNER_ID` to `.env`.
+It prints a generated password once and writes `API_PROJECT_OWNER_ID` to `.env`. Once mail is configured, check it
+with `./scripts/veysur.sh mail-test you@example.com`.
 
 Pre-flight refuses to continue below 4 GB RAM or 10 GB free disk (`VEYSUR_SKIP_PREFLIGHT=1` to override).
 Set `VEYSUR_HTTP_PORT` and `VEYSUR_HTTPS_PORT` in the environment of `config-generate.sh` if 80 or 443 are
@@ -39,17 +49,10 @@ taken.
 
 ## Update
 
-```bash
-./scripts/update.sh --tag 1.3.0
-```
-
-Forward-only. It pulls the new images (or loads `*.tar` archives with `--offline <dir>`), snapshots every
-database to `backups/` (aborting if that fails), runs migrations, recreates the containers and checks health.
-
-- **Unhealthy release:** the previous tag is re-pinned in `.env` and started again.
-- **Failed migration:** the tag is restored and the snapshot is the recovery path; restore it with
-  `gunzip -c backups/<file>.sql.gz | docker compose exec -T mysql sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD"'`.
-- **Skipping a major version** needs `--force`.
+Unpack the new release in a new directory, copy `.env` and `certs/` across, and run its `update.sh`. A release
+carries the matching `compose.yaml` and scripts, and `update.sh` changes only the image tag, so running the old
+directory's copy is not enough. Take a backup first. The full procedure, rollback and what each failure leaves
+behind are in [maintenance.md](./maintenance.md#upgrade).
 
 ## Operate
 
@@ -58,8 +61,11 @@ database to `backups/` (aborting if that fails), runs migrations, recreates the 
 ./scripts/veysur.sh logs api
 ```
 
-`veysur.sh` also offers `restart` and `stop`. Anything else is plain `docker compose`. Data lives in named
-volumes and survives `stop`; `docker compose down -v` deletes it.
+`veysur.sh` also offers `restart`, `stop` and `mail-test`. Anything else is plain `docker compose`. Data lives in
+named volumes and survives `stop`; `docker compose down -v` deletes it.
+
+Back up with `./scripts/backup.sh`, restore with `./scripts/restore.sh`, and move to another server with the two
+together. See [maintenance.md](./maintenance.md).
 
 ## Build a release package
 

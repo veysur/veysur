@@ -10,8 +10,9 @@ The Docker Compose stack for running VeySur. Full documentation is in [`../docs/
 ./scripts/admin-account-bootstrap.sh --email you@example.com
 ```
 
-From a release tarball, run `./install.sh` instead of the first two lines. Update with
-`./scripts/update.sh --tag <version>`. See [deployment](../docs/deployment.md).
+From a release tarball, run `./install.sh` instead of the first two lines. Back up with `./scripts/backup.sh`.
+See [deployment](../docs/deployment.md) to install and [maintenance](../docs/maintenance.md) to upgrade, restore
+or move to another server.
 
 ## What is here
 
@@ -23,7 +24,7 @@ From a release tarball, run `./install.sh` instead of the first two lines. Updat
 | `caddy/` | Front-door config and the four TLS snippets, see [tls](../docs/tls.md) |
 | `mysql/` | Server config and first-start grants |
 | `docker/` | `Dockerfile.api`, `Dockerfile.nginx` (production) and `Dockerfile.dev` |
-| `scripts/` | `config-generate`, `deploy`, `update`, `admin-account-bootstrap`, `veysur`, `release-package` |
+| `scripts/` | `config-generate`, `deploy`, `update`, `backup`, `restore`, `admin-account-bootstrap`, `veysur`, `release-package` |
 | `install.sh` | Top-level installer used from the release tarball |
 | `.env.example` | Every configuration key, see [configuration](../docs/configuration.md) |
 

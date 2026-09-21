@@ -28,11 +28,15 @@ Required secrets fail at `docker compose config` if empty. Anything not listed h
 | `API_S3_PUBLIC_BASE_URL` | Public base URL for file links, includes any non-standard port |
 | `API_BRAND_NAME` | Product name in non-legal contexts, default `VeySur` |
 | `API_PROJECT_OWNER_ID` | Written by `admin-account-bootstrap.sh`; do not edit |
-| `MYSQL_DATABASE`, `MYSQL_DATABASE_IP_LOCATION`, `MYSQL_USER` | Database names and user |
-| `API_MAIL_HOST`, `_PORT`, `_TRANSPORT_TYPE`, `_SECURE`, `_AUTH_USER`, `_AUTH_PASS`, `_CANARY_TO` | Outbound SMTP relay. Left blank, mail fails loudly |
+| `MYSQL_DATABASE`, `MYSQL_DATABASE_IP_LOCATION`, `MYSQL_USER` | Database names and user. The IP-location database is created but not used by the self-hosted edition |
+| `API_MAIL_HOST`, `_PORT`, `_TRANSPORT_TYPE`, `_SECURE`, `_AUTH_USER`, `_AUTH_PASS`, `_CANARY_TO` | Outbound SMTP relay. Left blank, mail fails loudly. See [email.md](./email.md) |
+| `API_MAIL_ADDRESS_FROM`, `_FROM_NAME`, `_ADDRESS_CONTACT`, `API_COMPANY_NAME` | Sender identity. Blank uses `no-reply@<API_WEB_DOMAIN>` and `API_BRAND_NAME` |
+| `API_MAIL_BOUNCE_DOMAIN`, `API_MAIL_IMAP_*` | Optional bounce and complaint processing over IMAP. Blank disables it |
+
+The project name and timezone are not keys: they are seeded on first start and then edited in the admin app.
 
 Fixed in `compose.yaml`, not keys: `DEPLOYMENT_MODE=self-hosted`, local-disk file storage
-(`API_S3_TYPE=local`, `/data/files`), `MYSQL_HOST=mysql`, `REDIS_HOST=redis`, empty `BUGSINK_DSN`. There is no
+(`API_S3_TYPE=local`, `/data/files`, see [storage.md](./storage.md); external S3 is not supported), `MYSQL_HOST=mysql`, `REDIS_HOST=redis`, empty `BUGSINK_DSN`. There is no
 `API_COMPOSITION_MODULE`; its absence keeps the API on plain core composition.
 
 ## Secrets
@@ -40,8 +44,8 @@ Fixed in `compose.yaml`, not keys: `DEPLOYMENT_MODE=self-hosted`, local-disk fil
 `API_JWT_KEY`, `MYSQL_ROOT_PASSWORD`, `MYSQL_PASSWORD`, `REDIS_PASSWORD`, `API_S3_LOCAL_SECRET`, and the
 field-encryption trio `API_ENCRYPTION_PUBLIC_KEY`, `API_ENCRYPTION_PRIVATE_KEY`,
 `API_ENCRYPTION_PRIVATE_KEY_PASSWORD` (the keys are base64 of a 4096-bit RSA PEM pair). Generated values are
-hex or base64 so they are safe unquoted in `.env`. Back `.env` up: losing the encryption keys makes encrypted
-fields unreadable.
+hex or base64 so they are safe unquoted in `.env`. `./scripts/backup.sh` includes `.env`. [maintenance.md](./maintenance.md) lists what losing each secret costs;
+losing the encryption keys, for example, makes encrypted fields unreadable.
 
 ## Frontend values fixed at image build time
 

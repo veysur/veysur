@@ -4,12 +4,15 @@ Creating the first usable account for a fresh install, in both the local dev sta
 self-hosted deployment. Public signup leaves email unverified, which blocks project-ownership claims
 in the JWT, so there is no way to log in and start using a fresh install without this.
 
-Self-hosted's single project is a static, config-sourced value, not a database row (see
-`model/service/ServiceProject.ts`). Creating an account does not make it the project owner. That
-needs `API_PROJECT_OWNER_ID=<userId>` in `deploy/.env`, along with `API_PROJECT_NAME` and
-`API_PROJECT_TIMEZONE` if non-default values are wanted. Until it is set, the bootstrapped user can log
-in and use `authedAdmin`-gated features (for example editing surveys), but any `projectOwner`-gated
-action (team invites, `/setting/project`) stays hidden or returns 403.
+Self-hosted has exactly one project. `ServiceProject.ensureLoaded` creates its row on the API's first
+start, seeding the name and timezone from `API_PROJECT_NAME` and `API_PROJECT_TIMEZONE` (defaults
+`My Project` and `Etc/UTC`). Those two values are read only at that moment, before any account exists,
+so change the name and timezone afterwards in the admin app, not in `.env`.
+
+Creating an account does not make it the project owner. That needs `API_PROJECT_OWNER_ID=<userId>` in
+`deploy/.env`, which `ensureLoaded` copies onto the project row whenever the API starts. Until it is set,
+the bootstrapped user can log in and use `authedAdmin`-gated features (for example editing surveys), but
+any `projectOwner`-gated action (team invites, `/setting/project`) stays hidden or returns 403.
 
 ## Create the first account
 
@@ -47,8 +50,9 @@ one was generated.
 
 ## Changing settings later
 
-Every post-install setting (project owner, project name, mail connection, limits) lives in
-`deploy/.env`. Edit it, then apply it from `deploy/`:
+Deployment settings (project owner, mail connection, limits) live in `deploy/.env`. The project name and
+timezone do not: they are edited in the admin app once the project exists. Edit `.env`, then apply it
+from `deploy/`:
 
 ```bash
 ./scripts/deploy.sh

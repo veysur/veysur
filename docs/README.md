@@ -6,8 +6,11 @@ matches what you are doing.
 | Document | Read it to |
 |---|---|
 | [architecture.md](./architecture.md) | Understand the services, routing, data and scheduling model |
-| [deployment.md](./deployment.md) | Install, update, roll back and operate a self-hosted instance |
+| [deployment.md](./deployment.md) | Install a self-hosted instance and create the first account |
+| [maintenance.md](./maintenance.md) | Upgrade, back up, restore, move to another server, and run day-to-day operations |
 | [configuration.md](./configuration.md) | Look up every `.env` key and the values fixed at image build time |
+| [email.md](./email.md) | Set up the SMTP relay and sender address, and test it |
+| [storage.md](./storage.md) | Understand where uploaded files live and how they are served |
 | [tls.md](./tls.md) | Choose and troubleshoot HTTPS |
 | [development.md](./development.md) | Run the live-reload dev loop, run tests, contribute |
 | [timestamps.md](./timestamps.md) | See how timestamps are stored, transmitted, filtered and displayed |
