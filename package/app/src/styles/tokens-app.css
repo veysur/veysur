@@ -13,11 +13,11 @@
   --chart-3: oklch(55.6% 0 0);
   --chart-4: oklch(43.9% 0 0);
   --chart-5: oklch(37.1% 0 0);
-  --sidebar: oklch(0.9191 0.0029 84.56);
+  --sidebar: oklch(0.9491 0.0029 84.56);
   --sidebar-foreground: oklch(0.147 0.004 49.25);
   --sidebar-primary: oklch(0.216 0.006 56.043);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.8678 0 0);
+  --sidebar-accent: oklch(0.8778 0 0); /* Selected item */
   --sidebar-accent-foreground: oklch(0.147 0.004 49.25);
   --sidebar-border: oklch(0.374 0.01 67.558);
   --sidebar-ring: oklch(0.708 0 0);
@@ -32,7 +32,7 @@
   /* Survey editor active-element highlight — shared by focus/hover states across SurveyEditor components */
   --editor-active-bg: color-mix(
     in oklch,
-    var(--color-amber-200) 24%,
+    var(--color-amber-200) 20%,
     transparent
   );
 }
