@@ -147,7 +147,13 @@ ask VEYSUR_ADMIN_EMAIL "Administrator e-mail (used by the first-account bootstra
 ask API_MAIL_HOST "SMTP host (blank to configure later)" ""
 if [ -n "$(current API_MAIL_HOST)" ]; then
   ask API_MAIL_PORT "SMTP port" "587"
+  # 465 is implicit TLS; 587 and 25 start plain and upgrade with STARTTLS.
+  case "$(current API_MAIL_PORT)" in
+    465) env_set API_MAIL_SECURE true "$WORK" ;;
+    587 | 25) env_set API_MAIL_SECURE false "$WORK" ;;
+  esac
   ask API_MAIL_AUTH_USER "SMTP username" ""
+  ask API_MAIL_ADDRESS_FROM "Sender address (your relay must allow it)" "no-reply@$domain"
   smtp_password=$(read_secret "SMTP password (Enter keeps the current value)")
   [ -z "$smtp_password" ] || env_set API_MAIL_AUTH_PASS "$smtp_password" "$WORK"
   if ! timeout 5 bash -c "</dev/tcp/$(current API_MAIL_HOST)/$(current API_MAIL_PORT)" 2>/dev/null; then

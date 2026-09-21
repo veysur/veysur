@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# cspell:ignore tmpfile nproc proc meminfo
+# cspell:ignore tmpfile nproc proc meminfo uroot
 # Shared helpers for the operator scripts. Source, do not execute.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)"
@@ -132,4 +132,25 @@ wait_for_api() {
     sleep 2
   done
   return 1
+}
+
+# Databases the application owns: everything except MySQL's own schemas. Dumping
+# only these lets a backup restore onto a freshly initialised server without
+# overwriting its users and grants.
+mysql_app_databases() {
+  compose exec -T mysql sh -c 'mysql -N -uroot -p"$MYSQL_ROOT_PASSWORD" -e "SHOW DATABASES"' 2>/dev/null |
+    grep -Ev '^(mysql|information_schema|performance_schema|sys)$' || true
+}
+
+# Writes a gzipped dump of the application databases to FILE. On failure or an
+# implausibly small dump, removes FILE and returns 1.
+mysql_dump_to() {
+  local file=$1 dbs=()
+  mapfile -t dbs < <(mysql_app_databases)
+  [ ${#dbs[@]} -gt 0 ] || return 1
+  if ! compose exec -T mysql sh -c 'exec mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" --single-transaction --routines --triggers --databases "$@"' sh "${dbs[@]}" | gzip >"$file" \
+    || [ "$(gzip -dc "$file" | wc -c)" -lt 1000 ]; then
+    rm -f "$file"
+    return 1
+  fi
 }

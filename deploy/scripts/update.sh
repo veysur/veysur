@@ -65,11 +65,7 @@ fi
 info "Snapshotting the database"
 mkdir -p "$BACKUP_DIR"
 snapshot="$BACKUP_DIR/veysur-$(date +%Y%m%d-%H%M%S)-before-$TARGET.sql.gz"
-if ! compose exec -T mysql sh -c 'mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" --all-databases --single-transaction --routines --triggers' | gzip >"$snapshot" \
-  || [ "$(gzip -dc "$snapshot" | wc -c)" -lt 1000 ]; then
-  rm -f "$snapshot"
-  die "database snapshot failed; nothing was changed"
-fi
+mysql_dump_to "$snapshot" || die "database snapshot failed; nothing was changed"
 ok "Snapshot: $snapshot"
 
 env_set VEYSUR_IMAGE_TAG "$TARGET"
