@@ -1,29 +1,65 @@
 # VeySur
 
-Source-available, self-hostable VeySur.
+VeySur is a survey platform for building, publishing and analysing surveys, with control over who
+takes part and where the data lives. Use it hosted at [veysur.com](https://veysur.com), or run it on
+your own server.
 
-This repository is the canonical home for the VeySur survey product, the
-application people use to build, publish, and take surveys.
+[Admin guide](https://docs.veysur.com) · [Self-host](#get-started) · [Contributing](./CONTRIBUTING.md)
 
-## Licence
+## What it is for
 
-Source-available under the [Elastic License 2.0](./LICENSE). Free to use,
-self-host, and modify; you may not offer it to third parties as a hosted or
-managed service. See [FAQ.md](./FAQ.md) for what that does and doesn't
-cover, and [TRADEMARKS.md](./TRADEMARKS.md) for the VeySur name/logo policy.
+VeySur suits surveys where you know, or want to control, who answers:
 
-## Self-hosting
+- **Research and academic studies**, including repeat and longitudinal collection where the same
+  participants answer more than once.
+- **Public sector, health and consultation work** that needs an audit trail and care over personal data.
+- **Charities and community groups** gathering feedback from members, volunteers and service users.
+- **Market research and polling** across several languages.
+- **Staff and customer surveys** run inside an organisation, on its own infrastructure if required.
 
-VeySur runs on one server with Docker Compose: the survey editor, the survey-taking app and account
-management on a single domain, with Caddy for HTTPS, nginx, the API, MySQL and Redis.
+## Features
 
-You need:
+### Build
 
-- A Linux server with Docker (Compose 2.22 or later), 4 GB of RAM and 10 GB of free disk.
-- A domain name pointing at the server, with ports 80 and 443 open.
-- An SMTP relay for password resets and survey invitations. The stack does not include a mail server.
+- A survey editor with groups, questions and content elements (formatted text and embedded YouTube
+  video), with live preview of what participants see.
+- Text, number, checkbox, dropdown, button, yes/no, star and point-scale, image select, ranking, and
+  date and time questions, plus matrix grids and multi-part questions for structured answers.
+- Conditional questions and groups that appear only when earlier answers call for them.
+- Text expressions that insert a participant detail or an earlier answer into question wording.
+- Multi-language surveys, with per-language text and images, and optional randomised answer order.
 
-Install from a release package (`veysur-<version>-with-images.tar.gz` bundles the container images):
+### Publish and invite
+
+- Publications freeze a survey at the moment it is published, so responses always match the
+  questions that were asked.
+- Invite participants by email, send reminders, and track delivery, bounces and complaints.
+- Open access, unique participant links, or public registration, chosen per survey.
+- Custom participant attributes for personalised surveys.
+- Anonymous surveys that record no participant identity, IP address or real timestamps.
+- Merge responses from an earlier publication into a newer one.
+
+### Collect and analyse
+
+- A response list with search and filters, and the option to add or edit responses by hand.
+- Per-question charts (bar, pie, stacked bar and average rank) and CSV export of responses and
+  participants.
+- Export and import surveys, single publications, or a complete archive with all responses.
+
+### Keep control of your data
+
+- Add team members to a project to manage surveys together.
+- Self-host with Docker Compose, with uploaded files kept locally or in S3-compatible storage.
+- Sensitive fields are encrypted with keys that you hold.
+
+## Get started
+
+**Hosted:** create an account at [veysur.com](https://veysur.com).
+
+**Self-hosted:** you need a Linux server with Docker (Compose 2.22 or later), 4 GB of RAM, 10 GB of
+free disk, a domain name pointing at it with ports 80 and 443 open, and an SMTP relay for password
+resets and invitations. Install from a release package (`veysur-<version>-with-images.tar.gz` bundles
+the container images):
 
 ```bash
 tar -xzf veysur-<version>-with-images.tar.gz && cd veysur
@@ -43,15 +79,13 @@ Then open your domain in a browser and sign in with the password the script prin
 | Look up every setting | [docs/configuration.md](./docs/configuration.md) |
 | Upgrade, back up, restore or move to a new server | [docs/maintenance.md](./docs/maintenance.md) |
 
-Back up before you rely on it. `./scripts/backup.sh` saves the database, the uploaded files and your
-configuration, including encryption keys that cannot be recovered any other way. Only the latest release
-receives fixes, so plan to upgrade (see [SECURITY.md](./SECURITY.md)).
+Run `./scripts/backup.sh` before you rely on an install: it saves the encryption keys, which cannot be
+recovered any other way. Only the latest release receives fixes (see [SECURITY.md](./SECURITY.md)).
 
-## Contributing
+## Documentation
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md). All contributions require signing
-the [CLA](./CLA.md). Found a security issue? See [SECURITY.md](./SECURITY.md)
-rather than filing a public issue.
+- [Admin guide](https://docs.veysur.com): building, publishing and managing surveys.
+- [docs/](./docs/README.md): architecture, operations and development notes.
 
 ## Development
 
@@ -63,9 +97,16 @@ pnpm dev                                    # API, app dev server and proxy with
 pnpm dev:admin-account --email you@example.com      # in another terminal: create the first account
 ```
 
-Open <http://localhost:8080>. Only Docker (Compose 2.22 or later) is needed; there is no
-Kubernetes tooling. Outgoing mail lands in a local inbox at <http://localhost:1080>. API and app
-source edits reload live; a change to `pnpm-lock.yaml` or a `package.json` rebuilds the dev image.
+Open <http://localhost:8080>. Only Docker (Compose 2.22 or later) is needed. See
+[docs/development.md](./docs/development.md) for the dev loop and tests, and [deploy/](./deploy) for the
+Compose stack.
 
-See [docs/](./docs/README.md) for architecture and development notes, and [deploy/](./deploy) for the Compose stack and
-operator scripts.
+Contributions are welcome; read [CONTRIBUTING.md](./CONTRIBUTING.md) first, as all contributions require
+signing the [CLA](./CLA.md). Report security issues as described in [SECURITY.md](./SECURITY.md), not in
+a public issue.
+
+## Licence
+
+Source-available under the [Elastic License 2.0](./LICENSE). Free to use, self-host and modify; you may
+not offer it to third parties as a hosted or managed service. See [FAQ.md](./FAQ.md) and
+[TRADEMARKS.md](./TRADEMARKS.md).
