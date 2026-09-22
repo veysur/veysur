@@ -1,25 +1,25 @@
 # Versioning and releases
 
 How `veysur` and its two submodule libraries (`mzen`, `s3-adaptor`) are versioned, and the
-step-by-step for cutting a release. None of these packages are published to npm — every
+step-by-step for cutting a release. None of these packages are published to npm: every
 "release" is a git tag plus a GitHub release, not an `npm publish`.
 
 ## Overview
 
 | Repo | Versioning model | Tag format | Config |
 |---|---|---|---|
-| `veysur` (this repo) | `fixed` group — `veysur-app`, `veysur-api`, `veysur-common`, `veysur-theme`, `veysur-docsite` always bump together | `vX.Y.Z` | `.changeset/config.json` |
+| `veysur` (this repo) | `fixed` group: `veysur-app`, `veysur-api`, `veysur-common`, `veysur-theme`, `veysur-docsite` always bump together | `vX.Y.Z` | `.changeset/config.json` |
 | `external/mzen` | Independent per package (`mzen-id`, `mzen-migrate`, `mzen-om`, `mzen-schema`, `mzen-server`) | `<package-name>@X.Y.Z` | `external/mzen/.changeset/config.json` |
 | `external/s3-adaptor` | Single package | `s3-adaptor@X.Y.Z` | `external/s3-adaptor/.changeset/config.json` |
 
 All three use [Changesets](https://github.com/changesets/changesets). Every package here is
 `private: true` and consumed via the pnpm `workspace:*` protocol, so each `.changeset/config.json`
-sets `"privatePackages": { "version": true, "tag": true }` — Changesets skips private
+sets `"privatePackages": { "version": true, "tag": true }`. Changesets skips private
 packages' version management by default, which silently no-ops `changeset version` without
 this.
 
 `veysur`'s five packages version together because self-hosters deploy and upgrade them as
-one unit via `deploy/` (Docker Compose) — they never pin `app` and `api` to different
+one unit via `deploy/` (Docker Compose): they never pin `app` and `api` to different
 versions from each other.
 
 ## Day to day: adding a changeset
@@ -39,22 +39,22 @@ Commit the generated `.changeset/*.md` file with the PR.
 Releases are cut in dependency order, since `veysur`'s `pnpm-lock.yaml` and submodule
 pointers need to reflect `mzen`/`s3-adaptor`'s latest tagged commit:
 
-1. **`external/mzen`** (if it has pending changesets): `cd external/mzen && ./scripts/release.sh`
-   — bumps whichever `mzen-*` packages changed, commits, tags each
+1. **`external/mzen`** (if it has pending changesets): `cd external/mzen && ./scripts/release.sh`.
+   Bumps whichever `mzen-*` packages changed, commits, tags each
    `<package-name>@<version>`, pushes.
 2. **`external/s3-adaptor`** (if it has pending changesets): `cd external/s3-adaptor &&
-   ./scripts/release.sh` — bumps, commits, tags `s3-adaptor@<version>`, pushes.
+   ./scripts/release.sh`. Bumps, commits, tags `s3-adaptor@<version>`, pushes.
 3. In `veysur`'s own root, `git add external/mzen external/s3-adaptor` to pick up the new
    submodule pointers if either was released, then `pnpm install` to refresh the lockfile.
-4. **`veysur`** (if it has pending changesets): `./scripts/release.sh` — bumps all five
+4. **`veysur`** (if it has pending changesets): `./scripts/release.sh`. Bumps all five
    packages together, syncs the root `package.json` version, commits, tags `vX.Y.Z`, pushes.
 
-Each `scripts/release.sh` prints a `gh release create` command as its last step — run it
+Each `scripts/release.sh` prints a `gh release create` command as its last step. Run it
 (one per tag) to cut the actual GitHub release from that package's `CHANGELOG.md` entry.
 
 `scripts/release.sh` in each repo does the mechanical part only (version bump, commit, tag,
 push); it refuses to run with pending working-tree changes or with no changesets staged.
-This is a manual, maintainer-triggered flow — there's no CI release automation yet.
+This is a manual, maintainer-triggered flow: there's no CI release automation yet.
 
 ## Onboarding a new package
 
@@ -69,13 +69,13 @@ package):
    `.changeset/config.json` `fixed` array.
 3. If it's a new independent-semver repo (a new submodule, following the `mzen`/`s3-adaptor`
    pattern): add `@changesets/cli` as a dev dependency, scaffold `.changeset/config.json`
-   and `.changeset/README.md` (copy an existing one as a template), and — critically — set
+   and `.changeset/README.md` (copy an existing one as a template), and, critically, set
    `privatePackages.version: true` if the package is `private: true` (it almost certainly
    is), or `changeset version` will silently skip it.
 4. If it has its own `package.json` with no sibling `package/*` packages (like
    `s3-adaptor`), give it its own `pnpm-workspace.yaml` with `packages: []` so pnpm and
    Changesets treat it as its own workspace root rather than resolving into `veysur`'s
-   parent workspace — this was a real bug hit when `s3-adaptor` first adopted Changesets.
+   parent workspace: this was a real bug hit when `s3-adaptor` first adopted Changesets.
 5. Add a `release` scope to `.cz-config.js` if `allowCustomScopes: false` there.
 6. Add a baseline `CHANGELOG.md` (`## 0.1.0` / current version, "Initial tracked release").
 7. Copy `scripts/release.sh` from a sibling repo with the matching versioning model
