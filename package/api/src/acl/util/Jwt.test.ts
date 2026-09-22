@@ -1,4 +1,5 @@
 // cspell:ignore Nlcjpw
+import * as jwt from 'jsonwebtoken'
 import { Jwt } from './Jwt'
 
 const jwtConfig = { key: 'test-secret-key', algorithm: 'HS256' as const }
@@ -55,6 +56,18 @@ describe('Jwt', () => {
 
     test('verify rejects a malformed token string', async () => {
       await expect(Jwt.verify('not-a-real-token', jwtConfig)).rejects.toThrow()
+    })
+
+    test('verify rejects a token signed with a different algorithm than configured, even with the same key', async () => {
+      // jsonwebtoken permits any HMAC variant when no `algorithms` option is
+      // passed to verify() - this pins verification to the one configured.
+      const token = jwt.sign({ _id: 'user_1' }, jwtConfig.key, {
+        algorithm: 'HS512',
+      })
+
+      await expect(Jwt.verify(token, jwtConfig)).rejects.toThrow(
+        /invalid algorithm/i,
+      )
     })
   })
 

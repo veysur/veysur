@@ -16,7 +16,9 @@ export class Jwt {
   }
 
   static async verify(tokenString: string, jwtConfig) {
-    const jwtRaw = await verify(tokenString, jwtConfig.key)
+    const jwtRaw = await verify(tokenString, jwtConfig.key, {
+      algorithms: [jwtConfig.algorithm],
+    })
     return jwtRaw
   }
 
