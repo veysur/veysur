@@ -30,6 +30,7 @@ export interface AppConfig {
   platformDomain: string
   platformBasePath: string
   envType: string
+  exposeErrorDetails: boolean
   jwt: {
     key: string
     algorithm: string

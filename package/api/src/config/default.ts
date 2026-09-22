@@ -166,6 +166,12 @@ export const app = {
     ownerId: API_PROJECT_OWNER_ID ? API_PROJECT_OWNER_ID : '',
   },
   envType: 'development', // development, test or production
+  // Whether mzen-server's ErrorHandler may return raw internal error detail
+  // (exception messages, error object fields) to API clients on an
+  // unhandled/uncaught error. Off outside development, since those details
+  // can include DB error text, file paths, or other internals - server-side
+  // logging (unaffected by this flag) is always full detail regardless.
+  exposeErrorDetails: process.env.NODE_ENV !== 'production',
   jwt: {
     key: API_JWT_KEY ? API_JWT_KEY : '',
     algorithm: 'HS512',
