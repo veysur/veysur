@@ -6,6 +6,30 @@ either way; none of these packages are currently published to npm, though the li
 packages (everything except the workspace-root `package.json`s and `veysur-app`) carry no
 `private` field, so `npm publish` isn't blocked if that changes.
 
+## What is a changeset?
+
+A changeset is a small Markdown file that records a deferred release instruction: which
+package(s) changed, how significant the change is (patch/minor/major), and what the
+changelog entry should say. `pnpm changeset` writes one interactively and drops it in
+`.changeset/`, e.g.:
+
+```markdown
+---
+'mzen-schema': patch
+---
+
+Fix validator crashing on a null nested field
+```
+
+The point is to capture that information at the moment the change is made, in the PR that
+made it, rather than trying to reconstruct "what changed and how much does it matter" from
+a pile of commits weeks later when it's time to cut a release. Each changeset file just sits
+in `.changeset/` accumulating until someone runs `changeset version` (what
+`scripts/release.sh` does), which reads every pending changeset, bumps the affected
+`package.json` version(s) by the right amount, writes the `CHANGELOG.md` entries, and
+deletes the consumed changeset files. Nothing else in this workflow touches version numbers
+or changelogs by hand.
+
 ## Overview
 
 | Repo | Versioning model | Tag format | Config |
