@@ -1,8 +1,10 @@
 # Versioning and releases
 
 How `veysur` and its two submodule libraries (`mzen`, `s3-adaptor`) are versioned, and the
-step-by-step for cutting a release. None of these packages are published to npm: every
-"release" is a git tag plus a GitHub release, not an `npm publish`.
+step-by-step for cutting a release. The release artefact is a git tag plus a GitHub release
+either way; none of these packages are currently published to npm, though the library
+packages (everything except the workspace-root `package.json`s and `veysur-app`) carry no
+`private` field, so `npm publish` isn't blocked if that changes.
 
 ## Overview
 
@@ -12,11 +14,14 @@ step-by-step for cutting a release. None of these packages are published to npm:
 | `external/mzen` | Independent per package (`mzen-id`, `mzen-migrate`, `mzen-om`, `mzen-schema`, `mzen-server`) | `<package-name>@X.Y.Z` | `external/mzen/.changeset/config.json` |
 | `external/s3-adaptor` | Single package | `s3-adaptor@X.Y.Z` | `external/s3-adaptor/.changeset/config.json` |
 
-All three use [Changesets](https://github.com/changesets/changesets). Every package here is
-`private: true` and consumed via the pnpm `workspace:*` protocol, so each `.changeset/config.json`
-sets `"privatePackages": { "version": true, "tag": true }`. Changesets skips private
-packages' version management by default, which silently no-ops `changeset version` without
-this.
+All three use [Changesets](https://github.com/changesets/changesets). The workspace-root
+`package.json` in `veysur` and `mzen` (not a real consumable package, just orchestration
+scripts) and `veysur-app` (a bundled application, not a library) stay `private: true`; every
+other package here is consumed both via the pnpm `workspace:*` protocol internally and is
+publishable to npm in principle. Each `.changeset/config.json` sets `"privatePackages": {
+"version": true, "tag": true }` so Changesets still manages the few packages that remain
+private, and `"access": "public"` since none of these package names are npm-scoped
+(`restricted` access only works for a scoped `@org/pkg` name).
 
 `veysur`'s five packages version together because self-hosters deploy and upgrade them as
 one unit via `deploy/` (Docker Compose): they never pin `app` and `api` to different
@@ -69,9 +74,9 @@ package):
    `.changeset/config.json` `fixed` array.
 3. If it's a new independent-semver repo (a new submodule, following the `mzen`/`s3-adaptor`
    pattern): add `@changesets/cli` as a dev dependency, scaffold `.changeset/config.json`
-   and `.changeset/README.md` (copy an existing one as a template), and, critically, set
-   `privatePackages.version: true` if the package is `private: true` (it almost certainly
-   is), or `changeset version` will silently skip it.
+   and `.changeset/README.md` (copy an existing one as a template). If the package is
+   `private: true` (an application, not a library meant to be depended on), confirm
+   `privatePackages.version: true` is set, or `changeset version` will silently skip it.
 4. If it has its own `package.json` with no sibling `package/*` packages (like
    `s3-adaptor`), give it its own `pnpm-workspace.yaml` with `packages: []` so pnpm and
    Changesets treat it as its own workspace root rather than resolving into `veysur`'s

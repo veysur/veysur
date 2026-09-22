@@ -4,7 +4,7 @@
   "commit": false,
   "fixed": [["veysur-app", "veysur-api", "veysur-common", "veysur-theme", "veysur-docsite"]],
   "linked": [],
-  "access": "restricted",
+  "access": "public",
   "baseBranch": "master",
   "updateInternalDependencies": "patch",
   "ignore": [],
