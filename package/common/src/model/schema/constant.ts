@@ -77,3 +77,25 @@ export const ENTITY_CODE_RESPONSE_PATTERN =
  */
 export const ENTITY_CODE_BARE_IDENTIFIER_PATTERN =
   /\b([A-Za-z][A-Za-z0-9_]*)\b/g
+
+/**
+ * Every MIME type an uploaded file is allowed to declare. Enforced server-side
+ * (client-side `accept`/type checks are a UX convenience only, never a
+ * security boundary) so a browser can never be served a stored upload as
+ * executable content (`text/html`, `image/svg+xml`, etc.) - the class of
+ * upload this list must never contain, regardless of what gets added to it.
+ *
+ * `application/octet-stream` covers survey import/export formats
+ * (.vsst/.vssa/.vssp) that have no browser-registered MIME type of their
+ * own; browsers report it (or an empty `file.type`, normalised to it by the
+ * uploader) for those. It is safe here because browsers do not render
+ * `application/octet-stream` as HTML/SVG.
+ */
+export const ALLOWED_FILE_MIME_TYPES = [
+  'image/png',
+  'image/jpeg',
+  'image/jpg',
+  'image/webp',
+  'text/csv',
+  'application/octet-stream',
+]

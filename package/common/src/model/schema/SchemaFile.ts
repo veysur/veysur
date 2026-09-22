@@ -1,5 +1,8 @@
 import { Schema, sb } from 'mzen-schema'
-import { SCHEMA_LENGTH_MAX_INTERNAL_ID } from './constant'
+import {
+  ALLOWED_FILE_MIME_TYPES,
+  SCHEMA_LENGTH_MAX_INTERNAL_ID,
+} from './constant'
 
 export class SchemaFile extends Schema {
   constructor() {
@@ -15,7 +18,11 @@ export class SchemaFile extends Schema {
           // SHA256 hex string (null allowed for placeholder files)
           hash: sb.string().minLength(64).maxLength(64).default(null),
           size: sb.number().required(),
-          mimeType: sb.string().required().maxLength(127),
+          mimeType: sb
+            .string()
+            .required()
+            .maxLength(127)
+            .inArray(ALLOWED_FILE_MIME_TYPES),
           filePath: sb.string().required().maxLength(512),
           uploadedAt: sb.date().default(null),
           createdById: sb

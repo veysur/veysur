@@ -4,7 +4,7 @@ import {
   ServerErrorNotFound,
 } from 'mzen-server'
 import { DataSourceContext } from 'mzen-om'
-import { File } from 'veysur-common'
+import { ALLOWED_FILE_MIME_TYPES, File } from 'veysur-common'
 import MzenId from 'mzen-id'
 
 import { RepoFile } from 'model'
@@ -66,6 +66,19 @@ export class ServiceFileUpload extends Service {
     }
   }
 
+  // Reject before a signed upload URL is even issued, rather than only at
+  // the RepoFile schema-validation step later - the client-reported mimeType
+  // is never trustworthy, so a disallowed type (e.g. text/html,
+  // image/svg+xml) must never reach storage, since a signed URL for it
+  // could later be served back to a browser as executable content.
+  private validateMimeType(mimeType: string): void {
+    if (!ALLOWED_FILE_MIME_TYPES.includes(mimeType)) {
+      throw new ServerErrorBadRequest(
+        `mimeType "${mimeType}" is not an allowed upload type`,
+      )
+    }
+  }
+
   /**
    * Generate signed upload URL for file upload
    * Handles deduplication, resurrection, and new uploads
@@ -114,6 +127,7 @@ export class ServiceFileUpload extends Service {
         : storageConfig
 
     this.validateFileSize(storageConfig, fileSize)
+    this.validateMimeType(mimeType)
 
     // Image set upload — create file records, skip dedup, mark uploaded immediately
     if (imageSetId && imageVariant) {
