@@ -4,6 +4,7 @@ import { initMultipart } from './03-multipart'
 import { initStorage } from './05-storage'
 import { initRateLimit } from './07-rate-limit'
 import { initI18nErrorTranslator } from './08-i18n-error-translator'
+import { initValidateJwtConfig } from './09-validate-jwt-config'
 
 export const init = [
   initProjectDefault,
@@ -12,6 +13,7 @@ export const init = [
   initMultipart,
   initStorage,
   initI18nErrorTranslator,
+  initValidateJwtConfig,
 ]
 
 export default init
