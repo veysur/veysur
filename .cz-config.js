@@ -23,6 +23,7 @@ module.exports = {
     { name: 'cspell' },
     { name: 'mzen' },
     { name: 'contributing' },
+    { name: 'release' },
   ],
   allowCustomScopes: false,
   subjectLimit: 72,

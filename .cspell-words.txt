@@ -44,6 +44,7 @@ gocryptfs
 gtag
 haravich
 HMAC
+hosters
 htpasswd
 imgset
 incompat

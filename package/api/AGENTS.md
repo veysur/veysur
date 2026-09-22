@@ -134,7 +134,7 @@ Two subdirectories plus root-level files:
 
 ### mzen (NodeJS Application Model)
 - **Repository**: https://github.com/kevin-foster-uk/mzen
-- **Version**: 0.1.154
+- **Version**: 0.1.0
 - **Description**: NodeJS application model with ODM capabilities and schema-based data validation
 - **Architecture**:
   - **Schemas**: Define data structures and validation rules for documents
@@ -157,7 +157,7 @@ Two subdirectories plus root-level files:
 
 ### mzen-schema (Data Schema Library)
 - **Repository**: Part of mzen-project ecosystem
-- **Version**: 0.0.123n
+- **Version**: 0.1.0
 - **Description**: Standalone Javascript data schema definition and validation library
 - **Key Features**:
   - Define Javascript data structure schemas with validation rules
@@ -169,7 +169,7 @@ Two subdirectories plus root-level files:
 
 ### mzen-server (REST API Server)
 - **Repository**: https://github.com/kevin-foster-uk/mzen-server
-- **Version**: 0.1.210
+- **Version**: 0.1.0
 - **Description**: NodeJS REST API server wrapper for mzen domain model
 - **Key Features**:
   - **ExpressJS Integration**: Built as wrapper around ExpressJS with middleware compatibility
