@@ -6,6 +6,17 @@ import {
 } from 'mzen-server'
 import { StringRandom, validatePassword } from 'veysur-common'
 import * as bcryptjs from 'bcryptjs'
+import { createHash, timingSafeEqual } from 'crypto'
+
+// Constant-time regardless of input length - timingSafeEqual itself throws
+// on mismatched buffer lengths, so hash both sides to a fixed length first
+// rather than comparing the raw (variable-length, attacker-influenced)
+// reset-token guess directly.
+function timingSafeStringEqual(a: string, b: string): boolean {
+  const hashA = createHash('sha256').update(a).digest()
+  const hashB = createHash('sha256').update(b).digest()
+  return timingSafeEqual(hashA, hashB)
+}
 
 import { RepoUser, ServiceEmail } from 'model'
 import { ErrorRef } from 'model/common'
@@ -133,7 +144,7 @@ export class ServicePassword extends Service {
       .filter((resetToken) => {
         return (
           token.length > minTokenLength &&
-          resetToken.token == token.toLowerCase()
+          timingSafeStringEqual(resetToken.token, token.toLowerCase())
         )
       })
       .shift()
