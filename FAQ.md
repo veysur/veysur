@@ -15,6 +15,15 @@ to your own group. What the licence forbids is offering VeySur as a hosted
 product to unaffiliated customers, in other words standing up a competing
 managed service.
 
+## I run a survey or research agency. Can I self-host VeySur to run surveys for my clients?
+
+Yes. Self-hosting VeySur to design, field, and administer surveys as a service to your
+clients is permitted, as long as the clients themselves never get direct access to VeySur (its
+editor, API, or participant-facing survey tools). They're paying you for the survey work, not
+logging into an instance of the software. What the licence forbids is the other direction:
+standing up VeySur and selling access to VeySur itself, for example issuing clients their own
+logins so they can build and manage surveys in your instance.
+
 ## Can I fork it, modify it, and redistribute my fork?
 
 Yes, under the same licence terms, including the same restriction on

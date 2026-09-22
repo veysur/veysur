@@ -107,6 +107,8 @@ a public issue.
 
 ## Licence
 
-Source-available under the [Elastic License 2.0](./LICENSE). Free to use, self-host and modify; you may
-not offer it to third parties as a hosted or managed service. See [FAQ.md](./FAQ.md) and
-[TRADEMARKS.md](./TRADEMARKS.md).
+Source-available under the [Elastic License 2.0](./LICENSE). Free to use, self-host and modify,
+including running it as part of a service you provide to your own clients (survey design,
+fieldwork, hosting and administration, and so on). What's not permitted is giving third parties
+direct access to VeySur itself, for example reselling hosted VeySur logins or API access as your
+product. See [FAQ.md](./FAQ.md) and [TRADEMARKS.md](./TRADEMARKS.md).
