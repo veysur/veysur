@@ -96,22 +96,12 @@ tense. Keep pull requests focused on one logical change.
 
 ## Releases
 
-`veysur-app`, `veysur-api`, `veysur-common`, `veysur-theme`, and `veysur-docsite` are
-released together under one version number via [Changesets](https://github.com/changesets/changesets)
-(`.changeset/`, `fixed` grouping) — self-hosters deploy and upgrade them as one unit through
-`deploy/` (Docker Compose), so they never carry different versions from each other.
-`mzen`/`s3-adaptor` (`external/`) version independently in their own repos.
-
-Nothing here is published to npm; the release artefact is a `vX.Y.Z` git tag plus a GitHub
-release. There's no CI-published Docker image yet — self-hosters build from the tagged
-commit themselves.
-
-- When a PR changes behaviour in any of the five packages, add a changeset:
-  `pnpm changeset` — pick the affected package(s) (the `fixed` group bumps them all
-  together regardless of which one you pick), the bump level, and a changelog summary.
-- To cut a release: `./scripts/release.sh` — runs `pnpm changeset version`, syncs the root
-  `package.json` version, commits, tags `vX.Y.Z`, and pushes. Prints the `gh release create`
-  command to run afterwards.
+Versioned via [Changesets](https://github.com/changesets/changesets); `veysur-app`,
+`veysur-api`, `veysur-common`, `veysur-theme`, and `veysur-docsite` release together under
+one `vX.Y.Z` tag (`fixed` grouping — self-hosters deploy/upgrade them as one unit through
+`deploy/`). See [docs/versioning.md](./docs/versioning.md) for the full model, the
+day-to-day `pnpm changeset` flow, the `./scripts/release.sh` release runbook (including how
+it coordinates with `mzen`/`s3-adaptor` releases), and onboarding a new package.
 - Manual, maintainer-triggered flow for now — no CI release automation yet.
 
 ## Documentation
