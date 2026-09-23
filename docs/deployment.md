@@ -4,7 +4,7 @@
 
 **Parent:** [README.md](./README.md)
 
-Install, update and operate a self-hosted instance. Requirements: Docker with Compose 2.22 or later, 4 GB RAM,
+Install, update and operate a self-hosted instance. Requirements: Docker with Compose 2.22 or later, 3 GB RAM,
 10 GB free disk, and a domain pointing at the host for public HTTPS.
 
 ## Before you start
@@ -43,7 +43,7 @@ Then create the first account:
 It prints a generated password once and writes `API_PROJECT_OWNER_ID` to `.env`. Once mail is configured, check it
 with `./scripts/veysur.sh mail-test you@example.com`.
 
-Pre-flight refuses to continue below 4 GB RAM or 10 GB free disk (`VEYSUR_SKIP_PREFLIGHT=1` to override).
+Pre-flight refuses to continue below 3 GB RAM or 10 GB free disk (`VEYSUR_SKIP_PREFLIGHT=1` to override).
 Set `VEYSUR_HTTP_PORT` and `VEYSUR_HTTPS_PORT` in the environment of `config-generate.sh` if 80 or 443 are
 taken.
 

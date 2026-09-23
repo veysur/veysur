@@ -51,8 +51,8 @@ preflight() {
 
   if [ -r /proc/meminfo ]; then
     ram_kb=$(awk '/^MemTotal:/ {print $2}' /proc/meminfo)
-    if [ "${ram_kb:-0}" -lt 3800000 ]; then
-      warn "RAM is $((ram_kb / 1024)) MB; at least 4 GB is required"
+    if [ "${ram_kb:-0}" -lt 2900000 ]; then
+      warn "RAM is $((ram_kb / 1024)) MB; at least 3 GB is required"
       problems=1
     fi
   fi

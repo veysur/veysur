@@ -104,7 +104,12 @@ services:
   api:
     image: veysur/api:${VEYSUR_IMAGE_TAG:-latest}
     restart: unless-stopped
-    environment: *api-environment
+    environment:
+      <<: *api-environment
+      # Caps V8's heap to fit the container memory limit below - without this,
+      # V8 sizes its heap off available host memory, not the cgroup limit, so
+      # a lower memory limit alone would just move where an OOM-kill happens.
+      NODE_OPTIONS: --max-old-space-size=256
     volumes:
       - veysur-files:/data/files
     depends_on:
@@ -117,7 +122,7 @@ services:
       resources:
         limits:
           cpus: "0.5"
-          memory: 500M
+          memory: 350M
 
   # Runs the task manager once a minute with the same entrypoint the Kubernetes
   # CronJob used. The timeout stops a hung run from stalling the loop; the
@@ -129,6 +134,7 @@ services:
       <<: *api-environment
       API_TASK: taskManager
       API_ACTION: run
+      NODE_OPTIONS: --max-old-space-size=256
     entrypoint:
       - sh
       - -c
@@ -155,7 +161,7 @@ services:
       resources:
         limits:
           cpus: "0.5"
-          memory: 512M
+          memory: 350M
 
   # One-shot migration runner, not started by `up`. Arguments are appended:
   #   docker compose run --rm migrate [--dry-run] [--verbose]
@@ -194,7 +200,7 @@ services:
       resources:
         limits:
           cpus: "1"
-          memory: 2G
+          memory: 1250M
 
   redis:
     image: redis:7.2-alpine
