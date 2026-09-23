@@ -10,9 +10,9 @@ Software Foundation's Individual CLA), with an additional grant reflecting
 that the Project is source-available rather than open source. See
 Section 3.
 
-By signing this Agreement (electronically, via the CLA-assistant bot on
-your first pull request), you accept and agree to the following terms for
-any past and future Contribution submitted to the Project.
+By signing this Agreement and emailing a copy to Us, you accept and agree to
+the following terms for any past and future Contribution submitted to the
+Project.
 
 ## 1. Definitions
 
@@ -107,3 +107,31 @@ This Agreement is governed by the laws of England and Wales, without regard
 to conflict-of-law principles. This Agreement, together with the Project's
 [LICENSE](./LICENSE) and [TRADEMARKS.md](./TRADEMARKS.md), constitutes the
 entire agreement between You and Us concerning Your Contributions.
+
+## Signature
+
+Print, complete, sign, and scan (or otherwise export to PDF) this section,
+then email it to [admin@veysur.com](mailto:admin@veysur.com).
+
+
+Full name: __________________________________________________
+
+
+GitHub username: ____________________________________________
+
+
+GitHub account email: _______________________________________
+
+
+Organisation (if signing on behalf of an entity, see Section 7):
+
+
+_____________________________________________________________
+
+
+
+Date: _______________________________________________________
+
+
+
+Signature: __________________________________________________

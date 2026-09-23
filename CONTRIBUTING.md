@@ -6,8 +6,9 @@ source-available home of the VeySur survey product.
 ## Before your first pull request
 
 **All contributions require signing the [Contributor License Agreement](./CLA.md).**
-A CLA-assistant bot will comment on your first pull request with a link to
-sign electronically; you only need to do this once.
+Print, sign, and scan (or otherwise export to PDF) the CLA, then email it to
+[admin@veysur.com](mailto:admin@veysur.com) before opening your first pull request; you only
+need to do this once.
 
 ### Why a CLA, and what it actually means for you
 

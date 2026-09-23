@@ -56,10 +56,11 @@ VeySur suits surveys where you know, or want to control, who answers:
 
 **Hosted:** create an account at [veysur.com](https://veysur.com).
 
-**Self-hosted:** you need a Linux server with Docker (Compose 2.22 or later), 3 GB of RAM, 10 GB of
-free disk, a domain name pointing at it with ports 80 and 443 open, and an SMTP relay for password
-resets and invitations. Install from a release package (`veysur-<version>-with-images.tar.gz` bundles
-the container images):
+**Self-hosted:** you need a Linux or other Unix-like server (e.g. macOS) with Docker (Compose 2.22 or
+later), 3 GB of RAM, 10 GB of free disk, a domain name pointing at it with ports 80 and 443 open, and
+an SMTP relay for password resets and invitations. On Windows, install under WSL (Windows Subsystem
+for Linux); we don't provide Windows-specific instructions beyond that. Install from a release package
+(`veysur-<version>-with-images.tar.gz` bundles the container images):
 
 ```bash
 tar -xzf veysur-<version>-with-images.tar.gz && cd veysur
