@@ -179,6 +179,11 @@ services:
   mysql:
     image: mysql:8.4
     restart: unless-stopped
+    # Overrides custom.cnf's innodb_buffer_pool_size - MySQL's command-line
+    # options take precedence over option files, and this lets the buffer pool
+    # scale with MYSQL_BUFFER_POOL_MB (see config-generate.sh) without needing
+    # to template/regenerate the mounted .cnf file.
+    command: ["--innodb-buffer-pool-size=${MYSQL_BUFFER_POOL_MB:-512}M"]
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-veysurAccount}
       MYSQL_DATABASE_IP_LOCATION: ${MYSQL_DATABASE_IP_LOCATION:-veysurIpLocation}
@@ -200,7 +205,7 @@ services:
       resources:
         limits:
           cpus: "1"
-          memory: 1250M
+          memory: ${MYSQL_MEMORY_LIMIT_MB:-1250}M
 
   redis:
     image: redis:7.2-alpine

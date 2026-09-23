@@ -181,6 +181,34 @@ if [ -z "$(current API_ENCRYPTION_PRIVATE_KEY)" ]; then
   env_set API_ENCRYPTION_PRIVATE_KEY_PASSWORD "$key_password" "$WORK"
 fi
 
+# --- resource sizing --------------------------------------------------------
+# MySQL is the main performance lever on hosts with more than the minimum RAM.
+# Scale its container memory limit and InnoDB buffer pool up with detected host
+# RAM, never below the fixed floor this stack ships with (1250M / 512M) - that
+# floor is what a host at the preflight minimum (~2.9 GB) still computes today,
+# so this is additive only, never a regression for a minimal install.
+echo
+mysql_mem_default=1250
+buf_pool_default=512
+ram_kb=$(detect_ram_kb || true)
+if [ -n "$ram_kb" ]; then
+  ram_mb=$((ram_kb / 1024))
+  # Fixed non-MySQL container budget (caddy 128 + nginx 256 + api 350 +
+  # task-manager 350 + redis 512 = 1596), plus a flat 400 MB for the OS/Docker
+  # daemon outside any container cgroup.
+  avail_mb=$((ram_mb - 1596 - 400))
+  if [ "$avail_mb" -gt "$mysql_mem_default" ]; then
+    mysql_mem_default=$avail_mb
+    [ "$mysql_mem_default" -le 4096 ] || mysql_mem_default=4096
+    # Same buffer-pool-to-container-limit ratio as the fixed 512-in-1250 default.
+    buf_pool_default=$((mysql_mem_default * 512 / 1250))
+    buf_pool_default=$((buf_pool_default / 16 * 16))
+    [ "$buf_pool_default" -ge 512 ] || buf_pool_default=512
+  fi
+fi
+ask MYSQL_MEMORY_LIMIT_MB "MySQL container memory limit (MB)" "$mysql_mem_default"
+ask MYSQL_BUFFER_POOL_MB "MySQL InnoDB buffer pool (MB)" "$buf_pool_default"
+
 # --- review and write -----------------------------------------------------
 echo
 if [ -f "$ENV_FILE" ]; then

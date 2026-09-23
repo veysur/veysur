@@ -29,7 +29,9 @@ from `deploy/` instead.
 
 1. **`scripts/config-generate.sh`** asks for the domain, TLS mode, administrator e-mail and SMTP relay,
    generates every secret and the field-encryption key pair, and writes `.env` (mode 0600) after showing a diff
-   with secrets hidden. It is re-runnable: existing values become the defaults.
+   with secrets hidden. It is re-runnable: existing values become the defaults. It also sizes MySQL's memory
+   limit and InnoDB buffer pool up automatically on hosts with more than the minimum RAM (see
+   [configuration.md](./configuration.md)).
 2. **`scripts/deploy.sh`** starts MySQL and Redis, runs migrations, starts the rest and checks `/api/ping`.
    It is idempotent, so re-run it after editing `.env`. `--dry-run` prints the resolved configuration with
    secrets hidden and the pending migrations.

@@ -49,6 +49,8 @@ htpasswd
 imgset
 incompat
 initdb
+Inno
+innodb
 inviteremindersent
 invitesent
 jsep

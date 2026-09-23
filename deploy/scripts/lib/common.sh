@@ -44,17 +44,21 @@ require_docker() {
   docker info >/dev/null 2>&1 || die "cannot talk to the Docker daemon (is it running, and are you in the docker group?)"
 }
 
+# Prints total host RAM in KB; empty output (non-zero return) if undetectable.
+detect_ram_kb() {
+  [ -r /proc/meminfo ] || return 1
+  awk '/^MemTotal:/ {print $2; found=1} END {exit !found}' /proc/meminfo
+}
+
 # Refuses to continue below the supported minimum unless VEYSUR_SKIP_PREFLIGHT=1.
 preflight() {
   require_docker
   local ram_kb cpus free_gb problems=0
 
-  if [ -r /proc/meminfo ]; then
-    ram_kb=$(awk '/^MemTotal:/ {print $2}' /proc/meminfo)
-    if [ "${ram_kb:-0}" -lt 2900000 ]; then
-      warn "RAM is $((ram_kb / 1024)) MB; at least 3 GB is required"
-      problems=1
-    fi
+  ram_kb=$(detect_ram_kb || true)
+  if [ -n "$ram_kb" ] && [ "$ram_kb" -lt 2900000 ]; then
+    warn "RAM is $((ram_kb / 1024)) MB; at least 3 GB is required"
+    problems=1
   fi
 
   cpus=$(nproc 2>/dev/null || echo 1)

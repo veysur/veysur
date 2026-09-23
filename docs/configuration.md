@@ -29,6 +29,7 @@ Required secrets fail at `docker compose config` if empty. Anything not listed h
 | `API_BRAND_NAME` | Product name in non-legal contexts, default `VeySur` |
 | `API_PROJECT_OWNER_ID` | Written by `admin-account-bootstrap.sh`; do not edit |
 | `MYSQL_DATABASE`, `MYSQL_DATABASE_IP_LOCATION`, `MYSQL_USER` | Database names and user. The IP-location database is created but not used by the self-hosted edition |
+| `MYSQL_MEMORY_LIMIT_MB`, `MYSQL_BUFFER_POOL_MB` | MySQL container memory limit / InnoDB buffer pool, in MB. Blank lets `config-generate.sh` size these from detected host RAM (floor 1250/512) |
 | `API_MAIL_HOST`, `_PORT`, `_TRANSPORT_TYPE`, `_SECURE`, `_AUTH_USER`, `_AUTH_PASS`, `_CANARY_TO` | Outbound SMTP relay. Left blank, mail fails loudly. See [email.md](./email.md) |
 | `API_MAIL_ADDRESS_FROM`, `_FROM_NAME`, `_ADDRESS_CONTACT`, `API_COMPANY_NAME` | Sender identity. Blank uses `no-reply@<API_WEB_DOMAIN>` and `API_BRAND_NAME` |
 | `API_MAIL_BOUNCE_DOMAIN`, `API_MAIL_IMAP_*` | Optional bounce and complaint processing over IMAP. Blank disables it |

@@ -5,6 +5,9 @@ collation-server=utf8mb4_unicode_ci
 default-time-zone=UTC
 max_connections=100
 
+# Overridden by compose.yaml's mysql `command:` (--innodb-buffer-pool-size),
+# which scales with MYSQL_BUFFER_POOL_MB; this value only applies if that
+# command-line flag is absent.
 innodb_buffer_pool_size=512M
 innodb_log_file_size=128M
 innodb_flush_log_at_trx_commit=2
