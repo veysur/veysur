@@ -23,6 +23,9 @@
   "transformIgnorePatterns": [
     "/node_modules/.+$"
   ],
+  "setupFilesAfterEnv": [
+    "<rootDir>/tests/setupTests.ts"
+  ],
   "moduleNameMapper": {
     "^pretty-format$": "<rootDir>/../../../../node_modules/.pnpm/pretty-format@29.7.0/node_modules/pretty-format/build/index.js",
     "^p-limit$": "<rootDir>/../../../../node_modules/.pnpm/p-limit@3.1.0/node_modules/p-limit/index.js",

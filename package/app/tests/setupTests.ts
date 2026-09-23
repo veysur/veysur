@@ -5,6 +5,10 @@ import { TextEncoder } from 'util'
 
 import 'common/initMoment'
 
+import { installConsoleGuard } from './consoleGuard'
+
+installConsoleGuard()
+
 global.TextEncoder = TextEncoder
 
 global.ResizeObserver = class ResizeObserver {

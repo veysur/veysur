@@ -1,3 +1,4 @@
+import type React from 'react'
 import { render, screen } from '@testing-library/react'
 
 import { SURVEY_ENTITY_TYPE_SUBQUESTION } from 'appAdmin/component/SurveyEditor'
@@ -66,9 +67,20 @@ function buildLabelL10n(text: string) {
   return { getLang: () => text } as unknown as import('veysur-common').L10n
 }
 
+// MatrixColumnHeader's root element is a <td> - only valid nested in a table row.
+function renderInRow(ui: React.ReactElement) {
+  return render(
+    <table>
+      <tbody>
+        <tr>{ui}</tr>
+      </tbody>
+    </table>,
+  )
+}
+
 describe('MatrixColumnHeader', () => {
   it('renders the drag-handle and action-icon slots at fixed widths regardless of label length', () => {
-    render(
+    renderInRow(
       <MatrixColumnHeader
         entityId="sq1"
         entityType={SURVEY_ENTITY_TYPE_SUBQUESTION}
@@ -94,7 +106,7 @@ describe('MatrixColumnHeader', () => {
   })
 
   it('centres the label ContentEditor between the two fixed slots', () => {
-    render(
+    renderInRow(
       <MatrixColumnHeader
         entityId="sq1"
         entityType={SURVEY_ENTITY_TYPE_SUBQUESTION}
@@ -116,7 +128,7 @@ describe('MatrixColumnHeader', () => {
   })
 
   it('renders {{expression}} validation errors beneath the label', () => {
-    render(
+    renderInRow(
       <MatrixColumnHeader
         entityId="sq1"
         entityType={SURVEY_ENTITY_TYPE_SUBQUESTION}

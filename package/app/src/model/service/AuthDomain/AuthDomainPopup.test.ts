@@ -1,4 +1,5 @@
 import { AuthDomainPopup } from './AuthDomainPopup'
+import { allowConsole } from '../../../../tests/consoleGuard'
 
 describe('AuthDomainPopup', () => {
   beforeEach(() => {
@@ -87,29 +88,31 @@ describe('AuthDomainPopup', () => {
       )
     })
 
-    it('ignores a message from neither authDomain nor opener', () => {
-      const onHandoffComplete = jest.fn()
-      const authDomain = 'auth.example.com'
-      const mockOpener = { postMessage: jest.fn() }
-      let messageHandler: (event: Partial<MessageEvent>) => void = () => {}
-      AuthDomainPopup.browserInterface.getOpener = jest
-        .fn()
-        .mockReturnValue(mockOpener)
-      AuthDomainPopup.browserInterface.addEventListener = jest
-        .fn()
-        .mockImplementation((type, handler) => {
-          if (type === 'message') messageHandler = handler
+    it('ignores a message from neither authDomain nor opener', async () => {
+      await allowConsole('Message received from untrusted origin', () => {
+        const onHandoffComplete = jest.fn()
+        const authDomain = 'auth.example.com'
+        const mockOpener = { postMessage: jest.fn() }
+        let messageHandler: (event: Partial<MessageEvent>) => void = () => {}
+        AuthDomainPopup.browserInterface.getOpener = jest
+          .fn()
+          .mockReturnValue(mockOpener)
+        AuthDomainPopup.browserInterface.addEventListener = jest
+          .fn()
+          .mockImplementation((type, handler) => {
+            if (type === 'message') messageHandler = handler
+          })
+
+        AuthDomainPopup.readAuthMessage(onHandoffComplete, authDomain)
+
+        messageHandler({
+          origin: 'https://untrusted.example.com',
+          source: {} as unknown as MessageEventSource,
+          data: { auth: { user: { _id: '1' } }, rememberMe: false },
         })
 
-      AuthDomainPopup.readAuthMessage(onHandoffComplete, authDomain)
-
-      messageHandler({
-        origin: 'https://untrusted.example.com',
-        source: {} as unknown as MessageEventSource,
-        data: { auth: { user: { _id: '1' } }, rememberMe: false },
+        expect(onHandoffComplete).not.toHaveBeenCalled()
       })
-
-      expect(onHandoffComplete).not.toHaveBeenCalled()
     })
   })
 

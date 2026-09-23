@@ -4,6 +4,7 @@ import { SurveyParticipant } from 'veysur-common/model/constructor'
 
 import { RepoSurveyParticipant } from './RepoSurveyParticipant'
 import { RepoSurveyResponse } from './RepoSurveyResponse'
+import { allowConsole } from '../../../test-utils/consoleGuard'
 
 describe('RepoSurveyParticipant surveyResponse relation', () => {
   const SURVEY_ID = 'survey-1'
@@ -53,9 +54,18 @@ describe('RepoSurveyParticipant surveyResponse relation', () => {
     repoSurveyParticipant.addSchema(new SchemaSurveyParticipant())
     repoSurveyParticipant.addConstructor(SurveyParticipant)
 
-    const [participant] = await repoSurveyParticipant.find(
-      { surveyId: SURVEY_ID, projectId: PROJECT_ID },
-      { populate: { surveyResponse: true } },
+    // repoSurveyResponse has no schema wired (only repoSurveyParticipant's, per above), so
+    // mzen-om treats every filter key the populated relation query uses as unknown.
+    const [participant] = await allowConsole(
+      [
+        'query key "surveyId" is not a schema field',
+        'query key "participantId" is not a schema field',
+      ],
+      () =>
+        repoSurveyParticipant.find(
+          { surveyId: SURVEY_ID, projectId: PROJECT_ID },
+          { populate: { surveyResponse: true } },
+        ),
     )
 
     expect(participant.surveyResponse).toBeDefined()
@@ -84,9 +94,19 @@ describe('RepoSurveyParticipant surveyResponse relation', () => {
     repoSurveyResponse.dataSource = dataSource
     repoSurveyParticipant.addRepos([repoSurveyResponse])
 
-    const [participant] = await repoSurveyParticipant.find(
-      { surveyId: SURVEY_ID, projectId: PROJECT_ID },
-      { populate: { surveyResponse: true } },
+    // No schema is wired for either repo in this test, so mzen-om treats every filter key
+    // as unknown, including surveyId/participantId (real schema fields once addSchema is
+    // called - see the previous test).
+    const [participant] = await allowConsole(
+      [
+        'query key "surveyId" is not a schema field',
+        'query key "participantId" is not a schema field',
+      ],
+      () =>
+        repoSurveyParticipant.find(
+          { surveyId: SURVEY_ID, projectId: PROJECT_ID },
+          { populate: { surveyResponse: true } },
+        ),
     )
 
     expect(participant.surveyResponse).toBeUndefined()

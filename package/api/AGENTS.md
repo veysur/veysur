@@ -31,7 +31,7 @@ real local MySQL are interchangeable. Extra args pass through to jest
 
 ## Code Style
 - **Types**: TypeScript with relaxed settings (strict: false, noImplicitAny: false)
-- **Testing**: Jest with ts-jest, tests colocated in `src/**/*.test.ts`
+- **Testing**: Jest with ts-jest, tests colocated in `src/**/*.test.ts`. Console-noise policy (fail-by-default `console.error`/`console.warn`) lives in `src/test-utils/consoleGuard.ts`, wired via `tests/setupTests.ts` — see root `AGENTS.md`'s "Console Noise in Tests" section.
 - **Imports**: Use ES6 imports, prefer named imports
 - **Formatting**: Prettier config: 2 spaces, no semicolons, single quotes, trailing commas
 - **Error Handling**: Use proper TypeScript error types, avoid `any`

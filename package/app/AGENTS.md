@@ -20,7 +20,7 @@ React application built with TypeScript, RSBuild, and Jest. This is the main fro
 
 - **Types**: Strict TypeScript, explicit types required (noImplicitAny)
 - **React**: JSX runtime, functional components, hooks pattern
-- **Testing**: Jest with React Testing Library, tests in `src/**/*.test.{ts,tsx}`
+- **Testing**: Jest with React Testing Library, tests in `src/**/*.test.{ts,tsx}`. Console-noise policy (fail-by-default `console.error`/`console.warn`, `allowConsole()` for expected cases) lives in `tests/consoleGuard.ts` and is wired into `tests/setupTests.ts` — see root `AGENTS.md`'s "Console Noise in Tests" section.
 - **Imports**: Use ES6 imports, prefer named imports. Group imports: global (node_modules) → project relative → file relative, separated by blank lines
 - **Formatting**: Prettier config: 2 spaces, no semicolons, single quotes, trailing commas
 

@@ -1,12 +1,15 @@
 import { withCapturedConsole } from './withCapturedConsole'
+import { allowConsole } from '../test-utils/consoleGuard'
 
 describe('withCapturedConsole', () => {
   it('captures console output and returns the result', async () => {
-    const run = await withCapturedConsole(async () => {
-      console.log('hello', 42)
-      console.warn('careful')
-      return 'done'
-    })
+    const run = await allowConsole('careful', () =>
+      withCapturedConsole(async () => {
+        console.log('hello', 42)
+        console.warn('careful')
+        return 'done'
+      }),
+    )
 
     expect(run).toEqual({
       ok: true,
@@ -23,10 +26,12 @@ describe('withCapturedConsole', () => {
 
   it('captures the error and any output when fn throws', async () => {
     const boom = new Error('boom')
-    const run = await withCapturedConsole(async () => {
-      console.error('before throw')
-      throw boom
-    })
+    const run = await allowConsole('before throw', () =>
+      withCapturedConsole(async () => {
+        console.error('before throw')
+        throw boom
+      }),
+    )
 
     expect(run).toEqual({
       ok: false,
