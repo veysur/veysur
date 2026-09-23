@@ -44,41 +44,12 @@ import {
   SurveyParticipantAttributeLanguageSnapshot,
 } from '../../constructor'
 import ServiceSurveySnapshot from './ServiceSurveySnapshot'
-import { FileReference } from './ServiceFile/FileReference'
-import { RepoFile } from 'model'
 
 export class ServicePublication extends Service {
   constructor() {
     super({
       name: 'surveyPublication',
     })
-  }
-
-  /**
-   * Extract all file IDs from survey data
-   */
-  private extractFileIdsFromSurvey(
-    survey: Survey | null | undefined,
-  ): string[] {
-    const fileIds: string[] = []
-
-    if (!survey) {
-      this.logger.warn('extractFileIdsFromSurvey: survey is null/undefined')
-      return fileIds
-    }
-
-    if (!survey.elements.questions()) {
-      this.logger.warn(
-        'extractFileIdsFromSurvey: survey.elements.questions() is null/undefined',
-      )
-      return fileIds
-    }
-
-    // NOTE: SurveyAnswerOption has no `.files` field — the historical shape
-    // this function targeted no longer exists, so it always returns an
-    // empty array. Preserved as dead code to avoid changing runtime
-    // behaviour as part of a type-only cleanup.
-    return fileIds
   }
 
   /**
@@ -366,27 +337,6 @@ export class ServicePublication extends Service {
         }
 
         wasReused = false
-
-        // Add references to all files used in the snapshot
-        const fileIds = this.extractFileIdsFromSurvey(snapshotData.survey)
-
-        const repoFile = this.getRepo<RepoFile>('file')
-
-        for (const fileId of fileIds) {
-          try {
-            await FileReference.addFileReference(
-              repoFile,
-              fileId,
-              'surveySnapshot',
-              snapshot._id,
-              context,
-            )
-          } catch (error) {
-            this.logger.error(
-              `Failed to add reference for file ${fileId}: ${error.message}`,
-            )
-          }
-        }
       }
 
       // 4. UNPUBLISH PREVIOUS
