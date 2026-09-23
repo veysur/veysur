@@ -63,7 +63,7 @@ export const Pagination: React.FC<PaginationProps> = ({
         </div>
       </div>
 
-      <PaginationShadCn>
+      <PaginationShadCn className="mx-0 w-auto">
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious
