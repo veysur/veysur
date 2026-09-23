@@ -1,5 +1,4 @@
 import { Service, ServerErrorNotFound } from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
 import {
   RepoSurveyParticipant,
   RepoSurvey,
@@ -21,6 +20,7 @@ import {
 import { ServiceEmailTemplate } from '../ServiceEmailTemplate'
 import { ServiceEmail } from '../../ServiceEmail'
 import { EmailVerifyToken } from './EmailVerifyToken'
+import { contextForProject } from 'common'
 
 /** Default hourly invite-send rate. Used as-is by the self-hosted deployment (no
  * plan model), and as the fallback when a project's plan has no
@@ -116,9 +116,7 @@ export class ServiceSurveyParticipantEmail extends Service {
     emailType: 'invite' | 'reminder'
   }): Promise<SendInvitesResult> {
     // Get repos and services
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoSurveyParticipant =
       this.getRepo<RepoSurveyParticipant>('surveyParticipant')
     const repoSurvey = this.getRepo<RepoSurvey>('survey')

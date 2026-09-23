@@ -18,7 +18,7 @@ import {
 } from 'veysur-common'
 import { generateSurveyLanguageHash } from 'veysur-common/util/generateSurveyHash'
 
-import { createStorageAdaptor } from 'common'
+import { createStorageAdaptor, contextForProject } from 'common'
 import {
   RepoSurveyLanguageSnapshot,
   RepoSurveyParticipantAttributeSnapshot,
@@ -74,9 +74,7 @@ export class VsspImportPersister {
     const { projectId, aclContext } = context
     const userId = aclContext.jwt._id
 
-    const dsContext = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const dsContext = contextForProject(projectId)
 
     const {
       publication,

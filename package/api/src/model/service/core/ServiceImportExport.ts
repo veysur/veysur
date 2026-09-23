@@ -5,7 +5,6 @@ import {
   ServerErrorBadRequest,
   ServerErrorNotFound,
 } from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
 import MzenId from 'mzen-id'
 import { File } from 'veysur-common'
 
@@ -15,6 +14,7 @@ import {
   createStorageAdaptor,
   generateSignedUploadUrl,
   generateFilePath,
+  contextForProject,
 } from 'common'
 
 import { EntityHandlerRegistry } from './ImportExport/EntityHandlerRegistry'
@@ -251,9 +251,7 @@ export class ServiceImportExport extends Service {
     const extension = formatHandler.extensions[0]
     const filename = `import-${entityType}-${Date.now()}${extension}`
 
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoFile = this.getRepo<RepoFile>('file')
     const fileId = MzenId()
     const storedFilename = filename
@@ -326,9 +324,7 @@ export class ServiceImportExport extends Service {
     projectId: string
     aclContext: AclContext
   }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoFile = this.getRepo<RepoFile>('file')
 
     const file = await repoFile.findOne(

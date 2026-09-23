@@ -4,7 +4,7 @@ import { SurveyParticipant } from 'veysur-common'
 import type { Response } from 'express'
 
 import { RepoSurveyParticipant, RepoSurveyParticipantAttribute } from 'model'
-import { streamCsv, generateCsvFilename } from 'common'
+import { streamCsv, generateCsvFilename, contextForProject } from 'common'
 
 export class ServiceSurveyParticipantExport extends Service {
   private readonly HEADERS = [
@@ -53,9 +53,7 @@ export class ServiceSurveyParticipantExport extends Service {
     ids?: string
     response: Response
   }): Promise<void> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoSurveyParticipant =
       this.getRepo<RepoSurveyParticipant>('surveyParticipant')
 

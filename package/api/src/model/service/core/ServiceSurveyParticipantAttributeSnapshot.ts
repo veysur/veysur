@@ -12,6 +12,7 @@ import {
   RepoSurveyPublication,
   RepoSurveySnapshotPartial,
 } from 'model'
+import { contextForProject } from 'common'
 
 export class ServiceSurveyParticipantAttributeSnapshot extends Service {
   constructor() {
@@ -37,9 +38,7 @@ export class ServiceSurveyParticipantAttributeSnapshot extends Service {
     languageDefault: string
     languageOptions: string[]
   }> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
 
     const repoPublication =
       this.getRepo<RepoSurveyPublication>('surveyPublication')

@@ -2,7 +2,7 @@ import { Service, ServerErrorNotFound } from 'mzen-server'
 import { DataSourceContext } from 'mzen-om'
 import { SurveyResponse, anonymisedTimestamp } from 'veysur-common'
 
-import { escapeRegex, buildDateRangeQuery } from 'common'
+import { escapeRegex, buildDateRangeQuery, contextForProject } from 'common'
 import {
   findMatchingParticipants,
   buildResponseSearchQuery,
@@ -51,9 +51,7 @@ export class ServiceSurveyResponse extends Service {
     projectId,
     aclContext,
   }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSurveyResponse>('surveyResponse')
 
     response.surveyId = surveyId
@@ -84,9 +82,7 @@ export class ServiceSurveyResponse extends Service {
   }
 
   async getOne({ responseId, surveyId, projectId }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSurveyResponse>('surveyResponse')
     const response = await repo.findOne(
       {
@@ -122,9 +118,7 @@ export class ServiceSurveyResponse extends Service {
     search,
     merged,
   }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
 
     // Convert to numbers (query params come as strings)
     page = Number(page)
@@ -234,9 +228,7 @@ export class ServiceSurveyResponse extends Service {
   }
 
   async update({ responseId, surveyId, projectId, response }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSurveyResponse>('surveyResponse')
     const existing = await repo.findOne(
       { _id: responseId, surveyId },
@@ -278,9 +270,7 @@ export class ServiceSurveyResponse extends Service {
   }
 
   async delete({ responseId, surveyId, projectId }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSurveyResponse>('surveyResponse')
 
     // Support comma-separated IDs for bulk delete
@@ -314,9 +304,7 @@ export class ServiceSurveyResponse extends Service {
     const { surveyId, snapshotId, projectId, participantId, sessionId } =
       aclContext
 
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSurveyResponse>('surveyResponse')
 
     const response = await repo.findOne(

@@ -1,5 +1,4 @@
 import { Service } from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
 import {
   Survey,
   SettingSurvey,
@@ -19,6 +18,7 @@ import {
 import { findLiveSuppression, resolveNotifyRecipients } from 'model/common'
 import { ServiceEmailTemplate } from '../ServiceEmailTemplate'
 import { ServiceEmail } from '../../ServiceEmail'
+import { contextForProject } from 'common'
 
 type CompletionEmailType = 'thankYou' | 'adminBasic' | 'adminDetail'
 
@@ -73,9 +73,7 @@ export class ServiceSurveyCompletionEmail extends Service {
     participantId?: string
     response: { answers?: Record<string, unknown> }
   }): Promise<void> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
 
     const repoSurvey = this.getRepo<RepoSurvey>('survey')
     const repoSettingSurvey = this.getRepo<RepoSettingSurvey>('settingSurvey')

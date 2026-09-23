@@ -1,5 +1,4 @@
 import { Service } from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
 import {
   Survey,
   SurveyLanguage,
@@ -11,6 +10,7 @@ import {
 import { genUniqueId } from 'mzen-id'
 
 import { RepoSurveyLanguage, RepoSurveyLanguageSnapshot } from 'model'
+import { contextForProject } from 'common'
 
 export class ServiceSurveyLanguage extends Service {
   constructor() {
@@ -24,9 +24,7 @@ export class ServiceSurveyLanguage extends Service {
     projectId: string,
     languageCodes: string[],
   ): Promise<SurveyLanguage[]> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSurveyLanguage>('surveyLanguage')
     if (!languageCodes.length) return []
     return repo.find(
@@ -52,9 +50,7 @@ export class ServiceSurveyLanguage extends Service {
     projectId: string,
     languageCodes: string[],
   ): Promise<SurveyLanguageSnapshot[]> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSurveyLanguageSnapshot>(
       'surveyLanguageSnapshot',
     )
@@ -72,9 +68,7 @@ export class ServiceSurveyLanguage extends Service {
     answerId: string,
     image: SurveyAnswerOptionImageValue | null,
   ): Promise<void> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSurveyLanguage>('surveyLanguage')
     const existing = await repo.findOne({ surveyId, languageCode }, { context })
     if (existing) {
@@ -117,9 +111,7 @@ export class ServiceSurveyLanguage extends Service {
     fieldPath: string,
     value: string,
   ): Promise<void> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSurveyLanguage>('surveyLanguage')
 
     const existing = await repo.findOne({ surveyId, languageCode }, { context })
@@ -153,9 +145,7 @@ export class ServiceSurveyLanguage extends Service {
     languageCode: string,
     fieldPath: string,
   ): Promise<void> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSurveyLanguage>('surveyLanguage')
     await repo.updateOne(
       { surveyId, languageCode },
@@ -176,9 +166,7 @@ export class ServiceSurveyLanguage extends Service {
     const entries = Object.entries(fieldValues)
     if (!entries.length) return
 
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSurveyLanguage>('surveyLanguage')
 
     const toSet: Record<string, string> = {}
@@ -241,9 +229,7 @@ export class ServiceSurveyLanguage extends Service {
     dataKeys: string[],
   ): Promise<void> {
     if (!dataKeys.length) return
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSurveyLanguage>('surveyLanguage')
     const unsetFields: Record<string, ''> = {}
     for (const key of dataKeys) {

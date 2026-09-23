@@ -19,6 +19,7 @@ import {
 import { AclContext } from 'model/entity/AclContext'
 import { ParticipantToken } from './ParticipantToken'
 import { EmailVerifyToken } from './EmailVerifyToken'
+import { contextForProject } from 'common'
 
 /**
  * Response-like object this service writes an SSE progress stream to.
@@ -125,9 +126,7 @@ export class ServiceSurveyParticipantImport extends Service {
     aclContext: AclContext
     response: StreamableResponse
   }): Promise<void> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoSurveyParticipant =
       this.getRepo<RepoSurveyParticipant>('surveyParticipant')
     const repoSurvey = this.getRepo<RepoSurvey>('survey')

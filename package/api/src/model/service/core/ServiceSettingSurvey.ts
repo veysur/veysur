@@ -3,6 +3,7 @@ import { DataSourceContext } from 'mzen-om'
 import { Patcher, Patch, SettingSurvey } from 'veysur-common'
 
 import { RepoSettingSurvey } from 'model'
+import { contextForProject } from 'common'
 
 export class ServiceSettingSurvey extends Service {
   constructor() {
@@ -24,9 +25,7 @@ export class ServiceSettingSurvey extends Service {
   }
 
   async getOne({ projectId, aclConditions: _aclConditions }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSettingSurvey>('settingSurvey')
 
     let settingSurvey = await repo.findOne({}, { context })
@@ -41,9 +40,7 @@ export class ServiceSettingSurvey extends Service {
   }
 
   async patch({ projectId, patches }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoSettingSurvey = this.getRepo<RepoSettingSurvey>('settingSurvey')
 
     const patcher = new Patcher()
@@ -74,9 +71,7 @@ export class ServiceSettingSurvey extends Service {
    * Called from ServiceSurvey after survey patches are applied
    */
   async cleanupOrphanedStats(surveyId: string, projectId: string) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoSurvey = this.getRepo('survey')
 
     // Get the survey to find valid question codes

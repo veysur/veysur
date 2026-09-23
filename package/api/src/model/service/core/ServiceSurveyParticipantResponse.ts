@@ -3,7 +3,6 @@ import {
   ServerErrorForbidden,
   ServerErrorBadRequest,
 } from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
 import {
   SurveyResponseValidator,
   SurveySnapshot,
@@ -18,6 +17,7 @@ import {
   ServiceSurveyCompletionEmail,
 } from 'model'
 import { truncateIp } from 'model/common'
+import { contextForProject } from 'common'
 
 export class ServiceSurveyParticipantResponse extends Service {
   constructor() {
@@ -45,9 +45,7 @@ export class ServiceSurveyParticipantResponse extends Service {
   async get({ aclContext }) {
     const { surveyId, snapshotId, projectId } = aclContext
 
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSurveyResponse>('surveyResponse')
 
     const idData = this.getIdData(aclContext)
@@ -74,9 +72,7 @@ export class ServiceSurveyParticipantResponse extends Service {
       sessionId,
     } = aclContext
 
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSurveyResponse>('surveyResponse')
 
     const idData = this.getIdData(aclContext)

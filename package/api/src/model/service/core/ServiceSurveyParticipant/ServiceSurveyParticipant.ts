@@ -11,7 +11,11 @@ import {
   COMPLETION_STATUSES,
 } from 'veysur-common'
 
-import { parsePaginationParams, buildMultiFieldSearchQuery } from 'common'
+import {
+  parsePaginationParams,
+  buildMultiFieldSearchQuery,
+  contextForProject,
+} from 'common'
 import {
   RepoSurveyParticipant,
   RepoSurveyResponse,
@@ -47,9 +51,7 @@ export class ServiceSurveyParticipant extends Service {
     projectId: string
     aclContext: AclContext
   }): Promise<SurveyParticipantInput> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoSurveyParticipant =
       this.getRepo<RepoSurveyParticipant>('surveyParticipant')
     const repoSurvey = this.getRepo<RepoSurvey>('survey')
@@ -110,9 +112,7 @@ export class ServiceSurveyParticipant extends Service {
   }): Promise<
     Omit<SurveyParticipant, 'emailVerifyToken' | 'completionStatus'>
   > {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoSurveyParticipant =
       this.getRepo<RepoSurveyParticipant>('surveyParticipant')
 
@@ -150,9 +150,7 @@ export class ServiceSurveyParticipant extends Service {
       return null
     }
 
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoSurveyParticipant =
       this.getRepo<RepoSurveyParticipant>('surveyParticipant')
 
@@ -198,9 +196,7 @@ export class ServiceSurveyParticipant extends Service {
     >[]
     participantCount: number
   }> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoSurveyParticipant =
       this.getRepo<RepoSurveyParticipant>('surveyParticipant')
     const repoSurveyResponse =
@@ -337,9 +333,7 @@ export class ServiceSurveyParticipant extends Service {
     projectId: string
     participant: SurveyParticipantInput
   }): Promise<boolean> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoSurveyParticipant =
       this.getRepo<RepoSurveyParticipant>('surveyParticipant')
     const repoSurvey = this.getRepo<RepoSurvey>('survey')
@@ -456,9 +450,7 @@ export class ServiceSurveyParticipant extends Service {
     projectId: string
     aclConditions: AclConditions
   }): Promise<{ deletedCount: number }> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoSurveyParticipant =
       this.getRepo<RepoSurveyParticipant>('surveyParticipant')
 
@@ -560,9 +552,7 @@ export class ServiceSurveyParticipant extends Service {
     queuedField: 'inviteQueuedAt' | 'reminderQueuedAt'
     emailType: 'invite' | 'reminder'
   }): Promise<{ updatedCount: number }> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoSurveyParticipant =
       this.getRepo<RepoSurveyParticipant>('surveyParticipant')
     const repoEmail = this.getRepo<RepoEmail>('email')

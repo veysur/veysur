@@ -4,7 +4,7 @@ import { DataSourceContext } from 'mzen-om'
 import { ServerErrorNotFound } from 'mzen-server'
 import { SurveySnapshot, SurveyLanguageSnapshot } from 'veysur-common'
 
-import { createStorageAdaptor } from 'common'
+import { createStorageAdaptor, contextForProject } from 'common'
 import {
   RepoSurveyLanguageSnapshot,
   RepoSurveyParticipantAttributeSnapshot,
@@ -45,9 +45,7 @@ export class VsspExportCollector {
     context: EntityExportContext,
     options?: ExportOptions,
   ): Promise<unknown> {
-    const dsContext = DataSourceContext.fromDataSources({
-      project: { lookupKey: context.projectId },
-    })
+    const dsContext = contextForProject(context.projectId)
 
     const publication = await this.repoSurveyPublication.findOne(
       { _id: options.publicationId },

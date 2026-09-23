@@ -7,7 +7,7 @@ import {
   SurveyLanguageData,
 } from 'veysur-common'
 
-import { generateImageSetBasePath } from 'common'
+import { generateImageSetBasePath, contextForProject } from 'common'
 import {
   RepoFile,
   RepoSurvey,
@@ -45,9 +45,7 @@ export class VsstImportResolver {
     const repoElement =
       this.repoSurvey.getRepo<RepoSurveyElement>('surveyElement')
 
-    const dsContext = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const dsContext = contextForProject(projectId)
 
     const translator = new SurveyImportIdTranslator({
       surveyRepo: this.repoSurvey,

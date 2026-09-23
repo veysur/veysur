@@ -6,7 +6,7 @@ import {
 } from 'mzen-server'
 import { DataSourceContext } from 'mzen-om'
 
-import { parsePaginationParams } from 'common'
+import { parsePaginationParams, contextForProject } from 'common'
 import {
   Survey,
   SurveyValidation,
@@ -196,14 +196,15 @@ export class ServicePublication extends Service {
 
       for (let i = 0; i < sortedAttrLangs.length; i++) {
         const attrLang = sortedAttrLangs[i]
-        const attrLangSnapshot =
-          new SurveyParticipantAttributeLanguageSnapshot({
+        const attrLangSnapshot = new SurveyParticipantAttributeLanguageSnapshot(
+          {
             snapshotId: snapshot._id,
             surveyId,
             languageCode: attrLang.languageCode,
             data: attrLang.data,
             contentHash: sortedAttributeLangHashes[i],
-          })
+          },
+        )
         await repoSurveyParticipantAttributeLanguageSnapshot.insertOne(
           attrLangSnapshot,
           { context },
@@ -272,9 +273,7 @@ export class ServicePublication extends Service {
     aclConditions: _aclConditions,
     aclContext,
   }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
 
     const repoSurvey = this.getRepo<RepoSurvey>('survey')
     const repoSettingSurvey = this.getRepo<RepoSettingSurvey>('settingSurvey')
@@ -467,9 +466,7 @@ export class ServicePublication extends Service {
     aclConditions: _aclConditions,
     aclContext,
   }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
 
     const repoSurveySnapshot = this.getRepo<RepoSurveySnapshotPartial>(
       'surveySnapshotPartial',
@@ -516,9 +513,7 @@ export class ServicePublication extends Service {
    * Unpublish - stops active publication
    */
   async unpublish({ surveyId, projectId }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoPublication =
       this.getRepo<RepoSurveyPublication>('surveyPublication')
 
@@ -546,9 +541,7 @@ export class ServicePublication extends Service {
    * Get published event with snapshot data
    */
   async getPublished({ surveyId, projectId, withData = true }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoPublication =
       this.getRepo<RepoSurveyPublication>('surveyPublication')
     const repoSurveySnapshotPartial = this.getRepo<RepoSurveySnapshotPartial>(
@@ -601,9 +594,7 @@ export class ServicePublication extends Service {
    * away and back to its original position).
    */
   async hasUnpublishedChanges({ surveyId, projectId }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoPublication =
       this.getRepo<RepoSurveyPublication>('surveyPublication')
     const repoSurveySnapshotPartial = this.getRepo<RepoSurveySnapshotPartial>(
@@ -699,9 +690,7 @@ export class ServicePublication extends Service {
    * Get publication list for a survey
    */
   async getList({ surveyId, projectId, page, perPage }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const pagination = parsePaginationParams(page, perPage, { perPage: 10 })
     page = pagination.page
     perPage = pagination.perPage
@@ -732,9 +721,7 @@ export class ServicePublication extends Service {
    * Get a single publication by ID
    */
   async get({ surveyId, publicationId, projectId }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
 
     const repoPublication =
       this.getRepo<RepoSurveyPublication>('surveyPublication')
@@ -758,9 +745,7 @@ export class ServicePublication extends Service {
    * Update publication label and notes
    */
   async update({ surveyId, publicationId, projectId, label, notes }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
 
     const repoPublication =
       this.getRepo<RepoSurveyPublication>('surveyPublication')
@@ -805,9 +790,7 @@ export class ServicePublication extends Service {
     projectId,
     aclConditions: _aclConditions,
   }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoPublication =
       this.getRepo<RepoSurveyPublication>('surveyPublication')
     const repoSurveyResponse =
@@ -930,9 +913,7 @@ export class ServicePublication extends Service {
     aclConditions,
     options = {},
   }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoPublication =
       this.getRepo<RepoSurveyPublication>('surveyPublication')
 

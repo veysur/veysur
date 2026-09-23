@@ -1,5 +1,4 @@
 import { Service, ServerErrorNotFound } from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
 import {
   QUESTION_TYPE_YES_NO,
   QUESTION_TYPE_STAR_RATING,
@@ -40,6 +39,7 @@ import { StatsAggregatorMatrixBoolean } from './StatsAggregatorMatrixBoolean'
 import { StatsAggregatorMatrixNumber } from './StatsAggregatorMatrixNumber'
 import { StatsAggregatorMultiPart } from './StatsAggregatorMultiPart'
 import { StatsAggregatorRanking } from './StatsAggregatorRanking'
+import { contextForProject } from 'common'
 
 export class ServiceSurveyStats extends Service {
   constructor() {
@@ -59,9 +59,7 @@ export class ServiceSurveyStats extends Service {
     dateField,
     search,
   }): Promise<SurveyStatsResult> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
 
     // 1. Fetch snapshot to get question definitions
     const repoSnapshot = this.getRepo<RepoSurveySnapshotPartial>(

@@ -3,7 +3,6 @@ import {
   ServerErrorBadRequest,
   ServerErrorNotFound,
 } from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
 import {
   SurveyParticipantAttribute,
   SurveyParticipantAttributeDefinition,
@@ -37,6 +36,7 @@ import {
   RepoSurveyParticipantAttribute,
   RepoSurveyParticipantAttributeLanguage,
 } from 'model'
+import { contextForProject } from 'common'
 
 export class ServiceSurveyParticipantAttribute extends Service {
   constructor() {
@@ -57,9 +57,7 @@ export class ServiceSurveyParticipantAttribute extends Service {
       }
     >
   }> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoAttribute = this.getRepo<RepoSurveyParticipantAttribute>(
       'surveyParticipantAttribute',
     )
@@ -113,9 +111,7 @@ export class ServiceSurveyParticipantAttribute extends Service {
     projectId: string
     attribute: Partial<SurveyParticipantAttributeDefinition>
   }): Promise<SurveyParticipantAttributeDefinition> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoAttribute = this.getRepo<RepoSurveyParticipantAttribute>(
       'surveyParticipantAttribute',
     )
@@ -171,9 +167,7 @@ export class ServiceSurveyParticipantAttribute extends Service {
     attributeName: string
     attribute: Partial<SurveyParticipantAttributeDefinition>
   }): Promise<boolean> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoAttribute = this.getRepo<RepoSurveyParticipantAttribute>(
       'surveyParticipantAttribute',
     )
@@ -224,9 +218,7 @@ export class ServiceSurveyParticipantAttribute extends Service {
     attributeName: string
     newName: string
   }): Promise<boolean> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoAttribute = this.getRepo<RepoSurveyParticipantAttribute>(
       'surveyParticipantAttribute',
     )
@@ -300,9 +292,7 @@ export class ServiceSurveyParticipantAttribute extends Service {
     languageCode: string
     data: SurveyParticipantAttributeLanguageData
   }): Promise<boolean> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoAttribute = this.getRepo<RepoSurveyParticipantAttribute>(
       'surveyParticipantAttribute',
     )
@@ -349,9 +339,7 @@ export class ServiceSurveyParticipantAttribute extends Service {
     projectId: string
     attributeName: string
   }): Promise<boolean> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoAttribute = this.getRepo<RepoSurveyParticipantAttribute>(
       'surveyParticipantAttribute',
     )
@@ -464,9 +452,7 @@ export class ServiceSurveyParticipantAttribute extends Service {
     projectId: string
     orderedAttributeNames: string[]
   }): Promise<boolean> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoAttribute = this.getRepo<RepoSurveyParticipantAttribute>(
       'surveyParticipantAttribute',
     )

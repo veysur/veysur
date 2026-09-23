@@ -1,5 +1,4 @@
 import { Service, ServerErrorNotFound, ServerErrorInternal } from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
 import {
   Survey,
   SurveyCompare,
@@ -8,7 +7,7 @@ import {
   mergeSurveyLanguageIntoSurvey,
 } from 'veysur-common'
 
-import { parsePaginationParams } from 'common'
+import { parsePaginationParams, contextForProject } from 'common'
 import { mergeSurveyLanguageSnapshots } from 'model/common'
 import {
   RepoSurvey,
@@ -58,9 +57,7 @@ export class ServiceSurveySnapshot extends Service {
   }
 
   async getAll({ surveyId, projectId, page, perPage }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const pagination = parsePaginationParams(page, perPage, { perPage: 10 })
     page = pagination.page
     perPage = pagination.perPage
@@ -101,9 +98,7 @@ export class ServiceSurveySnapshot extends Service {
     projectId,
     aclConditions: _aclConditions,
   }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoSurveySnapshotPartial = this.getRepo<RepoSurveySnapshotPartial>(
       'surveySnapshotPartial',
     )
@@ -242,9 +237,7 @@ export class ServiceSurveySnapshot extends Service {
     projectId,
     aclConditions: _aclConditions,
   }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoSurveySnapshotPartial = this.getRepo<RepoSurveySnapshotPartial>(
       'surveySnapshotPartial',
     )
@@ -299,9 +292,7 @@ export class ServiceSurveySnapshot extends Service {
     notes,
     aclConditions: _aclConditions,
   }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSurveySnapshotPartial>(
       'surveySnapshotPartial',
     )
@@ -360,9 +351,7 @@ export class ServiceSurveySnapshot extends Service {
     projectId,
     aclConditions: _aclConditions,
   }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoSurveySnapshotPartial = this.getRepo<RepoSurveySnapshotPartial>(
       'surveySnapshotPartial',
     )
@@ -500,9 +489,7 @@ export class ServiceSurveySnapshot extends Service {
     contentHash: string,
     projectId: string,
   ) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoSurveySnapshotPartial = this.getRepo<RepoSurveySnapshotPartial>(
       'surveySnapshotPartial',
     )
@@ -540,9 +527,7 @@ export class ServiceSurveySnapshot extends Service {
     projectId,
     aclConditions: _aclConditions,
   }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoSurvey = this.getRepo<RepoSurvey>('survey')
     const repoSettingSurvey = this.getRepo<RepoSettingSurvey>('settingSurvey')
     const repoSurveyLanguage =

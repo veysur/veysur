@@ -26,6 +26,7 @@ import {
 } from 'veysur-common'
 
 import { ResponseMapper } from './ServiceSurveySnapshot/ResponseMapper'
+import { contextForProject } from 'common'
 
 export class ServiceResponseMerge extends Service {
   constructor() {
@@ -62,9 +63,7 @@ export class ServiceResponseMerge extends Service {
     aclConditions: AclConditions
     options?: MergeOptions
   }): Promise<MergeResult> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
 
     // Validate snapshots and get survey data
     const { sourceSurvey, targetSurvey, comparisonResult } =

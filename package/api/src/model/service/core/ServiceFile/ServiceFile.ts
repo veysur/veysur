@@ -1,7 +1,7 @@
 import { Service, ServerErrorNotFound } from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
 
 import { RepoFile } from 'model'
+import { contextForProject } from 'common'
 
 export class ServiceFile extends Service {
   constructor() {
@@ -14,9 +14,7 @@ export class ServiceFile extends Service {
    * Get file metadata
    */
   async getOne({ fileId, projectId }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoFile>('file')
 
     const file = await repo.findOne(
@@ -38,9 +36,7 @@ export class ServiceFile extends Service {
    * List files for a project
    */
   async getAll({ projectId, page = 1, perPage = 50 }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoFile>('file')
 
     const skip = (page - 1) * perPage
@@ -73,9 +69,7 @@ export class ServiceFile extends Service {
    * Get files for a survey (fileContext = 'survey')
    */
   async getFilesForSurvey({ surveyId, projectId, page, perPage }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoFile>('file')
 
     const { files, total } = await repo.findBySurvey(
@@ -108,9 +102,7 @@ export class ServiceFile extends Service {
     page,
     perPage,
   }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoFile>('file')
 
     const { files, total } = await repo.findByResponse(

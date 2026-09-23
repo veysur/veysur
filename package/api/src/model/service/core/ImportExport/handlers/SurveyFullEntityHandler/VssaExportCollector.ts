@@ -1,9 +1,8 @@
 import { Readable } from 'stream'
 
-import { DataSourceContext } from 'mzen-om'
 import { Survey, SurveyLanguage } from 'veysur-common'
 
-import { createStorageAdaptor } from 'common'
+import { createStorageAdaptor, contextForProject } from 'common'
 import { RepoSurveyPublication } from 'model'
 import { StorageConfig } from 'model/service/core/ServiceFile/FileS3Config'
 
@@ -33,9 +32,7 @@ export class VssaExportCollector {
     surveyId: string,
     context: EntityExportContext,
   ): Promise<{ entries: FormatFileEntry[]; cleanup: () => Promise<void> }> {
-    const dsContext = DataSourceContext.fromDataSources({
-      project: { lookupKey: context.projectId },
-    })
+    const dsContext = contextForProject(context.projectId)
 
     // Fetch survey data and build survey.json
     const surveyData = (await this.surveyHandler.fetchForExport(

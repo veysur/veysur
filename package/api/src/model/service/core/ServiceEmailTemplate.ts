@@ -1,5 +1,4 @@
 import { Service } from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
 import {
   Patcher,
   Patch,
@@ -11,6 +10,7 @@ import {
 import { RepoEmailTemplate } from 'model'
 import { SystemEmailTemplateLoader } from 'model/common/EmailTemplateLoader'
 import { wrapEmailBody } from 'model/common/emailLayout'
+import { contextForProject } from 'common'
 
 export class ServiceEmailTemplate extends Service {
   constructor() {
@@ -42,9 +42,7 @@ export class ServiceEmailTemplate extends Service {
   }
 
   async getOne({ projectId, surveyId, type, lang }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoEmailTemplate>('emailTemplate')
 
     let setting = await repo.findOne({ type, lang }, { context })
@@ -69,9 +67,7 @@ export class ServiceEmailTemplate extends Service {
     systemTemplates: EmailTemplate[]
     projectDefaultLang: string
   }> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoEmailTemplate>('emailTemplate')
     const projectDefaultLang = await this._getProjectDefaultLang()
 
@@ -106,9 +102,7 @@ export class ServiceEmailTemplate extends Service {
   }
 
   async getProjectAll({ projectId }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoEmailTemplate>('emailTemplate')
 
     const projectDefaultLang = await this._getProjectDefaultLang()
@@ -126,9 +120,7 @@ export class ServiceEmailTemplate extends Service {
   }
 
   async deleteOne({ projectId, surveyId, type, lang }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoEmailTemplate>('emailTemplate')
     await repo.deleteOne({ surveyId, type, lang }, { context })
     return true
@@ -145,9 +137,7 @@ export class ServiceEmailTemplate extends Service {
     patches: Patch[]
     includeDeleteHandler?: boolean
   }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoEmailTemplate>('emailTemplate')
 
     const patcher = new Patcher()

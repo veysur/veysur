@@ -11,6 +11,7 @@ import { RepoSurveyParticipant, RepoSurvey, RepoSettingSurvey } from 'model'
 import { AclContext } from 'model/entity/AclContext'
 import { ParticipantToken } from './ParticipantToken'
 import { EmailVerifyToken } from './EmailVerifyToken'
+import { contextForProject } from 'common'
 
 export class ServiceSurveyParticipantGenerate extends Service {
   private static readonly BATCH_SIZE = 100
@@ -36,9 +37,7 @@ export class ServiceSurveyParticipantGenerate extends Service {
     count: number
     aclContext: AclContext
   }): Promise<{ generatedCount: number }> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoSurveyParticipant =
       this.getRepo<RepoSurveyParticipant>('surveyParticipant')
     const repoSurvey = this.getRepo<RepoSurvey>('survey')

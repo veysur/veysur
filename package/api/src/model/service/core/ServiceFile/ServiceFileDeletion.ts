@@ -3,12 +3,11 @@ import {
   ServerErrorNotFound,
   ServerErrorBadRequest,
 } from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
 import { DEFAULT_PROJECT_ID, File } from 'veysur-common'
 import momentTimezone from 'moment-timezone'
 
 import { RepoFile, RepoSurvey } from 'model'
-import { createStorageAdaptor } from 'common'
+import { createStorageAdaptor, contextForProject } from 'common'
 import { isSelfHosted } from 'config/edition'
 import { IMAGE_SET_ID_PATTERN } from './constants'
 
@@ -63,9 +62,7 @@ export class ServiceFileDeletion extends Service {
     fileId: string
     projectId: string
   }): Promise<SoftDeleteResult> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoFile = this.getRepo<RepoFile>('file')
     const repoSurvey = this.getRepo<RepoSurvey>('survey')
 
@@ -148,9 +145,7 @@ export class ServiceFileDeletion extends Service {
       throw new ServerErrorBadRequest('Invalid imageSetId format')
     }
 
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoFile = this.getRepo<RepoFile>('file')
 
     const deletedCount = await repoFile.count(
@@ -184,9 +179,7 @@ export class ServiceFileDeletion extends Service {
     surveyId: string
     projectId: string
   }): Promise<BulkDeleteResult> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoFile = this.getRepo<RepoFile>('file')
 
     const fileCount = await repoFile.count(
@@ -223,9 +216,7 @@ export class ServiceFileDeletion extends Service {
     responseId: string
     projectId: string
   }): Promise<BulkDeleteResult> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoFile = this.getRepo<RepoFile>('file')
 
     const fileCount = await repoFile.count(
@@ -263,9 +254,7 @@ export class ServiceFileDeletion extends Service {
     olderThan?: string
     fileContext?: InstanceType<typeof File>['fileContext']
   }): Promise<HardDeleteResult> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoFile = this.getRepo<RepoFile>('file')
     const storageConfig = this.getStorageConfig()
 

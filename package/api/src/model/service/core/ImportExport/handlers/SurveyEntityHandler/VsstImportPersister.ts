@@ -14,7 +14,11 @@ import {
 } from 'veysur-common'
 import { genUniqueId } from 'mzen-id'
 
-import { createStorageAdaptor, generateImageSetBasePath } from 'common'
+import {
+  createStorageAdaptor,
+  generateImageSetBasePath,
+  contextForProject,
+} from 'common'
 import {
   RepoEmailTemplate,
   RepoFile,
@@ -55,9 +59,7 @@ export class VsstImportPersister {
     const { projectId, aclContext } = context
     const userId = aclContext.jwt._id
 
-    const dsContext = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const dsContext = contextForProject(projectId)
 
     const repoSection =
       this.repoSurvey.getRepo<RepoSurveySection>('surveySection')

@@ -3,7 +3,6 @@ import { randomBytes } from 'crypto'
 import { Readable, Transform } from 'stream'
 
 import { Service, ServerErrorInternal } from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
 import { File } from 'veysur-common'
 import MzenId from 'mzen-id'
 
@@ -14,6 +13,7 @@ import {
   generateStoredFilename,
   generateFilePath,
   generateSignedDownloadUrl,
+  contextForProject,
 } from 'common'
 
 import { StorageConfig, getStorageConfig } from './FileS3Config'
@@ -74,9 +74,7 @@ export class ServiceFileTempDownload extends Service {
           }
         : storageConfig
     const adaptor = createStorageAdaptor(effectiveConfig)
-    const dsContext = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const dsContext = contextForProject(projectId)
 
     // Compute hash + size inline as the stream uploads — no disk write.
     //

@@ -1,7 +1,7 @@
 import MzenId from 'mzen-id'
 import { DataSourceContext } from 'mzen-om'
 
-import { generateImageSetBasePath } from 'common'
+import { generateImageSetBasePath, contextForProject } from 'common'
 import {
   RepoSurvey,
   RepoSurveySnapshotPartial,
@@ -49,9 +49,7 @@ export class VsspImportResolver {
       }
     }
 
-    const dsContext = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const dsContext = contextForProject(projectId)
 
     const existingSurvey = await this.repoSurvey.findOne(
       { _id: optSurveyId },

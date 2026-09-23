@@ -1,6 +1,5 @@
 import { Readable } from 'stream'
 
-import { DataSourceContext } from 'mzen-om'
 import MzenId from 'mzen-id'
 import {
   Survey,
@@ -31,6 +30,7 @@ import {
 } from '../EntityHandlerInterface'
 import { FormatHandlerInterface } from '../format/FormatHandlerInterface'
 import { buildResponseEnvelope } from './util/buildResponseEnvelope'
+import { contextForProject } from 'common'
 
 const FIXED_HEADERS = [
   'surveyId',
@@ -584,9 +584,7 @@ export class SurveyResponseEntityHandler implements EntityHandlerInterface {
     context: EntityExportContext,
     options?: ExportOptions,
   ): Promise<unknown> {
-    const dsContext = DataSourceContext.fromDataSources({
-      project: { lookupKey: context.projectId },
-    })
+    const dsContext = contextForProject(context.projectId)
 
     const query: Record<string, unknown> = {
       surveyId,
@@ -769,9 +767,7 @@ export class SurveyResponseEntityHandler implements EntityHandlerInterface {
       }
     }
 
-    const dsContext = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const dsContext = contextForProject(projectId)
 
     // Fetch snapshot data for column definitions
     const snapshotDataRaw = await this.repoSurveySnapshot.findOne(
@@ -865,9 +861,7 @@ export class SurveyResponseEntityHandler implements EntityHandlerInterface {
       colDefByKey,
     } = data as SurveyResponseImportValidatedData
 
-    const dsContext = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const dsContext = contextForProject(projectId)
 
     const createdById = context.aclContext?.jwt?._id || null
     const colDefMap = new Map<string, ColumnDef>(Object.entries(colDefByKey))

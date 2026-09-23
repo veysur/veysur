@@ -4,7 +4,7 @@ import { DataSourceContext } from 'mzen-om'
 import { ServerErrorNotFound } from 'mzen-server'
 import { Survey, SurveyLanguage } from 'veysur-common'
 
-import { createStorageAdaptor } from 'common'
+import { createStorageAdaptor, contextForProject } from 'common'
 import {
   RepoEmailTemplate,
   RepoFile,
@@ -45,9 +45,7 @@ export class VsstExportCollector {
     participantAttributes: VsstParticipantAttribute[]
     emailTemplates: EmailTemplateEntry[]
   }> {
-    const dsContext = DataSourceContext.fromDataSources({
-      project: { lookupKey: context.projectId },
-    })
+    const dsContext = contextForProject(context.projectId)
 
     const survey = await this.repoSurvey.findOne(
       { _id: surveyId },

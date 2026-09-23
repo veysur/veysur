@@ -1,7 +1,6 @@
 import { Service, ServerErrorNotFound } from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
 import { Patcher, Survey } from 'veysur-common'
-import { escapeRegex, buildDateRangeQuery } from 'common'
+import { escapeRegex, buildDateRangeQuery, contextForProject } from 'common'
 
 import {
   RepoSurvey,
@@ -32,9 +31,7 @@ export class ServiceSurvey extends Service {
   }
 
   async create({ survey, projectId, aclContext }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSurvey>('survey')
 
     survey.createdById = aclContext.jwt._id
@@ -123,9 +120,7 @@ export class ServiceSurvey extends Service {
     lang,
     defaultLang,
   }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSurvey>('survey')
     let survey = await repo.findOne(
       {
@@ -165,9 +160,7 @@ export class ServiceSurvey extends Service {
     endDate,
     dateField,
   }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
 
     // Convert to numbers (query params come as strings)
     page = Number(page)
@@ -218,11 +211,7 @@ export class ServiceSurvey extends Service {
   }
 
   async patch({ surveyId, projectId, patches, aclContext, context }) {
-    context =
-      context ??
-      DataSourceContext.fromDataSources({
-        project: { lookupKey: projectId },
-      })
+    context = context ?? contextForProject(projectId)
     const repos = {
       repoSurvey: this.getRepo<RepoSurvey>('survey'),
       repoSurveyElement: this.getRepo<RepoSurveyElement>('surveyElement'),
@@ -301,9 +290,7 @@ export class ServiceSurvey extends Service {
     aclConditions: _aclConditions,
     aclContext,
   }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
 
     const repoSurvey = this.getRepo<RepoSurvey>('survey')
 

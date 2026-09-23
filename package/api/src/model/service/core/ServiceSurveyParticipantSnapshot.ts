@@ -10,6 +10,7 @@ import {
   RepoSettingSurvey,
 } from 'model'
 import { mergeSurveyLanguageSnapshots } from 'model/common'
+import { contextForProject } from 'common'
 
 export class ServiceSurveyParticipantSnapshot extends Service {
   constructor() {
@@ -50,9 +51,7 @@ export class ServiceSurveyParticipantSnapshot extends Service {
     withData: boolean
     resumeSnapshotId?: string
   }) {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoPublication =
       this.getRepo<RepoSurveyPublication>('surveyPublication')
     const repoSurveySnapshotPartial = this.getRepo<RepoSurveySnapshotPartial>(

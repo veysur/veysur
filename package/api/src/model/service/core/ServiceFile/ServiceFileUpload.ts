@@ -3,7 +3,6 @@ import {
   ServerErrorBadRequest,
   ServerErrorNotFound,
 } from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
 import { ALLOWED_FILE_MIME_TYPES, File } from 'veysur-common'
 import MzenId from 'mzen-id'
 
@@ -17,6 +16,7 @@ import {
   generateFilePath,
   generateImageSetBasePath,
   objectExists,
+  contextForProject,
 } from 'common'
 
 import { StorageConfig, getStorageConfig } from './FileS3Config'
@@ -112,9 +112,7 @@ export class ServiceFileUpload extends Service {
     imageVariant?: string
     aclContext: AclContext
   }): Promise<GenerateUploadUrlResult> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const userId = aclContext.jwt._id
     const repoFile = this.getRepo<RepoFile>('file')
     const storageConfig = this.getStorageConfig()
@@ -381,9 +379,7 @@ export class ServiceFileUpload extends Service {
     projectId: string
     aclContext: AclContext
   }): Promise<{ success: boolean; file: File; alreadyConfirmed: boolean }> {
-    const context = DataSourceContext.fromDataSources({
-      project: { lookupKey: projectId },
-    })
+    const context = contextForProject(projectId)
     const repoFile = this.getRepo<RepoFile>('file')
     const storageConfig = this.getStorageConfig()
 
