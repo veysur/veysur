@@ -52,7 +52,7 @@ const DialogContent = React.forwardRef<
             'z-50 flex flex-col ' +
             'translate-x-[-50%] translate-y-[-50%] ' +
             'border bg-background shadow-lg rounded-lg',
-          'max-w-2xl max-h-[90vh] w-[calc(100%-2rem)]',
+          'max-w-2xl max-h-[90vh] w-[calc(100%-2rem)] overflow-y-auto',
           className,
         )}
         onInteractOutside={handleInteractOutside}
