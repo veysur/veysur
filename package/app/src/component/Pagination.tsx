@@ -56,7 +56,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   const perPageOptions = [5, 10, 20, 50, 100]
 
   return (
-    <div className="mt-4 flex items-center justify-between">
+    <div className="mt-4 flex flex-wrap items-center justify-center gap-y-2 sm:justify-between">
       <div className="flex items-center gap-4 sm:min-w-[10rem]">
         <div className="text-sm text-muted-foreground">
           Showing {startItem} to {endItem} of {total}

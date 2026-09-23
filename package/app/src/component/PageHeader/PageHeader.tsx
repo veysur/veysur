@@ -89,7 +89,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
               </div>
             )}
             {(label || inlineNav) && (
-              <div className="shrink-0 flex items-center gap-2 self-end sm:self-auto">
+              <div className="shrink-0 flex items-center gap-2 self-start sm:self-auto">
                 {label && (
                   <Badge variant={variant || 'default'} className="opacity-75">
                     {label}

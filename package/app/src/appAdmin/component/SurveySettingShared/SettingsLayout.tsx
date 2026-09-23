@@ -31,7 +31,7 @@ export const SettingsLayout: React.FC<Props> = ({
       <SidebarInset className="pb-12">
         {header && (
           <>
-            <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 bg-background">
+            <header className="flex min-h-16 h-auto flex-wrap items-center gap-2 border-b px-4 py-2 bg-background">
               <SidebarTrigger className="-ml-1 sm:block md:hidden" />
               <Separator
                 orientation="vertical"
@@ -41,7 +41,9 @@ export const SettingsLayout: React.FC<Props> = ({
             </header>
           </>
         )}
-        <div className="flex flex-1 flex-col gap-4 p-4">{children}</div>
+        <div className="flex flex-1 flex-col gap-4 px-4 pb-4 pt-8 lg:pt-4">
+          {children}
+        </div>
       </SidebarInset>
     </SidebarProvider>
   )

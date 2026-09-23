@@ -29,12 +29,10 @@ export const SettingSurveyHeader: React.FC<SettingSurveyHeaderProps> = ({
   const disabled = !isAnythingDirty || isSaving || isLoading
 
   return (
-    <div className="flex flex-1 items-center justify-between gap-2">
+    <div className="flex flex-1 flex-wrap items-center justify-between gap-2">
       <div className="min-w-0">
-        <h4 className="text-lg font-semibold whitespace-nowrap">
-          Survey Default Settings
-        </h4>
-        <small className="text-muted-foreground text-xs whitespace-nowrap">
+        <h4 className="text-lg font-semibold">Survey Default Settings</h4>
+        <small className="text-muted-foreground text-xs">
           Configure default settings for new surveys
         </small>
       </div>

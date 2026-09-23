@@ -129,90 +129,94 @@ export function DataTable<TData>({
       )}
       <Card className="p-2">
         <CardContent className="p-0">
-          <Table className={className}>
-            <TableHeader>
-              <TableRow>
-                {finalColumns.map((col) => {
-                  const isActiveSort =
-                    !!sortState && sortState.key === col.sortKey
-                  const activeDirection = isActiveSort
-                    ? sortState?.direction
-                    : undefined
+          <div className="overflow-x-auto">
+            <Table className={className}>
+              <TableHeader>
+                <TableRow>
+                  {finalColumns.map((col) => {
+                    const isActiveSort =
+                      !!sortState && sortState.key === col.sortKey
+                    const activeDirection = isActiveSort
+                      ? sortState?.direction
+                      : undefined
+
+                    return (
+                      <TableHead
+                        key={`${col.key}-head`}
+                        className={cn(col.headerClassName, col.className)}
+                      >
+                        {col.sortKey && onSortChange ? (
+                          <SortableHeader
+                            label={col.title}
+                            active={isActiveSort}
+                            direction={activeDirection}
+                            onClick={() =>
+                              onSortChange(
+                                col.sortKey as string,
+                                activeDirection === 'asc' ? 'desc' : 'asc',
+                              )
+                            }
+                          />
+                        ) : (
+                          col.title
+                        )}
+                      </TableHead>
+                    )
+                  })}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.map((row) => {
+                  const rowId = getRowId(row)
+                  const isSelected =
+                    enableSelection &&
+                    selection &&
+                    (selection.selectAll || selection.selectedIds.has(rowId))
 
                   return (
-                    <TableHead
-                      key={`${col.key}-head`}
-                      className={cn(col.headerClassName, col.className)}
+                    <TableRow
+                      key={`row-${rowId}`}
+                      onClick={
+                        rowsClickable ? () => onRowClick(row) : undefined
+                      }
+                      className={cn([
+                        rowsClickable && 'cursor-pointer',
+                        highlightSelected && isSelected && 'bg-muted/70',
+                      ])}
                     >
-                      {col.sortKey && onSortChange ? (
-                        <SortableHeader
-                          label={col.title}
-                          active={isActiveSort}
-                          direction={activeDirection}
-                          onClick={() =>
-                            onSortChange(
-                              col.sortKey as string,
-                              activeDirection === 'asc' ? 'desc' : 'asc',
-                            )
-                          }
-                        />
-                      ) : (
-                        col.title
-                      )}
-                    </TableHead>
+                      {finalColumns.map((col) => {
+                        const shouldPreventClick = preventClickKeys.includes(
+                          col.key,
+                        )
+
+                        return (
+                          <TableCell
+                            key={`${col.key}-${rowId}`}
+                            className={cn('align-middle', col.className)}
+                            onClick={
+                              shouldPreventClick
+                                ? (e) => {
+                                    e.stopPropagation()
+                                    // Call column-specific onClick if provided
+                                    if (col.onClick) {
+                                      col.onClick(row)
+                                    }
+                                  }
+                                : col.onClick
+                                  ? () => col.onClick?.(row)
+                                  : undefined
+                            }
+                          >
+                            {col.render(row)}
+                          </TableCell>
+                        )
+                      })}
+                    </TableRow>
                   )
                 })}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.map((row) => {
-                const rowId = getRowId(row)
-                const isSelected =
-                  enableSelection &&
-                  selection &&
-                  (selection.selectAll || selection.selectedIds.has(rowId))
-
-                return (
-                  <TableRow
-                    key={`row-${rowId}`}
-                    onClick={rowsClickable ? () => onRowClick(row) : undefined}
-                    className={cn([
-                      rowsClickable && 'cursor-pointer',
-                      highlightSelected && isSelected && 'bg-muted/70',
-                    ])}
-                  >
-                    {finalColumns.map((col) => {
-                      const shouldPreventClick = preventClickKeys.includes(
-                        col.key,
-                      )
-
-                      return (
-                        <TableCell
-                          key={`${col.key}-${rowId}`}
-                          className={cn('align-middle', col.className)}
-                          onClick={
-                            shouldPreventClick
-                              ? (e) => {
-                                  e.stopPropagation()
-                                  // Call column-specific onClick if provided
-                                  if (col.onClick) {
-                                    col.onClick(row)
-                                  }
-                                }
-                              : col.onClick
-                                ? () => col.onClick?.(row)
-                                : undefined
-                          }
-                        >
-                          {col.render(row)}
-                        </TableCell>
-                      )
-                    })}
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

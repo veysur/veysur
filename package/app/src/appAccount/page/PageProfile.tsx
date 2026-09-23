@@ -35,7 +35,7 @@ export const PageProfile: React.FC = () => {
             <CardDescription>Your name information</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-y-2">
               <span className="text-sm">
                 {auth?.user?.nameFirst} {auth?.user?.nameLast}
               </span>
@@ -53,9 +53,9 @@ export const PageProfile: React.FC = () => {
             <CardDescription>Manage your email address</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="text-sm">{auth?.user?.email}</span>
+            <div className="flex flex-wrap items-center justify-between gap-y-2">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="text-sm break-all">{auth?.user?.email}</span>
                 <Badge variant={isEmailVerified ? 'default' : 'secondary'}>
                   {isEmailVerified ? 'Verified' : 'Unverified'}
                 </Badge>
@@ -89,7 +89,7 @@ export const PageProfile: React.FC = () => {
             <CardDescription>Two-factor authentication</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-y-2">
               <div className="flex items-center gap-3">
                 <span className="text-sm">Two-Factor Authentication</span>
                 <Badge variant={isTwoFactorEnabled ? 'default' : 'secondary'}>
