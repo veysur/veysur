@@ -5,7 +5,7 @@ import { usePageTitle } from 'hook'
 import { useFlashMessage } from 'component/FlashMessage'
 import { Button } from 'component/shadcn/button'
 import { AdminPageLayout } from 'appAdmin/component/Layout'
-import { SectionHeader } from 'component/SectionHeader'
+import { PageHeader } from 'component/PageHeader'
 import { useAuth, useProjectDomain, useFeatureGate } from 'appAdmin/hook'
 import {
   useTeamMembers,
@@ -38,24 +38,26 @@ export const PageTeam: React.FC = () => {
 
   return (
     <AdminPageLayout>
-      <SectionHeader
+      <PageHeader
         icon={Users}
         title="Team"
         description="Team members and invitations."
-      >
-        {!atMemberLimit && (
-          <Button
-            variant="outline"
-            size="sm"
-            tooltip="Invite Team Member"
-            asChild
-          >
-            <Link to="/team/invite">
-              <UserPlus className="h-4 w-4" />
-            </Link>
-          </Button>
-        )}
-      </SectionHeader>
+        maxWidth="max-w-none"
+        inlineNav={
+          !atMemberLimit && (
+            <Button
+              variant="outline"
+              size="sm"
+              tooltip="Invite Team Member"
+              asChild
+            >
+              <Link to="/team/invite">
+                <UserPlus className="h-4 w-4" />
+              </Link>
+            </Button>
+          )
+        }
+      />
 
       <div className="mt-6 space-y-8 max-w-4xl mx-auto">
         <section>

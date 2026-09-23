@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Upload } from 'lucide-react'
 
 import { usePageTitle } from 'hook'
-import { SectionHeader } from 'component/SectionHeader'
+import { PageHeader } from 'component/PageHeader'
 import {
   SurveyEditorNavContainer,
   SurveyPageContent,
@@ -89,10 +89,12 @@ export const PageSurveyEditPublicationImport: React.FC = () => {
       <SurveyPageContent
         onBackClick={handleViewPublications}
         pageHeader={
-          <SectionHeader
+          <PageHeader
             icon={Upload}
             title="Import Publication"
             description="Upload a .vssp file to import a survey publication into this survey."
+            maxWidth="max-w-none"
+            showBack={false}
           />
         }
       >

@@ -3,7 +3,7 @@ import { EmailTemplate, EmailTemplateCollection } from 'veysur-common'
 
 import { SettingsDataAdapter, SettingsHandlers } from './SettingSurveyAdapter'
 import { settingsConfig, categoryConfig } from './settingsConfig'
-import { SectionHeader } from 'component/SectionHeader'
+import { PageHeader } from 'component/PageHeader'
 
 const YES = 'Yes'
 const NO = 'No'
@@ -32,7 +32,6 @@ type Props<T> = {
   ) => React.ReactNode
   className?: string
   activeSection: string
-  headerClassName?: string
   emailTemplateProps?: EmailTemplateProps
 }
 
@@ -58,12 +57,13 @@ export function SettingsContent<T>({
   return (
     <div className={className}>
       {currentSection && currentCategory && (
-        <SectionHeader
+        <PageHeader
           icon={currentSection.icon}
           title={currentSection.title}
           variant={currentCategory.variant}
           label={currentCategory.label}
           description={currentSection.description}
+          maxWidth="max-w-none"
         />
       )}
 

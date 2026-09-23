@@ -28,7 +28,7 @@ import {
 } from 'appAdmin/component/SurveyPublication'
 import { usePagination } from 'hook'
 import { usePageTitle, useSelection } from 'hook'
-import { SectionHeader } from 'component/SectionHeader'
+import { PageHeader } from 'component/PageHeader'
 import { EmptyState } from 'component/EmptyState'
 import { GoldenEmptyState } from 'component/GoldenEmptyState'
 
@@ -200,31 +200,36 @@ export const PageSurveyEditPublication: React.FC = () => {
       <SurveyPageContent
         showBackButton={false}
         pageHeader={
-          <SectionHeader
+          <PageHeader
             icon={BookOpen}
             title="Survey Publications"
             description="View and manage publication history of your survey. Each publication represents when a survey was made available to participants."
-          >
-            <Button
-              className="hidden"
-              variant="outline"
-              size="sm"
-              tooltip="Snapshots"
-              onClick={() => navigate(`/survey/${survey?._id}/snapshot`)}
-            >
-              <Camera className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                navigate(`/survey/${survey?._id}/publication/import`)
-              }
-              tooltip="Import Publication"
-            >
-              <Upload className="h-4 w-4" />
-            </Button>
-          </SectionHeader>
+            maxWidth="max-w-none"
+            showBack={false}
+            inlineNav={
+              <>
+                <Button
+                  className="hidden"
+                  variant="outline"
+                  size="sm"
+                  tooltip="Snapshots"
+                  onClick={() => navigate(`/survey/${survey?._id}/snapshot`)}
+                >
+                  <Camera className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    navigate(`/survey/${survey?._id}/publication/import`)
+                  }
+                  tooltip="Import Publication"
+                >
+                  <Upload className="h-4 w-4" />
+                </Button>
+              </>
+            }
+          />
         }
       >
         {!isLoading && hasPublications ? (

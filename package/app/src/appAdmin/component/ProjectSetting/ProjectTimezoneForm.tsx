@@ -45,11 +45,11 @@ export const ProjectTimezoneForm: React.FC<Props> = ({
   return (
     <form onSubmit={handleSubmit}>
       {error && (
-        <Alert variant="destructive" className="mb-3 max-w-lg mx-auto">
+        <Alert variant="destructive" className="mb-3">
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-      <Card className="max-w-lg mx-auto">
+      <Card>
         <CardHeader>
           <CardTitle>Project Timezone</CardTitle>
           <CardDescription>
@@ -57,7 +57,7 @@ export const ProjectTimezoneForm: React.FC<Props> = ({
             &ldquo;Today&rdquo;.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-1.5">
+        <CardContent className="space-y-1.5 max-w-sm">
           <Label htmlFor="timezone">Timezone</Label>
           <Select value={selectedTimezone} onValueChange={setSelectedTimezone}>
             <SelectTrigger id="timezone">

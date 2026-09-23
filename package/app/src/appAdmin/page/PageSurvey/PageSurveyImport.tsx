@@ -4,7 +4,7 @@ import { Upload, Plus } from 'lucide-react'
 
 import { usePageTitle } from 'hook'
 import { AdminPageLayout } from 'appAdmin/component/Layout'
-import { SectionHeader } from 'component/SectionHeader'
+import { PageHeader } from 'component/PageHeader'
 import {
   useImportSurvey,
   useImportSurveyFull,
@@ -130,17 +130,20 @@ export const PageSurveyImport: React.FC = () => {
 
   return (
     <AdminPageLayout className="container-lg p-4">
-      <SectionHeader
+      <PageHeader
         icon={Upload}
         title="Import Survey"
         description="Upload a .vsst or .vssa file to import a survey into your project"
-      >
-        <Button size="sm" variant="outline" tooltip="Create New Survey" asChild>
-          <Link to="/survey/new">
-            <Plus className="h-4 w-4" />
-          </Link>
-        </Button>
-      </SectionHeader>
+        maxWidth="max-w-none"
+        showBack={false}
+        inlineNav={
+          <Button size="sm" variant="outline" tooltip="Create New Survey" asChild>
+            <Link to="/survey/new">
+              <Plus className="h-4 w-4" />
+            </Link>
+          </Button>
+        }
+      />
 
       <div className="row mt-3 justify-center">
         <div className="mt-10 w-md mx-auto">

@@ -10,7 +10,7 @@ import { useFlashMessage } from 'component/FlashMessage'
 import { Button } from 'component/shadcn/button'
 import { Pagination } from 'component/Pagination'
 import { ButtonGroup } from 'component/shadcn/button-group'
-import { SectionHeader } from 'component/SectionHeader'
+import { PageHeader } from 'component/PageHeader'
 import { AdminPageLayout } from 'appAdmin/component/Layout'
 import {
   useSurveyList,
@@ -88,30 +88,37 @@ export const PageSurvey: React.FC = () => {
   }
 
   return (
-    <AdminPageLayout className="mt-3">
-      <SectionHeader
+    <AdminPageLayout>
+      <PageHeader
         icon={FileText}
         title="Surveys"
         description="Manage your surveys. Create new surveys, edit existing ones, and track their status."
-      >
-        <ButtonGroup>
-          <Button
-            variant="outline"
-            size="sm"
-            tooltip="Create New Survey"
-            asChild
-          >
-            <Link to="/survey/new">
-              <Plus className="h-4 w-4" />
-            </Link>
-          </Button>
-          <Button variant="outline" size="sm" tooltip="Import Survey" asChild>
-            <Link to="/survey/import">
-              <Upload className="h-4 w-4" />
-            </Link>
-          </Button>
-        </ButtonGroup>
-      </SectionHeader>
+        maxWidth="max-w-none"
+        inlineNav={
+          <ButtonGroup>
+            <Button
+              variant="outline"
+              size="sm"
+              tooltip="Create New Survey"
+              asChild
+            >
+              <Link to="/survey/new">
+                <Plus className="h-4 w-4" />
+              </Link>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              tooltip="Import Survey"
+              asChild
+            >
+              <Link to="/survey/import">
+                <Upload className="h-4 w-4" />
+              </Link>
+            </Button>
+          </ButtonGroup>
+        }
+      />
       {(hasSurveys || searchQuery || debouncedSearch || hasActiveFilters) && (
         <div className="flex justify-between items-center gap-3 mt-4">
           <SearchBar

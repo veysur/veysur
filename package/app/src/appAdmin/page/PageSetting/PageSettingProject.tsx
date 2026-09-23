@@ -42,9 +42,8 @@ export const PageSettingProject: React.FC = () => {
         title="Project"
         description="Project-wide settings."
         backUrl="/survey"
-        maxWidth="max-w-4xl"
       />
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-2xl mx-auto">
         <ProjectTimezoneForm
           timezone={project.timezone}
           onSubmit={handleSubmit}

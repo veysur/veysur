@@ -32,7 +32,7 @@ import { EmptyState } from 'component/EmptyState'
 import { GoldenEmptyState } from 'component/GoldenEmptyState'
 import { usePagination } from 'hook'
 import { UsageMeter } from 'component/UsageMeter'
-import { SectionHeader } from 'component/SectionHeader'
+import { PageHeader } from 'component/PageHeader'
 import { useFeatureGate, useProjectDomain } from 'appAdmin/hook'
 import { usePageTitle, useSelection } from 'hook'
 import {
@@ -230,45 +230,47 @@ export const PageSurveyEditResponse: React.FC = () => {
         <SurveyPageContent
           showBackButton={false}
           pageHeader={
-            <div className="flex items-start justify-between gap-4">
-              <SectionHeader
-                icon={MessageSquare}
-                title="Survey Responses"
-                description="View and manage survey responses."
-              />
-              <ButtonGroup>
-                {snapshotIdForData && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    tooltip="Add Response"
-                    asChild
-                  >
-                    <Link
-                      to={`/survey/${survey?._id}/response/snapshot/${snapshotIdForData}/add`}
+            <PageHeader
+              icon={MessageSquare}
+              title="Survey Responses"
+              description="View and manage survey responses."
+              maxWidth="max-w-none"
+              showBack={false}
+              inlineNav={
+                <ButtonGroup>
+                  {snapshotIdForData && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      tooltip="Add Response"
+                      asChild
                     >
-                      <Plus className="h-4 w-4" />
+                      <Link
+                        to={`/survey/${survey?._id}/response/snapshot/${snapshotIdForData}/add`}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  )}
+                  <Button variant="outline" size="sm" tooltip="Import" asChild>
+                    <Link to={`/survey/${survey?._id}/response/import`}>
+                      <Upload className="h-4 w-4" />
                     </Link>
                   </Button>
-                )}
-                <Button variant="outline" size="sm" tooltip="Import" asChild>
-                  <Link to={`/survey/${survey?._id}/response/import`}>
-                    <Upload className="h-4 w-4" />
-                  </Link>
-                </Button>
-                {hasResponses && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleExport}
-                    disabled={isExporting}
-                    tooltip={isExporting ? 'Exporting...' : 'Export'}
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
-                )}
-              </ButtonGroup>
-            </div>
+                  {hasResponses && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleExport}
+                      disabled={isExporting}
+                      tooltip={isExporting ? 'Exporting...' : 'Export'}
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  )}
+                </ButtonGroup>
+              }
+            />
           }
         >
           {responsesEntry &&

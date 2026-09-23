@@ -10,7 +10,7 @@ import {
   SurveyPublicationSelector,
 } from 'appAdmin/component/SurveyEditor'
 import { SurveyLanguageSelector } from 'appAdmin/component/SurveyEditor/SurveyLanguageSelector'
-import { SectionHeader } from 'component/SectionHeader'
+import { PageHeader } from 'component/PageHeader'
 import { usePageTitle } from 'hook'
 import {
   SurveyStatContainer,
@@ -110,10 +110,12 @@ export const PageSurveyEditStat: React.FC = () => {
       <SurveyPageContent
         showBackButton={false}
         pageHeader={
-          <SectionHeader
+          <PageHeader
             icon={BarChart3}
             title="Survey Statistics"
             description="View survey response statistics and analytics."
+            maxWidth="max-w-none"
+            showBack={false}
           />
         }
       >

@@ -24,7 +24,7 @@ import {
 } from 'appAdmin/component/SurveySnapshot'
 import { usePagination } from 'hook'
 import { usePageTitle, useSelection } from 'hook'
-import { SectionHeader } from 'component/SectionHeader'
+import { PageHeader } from 'component/PageHeader'
 
 export const PageSurveyEditSnapshot: React.FC = () => {
   const navigate = useNavigate()
@@ -123,10 +123,12 @@ export const PageSurveyEditSnapshot: React.FC = () => {
       <SurveyPageContent
         showBackButton={false}
         pageHeader={
-          <SectionHeader
+          <PageHeader
             icon={Camera}
             title="Survey Snapshots"
             description="View and manage published snapshots of your survey. Each snapshot represents a version of your survey at a specific point in time."
+            maxWidth="max-w-none"
+            showBack={false}
           />
         }
       >

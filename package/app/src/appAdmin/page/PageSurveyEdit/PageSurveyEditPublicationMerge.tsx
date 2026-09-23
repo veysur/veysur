@@ -20,7 +20,7 @@ import {
 } from 'appAdmin/component/SurveyEditor'
 import { MergePreview } from 'appAdmin/component/Merge/MergePreview'
 import { formatIncompatibility } from 'appAdmin/component/SurveyEditorPublish/CompatibilityStatus'
-import { SectionHeader } from 'component/SectionHeader'
+import { PageHeader } from 'component/PageHeader'
 import { usePageTitle } from 'hook'
 import {
   usePublicationList,
@@ -143,9 +143,11 @@ export const PageSurveyEditPublicationMerge: React.FC = () => {
       <SurveyPageContent
         backButtonUrl={`/survey/${surveyId}/publication`}
         pageHeader={
-          <SectionHeader
+          <PageHeader
             title={`Merge Responses into: ${targetPublication?.label || 'Publication'}`}
             description="Copy responses from a source publication to this publication. Answers that cannot be mapped will be skipped."
+            maxWidth="max-w-none"
+            showBack={false}
           />
         }
       >
