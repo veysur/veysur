@@ -271,6 +271,65 @@ export async function uploadPlatformFile(
   return uploadResult.fileId
 }
 
+export interface SurveyParticipantUploadResult {
+  fileId: string
+}
+
+/**
+ * Upload a file as the answer to a `fileUpload` survey question.
+ * `surveyId`, `snapshotId` and the caller's own in-progress response are all
+ * resolved server-side from the participant JWT (`authToken`) — this
+ * function only names the question and the file being answered with.
+ *
+ * @param apiClient - RestClient instance (unauthenticated by default; the
+ *   participant JWT is passed explicitly per-call, as with other
+ *   survey-taking requests, rather than set as a client default header)
+ * @param file - File object to upload
+ * @param questionCode - Code of the fileUpload question being answered
+ * @param authToken - Participant JWT
+ * @param onProgress - Optional progress callback
+ */
+export async function uploadSurveyParticipantFile(
+  apiClient: RestClient,
+  file: File,
+  questionCode: string,
+  authToken: string,
+  onProgress?: (progress: UploadProgress) => void,
+): Promise<SurveyParticipantUploadResult> {
+  const fileHash = await calculateFileHash(file)
+  const headers = { Authorization: `Bearer ${authToken}` }
+
+  const uploadResult = await apiClient.post<{
+    fileId: string
+    uploadUrl: string | null
+    existingFile: boolean
+  }>(
+    '/survey-participant-file/upload-url',
+    {
+      filename: file.name,
+      fileHash,
+      fileSize: file.size,
+      mimeType: file.type || 'application/octet-stream',
+      questionCode,
+    },
+    { headers },
+  )
+
+  if (uploadResult.existingFile || !uploadResult.uploadUrl) {
+    return { fileId: uploadResult.fileId }
+  }
+
+  await uploadFileToS3(uploadResult.uploadUrl, file, onProgress)
+
+  await apiClient.post(
+    `/survey-participant-file/${uploadResult.fileId}/confirm`,
+    {},
+    { headers },
+  )
+
+  return { fileId: uploadResult.fileId }
+}
+
 /**
  * Format bytes to human-readable string
  * @param bytes - Number of bytes

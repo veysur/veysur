@@ -7,6 +7,7 @@ export const KEY_STATE_SURVEY_PARTICIPANT_ATTRIBUTE_LIST =
   'surveyParticipantAttributeList'
 export const KEY_STATE_SURVEY_RESPONSE_LIST = 'surveyResponseList'
 export const KEY_STATE_SURVEY_RESPONSE_GET = 'surveyResponseGet'
+export const KEY_STATE_SURVEY_RESPONSE_FILES = 'surveyResponseFiles'
 export const KEY_STATE_SURVEY_STATS = 'surveyStats'
 export const KEY_STATE_SURVEY_SNAPSHOT_LIST = 'surveySnapshotList'
 export const KEY_STATE_SURVEY_SNAPSHOT_PUBLISHED = 'surveySnapshotPublished'

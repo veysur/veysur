@@ -13,6 +13,7 @@ import {
 import {
   useSurveyResponseGet,
   useSurveyResponseDelete,
+  useResponseFiles,
 } from 'appAdmin/component/SurveyResponse'
 import {
   ResponseViewHeader,
@@ -53,6 +54,11 @@ export const PageSurveyEditResponseView: React.FC = () => {
   const { snapshotData } = useSurveySnapshot(
     survey?._id || '',
     snapshotId || '',
+  )
+
+  const { files: responseFiles } = useResponseFiles(
+    survey?._id || '',
+    responseId || '',
   )
 
   const { surveyResponseDelete } = useSurveyResponseDelete(
@@ -161,6 +167,7 @@ export const PageSurveyEditResponseView: React.FC = () => {
               <AnswersSection
                 snapshotData={snapshotData ?? {}}
                 answers={response.answers as Record<string, unknown>}
+                files={responseFiles}
               />
             </div>
           </Accordion>

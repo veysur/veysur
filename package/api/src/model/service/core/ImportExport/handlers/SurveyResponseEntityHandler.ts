@@ -53,6 +53,8 @@ const NUMERIC_TYPES = new Set(['starRating', 'point5', 'point10', 'number'])
 
 const RANKING_TYPE = 'ranking'
 
+const FILE_UPLOAD_TYPE = 'fileUpload'
+
 /**
  * A column definition for a survey question / subquestion cell in the CSV.
  */
@@ -411,6 +413,16 @@ function serializeAnswerForColumn(
     return Array.isArray(order) ? order.join(',') : ''
   }
 
+  if (type === FILE_UPLOAD_TYPE) {
+    // CSV has no way to carry file bytes - export the referenced fileIds
+    // only (comma-joined), never the file content. CSV import is a one-way
+    // degradation: this column is read-only on export, and reimporting a
+    // fileUpload column is skipped (see deserializeAnswerValue) rather than
+    // attempting to attach a file from a bare id string.
+    const fileIds = asRecord(val)?.fileIds
+    return Array.isArray(fileIds) ? fileIds.join(',') : ''
+  }
+
   if (MULTIPLE_CHOICE_TYPES.has(type)) {
     const valRecord = asRecord(val)
     if (valRecord) {
@@ -527,6 +539,15 @@ function deserializeAnswerValue(
 
   // Simple question
   const type = colDef.questionType
+
+  if (type === FILE_UPLOAD_TYPE) {
+    // CSV import cannot attach files - a fileUpload column is a read-only
+    // export artefact (see serializeAnswerForColumn); silently skip it here
+    // rather than writing a bogus `{fileIds}`-shaped value from a raw id
+    // string, or the answer's stored fileIds. Only `.vssp`/`.vssa` import
+    // restores actual files.
+    return
+  }
 
   if (type === RANKING_TYPE) {
     const codes = value

@@ -18,7 +18,12 @@ import {
 } from 'veysur-common'
 import { generateSurveyLanguageHash } from 'veysur-common/util/generateSurveyHash'
 
-import { createStorageAdaptor, contextForProject } from 'common'
+import {
+  createStorageAdaptor,
+  contextForProject,
+  generateFilePath,
+  generateStoredFilename,
+} from 'common'
 import {
   RepoSurveyLanguageSnapshot,
   RepoSurveyParticipantAttributeSnapshot,
@@ -44,6 +49,7 @@ import {
   RawJson,
   ResolvedImportContext,
   ResponseBatchEnvelope,
+  ResponseFileManifestEntry,
   StructuralSurveyJson,
 } from './types'
 import { SnapshotDataRemapper, SnapshotDataJson } from './SnapshotDataRemapper'
@@ -92,6 +98,7 @@ export class VsspImportPersister {
       resolvedPublicationId,
       fileResolutions,
       imageSetIdMap,
+      responseFileEntries = [],
       parsedData,
     } = data
 
@@ -125,9 +132,10 @@ export class VsspImportPersister {
           resolvedPublicationId,
           fileResolutions,
           remappedSnapshotData,
+          responseFileEntries,
           parsedData,
         },
-        { userId, dsContext },
+        { userId, dsContext, projectId },
       ))
     })
 
@@ -168,6 +176,122 @@ export class VsspImportPersister {
     }
   }
 
+  /**
+   * Remaps fileUpload-question answer fileIds in `answers` from their
+   * source-archive ids to ids valid in the importing project/survey,
+   * creating a `File` record (and copying its bytes) for each one not
+   * already present. Dedup is scoped to `(surveyId, hash, fileContext:
+   * 'response')` — deliberately broader than the per-response scoping
+   * `ServiceFileUpload` uses at upload time, so a re-import of the same
+   * archive (or a file whose bytes match one already imported for a
+   * different response in this survey) reuses the existing record rather
+   * than creating a duplicate. Returns `undefined` when there is nothing to
+   * remap, so the caller can fall back to the original `answers` unchanged.
+   */
+  private async persistResponseFiles(
+    answers: Record<string, unknown> | undefined,
+    responseFileEntries: ResponseFileManifestEntry[],
+    resolvedSurveyId: string,
+    newResponseId: string,
+    ctx: {
+      userId: string
+      dsContext: DataSourceContext
+      projectId: string
+      parsedData: EntityParsedData
+    },
+  ): Promise<Record<string, unknown> | undefined> {
+    if (!answers || !this.repoFile || !this.storageConfig) return undefined
+
+    const referencedIds = new Set<string>()
+    for (const value of Object.values(answers)) {
+      const fileIds = (value as { fileIds?: unknown } | null)?.fileIds
+      if (Array.isArray(fileIds)) {
+        for (const id of fileIds) if (typeof id === 'string') referencedIds.add(id)
+      }
+    }
+    if (referencedIds.size === 0) return undefined
+
+    const entryById = new Map(
+      responseFileEntries.map((entry) => [entry.fileId, entry]),
+    )
+    const { userId, dsContext, projectId, parsedData } = ctx
+    const adaptor = createStorageAdaptor(this.storageConfig)
+    const resolvedIdMap: Record<string, string> = {}
+
+    for (const oldFileId of referencedIds) {
+      const entry = entryById.get(oldFileId)
+      if (!entry) continue // not a bundled file — leave the id as-is
+
+      const existing = await this.repoFile.findOne(
+        {
+          surveyId: resolvedSurveyId,
+          hash: entry.hash,
+          fileContext: 'response',
+          deletedAt: null,
+        },
+        { context: dsContext },
+      )
+      if (existing) {
+        resolvedIdMap[oldFileId] = existing._id
+        continue
+      }
+
+      const newFileId = MzenId()
+      const storedFilename = generateStoredFilename(
+        entry.filename,
+        entry.hash ?? newFileId,
+      )
+      const newFilePath = generateFilePath(projectId, storedFilename, {
+        surveyId: resolvedSurveyId,
+        responseId: newResponseId,
+        fileContext: 'response',
+      })
+
+      const tempKey = parsedData.getBinaryS3Key(entry.zipPath)
+      if (tempKey) {
+        await adaptor.copyObject({
+          Bucket: this.storageConfig.publicBucket,
+          Key: newFilePath,
+          CopySource: `${this.storageConfig.privateBucket}/${tempKey}`,
+          ContentType: entry.mimeType,
+        })
+      }
+
+      await this.repoFile.create(
+        new File({
+          _id: newFileId,
+          filename: entry.filename,
+          storedFilename,
+          hash: entry.hash,
+          size: entry.size,
+          mimeType: entry.mimeType,
+          filePath: newFilePath,
+          uploadedAt: new Date(),
+          createdById: userId,
+          surveyId: resolvedSurveyId,
+          responseId: newResponseId,
+          fileContext: 'response',
+          bucketType: 'public',
+        }),
+        { context: dsContext },
+      )
+      resolvedIdMap[oldFileId] = newFileId
+    }
+
+    const remapped: Record<string, unknown> = { ...answers }
+    for (const [code, value] of Object.entries(answers)) {
+      const fileIds = (value as { fileIds?: unknown } | null)?.fileIds
+      if (!Array.isArray(fileIds)) continue
+      remapped[code] = {
+        ...(value as Record<string, unknown>),
+        fileIds: fileIds.map((id) =>
+          typeof id === 'string' ? (resolvedIdMap[id] ?? id) : id,
+        ),
+      }
+    }
+    return remapped
+  }
+
   private buildFileIdMap(
     fileResolutions: FileResolution[],
   ): Record<string, { newFileId: string; newFilePath: string }> {
@@ -202,9 +326,10 @@ export class VsspImportPersister {
       resolvedPublicationId: string
       fileResolutions: FileResolution[]
       remappedSnapshotData: SnapshotDataJson
+      responseFileEntries: ResponseFileManifestEntry[]
       parsedData: EntityParsedData
     },
-    ctx: { userId: string; dsContext: DataSourceContext },
+    ctx: { userId: string; dsContext: DataSourceContext; projectId: string },
   ): Promise<{ hadResponseIdCollision: boolean }> {
     const {
       createSurvey,
@@ -221,9 +346,10 @@ export class VsspImportPersister {
       resolvedPublicationId,
       fileResolutions,
       remappedSnapshotData,
+      responseFileEntries,
       parsedData,
     } = payload
-    const { userId, dsContext } = ctx
+    const { userId, dsContext, projectId } = ctx
 
     if (createSurvey) {
       const sectionIdMap: Record<string, string> = {}
@@ -476,6 +602,14 @@ export class VsspImportPersister {
             responseData.participantId)
           : null
 
+        const remappedAnswers = await this.persistResponseFiles(
+          responseData.answers as Record<string, unknown> | undefined,
+          responseFileEntries,
+          resolvedSurveyId,
+          newId,
+          { userId, dsContext, projectId, parsedData },
+        )
+
         const response = new SurveyResponse({
           ...responseData,
           _id: newId,
@@ -484,6 +618,7 @@ export class VsspImportPersister {
           publicationId: resolvedPublicationId,
           participantId: newParticipantId,
           participant: undefined,
+          answers: remappedAnswers ?? responseData.answers,
         })
         await this.repoSurveyResponse.insertOne(response, {
           context: dsContext,

@@ -30,6 +30,7 @@ import {
   QUESTION_TYPE_MULTI_PART_STAR_RATING,
   QUESTION_TYPE_MULTI_PART_POINT_5,
   QUESTION_TYPE_MULTI_PART_POINT_10,
+  QUESTION_TYPE_FILE_UPLOAD,
 } from 'veysur-common'
 
 const questionTypeRegistry = {
@@ -170,6 +171,11 @@ const questionTypeRegistry = {
   [QUESTION_TYPE_MULTI_PART_POINT_10]: lazy(() =>
     import('./QuestionTypeMultiPart').then((m) => ({
       default: m.QuestionTypeMultiPart,
+    })),
+  ),
+  [QUESTION_TYPE_FILE_UPLOAD]: lazy(() =>
+    import('./QuestionTypeFileUpload').then((m) => ({
+      default: m.QuestionTypeFileUpload,
     })),
   ),
 }

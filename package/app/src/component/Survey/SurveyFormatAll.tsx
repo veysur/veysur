@@ -33,6 +33,7 @@ type Props = {
   getContentExpressionContext: (elementId: string) => ExpressionContext
   onAnswerChange: (questionCode: string, value: unknown) => void
   validationErrors: ValidationErrors
+  authToken?: string
 }
 
 const sectionOf = (item: SurveyRenderItem): SurveySection =>
@@ -51,6 +52,7 @@ export const SurveyFormatAll: React.FC<Props> = ({
   getContentExpressionContext,
   onAnswerChange,
   validationErrors,
+  authToken,
 }) => {
   // Global question number = position among questions only (content elements
   // never consume a number).
@@ -113,6 +115,7 @@ export const SurveyFormatAll: React.FC<Props> = ({
                     getExpressionContext={getQuestionExpressionContext}
                     onAnswerChange={onAnswerChange}
                     validationErrors={validationErrors}
+                    authToken={authToken}
                   />
                 )
               })}

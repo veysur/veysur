@@ -30,6 +30,11 @@ export const RANKING_ORDER_KEY = 'ORDER'
 export const ATTRIBUTE_QUESTION_NUMBER_MIN_MAX = 'numberMinMax'
 export const ATTRIBUTE_QUESTION_NUMBER_NEG_ALLOWED = 'numberNegAllowed'
 
+// File upload attributes
+export const ATTRIBUTE_QUESTION_FILE_UPLOAD_OPTIONS = 'fileUploadOptions'
+export const FILE_UPLOAD_MAX_FILE_SIZE_CEILING = 100 * 1024 * 1024 // 100MB
+export const FILE_UPLOAD_DEFAULT_MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+
 // Condition attribute (for groups and questions)
 export const ATTRIBUTE_CONDITION = 'condition'
 

@@ -11,7 +11,10 @@ import {
   FormatFileEntry,
   EntityEmbeddedFileManifestEntry,
 } from '../../EntityHandlerInterface'
-import { RawJson } from '../SurveyPublicationEntityHandler/types'
+import {
+  RawJson,
+  ResponseFileManifestEntry,
+} from '../SurveyPublicationEntityHandler/types'
 import { buildStructuralSurveyJson } from '../util/buildStructuralSurveyJson'
 import { SurveyEntityHandler } from '../SurveyEntityHandler'
 import {
@@ -55,6 +58,7 @@ export class VssaExportCollector {
     const allFileEntries: EntityEmbeddedFileManifestEntry[] = [
       ...(surveyData.embeddedFileEntries ?? []),
     ]
+    const allResponseFileEntries: ResponseFileManifestEntry[] = []
 
     const entries: FormatFileEntry[] = [
       {
@@ -105,6 +109,7 @@ export class VssaExportCollector {
         responseEntries: FormatFileEntry[]
         publicationId: string
         embeddedFileEntries: EntityEmbeddedFileManifestEntry[]
+        responseFileEntries?: ResponseFileManifestEntry[]
       }
 
       entries.push({
@@ -150,6 +155,11 @@ export class VssaExportCollector {
           allFileEntries.push(entry)
         }
       }
+
+      // Response files are per-response and per-fileId unique already
+      // (never shared across publications), so no dedup keying is needed
+      // here, unlike the image-set entries above.
+      allResponseFileEntries.push(...(pubData.responseFileEntries ?? []))
     }
 
     if (allFileEntries.length > 0) {
@@ -167,15 +177,31 @@ export class VssaExportCollector {
       }
     }
 
+    if (allResponseFileEntries.length > 0) {
+      const responseManifest = {
+        version: '1.0',
+        files: allResponseFileEntries,
+      }
+      entries.push({
+        filename: 'files/response-manifest.json',
+        content: JSON.stringify(responseManifest, null, 2),
+      })
+      for (const entry of allResponseFileEntries) {
+        entries.push({
+          filename: entry.zipPath,
+          size: entry.size,
+          stream: this.makeBinaryFileStream(entry),
+        })
+      }
+    }
+
     return {
       entries,
       cleanup: async () => {},
     }
   }
 
-  private makeBinaryFileStream(
-    entry: EntityEmbeddedFileManifestEntry,
-  ): () => Promise<Readable> {
+  private makeBinaryFileStream(entry: { s3Key: string }): () => Promise<Readable> {
     return async () => {
       const adaptor = createStorageAdaptor(this.storageConfig)
       try {

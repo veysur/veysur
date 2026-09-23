@@ -7,6 +7,7 @@ export {
   useSurveyResponseUpdate,
   useSurveyPageFilters,
   useExportSurveyResponseCsv,
+  useResponseFiles,
 } from './hook'
 export { useResponseFilter } from './hook/useResponseFilter'
 export type { Publication } from './hook/useResponseFilter'

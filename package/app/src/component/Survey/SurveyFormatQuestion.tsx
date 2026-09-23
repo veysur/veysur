@@ -34,6 +34,7 @@ type Props = {
   getContentExpressionContext: (elementId: string) => ExpressionContext
   onAnswerChange: (questionCode: string, value: unknown) => void
   validationErrors: ValidationErrors
+  authToken?: string
 }
 
 const sectionOf = (item: SurveyRenderItem): SurveySection =>
@@ -53,6 +54,7 @@ export const SurveyFormatQuestion: React.FC<Props> = ({
   getContentExpressionContext,
   onAnswerChange,
   validationErrors,
+  authToken,
 }) => {
   const currentItem = allElements[currentQuestionIndex]
   if (!currentItem) return null
@@ -106,6 +108,7 @@ export const SurveyFormatQuestion: React.FC<Props> = ({
             getExpressionContext={getQuestionExpressionContext}
             onAnswerChange={onAnswerChange}
             validationErrors={validationErrors}
+            authToken={authToken}
           />
         )}
       </div>

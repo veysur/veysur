@@ -11,6 +11,7 @@ import {
   QUESTION_TYPE_IMAGE_SELECT,
   QUESTION_TYPE_NUMBER,
   QUESTION_TYPE_RANKING,
+  QUESTION_TYPE_FILE_UPLOAD,
   SurveyAttributes,
 } from '../constructor/Survey/attributeMeta/types'
 import {
@@ -130,7 +131,8 @@ export function buildEntityValidateConfig(
   if (
     Boolean(entity.attributes?.required) &&
     !isMatrixQuestionType(entity.type) &&
-    !isMultiPartQuestionType(entity.type)
+    !isMultiPartQuestionType(entity.type) &&
+    entity.type !== QUESTION_TYPE_FILE_UPLOAD
   ) {
     // `required` catches an undefined answer, `notEmpty` catches an empty
     // string — both builtin validators accept a non-string `message`, which
@@ -223,7 +225,18 @@ function getValidationType(
   if (isMatrixQuestionType(question.type)) return Object
   if (isMultiPartQuestionType(question.type)) return Object
   if (question.type === QUESTION_TYPE_NUMBER) return Number
+  if (question.type === QUESTION_TYPE_FILE_UPLOAD) return Object
   return String
+}
+
+/** A fileUpload answer is stored as `{fileIds: string[]}`, always an array
+ * even when the question's maxFileCount is 1. */
+export function getFileUploadAnswerFileIds(value: unknown): string[] {
+  if (!value || typeof value !== 'object') return []
+  const fileIds = (value as { fileIds?: unknown }).fileIds
+  return Array.isArray(fileIds)
+    ? fileIds.filter((id): id is string => typeof id === 'string')
+    : []
 }
 
 function getMultiPartPartValidationType(
@@ -355,6 +368,21 @@ export class SurveyResponseValidator {
         const num = Number(value)
         if (!isNaN(num) && num < 0) {
           questionErrors.push({ key: 'validation.numberNegative' })
+        }
+      }
+
+      // Direct: fileUpload required + maxFileCount
+      // Mime type and per-file size are enforced at upload time, not here.
+      if (question.type === QUESTION_TYPE_FILE_UPLOAD) {
+        const fileIds = getFileUploadAnswerFileIds(value)
+        if (Boolean(question.attributes?.required) && fileIds.length === 0) {
+          questionErrors.push({ key: 'validation.required' })
+        }
+        const maxFileCount = question.attributes?.fileUploadOptions?.maxFileCount
+        if (maxFileCount && fileIds.length > maxFileCount) {
+          questionErrors.push(
+            buildCountLimitError('validation.fileCount', 0, maxFileCount),
+          )
         }
       }
 

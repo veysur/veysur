@@ -1,4 +1,4 @@
-// cspell:ignore JDOC
+// cspell:ignore JDOC msword wordprocessingml spreadsheetml presentationml
 
 export const SCHEMA_LENGTH_MAX_INPUT = 255
 // A survey element's `text` L10n value per language. Covers a question prompt
@@ -98,4 +98,14 @@ export const ALLOWED_FILE_MIME_TYPES = [
   'image/webp',
   'text/csv',
   'application/octet-stream',
+  // Documents allowed for participant file-upload question answers. PDF and
+  // Office formats are not browser-executable (unlike text/html or
+  // image/svg+xml), so they don't violate the constraint documented above.
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.ms-powerpoint',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
 ]

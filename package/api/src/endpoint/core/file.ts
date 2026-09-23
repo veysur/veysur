@@ -192,6 +192,16 @@ export const fileConfig = {
         projectId: { src: 'header', srcPath: 'X-Project-Id', required: true },
         page: { src: 'query', default: 1 },
         perPage: { src: 'query', default: 50 },
+        requestHost: {
+          src: 'header',
+          srcPath: 'X-Forwarded-Host',
+          required: false,
+        },
+        requestProto: {
+          src: 'header',
+          srcPath: 'X-Forwarded-Proto',
+          required: false,
+        },
       },
       acl: {
         rules: [{ allow: true, role: 'projectAdmin' }],

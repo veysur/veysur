@@ -1,7 +1,8 @@
 import { Readable } from 'stream'
+import { extname } from 'path'
 
 import { DataSourceContext } from 'mzen-om'
-import { ServerErrorNotFound } from 'mzen-server'
+import { ServerErrorBadRequest, ServerErrorNotFound } from 'mzen-server'
 import { SurveySnapshot, SurveyLanguageSnapshot } from 'veysur-common'
 
 import { createStorageAdaptor, contextForProject } from 'common'
@@ -24,8 +25,14 @@ import {
   FormatFileEntry,
 } from '../../EntityHandlerInterface'
 import { collectReferencedFileIds } from '../util/collectReferencedFileIds'
+import { collectResponseFileIds } from '../util/collectResponseFileIds'
 import { buildResponseEnvelope } from '../util/buildResponseEnvelope'
 import { RESPONSE_EXPORT_BATCH_SIZE } from '../util/responseExportBatch'
+import {
+  MAX_RESPONSE_EXPORT_FILE_COUNT,
+  MAX_RESPONSE_EXPORT_TOTAL_SIZE,
+} from '../util/responseFileExportLimits'
+import { ResponseFileManifestEntry } from './types'
 
 export class VsspExportCollector {
   constructor(
@@ -72,6 +79,7 @@ export class VsspExportCollector {
     }
 
     const responseEntries: FormatFileEntry[] = []
+    const referencedResponseFileIds = new Set<string>()
     let skip = 0
     let batchIndex = 0
     while (true) {
@@ -101,6 +109,13 @@ export class VsspExportCollector {
           2,
         ),
       })
+      for (const response of batch) {
+        for (const fileId of collectResponseFileIds(
+          response.answers as Record<string, unknown>,
+        )) {
+          referencedResponseFileIds.add(fileId)
+        }
+      }
       if (batch.length < RESPONSE_EXPORT_BATCH_SIZE) break
       skip += RESPONSE_EXPORT_BATCH_SIZE
     }
@@ -132,6 +147,10 @@ export class VsspExportCollector {
       surveyLanguageSnapshots,
       dsContext,
     )
+    const responseFileEntries = await this.collectResponseFileEntries(
+      referencedResponseFileIds,
+      dsContext,
+    )
 
     return {
       publication,
@@ -143,12 +162,11 @@ export class VsspExportCollector {
       responseEntries,
       publicationId: options.publicationId,
       embeddedFileEntries,
+      responseFileEntries,
     }
   }
 
-  makeBinaryFileStream(
-    entry: EntityEmbeddedFileManifestEntry,
-  ): () => Promise<Readable> {
+  makeBinaryFileStream(entry: { s3Key: string }): () => Promise<Readable> {
     return async () => {
       const adaptor = createStorageAdaptor(this.storageConfig)
       try {
@@ -206,6 +224,50 @@ export class VsspExportCollector {
           imageVariant: variant.imageVariant as 'original' | 'edited' | 'thumb',
         })
       }
+    }
+
+    return entries
+  }
+
+  private async collectResponseFileEntries(
+    referencedFileIds: Set<string>,
+    dsContext: DataSourceContext,
+  ): Promise<ResponseFileManifestEntry[]> {
+    if (!this.repoFile || referencedFileIds.size === 0) return []
+
+    if (referencedFileIds.size > MAX_RESPONSE_EXPORT_FILE_COUNT) {
+      throw new ServerErrorBadRequest({
+        message: `This export would bundle ${referencedFileIds.size} response files, exceeding the ${MAX_RESPONSE_EXPORT_FILE_COUNT} limit for a single export. Contact support to arrange an alternative.`,
+      })
+    }
+
+    const entries: ResponseFileManifestEntry[] = []
+    let totalSize = 0
+
+    for (const fileId of referencedFileIds) {
+      const file = await this.repoFile.findOne(
+        { _id: fileId, deletedAt: null },
+        { context: dsContext },
+      )
+      if (!file) continue
+
+      totalSize += file.size ?? 0
+      if (totalSize > MAX_RESPONSE_EXPORT_TOTAL_SIZE) {
+        throw new ServerErrorBadRequest({
+          message: `This export's response files exceed the ${MAX_RESPONSE_EXPORT_TOTAL_SIZE} byte total size limit for a single export. Contact support to arrange an alternative.`,
+        })
+      }
+
+      const ext = extname(file.filename) || ''
+      entries.push({
+        fileId: file._id,
+        filename: file.filename,
+        s3Key: file.filePath,
+        mimeType: file.mimeType,
+        hash: file.hash,
+        size: file.size,
+        zipPath: `files/response/${file._id}${ext}`,
+      })
     }
 
     return entries

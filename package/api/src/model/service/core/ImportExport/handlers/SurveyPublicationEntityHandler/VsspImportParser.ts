@@ -5,7 +5,7 @@ import { ServerErrorBadRequest } from 'mzen-server'
 import { EntityEmbeddedFileManifestEntry } from '../../EntityHandlerInterface'
 import { FormatHandlerInterface } from '../../format/FormatHandlerInterface'
 import { ArchiveReader } from '../../format/ArchiveReader'
-import { RawJson, VsspParsedBundle } from './types'
+import { RawJson, ResponseFileManifestEntry, VsspParsedBundle } from './types'
 
 export class VsspImportParser {
   async parse(
@@ -47,6 +47,15 @@ export class VsspImportParser {
       embeddedFileEntries = manifest.files ?? []
     }
 
+    let responseFileEntries: ResponseFileManifestEntry[] = []
+    const responseManifest = reader.getJson<{
+      version: string
+      files: ResponseFileManifestEntry[]
+    }>('files/response-manifest.json')
+    if (responseManifest) {
+      responseFileEntries = responseManifest.files ?? []
+    }
+
     return {
       publication,
       snapshotData,
@@ -54,6 +63,7 @@ export class VsspImportParser {
       surveyLanguageSnapshots,
       responseBatchKeys,
       embeddedFileEntries,
+      responseFileEntries,
       parsedData: reader,
     }
   }

@@ -57,6 +57,7 @@ type VssaValidatedData = {
   snapshotLanguagesMap: VssaParsedData['snapshotLanguagesMap']
   publications: VssaPublicationBundle[]
   embeddedFileEntries: VssaParsedData['embeddedFileEntries']
+  responseFileEntries: VssaParsedData['responseFileEntries']
   force: boolean
 }
 
@@ -193,6 +194,7 @@ export class SurveyFullEntityHandler implements EntityHandlerInterface {
       participantAttributes,
       emailTemplates,
       embeddedFileEntries,
+      responseFileEntries,
       parsedData,
     } = data
 
@@ -235,6 +237,7 @@ export class SurveyFullEntityHandler implements EntityHandlerInterface {
         snapshotLanguagesMap: data.snapshotLanguagesMap,
         publications: data.publications,
         embeddedFileEntries,
+        responseFileEntries,
         force: options.force ?? false,
       },
     }
@@ -251,6 +254,7 @@ export class SurveyFullEntityHandler implements EntityHandlerInterface {
       snapshotLanguagesMap,
       publications,
       embeddedFileEntries,
+      responseFileEntries,
       force,
     } = data as VssaValidatedData
 
@@ -278,6 +282,7 @@ export class SurveyFullEntityHandler implements EntityHandlerInterface {
             snapshotLanguagesMap?.get(pub.snapshotId) ?? [],
           responseBatchKeys: pub.responseBatchKeys,
           embeddedFileEntries,
+          responseFileEntries,
           parsedData,
         }
 

@@ -31,6 +31,9 @@ export type QuestionTypeProps = {
    * `SurveyQuestionRenderer`'s `expressionContext`, which this is the same
    * value as (already scoped to earlier-answered questions only). */
   expressionContext?: ExpressionContext
+  /** Participant JWT - only `QuestionTypeFileUpload` uses it, to call the
+   * participant file-upload endpoints. Undefined in admin preview. */
+  authToken?: string
 }
 
 /**

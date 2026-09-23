@@ -41,6 +41,9 @@ type Props = {
   getExpressionContext: (questionId: string) => ExpressionContext
   onAnswerChange: (questionCode: string, value: unknown) => void
   validationErrors: { [questionCode: string]: ValidationMessage[] | undefined }
+  /** Participant JWT, forwarded to `QuestionTypeFileUpload` for its upload
+   * calls - undefined in admin preview, where no real upload is possible. */
+  authToken?: string
 }
 
 export const SurveyQuestionRenderer: React.FC<Props> = ({
@@ -56,6 +59,7 @@ export const SurveyQuestionRenderer: React.FC<Props> = ({
   getExpressionContext,
   onAnswerChange,
   validationErrors,
+  authToken,
 }) => {
   // Stable, pre-registered component reference from a module-level
   // registry keyed by question type - not created during render.
@@ -144,6 +148,7 @@ export const SurveyQuestionRenderer: React.FC<Props> = ({
                 onAnswerChange(question.code, value)
               }
               expressionContext={expressionContext}
+              authToken={authToken}
             />
           </Suspense>
         </div>

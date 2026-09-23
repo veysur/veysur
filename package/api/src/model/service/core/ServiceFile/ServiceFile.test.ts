@@ -140,7 +140,14 @@ describe('ServiceFile', () => {
 
   describe('getFilesForResponse', () => {
     test('should call repo.findByResponse with correct parameters', async () => {
-      const mockFiles = [{ _id: 'file_1', responseId: 'resp_456' }] as File[]
+      const mockFiles = [
+        new File({
+          _id: 'file_1',
+          responseId: 'resp_456',
+          filePath: 'proj_123/file_1.pdf',
+          bucketType: 'public',
+        }),
+      ]
 
       mockRepoFile.findByResponse.mockResolvedValue({
         files: mockFiles,
@@ -166,7 +173,9 @@ describe('ServiceFile', () => {
           context: expect.any(Object),
         }),
       )
-      expect(result.files).toEqual(mockFiles)
+      expect(result.files).toEqual([
+        expect.objectContaining({ _id: 'file_1', url: expect.any(String) }),
+      ])
       expect(result.pagination.total).toBe(1)
     })
   })

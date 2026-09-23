@@ -20,6 +20,15 @@ export interface FileListResponse {
   }
 }
 
+export interface ResponseFile extends FileModel {
+  url: string
+}
+
+export interface ResponseFileListResponse {
+  files: ResponseFile[]
+  pagination: FileListResponse['pagination']
+}
+
 export interface FileSoftDeleteResult {
   success: boolean
   file: FileModel
@@ -133,6 +142,31 @@ export class FileApi extends Api {
         fileId: result.fileId,
         existingFile: result.existingFile,
       }
+    } catch (error) {
+      throw ErrorRest.fromRequestError(error as Error)
+    }
+  }
+
+  /**
+   * List files uploaded by a participant for a single response (fileUpload
+   * question answers), each with a resolved public download `url`.
+   */
+  async getFilesForResponse(
+    projectId: string,
+    jwtToken: string,
+    surveyId: string,
+    responseId: string,
+  ): Promise<ResponseFileListResponse> {
+    try {
+      return await this.getClient().get<ResponseFileListResponse>(
+        `/file/survey/${surveyId}/response/${responseId}`,
+        {
+          headers: {
+            'X-Project-Id': projectId,
+            Authorization: `Bearer ${jwtToken}`,
+          },
+        },
+      )
     } catch (error) {
       throw ErrorRest.fromRequestError(error as Error)
     }

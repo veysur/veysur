@@ -741,6 +741,7 @@ export const Survey: React.FC<Props> = ({
             getGroupExpressionContext={getGroupExpressionContext}
             getContentExpressionContext={getContentExpressionContext}
             validationErrors={validationErrors}
+            authToken={authToken}
           />
         )
       case 'question':
@@ -761,6 +762,7 @@ export const Survey: React.FC<Props> = ({
             getGroupExpressionContext={getGroupExpressionContext}
             getContentExpressionContext={getContentExpressionContext}
             validationErrors={validationErrors}
+            authToken={authToken}
           />
         )
       case 'all':
@@ -781,6 +783,7 @@ export const Survey: React.FC<Props> = ({
             getGroupExpressionContext={getGroupExpressionContext}
             getContentExpressionContext={getContentExpressionContext}
             validationErrors={validationErrors}
+            authToken={authToken}
           />
         )
     }

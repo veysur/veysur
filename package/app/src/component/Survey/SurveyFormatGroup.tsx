@@ -33,6 +33,7 @@ type Props = {
   getContentExpressionContext: (elementId: string) => ExpressionContext
   onAnswerChange: (questionCode: string, value: unknown) => void
   validationErrors: ValidationErrors
+  authToken?: string
 }
 
 const sectionOf = (item: SurveyRenderItem): SurveySection =>
@@ -52,6 +53,7 @@ export const SurveyFormatGroup: React.FC<Props> = ({
   getContentExpressionContext,
   onAnswerChange,
   validationErrors,
+  authToken,
 }) => {
   const questionOrder = new Map(
     allElements
@@ -114,6 +116,7 @@ export const SurveyFormatGroup: React.FC<Props> = ({
               getExpressionContext={getQuestionExpressionContext}
               onAnswerChange={onAnswerChange}
               validationErrors={validationErrors}
+              authToken={authToken}
             />
           )
         })}

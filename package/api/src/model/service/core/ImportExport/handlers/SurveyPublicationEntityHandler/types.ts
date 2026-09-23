@@ -3,6 +3,24 @@ import {
   EntityParsedData,
 } from '../../EntityHandlerInterface'
 
+/**
+ * Metadata for a single participant-uploaded fileUpload-question answer file
+ * embedded in a `.vssp`/`.vssa` archive. Kept separate from
+ * `EntityEmbeddedFileManifestEntry` (which is shaped around the answer-option
+ * image-set model — required `imageSetId`/`imageVariant`/`answerOptionId`)
+ * rather than widening that shared type, since a response file has none of
+ * those concepts and touching it risks the well-exercised image import path.
+ */
+export type ResponseFileManifestEntry = {
+  fileId: string
+  filename: string
+  s3Key: string
+  mimeType: string
+  hash: string | null
+  size: number
+  zipPath: string // 'files/response/${fileId}${ext}'
+}
+
 export type FileResolution = {
   manifestEntry?: EntityEmbeddedFileManifestEntry | null
   existingFileId: string | null
@@ -70,6 +88,7 @@ export type VsspParsedBundle = {
   surveyParticipantAttributeLanguageSnapshots?: RawJson[]
   responseBatchKeys: string[]
   embeddedFileEntries: EntityEmbeddedFileManifestEntry[]
+  responseFileEntries?: ResponseFileManifestEntry[]
   parsedData: EntityParsedData
 }
 

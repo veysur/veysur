@@ -19,6 +19,7 @@ import {
   ATTRIBUTE_CONDITION,
   ATTRIBUTE_MATRIX_ORIENTATION,
   ATTRIBUTE_QUESTION_COLUMNS,
+  ATTRIBUTE_QUESTION_FILE_UPLOAD_OPTIONS,
 } from 'veysur-common'
 
 import { ATTRIBUTE_CONTENT_TYPE } from '../constant'
@@ -37,6 +38,7 @@ import {
   InputSizeSelect,
   ImageColumnsSelect,
   Dropdown,
+  FileUploadOptions,
 } from '../../SurveyAttribute'
 
 /**
@@ -65,4 +67,5 @@ export const attributeComponentMap = {
   [ATTRIBUTE_CONDITION]: ConditionEditor,
   [ATTRIBUTE_MATRIX_ORIENTATION]: Dropdown,
   [ATTRIBUTE_QUESTION_COLUMNS]: ImageColumnsSelect,
+  [ATTRIBUTE_QUESTION_FILE_UPLOAD_OPTIONS]: FileUploadOptions,
 } as const

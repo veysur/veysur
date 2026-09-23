@@ -61,6 +61,7 @@ export const QUESTION_TYPE_MULTI_PART_YES_NO = 'multiPartYesNo'
 export const QUESTION_TYPE_MULTI_PART_STAR_RATING = 'multiPartStarRating'
 export const QUESTION_TYPE_MULTI_PART_POINT_5 = 'multiPartPoint5'
 export const QUESTION_TYPE_MULTI_PART_POINT_10 = 'multiPartPoint10'
+export const QUESTION_TYPE_FILE_UPLOAD = 'fileUpload'
 
 /**
  * Union type of all valid question types
@@ -100,6 +101,7 @@ export type QuestionType =
   | typeof QUESTION_TYPE_MULTI_PART_STAR_RATING
   | typeof QUESTION_TYPE_MULTI_PART_POINT_5
   | typeof QUESTION_TYPE_MULTI_PART_POINT_10
+  | typeof QUESTION_TYPE_FILE_UPLOAD
   | string
 
 /**
@@ -153,7 +155,19 @@ export interface SurveyAttributes {
   choiceFormat?: string
   /** ATTRIBUTE_QUESTION_COLUMNS */
   columns?: number
+  /** ATTRIBUTE_QUESTION_FILE_UPLOAD_OPTIONS */
+  fileUploadOptions?: FileUploadOptions
   [key: string]: AttributeValue
+}
+
+/**
+ * Shape of the fileUploadOptions attribute on a fileUpload question:
+ * admin-configured limits enforced server-side on participant uploads.
+ */
+export interface FileUploadOptions {
+  maxFileSize: number
+  allowedMimeTypes: string[]
+  maxFileCount: number
 }
 
 /**

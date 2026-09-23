@@ -225,8 +225,30 @@ Environment variables in `package/api/src/config/default.ts`:
 
 ## Security
 
-- All file operations require `projectAdmin` role
+- All `/file/*` operations require `projectAdmin` role
 - Project isolation enforced by routing to the project's own database (`X-Project-Id` → `DataSourceContext`) — the `File` collection has no `projectId` field
 - File URLs are public once uploaded (nginx doesn't check auth)
+
+### Participant-writable exception: `fileUpload` question answers
+
+`/survey-participant-file/*` (`ServiceSurveyParticipantFile`) is the one file-upload path
+open to the `participant` role, for a `fileUpload` question's answer. It never trusts a
+client-supplied `surveyId`/`responseId`/`projectId` — every scoping identifier is taken
+from `aclContext`, which the participant ACL role assessor populates from the verified
+participant JWT (mirroring `ServiceSurveyParticipantResponse`). The service:
+
+- Resolves the caller's own in-progress response by `(surveyId, snapshotId,
+  participantId | sessionId)` from the JWT — never by a client-passed `responseId` — and
+  requires it already exist (created by a prior `saveSurveyParticipantResponse` call).
+- Loads the target question's `fileUploadOptions` attribute (`maxFileSize`,
+  `allowedMimeTypes`, `maxFileCount`) from the survey snapshot and enforces them
+  server-side, in addition to `ServiceFileUpload`'s project storage quota check.
+- On confirm, re-verifies the file belongs to the caller's own response (looked up by
+  `fileId` → `file.responseId` → a response query scoped by the JWT's own identity) before
+  delegating to `ServiceFileUpload.confirmUpload`, so a participant can never confirm (and
+  thereby reference) a file uploaded against someone else's response even by guessing a
+  `fileId`.
+
+See `/package/api/src/model/service/core/ServiceSurveyParticipantFile.ts`.
 - S3 credentials marked as private in schema
 - Use presigned URLs for all client-side operations

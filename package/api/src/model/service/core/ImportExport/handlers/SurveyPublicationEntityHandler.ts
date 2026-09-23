@@ -34,6 +34,7 @@ import { VsspImportPersister } from './SurveyPublicationEntityHandler/VsspImport
 import {
   RawJson,
   ResolvedImportContext,
+  ResponseFileManifestEntry,
   VsspParsedBundle,
 } from './SurveyPublicationEntityHandler/types'
 
@@ -125,6 +126,7 @@ export class SurveyPublicationEntityHandler implements EntityHandlerInterface {
       responseEntries,
       publicationId: _publicationId,
       embeddedFileEntries,
+      responseFileEntries,
     } = data as {
       publication: RawJson
       snapshot: RawJson | null
@@ -135,6 +137,7 @@ export class SurveyPublicationEntityHandler implements EntityHandlerInterface {
       responseEntries: FormatFileEntry[]
       publicationId: string | null
       embeddedFileEntries: EntityEmbeddedFileManifestEntry[]
+      responseFileEntries?: ResponseFileManifestEntry[]
     }
 
     const files: FormatFileEntry[] = [
@@ -189,6 +192,21 @@ export class SurveyPublicationEntityHandler implements EntityHandlerInterface {
         content: JSON.stringify(manifest, null, 2),
       })
       for (const entry of embeddedFileEntries) {
+        files.push({
+          filename: entry.zipPath,
+          size: entry.size,
+          stream: this.collector.makeBinaryFileStream(entry),
+        })
+      }
+    }
+
+    if (responseFileEntries?.length > 0) {
+      const responseManifest = { version: '1.0', files: responseFileEntries }
+      files.push({
+        filename: 'files/response-manifest.json',
+        content: JSON.stringify(responseManifest, null, 2),
+      })
+      for (const entry of responseFileEntries) {
         files.push({
           filename: entry.zipPath,
           size: entry.size,

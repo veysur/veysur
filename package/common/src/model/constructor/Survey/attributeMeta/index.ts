@@ -25,6 +25,7 @@ import { questionNumberNegAllowedMeta } from './attributes/questionNumberNegAllo
 import { conditionMeta } from './attributes/condition'
 import { matrixOrientationMeta } from './attributes/matrixOrientation'
 import { columnsMeta } from './attributes/columns'
+import { fileUploadOptionsMeta } from './attributes/fileUploadOptions'
 
 /**
  * Central registry of all attribute metadata
@@ -51,6 +52,7 @@ export const attributesMetadata = [
   matrixOrientationMeta,
   conditionMeta,
   columnsMeta,
+  fileUploadOptionsMeta,
 ]
 
 // Re-export individual metadata for direct access
@@ -75,4 +77,5 @@ export {
   matrixOrientationMeta,
   conditionMeta,
   columnsMeta,
+  fileUploadOptionsMeta,
 }

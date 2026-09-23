@@ -594,4 +594,111 @@ describe('SurveyResponseEntityHandler', () => {
     expect(q002Idx).toBeGreaterThanOrEqual(0)
     expect(q002Idx).toBeLessThan(q001Idx)
   })
+
+  describe('fileUpload question CSV degradation', () => {
+    const fileUploadSurveyData = {
+      _id: surveyId,
+      title: { en: 'File survey' },
+      language: { default: 'en' },
+      elements: [
+        { _id: 'q1', code: 'Q001', type: 'text', text: { en: 'Name' } },
+        {
+          _id: 'q6',
+          code: 'Q006',
+          type: 'fileUpload',
+          text: { en: 'Upload your CV' },
+        },
+      ],
+    }
+
+    test('exports the referenced fileIds, comma-joined, never the file bytes', async () => {
+      const response = new SurveyResponse({
+        _id: 'r1',
+        surveyId,
+        publicationId,
+        snapshotId,
+        answers: {
+          Q001: 'Alice',
+          Q006: { fileIds: ['file-a', 'file-b'] },
+        },
+      })
+      const snapshotData = new SurveySnapshot({
+        snapshotId,
+        survey: fileUploadSurveyData,
+      })
+
+      const stream = await handler.prepareExportData(
+        {
+          surveyId,
+          publicationId,
+          responses: [response],
+          snapshotData,
+        },
+        new CsvFormatHandler(),
+      )
+
+      const csv = await streamToString(stream)
+      const parsedRows = await new CsvFormatHandler().parse(
+        Readable.from([Buffer.from(csv, 'utf8')]),
+      )
+      const headers = parsedRows[0] as string[]
+      const dataCols = parsedRows[2] as string[]
+
+      const q006Idx = headers.indexOf('Q006')
+      expect(q006Idx).toBeGreaterThanOrEqual(0)
+      expect(dataCols[q006Idx]).toBe('file-a,file-b')
+    })
+
+    test('skips a fileUpload column on import rather than writing a bogus answer', async () => {
+      mockRepoSurveySnapshot.findOne.mockResolvedValue({
+        survey: fileUploadSurveyData,
+      })
+
+      const response = new SurveyResponse({
+        _id: 'r1',
+        surveyId,
+        publicationId,
+        snapshotId,
+        answers: { Q001: 'Alice', Q006: { fileIds: ['file-a'] } },
+      })
+      const snapshotData = new SurveySnapshot({
+        snapshotId,
+        survey: fileUploadSurveyData,
+      })
+
+      const exportStream = await handler.prepareExportData(
+        { surveyId, publicationId, responses: [response], snapshotData },
+        new CsvFormatHandler(),
+      )
+      const csv = await streamToString(exportStream)
+
+      const csvFormatHandler = new CsvFormatHandler()
+      const parsedRows = await csvFormatHandler.parse(
+        Readable.from([Buffer.from(csv, 'utf8')]),
+      )
+      const headers = parsedRows[0] as string[]
+      const emailIdx = headers.indexOf('email')
+      ;(parsedRows[2] as string[])[emailIdx] = 'alice@example.com'
+
+      const validation = await handler.validateImport(parsedRows, {
+        projectId,
+        aclContext: { jwt: { _id: 'user-1' } },
+        surveyId,
+        publicationId,
+        snapshotId,
+      })
+
+      expect(validation.valid).toBe(true)
+      if (!validation.valid) return
+
+      await handler.persistImport(validation.data, {
+        projectId,
+        aclContext: { jwt: { _id: 'user-1' } },
+      })
+
+      const insertedResponse = mockRepoSurveyResponse.insertOne.mock
+        .calls[0][0] as SurveyResponse
+      expect(insertedResponse.answers).toEqual({ Q001: 'Alice' })
+    })
+  })
 })

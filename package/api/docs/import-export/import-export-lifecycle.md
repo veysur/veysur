@@ -155,8 +155,9 @@ Handled by `VsspImportResolver` (no side effects — pure resolution pass):
 | Participants | Deduplicated across responses (same `participantId` processed once); matched by email on the target survey — reuse existing or create new with a fresh ID |
 | Responses | New ID on collision with an existing response |
 | Files (images) | `imageSetId` derived from file hash (first 16 chars) or generated; resurrects soft-deleted records if a matching hash is found |
+| Files (`fileUpload` response answers) | Deduped by `(surveyId, hash, fileContext: 'response')`, ignoring `responseId` — reuses an existing `File` if one with matching content already exists anywhere in the target survey; created inline in the per-response persistence loop (see below) since the final `responseId` is only known there |
 
-**S3 uploads happen before the DB transaction** (in `VsspImportPersister`) so the transaction never contains a partial image set.
+**S3 uploads happen before the DB transaction** (in `VsspImportPersister`) so the transaction never contains a partial image set. Response-file uploads are the one exception: they happen inside the per-batch response loop (still within the transaction) because each one needs the response's final `_id`, which is only assigned at insert time (a response-ID collision reassigns it to a fresh id).
 
 See: `/package/api/src/model/service/core/ImportExport/handlers/SurveyPublicationEntityHandler/VsspImportResolver.ts`
 

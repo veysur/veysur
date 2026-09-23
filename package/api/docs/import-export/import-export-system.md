@@ -93,10 +93,13 @@ This allows adding new entity types or formats independently without modifying c
   │   └── {type}-{lang}.json          ← survey-tier email templates only
   ├── files/
   │   ├── manifest.json               ← shared file manifest (all images, deduplicated)
-  │   └── {imageSetId}/
-  │       ├── original.jpg
-  │       ├── edited.jpg
-  │       └── thumb.jpg
+  │   ├── {imageSetId}/
+  │   │   ├── original.jpg
+  │   │   ├── edited.jpg
+  │   │   └── thumb.jpg
+  │   ├── response-manifest.json      ← fileUpload-question answer files (all publications, concatenated)
+  │   └── response/
+  │       └── {fileId}{ext}           ← one file per bundled fileUpload answer
   ├── snapshots/
   │   └── {snapshotId}.json           ← snapshot metadata (one per unique snapshot)
   ├── snapshotData/
@@ -111,8 +114,10 @@ This allows adding new entity types or formats independently without modifying c
           └── batch-000001.json       ← response batch (1000 responses per file)
   ```
 
-- **SurveyResponseEntityHandler** — Survey response export (.json). Export-only; filtered by publicationId.
-- **SurveyPublicationEntityHandler** — Composite import/export (.vssp). Bundles `surveyPublication.json` + `surveySnapshotData.json` + `surveySnapshot.json` + `responses/batch-00000N.json` (batched, 1000 responses per file) + language snapshot records + binary image files for answer options. On export, streams each image from S3 into the archive one-by-one. On import, binary images are streamed from the archive to temp S3 keys by the parser, then copied to final destinations before the DB transaction; creates survey (optional), snapshot (with contentHash deduplication), publication, and File records in a single transaction; responses are inserted one batch at a time (O(batch_size) peak memory) with participant resolution and response-ID-collision detection performed inline per batch — each batch is freed from memory after insertion. Section, element, `sectionIds`, and `elementIds` are always assigned fresh IDs on import to prevent collisions.
+- **SurveyResponseEntityHandler** — Survey response export (.json/.csv). Export-only; filtered by publicationId. CSV export/import degrades `fileUpload`-question answers: export writes the referenced fileIds comma-joined (never the file bytes — CSV has no binary channel), and import silently skips a `fileUpload` column rather than writing a bogus answer from a bare id string. Only `.vssp`/`.vssa` import restores actual files. See [response-csv.md](response-csv.md).
+- **SurveyPublicationEntityHandler** — Composite import/export (.vssp). Bundles `surveyPublication.json` + `surveySnapshotData.json` + `surveySnapshot.json` + `responses/batch-00000N.json` (batched, 1000 responses per file) + language snapshot records + binary image files for answer options + binary files for `fileUpload`-question answers. On export, streams each image (and each response file) from S3 into the archive one-by-one; a `MAX_RESPONSE_EXPORT_FILE_COUNT`/`MAX_RESPONSE_EXPORT_TOTAL_SIZE` guardrail (see `handlers/util/responseFileExportLimits.ts`) rejects an export whose bundled response files would be too large for the current synchronous request/response export path (see [docs/plan/considering/async-survey-export.md](../../../../../docs/plan/considering/async-survey-export.md) in the monorepo root for the follow-up to make export asynchronous). On import, binary images and response files are streamed from the archive to temp S3 keys by the parser, then copied to final destinations before the DB transaction; creates survey (optional), snapshot (with contentHash deduplication), publication, and File records in a single transaction; responses are inserted one batch at a time (O(batch_size) peak memory) with participant resolution and response-ID-collision detection performed inline per batch — each batch is freed from memory after insertion. Section, element, `sectionIds`, and `elementIds` are always assigned fresh IDs on import to prevent collisions.
+
+  Response files are handled as a parallel, additive pipeline kept deliberately separate from the answer-option image-set machinery (`FileResolution`/`imageSetIdMap`), since a response file has none of the image-set model's concepts (no `imageSetId`/`imageVariant`/`answerOptionId`). Manifest entries live in their own `files/response-manifest.json` (type `ResponseFileManifestEntry`, see `SurveyPublicationEntityHandler/types.ts`) rather than being folded into the shared `EntityEmbeddedFileManifestEntry` list. On import, dedup is scoped to `(surveyId, hash, fileContext: 'response')` — deliberately broader than the per-response scoping `ServiceFileUpload` uses at normal upload time — so re-importing the same archive (or a file whose bytes match one already imported for a different response in the same survey) reuses the existing `File` record instead of creating a duplicate.
 
   Implemented as a thin orchestrator (~50 lines) delegating to five focused collaborators:
 
@@ -147,7 +152,7 @@ See: `/package/api/src/model/service/core/ImportExport/EntityHandlerInterface.ts
 
 - **VsstFormatHandler** — tar+gz archive format (.vsst). Survey template with embedded images. Extends `TarGzFormatHandler`.
 - **JsonFormatHandler** — Generic JSON serialization (.json)
-- **VsspFormatHandler** — tar+gz archive format (.vssp). Extends `TarGzFormatHandler`. Archives contain `surveyPublication.json` + `surveySnapshotData.json` + `surveySnapshot.json` + `responses/batch-00000N.json` (1000 responses per batch) + `surveyLanguageSnapshots/` + optional `files/manifest.json` and binary images.
+- **VsspFormatHandler** — tar+gz archive format (.vssp). Extends `TarGzFormatHandler`. Archives contain `surveyPublication.json` + `surveySnapshotData.json` + `surveySnapshot.json` + `responses/batch-00000N.json` (1000 responses per batch) + `surveyLanguageSnapshots/` + optional `files/manifest.json` and binary images + optional `files/response-manifest.json` and binary `fileUpload`-question answer files.
 - **VssaFormatHandler** — tar+gz archive format (.vssa). Extends `TarGzFormatHandler`. Flat archive (no nested archives); all survey and publication data in a single streaming pass.
 - **TarGzFormatHandler** — Abstract base class providing streaming tar+gz serialize/parse. Both import and export are zero-disk: export returns a `Readable` stream piped directly to S3; import streams through the tar parser with JSON in memory and binary entries piped to temp S3 keys. See: `/package/api/src/model/service/core/ImportExport/format/TarGzFormatHandler.ts`, `ArchiveReader.ts`
 

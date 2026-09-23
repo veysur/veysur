@@ -101,6 +101,16 @@ export class ServiceFile extends Service {
     projectId,
     page,
     perPage,
+    requestHost,
+    requestProto,
+  }: {
+    surveyId: string
+    responseId: string
+    projectId: string
+    page?: number
+    perPage?: number
+    requestHost?: string
+    requestProto?: string
   }) {
     const context = contextForProject(projectId)
     const repo = this.getRepo<RepoFile>('file')
@@ -115,8 +125,15 @@ export class ServiceFile extends Service {
       { context },
     )
 
+    const baseUrl =
+      requestHost && requestProto ? `${requestProto}://${requestHost}` : ''
+    const filesWithUrl = files.map((file) => ({
+      ...file,
+      url: file.getUrl(baseUrl),
+    }))
+
     return {
-      files,
+      files: filesWithUrl,
       pagination: {
         page: page || 1,
         perPage: perPage || 50,

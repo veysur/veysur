@@ -7,12 +7,20 @@ import type {
   RepoSurveyResponse,
   RepoSurveySnapshot,
   RepoSurveySnapshotPartial,
+  RepoFile,
 } from 'model'
 import { VsspImportPersister } from './VsspImportPersister'
 import { SnapshotDataRemapper } from './SnapshotDataRemapper'
 import type { EntityParsedData } from '../../EntityHandlerInterface'
-import type { ResolvedImportContext } from './types'
+import type { ResolvedImportContext, ResponseFileManifestEntry } from './types'
 import { mockRepoTransaction } from '../../../../../../test-utils/mockRepoTransaction'
+
+jest.mock('common', () => ({
+  ...jest.requireActual('common'),
+  createStorageAdaptor: jest.fn().mockReturnValue({
+    copyObject: jest.fn().mockResolvedValue(undefined),
+  }),
+}))
 
 describe('VsspImportPersister', () => {
   let mockRepoSurveyResponse: {
@@ -23,7 +31,9 @@ describe('VsspImportPersister', () => {
     transaction: jest.Mock
   }
   let mockRepoSurveyPublication: { insertOne: jest.Mock }
+  let mockRepoFile: { findOne: jest.Mock; create: jest.Mock }
   let persister: VsspImportPersister
+  let persisterWithFiles: VsspImportPersister
 
   const projectId = 'project-1'
   const surveyId = 'survey-1'
@@ -64,6 +74,11 @@ describe('VsspImportPersister', () => {
       insertOne: jest.fn().mockResolvedValue(undefined),
     }
 
+    mockRepoFile = {
+      findOne: jest.fn().mockResolvedValue(null),
+      create: jest.fn().mockResolvedValue(undefined),
+    }
+
     persister = new VsspImportPersister(
       mockRepoSurveyResponse as unknown as RepoSurveyResponse,
       mockRepoSurveyPublication as unknown as RepoSurveyPublication,
@@ -74,6 +89,25 @@ describe('VsspImportPersister', () => {
       undefined as unknown as RepoSurveyElement,
       undefined as unknown as RepoSurveySection,
       new SnapshotDataRemapper(),
+    )
+
+    persisterWithFiles = new VsspImportPersister(
+      mockRepoSurveyResponse as unknown as RepoSurveyResponse,
+      mockRepoSurveyPublication as unknown as RepoSurveyPublication,
+      undefined as unknown as RepoSurveySnapshot,
+      undefined as unknown as RepoSurveySnapshotPartial,
+      undefined as unknown as RepoSurvey,
+      undefined as unknown as RepoSurveyParticipant,
+      undefined as unknown as RepoSurveyElement,
+      undefined as unknown as RepoSurveySection,
+      new SnapshotDataRemapper(),
+      undefined,
+      mockRepoFile as unknown as RepoFile,
+      {
+        type: 'local',
+        publicBucket: 'public',
+        privateBucket: 'private',
+      } as never,
     )
   })
 
@@ -154,5 +188,92 @@ describe('VsspImportPersister', () => {
       (mockRepoSurveyPublication as unknown as { updateMany?: jest.Mock })
         .updateMany,
     ).toBeUndefined()
+  })
+
+  describe('response file remapping', () => {
+    const responseFileEntry: ResponseFileManifestEntry = {
+      fileId: 'archive-file-1',
+      filename: 'cv.pdf',
+      s3Key: 'files/response/archive-file-1.pdf',
+      mimeType: 'application/pdf',
+      hash: 'hash-abc',
+      size: 1234,
+      zipPath: 'files/response/archive-file-1.pdf',
+    }
+
+    function buildContextWithResponseFile(
+      overrides: Partial<ResolvedImportContext> = {},
+    ): ResolvedImportContext {
+      return {
+        ...buildContext({
+          publishedAt: '2026-01-01T00:00:00.000Z',
+          stoppedAt: null,
+        }),
+        responseBatchKeys: ['responses/batch-000001.json'],
+        responseFileEntries: [responseFileEntry],
+        ...overrides,
+      } as ResolvedImportContext
+    }
+
+    beforeEach(() => {
+      ;(mockParsedData.getJson as jest.Mock).mockImplementation(
+        (name: string) => {
+          if (name === 'responses/batch-000001.json') {
+            return {
+              responses: [
+                {
+                  _id: 'response-1',
+                  answers: { q1: { fileIds: ['archive-file-1'] } },
+                },
+              ],
+            }
+          }
+          return null
+        },
+      )
+    })
+
+    test('creates a new File record and remaps the answer fileId when no matching file exists in this survey', async () => {
+      mockRepoFile.findOne.mockResolvedValue(null)
+
+      await persisterWithFiles.persist(
+        buildContextWithResponseFile(),
+        persistImportContext,
+      )
+
+      expect(mockRepoFile.create).toHaveBeenCalledTimes(1)
+      const createdFile = mockRepoFile.create.mock.calls[0][0]
+      expect(createdFile.surveyId).toBe(surveyId)
+      expect(createdFile.responseId).toBe('response-1')
+      expect(createdFile.fileContext).toBe('response')
+      expect(createdFile.hash).toBe('hash-abc')
+
+      const insertedResponse = mockRepoSurveyResponse.insertOne.mock.calls[0][0]
+      expect(insertedResponse.answers.q1.fileIds).toEqual([createdFile._id])
+      expect(insertedResponse.answers.q1.fileIds[0]).not.toBe('archive-file-1')
+    })
+
+    test('reuses an existing File with the same hash in this survey instead of creating a duplicate', async () => {
+      mockRepoFile.findOne.mockResolvedValue({ _id: 'existing-file-99' })
+
+      await persisterWithFiles.persist(
+        buildContextWithResponseFile(),
+        persistImportContext,
+      )
+
+      expect(mockRepoFile.create).not.toHaveBeenCalled()
+      const insertedResponse = mockRepoSurveyResponse.insertOne.mock.calls[0][0]
+      expect(insertedResponse.answers.q1.fileIds).toEqual(['existing-file-99'])
+    })
+
+    test('does nothing when the persister has no repoFile/storageConfig wired (vsst-only deployments)', async () => {
+      await persister.persist(
+        buildContextWithResponseFile(),
+        persistImportContext,
+      )
+
+      const insertedResponse = mockRepoSurveyResponse.insertOne.mock.calls[0][0]
+      expect(insertedResponse.answers.q1.fileIds).toEqual(['archive-file-1'])
+    })
   })
 })

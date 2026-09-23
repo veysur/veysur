@@ -44,6 +44,7 @@ import {
   ATTRIBUTE_QUESTION_NUMBER_NEG_ALLOWED,
   ATTRIBUTE_MATRIX_ORIENTATION,
   ATTRIBUTE_QUESTION_COLUMNS,
+  ATTRIBUTE_QUESTION_FILE_UPLOAD_OPTIONS,
   ATTRIBUTE_CONDITION,
   // Attribute configurations
   surveyPresentationTitleConfig,
@@ -66,6 +67,7 @@ import {
   questionNumberNegAllowedConfig,
   matrixOrientationConfig,
   columnsConfig,
+  fileUploadOptionsConfig,
   conditionConfig,
 } from './attribute'
 
@@ -156,6 +158,7 @@ export const attributeSetsConfig: AttributeSetConfig[] = [
       ATTRIBUTE_QUESTION_NUMBER_NEG_ALLOWED,
       ATTRIBUTE_MATRIX_ORIENTATION,
       ATTRIBUTE_QUESTION_COLUMNS,
+      ATTRIBUTE_QUESTION_FILE_UPLOAD_OPTIONS,
       ATTRIBUTE_CONDITION,
     ],
   },
@@ -182,6 +185,7 @@ export const attributesConfig: AttributeConfig[] = [
   questionNumberNegAllowedConfig,
   matrixOrientationConfig,
   columnsConfig,
+  fileUploadOptionsConfig,
   conditionConfig,
 ]
 

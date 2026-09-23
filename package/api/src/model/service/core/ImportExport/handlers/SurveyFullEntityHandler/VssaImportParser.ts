@@ -11,6 +11,7 @@ import { FormatHandlerInterface } from '../../format/FormatHandlerInterface'
 import { ArchiveReader } from '../../format/ArchiveReader'
 import {
   RawJson,
+  ResponseFileManifestEntry,
   StructuralSurveyJson,
 } from '../SurveyPublicationEntityHandler/types'
 import {
@@ -44,6 +45,7 @@ export type VssaParsedData = {
   snapshotLanguagesMap: Map<string, RawJson[]>
   publications: VssaPublicationBundle[]
   embeddedFileEntries: EntityEmbeddedFileManifestEntry[]
+  responseFileEntries: ResponseFileManifestEntry[]
   parsedData: EntityParsedData
   cleanup: () => Promise<void>
 }
@@ -72,6 +74,15 @@ export class VssaImportParser {
     }>('files/manifest.json')
     if (manifest) {
       embeddedFileEntries = manifest.files ?? []
+    }
+
+    let responseFileEntries: ResponseFileManifestEntry[] = []
+    const responseManifest = reader.getJson<{
+      version: string
+      files: ResponseFileManifestEntry[]
+    }>('files/response-manifest.json')
+    if (responseManifest) {
+      responseFileEntries = responseManifest.files ?? []
     }
 
     const snapshots = new Map<string, RawJson>()
@@ -184,6 +195,7 @@ export class VssaImportParser {
       snapshotLanguagesMap,
       publications,
       embeddedFileEntries,
+      responseFileEntries,
       parsedData: reader,
       cleanup: () => reader.cleanup(),
     }

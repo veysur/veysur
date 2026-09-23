@@ -66,6 +66,7 @@ suffix, since Multi-Part has no answer-option axis. Contrast with Matrix's three
 | Binary AO column (`Q001.A001`) | `1` if selected, `0` if not |
 | Binary Other column (`Q001.OTHER`) | `1` if Other option selected, `0` if not |
 | Other value column (`Q001.OTHER_VALUE`) | Value entered in the Other field (string); only present when choiceOther is enabled |
+| Main: `fileUpload` | Comma-separated fileIds referenced by the answer, e.g. `file_a,file_b` — read-only, see below |
 
 ## Export
 
@@ -119,6 +120,17 @@ All three options (`surveyId`, `publicationId`, `snapshotId`) are required.
 ### Import behaviour for binary AO columns
 
 Binary answer option columns (`Q001.A001`) are supplementary on import. If the main question column (`Q001`) already has a value, binary columns are ignored for that answer option. If the main column is blank, binary columns are used to reconstruct the selected options. `OTHER` and `OTHER_VALUE` follow the same rules — `Q001.OTHER` participates in binary reconstruction of the main column, and `Q001.OTHER_VALUE` is applied as the free value.
+
+### `fileUpload` questions are a one-way, read-only export
+
+CSV has no channel for binary file content, so a `fileUpload` question's column is
+export-only: it lists the answer's referenced fileIds (comma-joined), never the file
+bytes. On import, a `fileUpload` column is silently skipped — no answer is written for
+that question from the CSV — rather than writing a bogus `{fileIds}`-shaped value from a
+bare id string, since a fileId from a different project/survey/export would not resolve
+to a real file. To restore actual files (and the responses that reference them), use a
+`.vssp`/`.vssa` import instead, which bundles and remaps the binary content (see
+[import-export-system.md](./import-export-system.md)).
 
 ### Key source files
 

@@ -26,6 +26,7 @@ import {
   ATTRIBUTE_CONDITION,
   ATTRIBUTE_MATRIX_ORIENTATION,
   ATTRIBUTE_QUESTION_COLUMNS,
+  ATTRIBUTE_QUESTION_FILE_UPLOAD_OPTIONS,
 } from 'veysur-common'
 
 import { ATTRIBUTE_CONTENT_TYPE } from '../constant'
@@ -66,6 +67,7 @@ export {
   ATTRIBUTE_CONDITION,
   ATTRIBUTE_MATRIX_ORIENTATION,
   ATTRIBUTE_QUESTION_COLUMNS,
+  ATTRIBUTE_QUESTION_FILE_UPLOAD_OPTIONS,
 }
 
 // Generate all configs using factory functions
@@ -129,4 +131,7 @@ export const matrixOrientationConfig = createQuestionAttributeConfig(
 )
 export const columnsConfig = createQuestionAttributeConfig(
   ATTRIBUTE_QUESTION_COLUMNS,
+)
+export const fileUploadOptionsConfig = createQuestionAttributeConfig(
+  ATTRIBUTE_QUESTION_FILE_UPLOAD_OPTIONS,
 )

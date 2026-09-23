@@ -14,6 +14,10 @@ import { formatAnswer } from './formatAnswer'
 import { MatrixAnswerSummary } from './MatrixAnswerSummary'
 import { MultiPartAnswerSummary } from './MultiPartAnswerSummary'
 import { RankingAnswerSummary } from './RankingAnswerSummary'
+import {
+  FileUploadAnswerSummary,
+  ResponseFileSummary,
+} from './FileUploadAnswerSummary'
 
 type RankingAnswerValue = { ORDER?: string[] } | null | undefined
 
@@ -29,6 +33,9 @@ interface SurveyAnswersSummaryProps {
   answers: Record<string, unknown>
   lang: string
   isPrint?: boolean
+  /** Participant-uploaded files for this response's fileUpload answers -
+   * see `FileUploadAnswerSummary`. */
+  files?: ResponseFileSummary[]
 }
 
 export const SurveyAnswersSummary: React.FC<SurveyAnswersSummaryProps> = ({
@@ -36,8 +43,18 @@ export const SurveyAnswersSummary: React.FC<SurveyAnswersSummaryProps> = ({
   answers,
   lang,
   isPrint = false,
+  files,
 }) => {
   const renderAnswer = (question: SurveyQuestion, answerValue: unknown) => {
+    if (question.type === 'fileUpload') {
+      return (
+        <FileUploadAnswerSummary
+          answerValue={answerValue as { fileIds?: string[] } | null}
+          files={files}
+        />
+      )
+    }
+
     if (question.type === 'ranking') {
       return (
         <RankingAnswerSummary
