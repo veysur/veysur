@@ -31,6 +31,8 @@ or move to another server.
 Build the images from the repository root:
 
 ```bash
-docker build -f deploy/docker/Dockerfile.api -t veysur/api .
-docker build -f deploy/docker/Dockerfile.nginx -t veysur/nginx .
+docker build -f deploy/docker/Dockerfile.api -t ghcr.io/veysur/api .
+docker build -f deploy/docker/Dockerfile.nginx -t ghcr.io/veysur/nginx .
 ```
+
+Or, more simply, `docker compose build` from `deploy/` — see [deployment.md](../docs/deployment.md#install-from-source).

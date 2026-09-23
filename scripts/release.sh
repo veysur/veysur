@@ -53,3 +53,7 @@ echo "Tagged and pushed: $TAG"
 echo
 echo "Next: cut a GitHub release from the root CHANGELOG.md entry, e.g.:"
 echo "  gh release create '$TAG' --title '$TAG' --notes-file <(sed -n '/^## ${VERSION}\$/,/^## /p' CHANGELOG.md | sed '\$d')"
+echo
+echo "Then publish the operator package (requires 'docker login ghcr.io' once):"
+echo "  deploy/scripts/release-package.sh $VERSION --build-images --push"
+echo "  gh release upload '$TAG' deploy/dist/veysur-$VERSION.tar.gz"

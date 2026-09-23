@@ -18,14 +18,17 @@ Install, update and operate a self-hosted instance. Requirements: Docker with Co
 
 ## Install
 
+Download the latest release from [github.com/veysur/veysur/releases](https://github.com/veysur/veysur/releases),
+then:
+
 ```bash
 tar -xzf veysur-1.2.0.tar.gz && cd veysur
 ./install.sh
 ```
 
 `install.sh` offers to install Docker if it is missing, loads any bundled image archives, then runs the two
-scripts below. `--yes --domain <domain>` makes it non-interactive. From a source checkout, run the scripts
-from `deploy/` instead.
+scripts below. `--yes --domain <domain>` makes it non-interactive. Images are pulled from `ghcr.io/veysur` at
+install time; see "Install from source" below to build them locally instead.
 
 1. **`scripts/config-generate.sh`** asks for the domain, TLS mode, administrator e-mail and SMTP relay,
    generates every secret and the field-encryption key pair, and writes `.env` (mode 0600) after showing a diff
@@ -48,6 +51,23 @@ with `./scripts/veysur.sh mail-test you@example.com`.
 Pre-flight refuses to continue below 3 GB RAM or 10 GB free disk (`VEYSUR_SKIP_PREFLIGHT=1` to override).
 Set `VEYSUR_HTTP_PORT` and `VEYSUR_HTTPS_PORT` in the environment of `config-generate.sh` if 80 or 443 are
 taken.
+
+## Install from source
+
+No tarball, no registry pull — clone the repository and build the two images locally:
+
+```bash
+git clone https://github.com/veysur/veysur.git && cd veysur/deploy
+docker compose build
+./scripts/config-generate.sh
+./scripts/deploy.sh
+./scripts/admin-account-bootstrap.sh --email you@example.com
+```
+
+`docker compose build` needs the full source tree (`docker/` and the app/api/common packages), so this only
+works from a git checkout, not an extracted release tarball. `deploy.sh` still attempts `compose pull` first;
+if it can't reach the registry it warns and falls back to the images just built locally. The `config-generate.sh`
+/ `deploy.sh` / `admin-account-bootstrap.sh` steps are the same as in "Install" above.
 
 ## Update
 
@@ -72,10 +92,12 @@ together. See [maintenance.md](./maintenance.md).
 ## Build a release package
 
 ```bash
-./scripts/release-package.sh 1.2.0 --build-images
+docker login ghcr.io
+./scripts/release-package.sh 1.2.0 --build-images --push
 ```
 
-Writes `dist/veysur-1.2.0-with-images.tar.gz` (about 456 MB). Without `--images` the tarball is about 16 KB and
-expects `veysur/api` and `veysur/nginx` to be pullable at that tag. `--images` bundles already-built images;
-`--build-images` builds them first. No image registry is configured yet, so use the bundled form or load images
-yourself.
+Builds `veysur/api` and `veysur/nginx`, pushes them to `ghcr.io/veysur`, and writes the thin
+`dist/veysur-1.2.0.tar.gz` (about 16 KB) — installs pull the images from there. `--push` is independent of
+`--images`/`--build-images`: add `--images` (bundle already-built images) or `--build-images` (build them
+first, implies `--images`) instead of/alongside `--push` to also produce the larger
+(~456 MB) `-with-images` variant for air-gapped installs with no registry access.

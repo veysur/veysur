@@ -80,6 +80,12 @@ pointers need to reflect `mzen`/`s3-adaptor`'s latest tagged commit:
 
 Each `scripts/release.sh` prints a `gh release create` command as its last step. Run it
 (one per tag) to cut the actual GitHub release from that package's `CHANGELOG.md` entry.
+`veysur`'s `release.sh` also prints the follow-up commands to build, publish and attach the
+operator tarball — see [deployment.md](./deployment.md#build-a-release-package) for what they do.
+
+**One-time setup**: the first `--push` creates the `api`/`nginx` packages under `ghcr.io/veysur`
+as private by default. Set them to public in GitHub's package settings (or link them to the
+`veysur` repo for inherited visibility), or self-hosters pulling without credentials get 401s.
 
 `scripts/release.sh` in each repo does the mechanical part only (version bump, commit, tag,
 push); it refuses to run with pending working-tree changes or with no changesets staged.

@@ -88,7 +88,12 @@ services:
           memory: 128M
 
   nginx:
-    image: veysur/nginx:${VEYSUR_IMAGE_TAG:-latest}
+    image: ${VEYSUR_IMAGE_REGISTRY:-ghcr.io/veysur}/nginx:${VEYSUR_IMAGE_TAG:-latest}
+    build:
+      context: ..
+      dockerfile: deploy/docker/Dockerfile.nginx
+      args:
+        BUILD_VERSION: ${VEYSUR_IMAGE_TAG:-latest}
     restart: unless-stopped
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
@@ -102,7 +107,10 @@ services:
           memory: 256M
 
   api:
-    image: veysur/api:${VEYSUR_IMAGE_TAG:-latest}
+    image: ${VEYSUR_IMAGE_REGISTRY:-ghcr.io/veysur}/api:${VEYSUR_IMAGE_TAG:-latest}
+    build:
+      context: ..
+      dockerfile: deploy/docker/Dockerfile.api
     restart: unless-stopped
     environment:
       <<: *api-environment
@@ -128,7 +136,7 @@ services:
   # CronJob used. The timeout stops a hung run from stalling the loop; the
   # heartbeat file drives the healthcheck.
   task-manager:
-    image: veysur/api:${VEYSUR_IMAGE_TAG:-latest}
+    image: ${VEYSUR_IMAGE_REGISTRY:-ghcr.io/veysur}/api:${VEYSUR_IMAGE_TAG:-latest}
     restart: unless-stopped
     environment:
       <<: *api-environment
@@ -166,7 +174,7 @@ services:
   # One-shot migration runner, not started by `up`. Arguments are appended:
   #   docker compose run --rm migrate [--dry-run] [--verbose]
   migrate:
-    image: veysur/api:${VEYSUR_IMAGE_TAG:-latest}
+    image: ${VEYSUR_IMAGE_REGISTRY:-ghcr.io/veysur}/api:${VEYSUR_IMAGE_TAG:-latest}
     profiles: ["tools"]
     environment:
       <<: *api-environment

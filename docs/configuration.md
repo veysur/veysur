@@ -14,6 +14,7 @@ Required secrets fail at `docker compose config` if empty. Anything not listed h
 | Key | Default | Purpose |
 |---|---|---|
 | `VEYSUR_IMAGE_TAG` | `latest` | Tag of `veysur/api` and `veysur/nginx`; `update.sh` rewrites it |
+| `VEYSUR_IMAGE_REGISTRY` | `ghcr.io/veysur` | Registry + org prefix images are pulled from; point at a private registry for a custom build |
 | `VEYSUR_HTTP_PORT` / `VEYSUR_HTTPS_PORT` | `80` / `443` | Host ports Caddy publishes |
 | `VEYSUR_TLS_SNIPPET` | `./caddy/tls-auto.caddy` | TLS mode, see [tls.md](./tls.md) |
 | `VEYSUR_ACME_EMAIL` | empty | Let's Encrypt contact, required for automatic TLS |
