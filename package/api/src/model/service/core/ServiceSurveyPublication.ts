@@ -107,6 +107,158 @@ export class ServicePublication extends Service {
   }
 
   /**
+   * Create a new snapshot (survey structure, per-language, and per-participant-attribute
+   * rows) for the "not reused" branch of publish(). Always runs inside publish()'s
+   * transaction; the caller is responsible for setting wasReused = false.
+   */
+  private async createSnapshot(
+    surveyId: string,
+    survey: Survey,
+    settingSurvey,
+    sortedLanguages,
+    langHashes: string[],
+    contentHash: string,
+    surveyParticipantAttributeDoc,
+    sortedAttrLangs,
+    sortedAttributeLangHashes: string[] | undefined,
+    attributeStructureHash: string | undefined,
+    snapshotLabel: string | null,
+    snapshotNotes: string | null,
+    createdById: string,
+    context: DataSourceContext,
+  ): Promise<{
+    snapshot: SurveySnapshotPartial
+    snapshotData: SurveySnapshot
+  }> {
+    const repoSurveySnapshotPartial = this.getRepo<RepoSurveySnapshotPartial>(
+      'surveySnapshotPartial',
+    )
+    const repoSurveySnapshot =
+      this.getRepo<RepoSurveySnapshot>('surveySnapshot')
+    const repoSurveyLanguageSnapshot = this.getRepo<RepoSurveyLanguageSnapshot>(
+      'surveyLanguageSnapshot',
+    )
+    const repoSurveyParticipantAttributeSnapshot =
+      this.getRepo<RepoSurveyParticipantAttributeSnapshot>(
+        'surveyParticipantAttributeSnapshot',
+      )
+    const repoSurveyParticipantAttributeLanguageSnapshot =
+      this.getRepo<RepoSurveyParticipantAttributeLanguageSnapshot>(
+        'surveyParticipantAttributeLanguageSnapshot',
+      )
+
+    const surveyPartial = survey.getPublishPartial(settingSurvey)
+    const snapshot = new SurveySnapshotPartial({
+      surveyId,
+      createdById,
+      contentHash,
+      label: snapshotLabel || null,
+      notes: snapshotNotes || null,
+      surveyPartial,
+    })
+
+    // Store structural survey only — no L10n; languages are in SurveyLanguageSnapshot.
+    // publishPrep resolves null settings to project defaults so the snapshot is
+    // self-contained and unaffected by later changes to project settings.
+    const snapshotData = new SurveySnapshot({
+      snapshotId: snapshot._id,
+      survey: survey.publishPrep(settingSurvey),
+    })
+
+    await repoSurveySnapshotPartial.insertOne(snapshot, { context })
+    await repoSurveySnapshot.insertOne(snapshotData, { context })
+
+    // Insert one SurveyLanguageSnapshot per language
+    for (let i = 0; i < sortedLanguages.length; i++) {
+      const lang = sortedLanguages[i]
+      const languageSnapshot = new SurveyLanguageSnapshot({
+        snapshotId: snapshot._id,
+        surveyId,
+        languageCode: lang.languageCode,
+        contentHash: langHashes[i],
+        data: lang.data,
+      })
+      await repoSurveyLanguageSnapshot.insertOne(languageSnapshot, {
+        context,
+      })
+    }
+    // Insert participant attribute snapshots if attributes exist
+    if (surveyParticipantAttributeDoc) {
+      const attrSnapshot = new SurveyParticipantAttributeSnapshot({
+        snapshotId: snapshot._id,
+        surveyId,
+        attributes: surveyParticipantAttributeDoc.attributes,
+        contentHash: attributeStructureHash,
+      })
+      await repoSurveyParticipantAttributeSnapshot.insertOne(attrSnapshot, {
+        context,
+      })
+
+      for (let i = 0; i < sortedAttrLangs.length; i++) {
+        const attrLang = sortedAttrLangs[i]
+        const attrLangSnapshot =
+          new SurveyParticipantAttributeLanguageSnapshot({
+            snapshotId: snapshot._id,
+            surveyId,
+            languageCode: attrLang.languageCode,
+            data: attrLang.data,
+            contentHash: sortedAttributeLangHashes[i],
+          })
+        await repoSurveyParticipantAttributeLanguageSnapshot.insertOne(
+          attrLangSnapshot,
+          { context },
+        )
+      }
+    }
+
+    return { snapshot, snapshotData }
+  }
+
+  /**
+   * Stop any currently active publication for the survey and create a new one pointing
+   * at the given snapshot. Shared by publish() and republish() — both end with the same
+   * unpublish-then-insert step, differing only in how they arrive at the snapshot ID.
+   */
+  private async replacePublication(
+    surveyId: string,
+    snapshotId: string,
+    label: string | null,
+    notes: string | null,
+    publishedById: string,
+    context: DataSourceContext,
+  ): Promise<SurveyPublication> {
+    const repoPublication =
+      this.getRepo<RepoSurveyPublication>('surveyPublication')
+
+    await repoPublication.updateMany(
+      {
+        surveyId,
+        stoppedAt: null,
+      },
+      {
+        $set: {
+          stoppedAt: new Date(),
+        },
+      },
+      { context },
+    )
+
+    const publication = new SurveyPublication({
+      snapshotId,
+      surveyId,
+      publishedById,
+      label,
+      notes,
+      publishedAt: new Date(),
+      stoppedAt: null,
+    })
+
+    await repoPublication.insertOne(publication, { context })
+
+    return publication
+  }
+
+  /**
    * Publish a survey - creates new snapshot and publication (or reuses existing snapshot)
    */
   async publish({
@@ -128,16 +280,9 @@ export class ServicePublication extends Service {
     const repoSettingSurvey = this.getRepo<RepoSettingSurvey>('settingSurvey')
     const repoSurveyLanguage =
       this.getRepo<RepoSurveyLanguage>('surveyLanguage')
-    const repoSurveyLanguageSnapshot = this.getRepo<RepoSurveyLanguageSnapshot>(
-      'surveyLanguageSnapshot',
-    )
     const repoSurveySnapshotPartial = this.getRepo<RepoSurveySnapshotPartial>(
       'surveySnapshotPartial',
     )
-    const repoSurveySnapshot =
-      this.getRepo<RepoSurveySnapshot>('surveySnapshot')
-    const repoPublication =
-      this.getRepo<RepoSurveyPublication>('surveyPublication')
 
     let publication: SurveyPublication
     let snapshot: SurveySnapshotPartial
@@ -190,14 +335,6 @@ export class ServicePublication extends Service {
         this.getRepo<RepoSurveyParticipantAttributeLanguage>(
           'surveyParticipantAttributeLanguage',
         )
-      const repoSurveyParticipantAttributeSnapshot =
-        this.getRepo<RepoSurveyParticipantAttributeSnapshot>(
-          'surveyParticipantAttributeSnapshot',
-        )
-      const repoSurveyParticipantAttributeLanguageSnapshot =
-        this.getRepo<RepoSurveyParticipantAttributeLanguageSnapshot>(
-          'surveyParticipantAttributeLanguageSnapshot',
-        )
 
       const [surveyParticipantAttributeDoc, attributeLanguageDocs] =
         await Promise.all([
@@ -235,6 +372,9 @@ export class ServicePublication extends Service {
       const sortedLanguages = [...allLanguages].sort((a, b) =>
         a.languageCode.localeCompare(b.languageCode),
       )
+      const sortedAttrLangs = [...attributeLanguageDocs].sort((a, b) =>
+        a.languageCode.localeCompare(b.languageCode),
+      )
       const {
         contentHash: computedContentHash,
         langHashes,
@@ -269,102 +409,36 @@ export class ServicePublication extends Service {
 
       // 5. CREATE NEW SNAPSHOT if not found or forced
       if (!snapshot) {
-        const surveyPartial = survey.getPublishPartial(settingSurvey)
-        snapshot = new SurveySnapshotPartial({
+        const created = await this.createSnapshot(
           surveyId,
-          createdById: aclContext.jwt._id,
+          survey,
+          settingSurvey,
+          sortedLanguages,
+          langHashes,
           contentHash,
-          label: snapshotLabel || null,
-          notes: snapshotNotes || null,
-          surveyPartial,
-        })
-
-        // Store structural survey only — no L10n; languages are in SurveyLanguageSnapshot.
-        // publishPrep resolves null settings to project defaults so the snapshot is
-        // self-contained and unaffected by later changes to project settings.
-        snapshotData = new SurveySnapshot({
-          snapshotId: snapshot._id,
-          survey: survey.publishPrep(settingSurvey),
-        })
-
-        await repoSurveySnapshotPartial.insertOne(snapshot, { context })
-        await repoSurveySnapshot.insertOne(snapshotData, { context })
-
-        // Insert one SurveyLanguageSnapshot per language
-        for (let i = 0; i < sortedLanguages.length; i++) {
-          const lang = sortedLanguages[i]
-          const languageSnapshot = new SurveyLanguageSnapshot({
-            snapshotId: snapshot._id,
-            surveyId,
-            languageCode: lang.languageCode,
-            contentHash: langHashes[i],
-            data: lang.data,
-          })
-          await repoSurveyLanguageSnapshot.insertOne(languageSnapshot, {
-            context,
-          })
-        }
-        // Insert participant attribute snapshots if attributes exist
-        if (surveyParticipantAttributeDoc) {
-          const attrSnapshot = new SurveyParticipantAttributeSnapshot({
-            snapshotId: snapshot._id,
-            surveyId,
-            attributes: surveyParticipantAttributeDoc.attributes,
-            contentHash: attributeStructureHash,
-          })
-          await repoSurveyParticipantAttributeSnapshot.insertOne(attrSnapshot, {
-            context,
-          })
-
-          const sortedAttrLangs = [...attributeLanguageDocs].sort((a, b) =>
-            a.languageCode.localeCompare(b.languageCode),
-          )
-          for (let i = 0; i < sortedAttrLangs.length; i++) {
-            const attrLang = sortedAttrLangs[i]
-            const attrLangSnapshot =
-              new SurveyParticipantAttributeLanguageSnapshot({
-                snapshotId: snapshot._id,
-                surveyId,
-                languageCode: attrLang.languageCode,
-                data: attrLang.data,
-                contentHash: sortedAttributeLangHashes[i],
-              })
-            await repoSurveyParticipantAttributeLanguageSnapshot.insertOne(
-              attrLangSnapshot,
-              { context },
-            )
-          }
-        }
-
+          surveyParticipantAttributeDoc,
+          sortedAttrLangs,
+          sortedAttributeLangHashes,
+          attributeStructureHash,
+          snapshotLabel,
+          snapshotNotes,
+          aclContext.jwt._id,
+          context,
+        )
+        snapshot = created.snapshot
+        snapshotData = created.snapshotData
         wasReused = false
       }
 
-      // 4. UNPUBLISH PREVIOUS
-      await repoPublication.updateMany(
-        {
-          surveyId,
-          stoppedAt: null,
-        },
-        {
-          $set: {
-            stoppedAt: new Date(),
-          },
-        },
-        { context },
-      )
-
-      // 5. CREATE NEW PUBLICATION
-      publication = new SurveyPublication({
-        snapshotId: snapshot._id,
+      // 6. REPLACE ACTIVE PUBLICATION
+      publication = await this.replacePublication(
         surveyId,
-        publishedById: aclContext.jwt._id,
-        label: label || null,
-        notes: notes || null,
-        publishedAt: new Date(),
-        stoppedAt: null,
-      })
-
-      await repoPublication.insertOne(publication, { context })
+        snapshot._id,
+        label || null,
+        notes || null,
+        aclContext.jwt._id,
+        context,
+      )
     })
 
     await this.modelManager.services.eventLog.log({
@@ -400,8 +474,6 @@ export class ServicePublication extends Service {
     const repoSurveySnapshot = this.getRepo<RepoSurveySnapshotPartial>(
       'surveySnapshotPartial',
     )
-    const repoPublication =
-      this.getRepo<RepoSurveyPublication>('surveyPublication')
 
     let publication: SurveyPublication
     let snapshot: SurveySnapshotPartial
@@ -420,32 +492,14 @@ export class ServicePublication extends Service {
         throw new ServerErrorNotFound('Snapshot not found')
       }
 
-      // Unpublish existing active publication
-      await repoPublication.updateMany(
-        {
-          surveyId,
-          stoppedAt: null,
-        },
-        {
-          $set: {
-            stoppedAt: new Date(),
-          },
-        },
-        { context },
-      )
-
-      // Create new publication
-      publication = new SurveyPublication({
-        snapshotId,
+      publication = await this.replacePublication(
         surveyId,
-        publishedById: aclContext.jwt._id,
-        label: label || null,
-        notes: notes || null,
-        publishedAt: new Date(),
-        stoppedAt: null,
-      })
-
-      await repoPublication.insertOne(publication, { context })
+        snapshotId,
+        label || null,
+        notes || null,
+        aclContext.jwt._id,
+        context,
+      )
     })
 
     await this.modelManager.services.eventLog.log({
