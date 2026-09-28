@@ -1,6 +1,5 @@
 // Main facade (backward compatible)
 export * from './AuthDomain'
-export * from './AuthDomainPopup'
 
 // Types for dependency injection
 export * from './types'
@@ -15,6 +14,4 @@ export {
 export { AuthDomainConfig } from './AuthDomainConfig'
 export { AuthDomainValidator } from './AuthDomainValidator'
 export { AuthDomainUI } from './AuthDomainUI'
-export { AuthDomainWindow } from './AuthDomainWindow'
-export { AuthDomainMessaging } from './AuthDomainMessaging'
 export { AuthDomainNavigation } from './AuthDomainNavigation'

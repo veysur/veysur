@@ -11,16 +11,12 @@ jest.mock('model', () => ({
   AuthDomain: {
     handleAuth: jest.fn(),
     handleAuthed: jest.fn(),
-    prepareTargetWindow: jest.fn(),
-    closeTargetWindow: jest.fn(),
+    consumeLoginJustSubmitted: jest.fn().mockReturnValue(false),
     onAuthDomain: jest.fn(),
     isTargetDomainAuthorized: jest.fn(),
     getAccountUrl: jest.fn(
       (path?: string) => `https://account.example.com/${path ?? ''}`,
     ),
-  },
-  AuthDomainPopup: {
-    readAuthMessage: jest.fn(),
   },
 }))
 
@@ -134,12 +130,11 @@ describe('PageLogin', () => {
     expect(getByText('Continue')).toBeInTheDocument()
     expect(getByText('You are already logged in.')).toBeInTheDocument()
 
-    // Verify prepareTargetWindow and handleAuthed were NOT called yet (waiting for user click)
-    expect(AuthDomain.prepareTargetWindow).not.toHaveBeenCalled()
+    // Verify handleAuthed was NOT called yet (waiting for user click)
     expect(AuthDomain.handleAuthed).not.toHaveBeenCalled()
   })
 
-  it('does not call prepareTargetWindow when not on auth domain', () => {
+  it('does not auto-proceed when not on auth domain', () => {
     const mockAuth = {
       client: { _id: 'client123' },
       user: {
@@ -178,15 +173,12 @@ describe('PageLogin', () => {
 
     render(<PageLogin />, { wrapper: createWrapper() })
 
-    // Verify prepareTargetWindow was NOT called
-    expect(AuthDomain.prepareTargetWindow).not.toHaveBeenCalled()
-
     // handleAuthed is not called when requireNoReturnToForHandleAuthed is true and
     // returnTo is present — the broadcast relay / Navigate handles routing instead
     expect(AuthDomain.handleAuthed).not.toHaveBeenCalled()
   })
 
-  it('does not call prepareTargetWindow when no returnTo parameter', () => {
+  it('calls handleAuthed when no returnTo parameter', () => {
     const mockAuth = {
       client: { _id: 'client123' },
       user: {
@@ -224,17 +216,14 @@ describe('PageLogin', () => {
 
     render(<PageLogin />, { wrapper: createWrapper() })
 
-    // Verify prepareTargetWindow was NOT called
-    expect(AuthDomain.prepareTargetWindow).not.toHaveBeenCalled()
-
-    // Verify handleAuthed was still called
+    // Verify handleAuthed was called
     expect(AuthDomain.handleAuthed).toHaveBeenCalledWith(
       expect.any(Function),
       mockAuth,
     )
   })
 
-  it('calls handleAuth when not authenticated and not a popup window', () => {
+  it('calls handleAuth when not authenticated', () => {
     jest.spyOn(useAuthHook, 'useAuth').mockReturnValue({
       auth: null,
       isAuthed: false,
@@ -247,47 +236,13 @@ describe('PageLogin', () => {
       authRefresh: jest.fn(),
       authRefreshWithRetry: jest.fn(),
     })
-
-    // window.opener is already null from beforeEach
 
     render(<PageLogin />, { wrapper: createWrapper() })
 
     // Verify handleAuth was called
     expect(AuthDomain.handleAuth).toHaveBeenCalled()
 
-    // Verify prepareTargetWindow and handleAuthed were NOT called
-    expect(AuthDomain.prepareTargetWindow).not.toHaveBeenCalled()
-    expect(AuthDomain.handleAuthed).not.toHaveBeenCalled()
-  })
-
-  it('does not call handleAuth when in popup window', () => {
-    jest.spyOn(useAuthHook, 'useAuth').mockReturnValue({
-      auth: null,
-      isAuthed: false,
-      setAuth: jest.fn(),
-      logout: jest.fn(),
-      loginEmailPassword: jest.fn(),
-      verifyTwoFactor: jest.fn(),
-      setupAndLogin: jest.fn(),
-      signupEmailPassword: jest.fn(),
-      authRefresh: jest.fn(),
-      authRefreshWithRetry: jest.fn(),
-    })
-
-    // Mock window.opener as existing (is a popup)
-    Object.defineProperty(window, 'opener', {
-      value: {},
-      writable: true,
-      configurable: true,
-    })
-
-    render(<PageLogin />, { wrapper: createWrapper() })
-
-    // Verify handleAuth was NOT called (popup windows don't redirect)
-    expect(AuthDomain.handleAuth).not.toHaveBeenCalled()
-
-    // Verify prepareTargetWindow and handleAuthed were NOT called either
-    expect(AuthDomain.prepareTargetWindow).not.toHaveBeenCalled()
+    // Verify handleAuthed was NOT called
     expect(AuthDomain.handleAuthed).not.toHaveBeenCalled()
   })
 })

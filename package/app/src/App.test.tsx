@@ -17,14 +17,6 @@ jest.mock('@tanstack/react-query-devtools', () => ({
   ReactQueryDevtools: () => null,
 }))
 
-// Mock AuthDomainPopup
-jest.mock('model', () => ({
-  ...jest.requireActual('model'),
-  AuthDomainPopup: {
-    isPopupWindow: jest.fn(() => false),
-  },
-}))
-
 describe('App', () => {
   test('renders without crashing', async () => {
     await act(async () => {

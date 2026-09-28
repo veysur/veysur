@@ -7,7 +7,7 @@ import {
   AUTH_BROADCAST_CHANNEL,
   AuthBroadcastMessage,
 } from 'component/AuthBroadcastProvider'
-import { AuthDomain, AuthDomainPopup, RedirectPending } from 'model'
+import { AuthDomain, RedirectPending } from 'model'
 import { queryClient } from 'common/queryClient'
 import { KEY_STATE_AUTH } from 'common/keyState'
 
@@ -146,19 +146,7 @@ export function useAuthLoginRedirect(
     // sent through AuthDomain.handleAuth() before their real session had a chance to load.
     if (isRestoring) return
     if (!isAuthed) {
-      // Check if this is a popup window opened by auth domain
-      const isPopupWindow =
-        window.opener !== null && window.opener !== undefined
-
-      if (isPopupWindow) {
-        // This is a popup window, listen for auth message from opener
-        const authDomain =
-          process.env.PUBLIC_AUTHENTICATION_DOMAIN ||
-          window.location.host.split(':')[0]
-        AuthDomainPopup.readAuthMessage(() => {
-          AuthDomainPopup.signalAuthComplete()
-        }, authDomain)
-      } else if (
+      if (
         !deferHandleAuthForBroadcastRelay ||
         !returnTo ||
         !('BroadcastChannel' in window)
@@ -174,9 +162,9 @@ export function useAuthLoginRedirect(
       const returnTo = urlParams.get('returnTo')
 
       if (AuthDomain.onAuthDomain() && returnTo) {
-        // Check if targetWindow already exists (opened by login form submission)
-        if (AuthDomain.targetWindow && !AuthDomain.targetWindow.closed) {
-          // New Login flow: popup already opened by form submission, proceed immediately
+        // Check whether the login form's submit handler just ran (New Login flow)
+        if (AuthDomain.consumeLoginJustSubmitted()) {
+          // New Login flow: proceed immediately.
           // Ensure JWT is fresh before transferring to target domain
           ensureFreshJwtAndHandleAuthed(auth)
         } else {

@@ -1,6 +1,7 @@
 export const KEY_REGISTRY_REST_CLIENT = 'restClient'
 export const KEY_REGISTRY_API_GEO = 'serviceGeo'
 export const KEY_REGISTRY_API_AUTH = 'serviceAuth'
+export const KEY_REGISTRY_API_AUTH_HANDOFF = 'serviceAuthHandoff'
 export const KEY_REGISTRY_API_PROJECT = 'serviceProject'
 export const KEY_REGISTRY_FEATURE_GATE_PROVIDER = 'featureGateProvider'
 export const KEY_REGISTRY_ACCOUNT_FOOTER_EXTRA_NAV = 'accountFooterExtraNav'

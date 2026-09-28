@@ -1,4 +1,5 @@
 export * from './auth-email-password'
+export * from './auth-handoff'
 export * from './contact'
 export * from './event-log'
 export * from './auth'

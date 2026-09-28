@@ -1,32 +1,53 @@
 import { AuthData } from 'hook'
 import { Registry, KEY_REGISTRY_SINGLE_PROJECT_REDIRECT_RESOLVER } from 'common'
 
+jest.mock('model/api/ApiAuthHandoff')
+jest.mock('registry/getRestClient', () => ({ getRestClient: jest.fn() }))
+
+import { ApiAuthHandoff } from 'model/api/ApiAuthHandoff'
+
 import { AuthDomain } from './AuthDomain'
+
+// Fake timers are enabled globally (jest.base.json) - flush microtasks only,
+// since mintTokenAndRedirect's only async gap is a Promise (the mocked API
+// call), never a real timer.
+const flushPromises = () => Promise.resolve().then(() => Promise.resolve())
 
 describe('AuthDomain', () => {
   const originalEnv = process.env
+  const mockCreate = jest.fn()
+  const mockRedeem = jest.fn()
 
   beforeEach(() => {
     jest.resetModules()
+    jest.clearAllMocks()
     process.env = { ...originalEnv }
     AuthDomain.browserInterface = {
       getLocation: jest.fn().mockReturnValue({
         protocol: 'https:',
         origin: 'https://example.com',
         host: 'example.com',
+        pathname: '/',
+        hash: '',
         search: '',
       }),
       setLocation: jest.fn(),
-      openWindow: jest.fn(),
-      closeWindow: jest.fn(),
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
+      replaceHistoryState: jest.fn(),
       getProtocol: jest.fn().mockReturnValue('https:'),
       getOrigin: jest.fn().mockReturnValue('https://example.com'),
       getHost: jest.fn().mockReturnValue('example.com'),
       getReferrer: jest.fn().mockReturnValue(''),
       reloadPage: jest.fn(),
     }
+    ;(
+      ApiAuthHandoff as jest.MockedClass<typeof ApiAuthHandoff>
+    ).mockImplementation(
+      () =>
+        ({
+          create: mockCreate,
+          redeem: mockRedeem,
+        }) as unknown as ApiAuthHandoff,
+    )
     // Reset services to pick up the mocked browserInterface
     AuthDomain.resetServices()
   })
@@ -236,68 +257,21 @@ describe('AuthDomain', () => {
     })
   })
 
-  describe('prepareTargetWindow', () => {
-    beforeEach(() => {
-      AuthDomain.browserInterface.openWindow = jest.fn().mockReturnValue({
-        closed: false,
-        document: document.implementation.createHTMLDocument(),
-        location: { href: '' },
-      })
+  describe('markLoginSubmitted / consumeLoginJustSubmitted', () => {
+    it('returns true once, then false, after markLoginSubmitted', () => {
+      AuthDomain.markLoginSubmitted()
+      expect(AuthDomain.consumeLoginJustSubmitted()).toBe(true)
+      expect(AuthDomain.consumeLoginJustSubmitted()).toBe(false)
     })
 
-    it('opens a popup on the auth domain even with no returnTo param', () => {
-      process.env.PUBLIC_AUTHENTICATION_DOMAIN = 'example.com'
-      AuthDomain.browserInterface.getLocation = jest.fn().mockReturnValue({
-        protocol: 'https:',
-        origin: 'https://example.com',
-        host: 'example.com',
-        search: '',
-      })
-      AuthDomain.resetServices()
-
-      const result = AuthDomain.prepareTargetWindow()
-
-      expect(AuthDomain.browserInterface.openWindow).toHaveBeenCalled()
-      expect(result).not.toBeNull()
+    it('returns false when clearLoginSubmitted was called', () => {
+      AuthDomain.markLoginSubmitted()
+      AuthDomain.clearLoginSubmitted()
+      expect(AuthDomain.consumeLoginJustSubmitted()).toBe(false)
     })
 
-    it('opens a popup on the auth domain with a returnTo param (existing flow)', () => {
-      process.env.PUBLIC_AUTHENTICATION_DOMAIN = 'example.com'
-      AuthDomain.browserInterface.getLocation = jest.fn().mockReturnValue({
-        protocol: 'https:',
-        origin: 'https://example.com',
-        host: 'example.com',
-        search: '?returnTo=https://app.example.com',
-      })
-      AuthDomain.resetServices()
-
-      const result = AuthDomain.prepareTargetWindow()
-
-      expect(AuthDomain.browserInterface.openWindow).toHaveBeenCalled()
-      expect(result).not.toBeNull()
-    })
-
-    it('returns null when there is no separate auth domain (self-hosted)', () => {
-      process.env.PUBLIC_AUTHENTICATION_DOMAIN = ''
-      AuthDomain.resetServices()
-
-      const result = AuthDomain.prepareTargetWindow()
-
-      expect(AuthDomain.browserInterface.openWindow).not.toHaveBeenCalled()
-      expect(result).toBeNull()
-    })
-
-    it('returns null when not on the auth domain', () => {
-      process.env.PUBLIC_AUTHENTICATION_DOMAIN = 'auth.example.com'
-      AuthDomain.browserInterface.getHost = jest
-        .fn()
-        .mockReturnValue('project.example.com')
-      AuthDomain.resetServices()
-
-      const result = AuthDomain.prepareTargetWindow()
-
-      expect(AuthDomain.browserInterface.openWindow).not.toHaveBeenCalled()
-      expect(result).toBeNull()
+    it('returns false by default', () => {
+      expect(AuthDomain.consumeLoginJustSubmitted()).toBe(false)
     })
   })
 
@@ -395,10 +369,9 @@ describe('AuthDomain', () => {
       openTargetAndPostAuthDataSpy.mockRestore()
     })
 
-    it('hard-navigates to the account URL and closes the speculative popup when a registered resolver declines to redirect', () => {
+    it('hard-navigates to the account URL when a registered resolver declines to redirect', () => {
       process.env.PUBLIC_AUTHENTICATION_DOMAIN = 'example.com'
       const navigateMock = jest.fn()
-      const closeTargetWindowSpy = jest.spyOn(AuthDomain, 'closeTargetWindow')
       const registry = Registry.getInstance()
       registry.set(KEY_REGISTRY_SINGLE_PROJECT_REDIRECT_RESOLVER, {
         resolve: () => null,
@@ -409,7 +382,6 @@ describe('AuthDomain', () => {
       expect(AuthDomain.browserInterface.setLocation).toHaveBeenCalledWith(
         AuthDomain.getAccountUrl(),
       )
-      expect(closeTargetWindowSpy).toHaveBeenCalled()
       expect(navigateMock).not.toHaveBeenCalled()
       registry.set(KEY_REGISTRY_SINGLE_PROJECT_REDIRECT_RESOLVER, undefined)
     })
@@ -621,75 +593,88 @@ describe('AuthDomain', () => {
       },
     } as unknown as AuthData
 
-    const createMockPopup = () => ({
-      closed: false,
-      document: document.implementation.createHTMLDocument(),
-      location: { href: '' },
-    })
-
     beforeEach(() => {
-      AuthDomain.browserInterface.openWindow = jest
-        .fn()
-        .mockReturnValue(createMockPopup())
+      mockCreate.mockResolvedValue({
+        token: 'tok_1',
+        expiresAt: '2026-01-01T00:00:00Z',
+      })
     })
 
-    it('transfers auth from the auth domain to one of the user authorized domains', () => {
-      jest.useFakeTimers()
+    it('mints a handoff token and redirects when transferring from the auth domain to one of the user authorized domains', async () => {
       process.env.PUBLIC_AUTHENTICATION_DOMAIN = 'example.com'
       AuthDomain.browserInterface.getHost = jest
         .fn()
         .mockReturnValue('example.com')
       AuthDomain.resetServices()
-      const targetWindow = createMockPopup() as unknown as Window
-      AuthDomain.targetWindow = targetWindow
 
       AuthDomain.openTargetAndPostAuthData(
         'https://myproject.example.com/admin',
         authData,
       )
+      await flushPromises()
 
-      expect(targetWindow.location.href).toEqual(
-        'https://myproject.example.com/admin',
+      expect(mockCreate).toHaveBeenCalled()
+      expect(AuthDomain.browserInterface.setLocation).toHaveBeenCalledWith(
+        'https://myproject.example.com/admin?auth-handoff=tok_1',
       )
-      jest.useRealTimers()
     })
 
-    it('transfers auth from a project domain to the account domain', () => {
-      jest.useFakeTimers()
+    it('mints a handoff token and redirects when transferring from a project domain to the account domain', async () => {
       process.env.PUBLIC_AUTHENTICATION_DOMAIN = 'account.example.com'
       AuthDomain.browserInterface.getHost = jest
         .fn()
         .mockReturnValue('myproject.example.com')
       AuthDomain.resetServices()
-      const targetWindow = createMockPopup() as unknown as Window
-      AuthDomain.targetWindow = targetWindow
 
       AuthDomain.openTargetAndPostAuthData(
         'https://account.example.com/',
         authData,
       )
+      await flushPromises()
 
-      expect(targetWindow.location.href).toEqual('https://account.example.com/')
-      jest.useRealTimers()
+      expect(AuthDomain.browserInterface.setLocation).toHaveBeenCalledWith(
+        'https://account.example.com/?auth-handoff=tok_1',
+      )
     })
 
-    it('does not transfer from a project domain to an unrelated, non-account domain', () => {
+    it('does not transfer from a project domain to an unrelated, non-account domain', async () => {
       process.env.PUBLIC_AUTHENTICATION_DOMAIN = 'account.example.com'
       AuthDomain.browserInterface.getHost = jest
         .fn()
         .mockReturnValue('myproject.example.com')
       AuthDomain.resetServices()
-      const targetWindow = createMockPopup() as unknown as Window
-      AuthDomain.targetWindow = targetWindow
       const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation()
 
       AuthDomain.openTargetAndPostAuthData(
         'https://otherproject.example.com/admin',
         authData,
       )
+      await flushPromises()
 
-      expect(targetWindow.location.href).toEqual('')
+      expect(mockCreate).not.toHaveBeenCalled()
+      expect(AuthDomain.browserInterface.setLocation).not.toHaveBeenCalled()
       consoleWarnSpy.mockRestore()
+    })
+
+    it('falls back to a plain (unauthenticated) redirect if minting the token fails', async () => {
+      process.env.PUBLIC_AUTHENTICATION_DOMAIN = 'example.com'
+      AuthDomain.browserInterface.getHost = jest
+        .fn()
+        .mockReturnValue('example.com')
+      AuthDomain.resetServices()
+      mockCreate.mockRejectedValue(new Error('network error'))
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation()
+
+      AuthDomain.openTargetAndPostAuthData(
+        'https://myproject.example.com/admin',
+        authData,
+      )
+      await flushPromises()
+
+      expect(AuthDomain.browserInterface.setLocation).toHaveBeenCalledWith(
+        'https://myproject.example.com/admin',
+      )
+      consoleErrorSpy.mockRestore()
     })
   })
 
@@ -699,12 +684,11 @@ describe('AuthDomain', () => {
       AuthDomain.browserInterface.getHost = jest
         .fn()
         .mockReturnValue('myproject.example.com')
-      AuthDomain.browserInterface.openWindow = jest.fn().mockReturnValue({
-        closed: false,
-        document: document.implementation.createHTMLDocument(),
-        location: { href: '' },
-      })
       AuthDomain.resetServices()
+      mockCreate.mockResolvedValue({
+        token: 'tok_1',
+        expiresAt: '2026-01-01T00:00:00Z',
+      })
     })
 
     it('refreshes auth and transfers it to the account domain', async () => {
@@ -727,22 +711,6 @@ describe('AuthDomain', () => {
         refreshedAuth,
         expect.any(Function),
       )
-      openTargetSpy.mockRestore()
-    })
-
-    it('does nothing if the popup window could not be opened', async () => {
-      AuthDomain.browserInterface.openWindow = jest.fn().mockReturnValue(null)
-      AuthDomain.resetServices()
-      const authRefresh = jest.fn().mockResolvedValue(undefined)
-      const openTargetSpy = jest
-        .spyOn(AuthDomain, 'openTargetAndPostAuthData')
-        .mockImplementation()
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation()
-
-      await AuthDomain.openAccountWithAuth(null, authRefresh)
-      consoleErrorSpy.mockRestore()
-
-      expect(openTargetSpy).not.toHaveBeenCalled()
       openTargetSpy.mockRestore()
     })
 
@@ -797,11 +765,7 @@ describe('AuthDomain', () => {
       AuthDomain.resetServices()
     })
 
-    it('openTargetAndPostAuthData navigates in place without a popup', () => {
-      const openWindowSpy = jest.spyOn(
-        AuthDomain.browserInterface,
-        'openWindow',
-      )
+    it('openTargetAndPostAuthData navigates in place without minting a token', () => {
       const onSettled = jest.fn()
 
       AuthDomain.openTargetAndPostAuthData(
@@ -813,16 +777,12 @@ describe('AuthDomain', () => {
       expect(AuthDomain.browserInterface.setLocation).toHaveBeenCalledWith(
         'https://app.example.com/admin',
       )
-      expect(openWindowSpy).not.toHaveBeenCalled()
+      expect(mockCreate).not.toHaveBeenCalled()
       expect(onSettled).toHaveBeenCalled()
     })
 
-    it('openProjectWithAuth navigates in place without opening a popup or refreshing', async () => {
+    it('openProjectWithAuth navigates in place without refreshing or minting a token', async () => {
       const authRefresh = jest.fn().mockResolvedValue(undefined)
-      const openWindowSpy = jest.spyOn(
-        AuthDomain.browserInterface,
-        'openWindow',
-      )
 
       await AuthDomain.openProjectWithAuth(
         'https://app.example.com/admin',
@@ -834,7 +794,7 @@ describe('AuthDomain', () => {
         'https://app.example.com/admin',
       )
       expect(authRefresh).not.toHaveBeenCalled()
-      expect(openWindowSpy).not.toHaveBeenCalled()
+      expect(mockCreate).not.toHaveBeenCalled()
     })
 
     it('openAccountWithAuth navigates in place when the account URL is same-origin', async () => {
@@ -845,6 +805,60 @@ describe('AuthDomain', () => {
 
       expect(authRefresh).not.toHaveBeenCalled()
       expect(AuthDomain.browserInterface.setLocation).toHaveBeenCalled()
+    })
+  })
+
+  describe('consumeIncomingHandoffIfPresent', () => {
+    it('no-ops when there is no auth-handoff param', async () => {
+      await AuthDomain.consumeIncomingHandoffIfPresent()
+
+      expect(mockRedeem).not.toHaveBeenCalled()
+      expect(AuthDomain.browserInterface.replaceHistoryState).not.toHaveBeenCalled()
+    })
+
+    it('redeems the token, applies the payload to the query cache, and strips the param', async () => {
+      AuthDomain.browserInterface.getLocation = jest.fn().mockReturnValue({
+        protocol: 'https:',
+        origin: 'https://myproject.example.com',
+        host: 'myproject.example.com',
+        pathname: '/admin',
+        hash: '',
+        search: '?auth-handoff=tok_1&foo=bar',
+      })
+      AuthDomain.resetServices()
+      const payload = {
+        auth: { user: { email: 'a@b.com' } },
+        rememberMe: true,
+      }
+      mockRedeem.mockResolvedValue(payload)
+
+      await AuthDomain.consumeIncomingHandoffIfPresent()
+
+      expect(mockRedeem).toHaveBeenCalledWith('tok_1')
+      expect(AuthDomain.browserInterface.replaceHistoryState).toHaveBeenCalledWith(
+        '/admin?foo=bar',
+      )
+    })
+
+    it('strips the param even when redemption fails (expired/invalid token)', async () => {
+      AuthDomain.browserInterface.getLocation = jest.fn().mockReturnValue({
+        protocol: 'https:',
+        origin: 'https://myproject.example.com',
+        host: 'myproject.example.com',
+        pathname: '/admin',
+        hash: '',
+        search: '?auth-handoff=stale',
+      })
+      AuthDomain.resetServices()
+      mockRedeem.mockRejectedValue(new Error('expired'))
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation()
+
+      await AuthDomain.consumeIncomingHandoffIfPresent()
+
+      expect(AuthDomain.browserInterface.replaceHistoryState).toHaveBeenCalledWith(
+        '/admin',
+      )
+      consoleErrorSpy.mockRestore()
     })
   })
 

@@ -23,12 +23,8 @@ import {
 Mount once near the app root, alongside the other top-level providers (see `appAdmin/App.tsx` and `appAccount/App.tsx`):
 
 ```tsx
-{
-  !AuthDomainPopup.isPopupWindow() && <AuthBroadcastProvider />
-}
+<AuthBroadcastProvider />
 ```
-
-It's skipped inside auth popup windows since those don't hold a long-lived session worth sharing.
 
 ## How it fits the auth flow
 
@@ -42,6 +38,6 @@ No-ops if `BroadcastChannel` is not available on `window`.
 
 ## Related
 
-- [AuthDomain](../../model/service/AuthDomain/README.md) - cross-origin auth transfer via popups and `postMessage`
+- [AuthDomain](../../model/service/AuthDomain/README.md) - cross-origin auth transfer via a server-side mint/redeem handoff
 - [Auth Navigation Flows](../../../docs/auth-navigation.md), particularly [BroadcastChannel vs. postMessage](../../../docs/auth-navigation.md#broadcastchannel-vs-postmessage)
 - ADR: [auth-link-new-tab](../../../docs/decisions/2026/2026-06-07_auth-link-new-tab.md)

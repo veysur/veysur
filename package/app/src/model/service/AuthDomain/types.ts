@@ -6,16 +6,7 @@ import { AuthData } from 'hook'
 export interface BrowserInterface {
   getLocation(): Location
   setLocation(url: string): void
-  openWindow(url: string, target: string): Window | null
-  closeWindow(): void
-  addEventListener(
-    type: string,
-    listener: EventListenerOrEventListenerObject,
-  ): void
-  removeEventListener(
-    type: string,
-    listener: EventListenerOrEventListenerObject,
-  ): void
+  replaceHistoryState(url: string): void
   getProtocol(): string
   getOrigin(): string
   getHost(): string
@@ -57,32 +48,6 @@ export interface AuthDomainValidatorInterface {
  */
 export interface AuthDomainUIInterface {
   showRedirectOverlay(): void
-  applyPopupStyles(doc: Document): void
-  injectThemeScript(doc: Document): void
-}
-
-/**
- * Window interface for popup lifecycle management
- */
-export interface AuthDomainWindowInterface {
-  createAuthPopup(): Window | null
-  prepareTargetWindow(): Window | null
-  closeTargetWindow(): void
-  isTargetWindowReady(): boolean
-  getTargetWindow(): Window | null
-  setTargetWindow(window: Window | null): void
-}
-
-/**
- * Messaging interface for postMessage protocol
- */
-export interface AuthDomainMessagingInterface {
-  pollTargetWindowReady(
-    url: string,
-    authData?: AuthData,
-    onSettled?: () => void,
-  ): void
-  pollForAuthenticationComplete(url: string, onSettled?: () => void): void
 }
 
 /**

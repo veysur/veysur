@@ -1,5 +1,13 @@
 import { AuthData } from 'hook'
 import { Registry, KEY_REGISTRY_SINGLE_PROJECT_REDIRECT_RESOLVER } from 'common'
+import {
+  KEY_STATE_AUTH,
+  KEY_STATE_REMEMBER_ME,
+  KEY_STORAGE_AUTH_HANDOFF,
+} from 'common/keyState'
+import { queryClient } from 'common/queryClient'
+import { ApiAuthHandoff } from 'model/api/ApiAuthHandoff'
+import { getRestClient } from 'registry/getRestClient'
 
 import { SingleProjectRedirectResolver } from '../../AccountUiExtension'
 import { BrowserInterface } from './types'
@@ -7,8 +15,6 @@ import { createBrowserInterface } from './BrowserInterface'
 import { AuthDomainConfig } from './AuthDomainConfig'
 import { AuthDomainValidator } from './AuthDomainValidator'
 import { AuthDomainUI } from './AuthDomainUI'
-import { AuthDomainWindow } from './AuthDomainWindow'
-import { AuthDomainMessaging } from './AuthDomainMessaging'
 import { AuthDomainNavigation } from './AuthDomainNavigation'
 
 /**
@@ -28,15 +34,20 @@ const selfHostedSingleProjectRedirectResolver: SingleProjectRedirectResolver = {
  *
  * Orchestrates specialized sub-services for centralized JWT-based authentication
  * across multiple client domains. See README.md for detailed flow documentation.
+ *
+ * Cross-domain transfer is a server-side handoff: the initiating domain mints a
+ * short-lived, single-use token (POST /auth-handoff, derived from the caller's own
+ * authenticated request - never from client input) and does a plain top-level
+ * redirect with `?auth-handoff=<token>`; the target domain redeems it
+ * (POST /auth-handoff/redeem) before rendering. No popup, no postMessage.
  */
 export class AuthDomain {
   // Lazy-initialized sub-services
   private static _config: AuthDomainConfig | null = null
   private static _validator: AuthDomainValidator | null = null
   private static _ui: AuthDomainUI | null = null
-  private static _window: AuthDomainWindow | null = null
-  private static _messaging: AuthDomainMessaging | null = null
   private static _navigation: AuthDomainNavigation | null = null
+  private static _apiAuthHandoff: ApiAuthHandoff | null = null
 
   /**
    * Browser interface for dependency injection (testing)
@@ -52,10 +63,10 @@ export class AuthDomain {
     AuthDomain._config = null
     AuthDomain._validator = null
     AuthDomain._ui = null
-    AuthDomain._window = null
-    AuthDomain._messaging = null
     AuthDomain._navigation = null
+    AuthDomain._apiAuthHandoff = null
     AuthDomain._transferInProgress = false
+    AuthDomain._loginJustSubmitted = false
   }
 
   // Lazy-initialized service getters
@@ -80,28 +91,6 @@ export class AuthDomain {
     return AuthDomain._ui
   }
 
-  private static getWindowService(): AuthDomainWindow {
-    if (!AuthDomain._window) {
-      AuthDomain._window = new AuthDomainWindow(
-        AuthDomain.browserInterface,
-        AuthDomain.getConfigService(),
-        AuthDomain.getUIService(),
-      )
-    }
-    return AuthDomain._window
-  }
-
-  private static getMessagingService(): AuthDomainMessaging {
-    if (!AuthDomain._messaging) {
-      AuthDomain._messaging = new AuthDomainMessaging(
-        AuthDomain.browserInterface,
-        AuthDomain.getWindowService(),
-        AuthDomain.getUIService(),
-      )
-    }
-    return AuthDomain._messaging
-  }
-
   private static getNavigationService(): AuthDomainNavigation {
     if (!AuthDomain._navigation) {
       AuthDomain._navigation = new AuthDomainNavigation(
@@ -112,19 +101,17 @@ export class AuthDomain {
     return AuthDomain._navigation
   }
 
+  private static getApiAuthHandoff(): ApiAuthHandoff {
+    if (!AuthDomain._apiAuthHandoff) {
+      AuthDomain._apiAuthHandoff = new ApiAuthHandoff(getRestClient())
+    }
+    return AuthDomain._apiAuthHandoff
+  }
+
   // ============================================================================
   // Public API - Delegates to sub-services
   // All method signatures remain identical for backward compatibility
   // ============================================================================
-
-  // Target window accessor for backward compatibility
-  static get targetWindow(): Window | null {
-    return AuthDomain.getWindowService().getTargetWindow()
-  }
-
-  static set targetWindow(window: Window | null) {
-    AuthDomain.getWindowService().setTargetWindow(window)
-  }
 
   // Config methods
   static hasAuthDomain = (): boolean => {
@@ -188,19 +175,6 @@ export class AuthDomain {
     AuthDomain.getNavigationService().redirectToAuthDomain(deepLinkPath)
   }
 
-  // Window methods
-  static prepareTargetWindow = (): Window | null => {
-    return AuthDomain.getWindowService().prepareTargetWindow()
-  }
-
-  static closeTargetWindow = (): void => {
-    AuthDomain.getWindowService().closeTargetWindow()
-  }
-
-  static isTargetWindowReady = (): boolean => {
-    return AuthDomain.getWindowService().isTargetWindowReady()
-  }
-
   // Validator methods
   static isTargetDomainAuthorized = (
     url: string,
@@ -230,39 +204,16 @@ export class AuthDomain {
     return AuthDomain.getValidatorService().getHostFromUrl(url)
   }
 
-  // Messaging methods
-  static pollTargetWindowReady = (
-    url: string,
-    authData?: AuthData,
-    onSettled?: () => void,
-  ): void => {
-    AuthDomain.getMessagingService().pollTargetWindowReady(
-      url,
-      authData,
-      onSettled,
-    )
-  }
-
-  static pollForAuthenticationComplete = (
-    url: string,
-    onSettled?: () => void,
-  ): void => {
-    AuthDomain.getMessagingService().pollForAuthenticationComplete(
-      url,
-      onSettled,
-    )
-  }
-
   // ============================================================================
   // Orchestration methods - Combine multiple sub-services
   // ============================================================================
 
   /**
    * True when `url` is on the same origin as the current page. In that case the
-   * cross-origin auth handoff (popup + postMessage + localStorage) is
-   * unnecessary: the session already lives in this origin's query cache /
-   * persisted storage and survives a plain navigation. Gated on origin equality,
-   * never on `edition` — cloud never hits it because every cross-app link is
+   * cross-origin auth handoff (mint token + redirect + redeem) is unnecessary:
+   * the session already lives in this origin's query cache / persisted storage
+   * and survives a plain navigation. Gated on origin equality, never on
+   * `edition` - cloud never hits it because every cross-app link is
    * cross-origin (per-app subdomains).
    */
   private static isSameOriginTarget = (url: string): boolean => {
@@ -273,13 +224,47 @@ export class AuthDomain {
     }
   }
 
+  /**
+   * Mints a handoff token from this (authenticated) domain and does a plain
+   * top-level redirect to `url` carrying it as `?auth-handoff=<token>`. The
+   * server derives the session payload entirely from the current request's
+   * own JWT/access-token - nothing sensitive is built or sent by the client.
+   */
+  private static mintTokenAndRedirect = async (
+    url: string,
+    onSettled?: () => void,
+  ): Promise<void> => {
+    AuthDomain.getUIService().showRedirectOverlay()
+
+    try {
+      const rememberMe =
+        queryClient.getQueryData<boolean>([KEY_STATE_REMEMBER_ME]) ?? false
+      const { token } = await AuthDomain.getApiAuthHandoff().create(rememberMe)
+      const redirectUrl = new URL(url)
+      redirectUrl.searchParams.set('auth-handoff', token)
+      AuthDomain.browserInterface.setLocation(redirectUrl.toString())
+    } catch (error) {
+      console.error('Failed to mint auth handoff token:', error)
+      // Fall through to a plain navigation - the target domain will simply
+      // render unauthenticated, the same failure mode as today's popup timeout.
+      AuthDomain.browserInterface.setLocation(url)
+    }
+
+    onSettled?.()
+  }
+
+  /**
+   * `authData` is used only to compute which domains this call is allowed to
+   * transfer a session to (the user's own project subdomains) - it is never
+   * sent to the server. The server derives the actual session payload from
+   * the caller's own authenticated request when the token is minted.
+   */
   static openTargetAndPostAuthData = (
     url: string,
     authData?: AuthData,
     onSettled?: () => void,
   ): void => {
     if (AuthDomain.isSameOriginTarget(url)) {
-      AuthDomain.getWindowService().closeTargetWindow()
       AuthDomain.browserInterface.setLocation(url)
       onSettled?.()
       return
@@ -325,18 +310,7 @@ export class AuthDomain {
       return
     }
 
-    const targetWindow = AuthDomain.getWindowService().getTargetWindow()
-    if (targetWindow && !targetWindow.closed) {
-      targetWindow.location.href = url
-      AuthDomain.getMessagingService().pollTargetWindowReady(
-        url,
-        authData,
-        onSettled,
-      )
-    } else {
-      AuthDomain.browserInterface.setLocation(url)
-      onSettled?.()
-    }
+    void AuthDomain.mintTokenAndRedirect(url, onSettled)
   }
 
   static handleAuthed = (
@@ -367,22 +341,41 @@ export class AuthDomain {
         return
       }
 
-      // No single-project redirect applies - close the speculative popup
-      // AuthDomainWindow.prepareTargetWindow() opened at submit time (it
-      // doesn't know in advance whether one will be needed) and hard-navigate
-      // to the account app instead. Hard navigation: the account-domain home
-      // path belongs to the account app, which may not be the app whose
-      // router is currently mounted (self-hosted shares one host across
-      // admin/account/survey) — navigate() would wrongly prefix the path
-      // with the current app's own router basename. getAccountUrl() already
-      // returns the correct full absolute URL.
-      AuthDomain.closeTargetWindow()
+      // No single-project redirect applies - hard-navigate to the account app.
+      // Hard navigation: the account-domain home path belongs to the account
+      // app, which may not be the app whose router is currently mounted
+      // (self-hosted shares one host across admin/account/survey) -
+      // navigate() would wrongly prefix the path with the current app's own
+      // router basename. getAccountUrl() already returns the correct full
+      // absolute URL.
       AuthDomain.browserInterface.setLocation(
         AuthDomain.getConfigService().getAccountUrl(),
       )
     } else {
       navigate(AuthDomain.getConfigService().getAuthHomePath())
     }
+  }
+
+  // Set synchronously by the login form's submit handler (replacing the old
+  // prepareTargetWindow() popup-open call, which doubled as this same signal)
+  // so useAuthLoginRedirect can tell a just-submitted "New Login" apart from
+  // an already-authenticated page load, without needing a popup window to
+  // check for. Consumed once so a stale flag can't cause a later, unrelated
+  // auth state change to auto-proceed.
+  private static _loginJustSubmitted = false
+
+  static markLoginSubmitted = (): void => {
+    AuthDomain._loginJustSubmitted = true
+  }
+
+  static clearLoginSubmitted = (): void => {
+    AuthDomain._loginJustSubmitted = false
+  }
+
+  static consumeLoginJustSubmitted = (): boolean => {
+    const value = AuthDomain._loginJustSubmitted
+    AuthDomain._loginJustSubmitted = false
+    return value
   }
 
   static handleAuth = (): void => {
@@ -404,8 +397,6 @@ export class AuthDomain {
   }
 
   static handleLogout = (): void => {
-    AuthDomain.getWindowService().closeTargetWindow()
-
     if (
       AuthDomain.getConfigService().hasAuthDomain() &&
       !AuthDomain.getConfigService().onAuthDomain()
@@ -422,10 +413,8 @@ export class AuthDomain {
 
   // Guards against a second "open with auth" transfer starting while one is
   // already in flight (e.g. a fast double-click on "Manage Account") — without
-  // this, each call registers its own independent set of postMessage
-  // listeners, and a single auth-complete signal fires all of them, each
-  // navigating the tab in rapid succession and tripping the browser's
-  // navigation-throttle protection (leaving the tab stuck mid-redirect).
+  // this, each call would independently mint a token and redirect, tripping
+  // the browser's navigation-throttle protection.
   private static _transferInProgress = false
 
   private static clearTransferFlag = (): void => {
@@ -433,18 +422,15 @@ export class AuthDomain {
   }
 
   /**
-   * Opens an "about:blank" popup, refreshes the JWT, and returns the popup
-   * window plus the auth data to transfer. Returns null if the popup could
-   * not be opened or was closed/replaced while the refresh was in flight, or
-   * if a transfer is already in progress.
+   * Refreshes the JWT before a cross-domain transfer (so the mint request
+   * carries a non-expired token), guarding against a duplicate concurrent
+   * transfer. Returns the refreshed auth data to use for the domain-
+   * authorization check, or null if a transfer is already in progress.
    */
-  private static popupAndRefreshAuth = async (
+  private static refreshAuthForTransfer = async (
     authData: AuthData | null | undefined,
     authRefresh: () => Promise<AuthData | undefined>,
-  ): Promise<{
-    targetWindow: Window
-    authToUse: AuthData | undefined
-  } | null> => {
+  ): Promise<AuthData | undefined | null> => {
     if (AuthDomain._transferInProgress) {
       console.warn(
         'Auth transfer already in progress; ignoring duplicate request',
@@ -453,17 +439,6 @@ export class AuthDomain {
     }
     AuthDomain._transferInProgress = true
 
-    // Open popup window immediately (user gesture allows popup)
-    const targetWindow = AuthDomain.getWindowService().createAuthPopup()
-    AuthDomain.getWindowService().setTargetWindow(targetWindow)
-
-    if (!targetWindow || targetWindow.closed) {
-      console.error('Failed to open popup window')
-      AuthDomain._transferInProgress = false
-      return null
-    }
-
-    // Refresh JWT if needed before transfer
     let authToUse = authData ?? undefined
     try {
       const refreshedAuth = await authRefresh()
@@ -474,28 +449,16 @@ export class AuthDomain {
       console.error('JWT refresh failed:', error)
     }
 
-    // Guard against the popup being closed (or overwritten by a concurrent call)
-    // while authRefresh was awaited — if so, bail out to avoid the setLocation
-    // fallback in openTargetAndPostAuthData navigating the relay tab without auth.
-    const currentTargetWindow = AuthDomain.getWindowService().getTargetWindow()
-    if (currentTargetWindow !== targetWindow || targetWindow.closed) {
-      console.warn(
-        'Popup was closed or replaced before auth transfer; aborting',
-      )
-      AuthDomain._transferInProgress = false
-      return null
-    }
-
-    return { targetWindow, authToUse }
+    return authToUse
   }
 
   /**
-   * Opens a project in a new window and transfers authentication.
+   * Opens a project and transfers authentication via the server-side handoff.
    * This is used from the auth domain (e.g., account app) to open a project
    * with auth already transferred.
    *
    * @param targetUrl - The URL to open (e.g., project login page)
-   * @param authData - Current auth data to transfer
+   * @param authData - Current auth data (used only for the domain-authorization check)
    * @param authRefresh - Function to refresh JWT before transfer
    */
   static openProjectWithAuth = async (
@@ -513,23 +476,26 @@ export class AuthDomain {
       return
     }
 
-    const result = await AuthDomain.popupAndRefreshAuth(authData, authRefresh)
-    if (!result) return
+    const authToUse = await AuthDomain.refreshAuthForTransfer(
+      authData,
+      authRefresh,
+    )
+    if (authToUse === null) return
 
     AuthDomain.openTargetAndPostAuthData(
       targetUrl,
-      result.authToUse,
+      authToUse,
       AuthDomain.clearTransferFlag,
     )
   }
 
   /**
-   * Opens the account app (auth domain) in a new window and transfers
-   * authentication. This is used from a project domain (e.g., admin app) to
-   * hand off the user's session to the account app, symmetric to
+   * Opens the account app (auth domain) and transfers authentication via the
+   * server-side handoff. This is used from a project domain (e.g., admin app)
+   * to hand off the user's session to the account app, symmetric to
    * openProjectWithAuth.
    *
-   * @param authData - Current auth data to transfer
+   * @param authData - Current auth data (used only for the domain-authorization check)
    * @param authRefresh - Function to refresh JWT before transfer
    */
   static openAccountWithAuth = async (
@@ -542,13 +508,65 @@ export class AuthDomain {
       return
     }
 
-    const result = await AuthDomain.popupAndRefreshAuth(authData, authRefresh)
-    if (!result) return
+    const authToUse = await AuthDomain.refreshAuthForTransfer(
+      authData,
+      authRefresh,
+    )
+    if (authToUse === null) return
 
     AuthDomain.openTargetAndPostAuthData(
       accountUrl,
-      result.authToUse,
+      authToUse,
       AuthDomain.clearTransferFlag,
     )
+  }
+
+  /**
+   * Consumes an incoming `?auth-handoff=<token>` query param, if present: redeems
+   * it against this domain's own API and applies the resulting `{auth,
+   * rememberMe}` directly to the query cache.
+   *
+   * Writes to the same `localStorage` handoff key `queryClient.ts`'s own
+   * module-init read consumes (kept for the `debug-mint-token.ts` dev/e2e
+   * session-injection path - see `package/api-cloud/AGENTS.md`), but does not
+   * rely on that read running afterwards: by the time this method executes,
+   * this module's own import chain has almost certainly already pulled in and
+   * evaluated `common/queryClient.ts` (it finds nothing then, since the token
+   * hasn't been redeemed yet), so `queryClient.setQueryData(...)` is called
+   * directly here as the actual mechanism.
+   *
+   * Must be awaited before the app renders (see each sub-app's bootstrap
+   * entry, `index.tsx`). No-ops if the param is absent. Strips the param from
+   * the visible URL in both the success and failure case - an expired/invalid
+   * token just falls through to the normal unauthenticated flow, the same
+   * failure mode as the old popup's timeout.
+   */
+  static consumeIncomingHandoffIfPresent = async (): Promise<void> => {
+    const location = AuthDomain.browserInterface.getLocation()
+    const params = new URLSearchParams(location.search)
+    const token = params.get('auth-handoff')
+    if (!token) return
+
+    try {
+      const { auth, rememberMe } = await AuthDomain.getApiAuthHandoff().redeem(
+        token,
+      )
+      localStorage.setItem(
+        KEY_STORAGE_AUTH_HANDOFF,
+        JSON.stringify({ auth, rememberMe }),
+      )
+      // Order matters: rememberMe must be set before auth - see the matching
+      // comment in queryClient.ts.
+      queryClient.setQueryData([KEY_STATE_REMEMBER_ME], rememberMe ?? false)
+      queryClient.setQueryData([KEY_STATE_AUTH], auth ?? null)
+    } catch (error) {
+      console.error('Failed to redeem auth handoff token:', error)
+    } finally {
+      params.delete('auth-handoff')
+      const query = params.toString()
+      const newUrl =
+        location.pathname + (query ? `?${query}` : '') + (location.hash || '')
+      AuthDomain.browserInterface.replaceHistoryState(newUrl)
+    }
   }
 }

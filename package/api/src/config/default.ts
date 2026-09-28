@@ -129,6 +129,8 @@ const {
   RATE_LIMIT_AUTH_REFRESH_WINDOW_SECONDS,
   RATE_LIMIT_AUTH_LIMIT,
   RATE_LIMIT_AUTH_WINDOW_SECONDS,
+  RATE_LIMIT_AUTH_HANDOFF_LIMIT,
+  RATE_LIMIT_AUTH_HANDOFF_WINDOW_SECONDS,
   RATE_LIMIT_GEO_COUNTRY_LIMIT,
   RATE_LIMIT_GEO_COUNTRY_WINDOW_SECONDS,
   RATE_LIMIT_GENERAL_LIMIT,
@@ -358,6 +360,15 @@ export const app = {
         tierKey: 'auth',
         limit: Number(RATE_LIMIT_AUTH_LIMIT ?? 30),
         windowSeconds: Number(RATE_LIMIT_AUTH_WINDOW_SECONDS ?? 900), // 15 minutes
+      },
+      // Auth handoff redeem — brute-forcing a long CSPRNG token is infeasible,
+      // but rate limiting is the existing hygiene pattern for every public
+      // auth-adjacent endpoint.
+      {
+        pattern: '^/auth-handoff/redeem$',
+        tierKey: 'auth-handoff',
+        limit: Number(RATE_LIMIT_AUTH_HANDOFF_LIMIT ?? 30),
+        windowSeconds: Number(RATE_LIMIT_AUTH_HANDOFF_WINDOW_SECONDS ?? 900), // 15 minutes
       },
       // Geo country
       {

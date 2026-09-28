@@ -3,78 +3,14 @@ import { AuthDomainUIInterface } from './types'
 /**
  * AuthDomainUI
  *
- * Handles visual feedback and styling for cross-domain authentication.
- * Manages overlay rendering and popup window styling with theme support.
+ * Handles visual feedback for cross-domain authentication - the full-page
+ * overlay shown while a handoff token is minted and the browser redirects.
  */
 export class AuthDomainUI implements AuthDomainUIInterface {
   /**
-   * Injects theme detection script to prevent white flash in dark mode.
-   * This matches the script in index.html.
-   */
-  injectThemeScript = (doc: Document): void => {
-    const script = doc.createElement('script')
-    script.textContent = `
-      (function() {
-        const match = document.cookie.match(/(?:^|;\\s*)veysur-theme=([^;]+)/);
-        let theme = match ? match[1] : null;
-
-        if (!theme || theme === 'system') {
-          theme = 'light';
-        }
-
-        if (theme === 'dark' || theme === 'light') {
-          document.documentElement.classList.add(theme);
-          document.documentElement.style.backgroundColor = theme === 'dark' ? '#0a0a0a' : '#ffffff';
-        }
-      })();
-    `
-    doc.head.appendChild(script)
-  }
-
-  /**
-   * Applies loading styles to a popup window document
-   */
-  applyPopupStyles = (doc: Document): void => {
-    doc.title = 'Authenticating'
-
-    const body = doc.body
-    if (body) {
-      body.style.fontFamily = 'Arial, sans-serif'
-      body.style.padding = '0'
-      body.style.margin = '0'
-      body.style.minHeight = '100vh'
-      body.style.display = 'flex'
-      body.style.flexDirection = 'column'
-      body.style.alignItems = 'center'
-
-      const topSpacer = doc.createElement('div')
-      topSpacer.style.flex = '1'
-      body.appendChild(topSpacer)
-
-      const content = doc.createElement('div')
-      content.style.display = 'flex'
-      content.style.flexDirection = 'column'
-      content.style.alignItems = 'center'
-
-      const heading = doc.createElement('h2')
-      heading.textContent = 'Authenticating'
-      content.appendChild(heading)
-
-      const paragraph = doc.createElement('p')
-      paragraph.textContent = 'Please wait while we complete your login.'
-      content.appendChild(paragraph)
-
-      body.appendChild(content)
-
-      const bottomSpacer = doc.createElement('div')
-      bottomSpacer.style.flex = '1.618'
-      body.appendChild(bottomSpacer)
-    }
-  }
-
-  /**
-   * Shows a full-page loading overlay before redirect to prevent flash of current page content.
-   * Uses theme detection to prevent white flash in dark mode.
+   * Shows a full-page loading overlay to cover the async mint request and
+   * the redirect that follows it. Uses theme detection to prevent white
+   * flash in dark mode.
    */
   showRedirectOverlay = (): void => {
     // Create overlay container

@@ -3,6 +3,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 
 import { isSelfHosted } from 'common'
+import { AuthDomain } from 'model'
 
 import App from './App'
 import './i18n'
@@ -35,11 +36,17 @@ Sentry.init({
   enabled: !!process.env.PUBLIC_BUGSINK_DSN_ADMIN,
 })
 
-const rootEl = document.getElementById('root')
-if (rootEl) {
-  ReactDOM.createRoot(rootEl).render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>,
-  )
-}
+// Redeem any incoming cross-domain auth handoff token and apply it to the
+// query cache before the app ever renders - see
+// AuthDomain.consumeIncomingHandoffIfPresent for why this must happen before
+// render rather than relying on queryClient.ts's own module-init read.
+AuthDomain.consumeIncomingHandoffIfPresent().finally(() => {
+  const rootEl = document.getElementById('root')
+  if (rootEl) {
+    ReactDOM.createRoot(rootEl).render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>,
+    )
+  }
+})

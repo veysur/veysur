@@ -29,15 +29,13 @@ export const PageLogin: React.FC = () => {
     if (!returnTo) return
 
     if (AuthDomain.onAuthDomain()) {
-      // Prepare target window with user gesture (from button click)
-      AuthDomain.prepareTargetWindow()
       // Handle authenticated state - ensure JWT is fresh before transferring
       await ensureFreshJwtAndHandleAuthed(auth)
       return
     }
 
     // Cross-origin returnTo (e.g. account app) relayed via broadcastAuth -
-    // open it in a popup with the relayed auth transferred
+    // transfer the relayed auth via the server-side handoff
     await AuthDomain.openAccountWithAuth(
       effectiveAuth ?? undefined,
       authRefresh,

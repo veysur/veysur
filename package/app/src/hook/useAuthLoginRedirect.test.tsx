@@ -16,10 +16,7 @@ jest.mock('model', () => ({
     handleAuth: jest.fn(),
     handleAuthed: jest.fn(),
     onAuthDomain: jest.fn().mockReturnValue(false),
-    targetWindow: null,
-  },
-  AuthDomainPopup: {
-    readAuthMessage: jest.fn(),
+    consumeLoginJustSubmitted: jest.fn().mockReturnValue(false),
   },
   RedirectPending: {
     push: jest.fn(),

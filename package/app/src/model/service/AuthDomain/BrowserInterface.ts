@@ -9,16 +9,9 @@ export const createBrowserInterface = (): BrowserInterface => ({
   setLocation: (url: string) => {
     window.location.href = url
   },
-  openWindow: (url: string, target: string) => window.open(url, target),
-  closeWindow: () => window.close(),
-  addEventListener: (
-    type: string,
-    listener: EventListenerOrEventListenerObject,
-  ) => window.addEventListener(type, listener),
-  removeEventListener: (
-    type: string,
-    listener: EventListenerOrEventListenerObject,
-  ) => window.removeEventListener(type, listener),
+  replaceHistoryState: (url: string) => {
+    window.history.replaceState(null, '', url)
+  },
   getProtocol: () => window.location.protocol,
   getOrigin: () => window.location.origin,
   getHost: () => window.location.host,

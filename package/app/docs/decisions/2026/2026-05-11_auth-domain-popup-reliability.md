@@ -1,7 +1,7 @@
 # AuthDomain: Popup reliability under background-tab throttling
 
-**Status:** accepted  
-**Decided:** 2026-05-11  
+**Status:** superseded by [auth-domain-redirect-handoff](./2026-09-28_auth-domain-redirect-handoff.md)
+**Decided:** 2026-05-11
 **Scope:** package/app — `AuthDomainMessaging`, `AuthWaitingPopup`
 
 ## Context

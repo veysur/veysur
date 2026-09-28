@@ -125,7 +125,7 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
 
     const values = form.getValues()
 
-    AuthDomain.prepareTargetWindow()
+    AuthDomain.markLoginSubmitted()
 
     try {
       const loginResult = await loginEmailPassword(
@@ -149,7 +149,7 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
         setView('setup-qr')
       }
     } catch (error) {
-      AuthDomain.closeTargetWindow()
+      AuthDomain.clearLoginSubmitted()
       if (error instanceof ErrorRest) {
         setFormError(error.userMessage)
       } else {

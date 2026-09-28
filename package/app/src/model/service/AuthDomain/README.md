@@ -11,14 +11,11 @@ AuthDomain/
 ├── index.ts                    # Public exports
 ├── types.ts                    # Interfaces for dependency injection
 ├── AuthDomain.ts               # Facade (orchestrator, backward-compatible)
-├── AuthDomainPopup.ts          # Popup window authentication handler
 ├── BrowserInterface.ts         # Browser abstraction for testing
 ├── AuthDomainConfig.ts         # Configuration (environment variables, paths)
 ├── AuthDomainValidator.ts      # Domain authorization validation
-├── AuthDomainMessaging.ts      # PostMessage protocol handling
-├── AuthDomainWindow.ts         # Popup window lifecycle management
 ├── AuthDomainNavigation.ts     # URL building and redirects
-└── AuthDomainUI.ts             # Overlay rendering and styling
+└── AuthDomainUI.ts             # Redirect overlay rendering and styling
 ```
 
 ### Cold-tab restoration and `useIsRestoring()`
@@ -38,14 +35,32 @@ for a reproduction of both the bug and the fix. `AuthGate` and `useAuthLoginRedi
 their own auth-decision logic on `useIsRestoring()` directly, to avoid bouncing an
 already-authenticated user through login while restoration is still in flight.
 
-### Auth Handoff (popup → main window)
+### Auth Handoff (server-side mint/redeem)
 
-The cross-domain auth transfer uses a **localStorage handoff key** (`veysur.authHandoff`) rather than the React Query cache:
+Cross-domain transfer is a server-side handoff, not a popup: the initiating domain mints a
+short-lived (60s), single-use token via `POST /auth-handoff` (the server derives the session
+payload entirely from the caller's own authenticated request - never from client input) and
+does a plain top-level redirect to `<targetUrl>?auth-handoff=<token>`. The target domain
+redeems it via `POST /auth-handoff/redeem` before rendering. No popup, no `postMessage`, no
+`window.opener` dependency (so a future `Cross-Origin-Opener-Policy` header on either app
+can't break this the way it would have broken the old popup approach - see the ADR).
 
-- `sessionStorage` is per-tab: data written by the popup is invisible to the main window after navigation. `localStorage` is shared across all windows of the same origin.
-- The popup writes `{ auth, rememberMe }` to `veysur.authHandoff` and immediately signals `auth-complete`. No React state change is needed.
-- `queryClient.ts` reads and removes the handoff on module initialisation (before React renders), so auth is available synchronously on first render.
-- `rememberMe` travels through the postMessage payload so the target domain honours the user's persistence preference (sessionStorage vs localStorage).
+- `AuthDomain.consumeIncomingHandoffIfPresent()` reads `?auth-handoff=` from the URL, redeems
+  it, and applies `{ auth, rememberMe }` directly to the query cache (`queryClient.setQueryData`)
+  - each sub-app's `index.tsx` awaits this before rendering.
+- It also writes the same payload to the `veysur.authHandoff` localStorage key that
+  `queryClient.ts`'s own module-init read consumes, purely so the
+  `package/api-cloud/src/script/debug-mint-token.ts` dev/e2e session-injection path keeps
+  working - the direct `setQueryData` call is what actually applies it, since this module's own
+  import chain typically evaluates `queryClient.ts` (finding nothing yet) before
+  `consumeIncomingHandoffIfPresent()` runs.
+- `rememberMe` is a client-supplied preference in the mint request body (mirrors
+  `KEY_STATE_REMEMBER_ME`); the `auth` payload itself is always server-derived.
+- `AuthDomain.markLoginSubmitted()`/`consumeLoginJustSubmitted()` replaces the old
+  `prepareTargetWindow()` popup-open call as the signal `useAuthLoginRedirect` uses to tell a
+  just-submitted "New Login" apart from an already-authenticated page load - no popup, so no
+  user-gesture timing constraint remains, but the "New Login auto-proceeds, already-authenticated
+  shows a Continue button" UX split is preserved.
 
 ## Environment Variables
 
@@ -60,16 +75,14 @@ The cross-domain auth transfer uses a **localStorage handoff key** (`veysur.auth
 
 ## Module Responsibilities
 
-| Module                 | Responsibility                                                                                                                                                                                                                                             |
-| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `AuthDomainConfig`     | Environment config, paths, bypass domain checking; `getAuthLoginUrl()` builds the full account login URL used by platform links                                                                                                                            |
-| `AuthDomainValidator`  | Domain authorization, URL host extraction                                                                                                                                                                                                                  |
-| `AuthDomainWindow`     | Popup creation, styling, lifecycle management                                                                                                                                                                                                              |
-| `AuthDomainMessaging`  | PostMessage event handling; sends `{ auth, rememberMe }` payload to popup; polls for ready/complete signals with fallback; uses `window focus` event to bypass background-tab timer throttling; calls `finish()` when popup closes without `auth-complete` |
-| `AuthDomainNavigation` | URL building, redirect handling                                                                                                                                                                                                                            |
-| `AuthDomainUI`         | Loading overlay, theme-aware styling                                                                                                                                                                                                                       |
-| `AuthDomainPopup`      | Receives `{ auth, rememberMe }` in popup window, writes to `veysur.authHandoff` localStorage key, signals `popup-ready` and `auth-complete` to opener                                                                                                      |
-| `AuthDomain`           | Facade orchestrating all sub-services                                                                                                                                                                                                                      |
+| Module                 | Responsibility                                                                                                                    |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `AuthDomainConfig`     | Environment config, paths, bypass domain checking; `getAuthLoginUrl()` builds the full account login URL used by platform links    |
+| `AuthDomainValidator`  | Domain authorization, URL host extraction                                                                                          |
+| `AuthDomainNavigation` | URL building, redirect handling                                                                                                    |
+| `AuthDomainUI`         | Redirect overlay, theme-aware styling (covers the async gap between click and the browser navigating away)                         |
+| `ApiAuthHandoff`       | (`model/api/ApiAuthHandoff.ts`) REST client for `POST /auth-handoff` (mint) and `POST /auth-handoff/redeem` (redeem)                 |
+| `AuthDomain`           | Facade orchestrating all sub-services, plus the mint/redirect and redeem orchestration itself                                     |
 
 ## Testing
 
@@ -111,11 +124,16 @@ AuthDomain.handleAuthed(navigate, authData)
 // Handle logout
 AuthDomain.handleLogout()
 
-// Open project with auth transfer (from account app)
+// Open project with auth transfer (from account app). authData is used only for the
+// domain-authorization check - the server derives the session payload itself.
 await AuthDomain.openProjectWithAuth(targetUrl, authData, authRefresh)
 
 // Open account app with auth transfer (from a project domain, e.g. "Manage Account")
 await AuthDomain.openAccountWithAuth(authData, authRefresh)
+
+// Consume an incoming ?auth-handoff=<token> before rendering (called from each
+// sub-app's index.tsx)
+await AuthDomain.consumeIncomingHandoffIfPresent()
 
 // Build the full account login URL (used as loginPath for platform links)
 const loginUrl = AuthDomain.getAuthLoginUrl() // e.g. https://account.veysur.com/login
@@ -124,6 +142,6 @@ const loginUrl = AuthDomain.getAuthLoginUrl() // e.g. https://account.veysur.com
 ## Related
 
 - [Auth Navigation Flows](../../../../docs/auth-navigation.md): end-to-end flows across AuthDomain, AuthLink, AuthBroadcastProvider, and PageLogin
-- [BroadcastChannel vs. postMessage](../../../../docs/auth-navigation.md#broadcastchannel-vs-postmessage): why `AuthBroadcastProvider`'s same-origin relay complements this module's cross-origin postMessage handoff
-- ADR: [auth-domain-popup-reliability](../../../../docs/decisions/2026/2026-05-11_auth-domain-popup-reliability.md)
+- ADR: [auth-domain-redirect-handoff](../../../../docs/decisions/2026/2026-09-28_auth-domain-redirect-handoff.md): this module's current design (mint/redeem handoff, no popup)
+- ADR: [auth-domain-popup-reliability](../../../../docs/decisions/2026/2026-05-11_auth-domain-popup-reliability.md): superseded by the above, kept for history
 - ADR: [auth-link-new-tab](../../../../docs/decisions/2026/2026-06-07_auth-link-new-tab.md)

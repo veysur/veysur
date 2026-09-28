@@ -62,14 +62,12 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
 
     const values = form.getValues()
 
-    // Prepare target window if needed for cross-domain auth
-    AuthDomain.prepareTargetWindow()
+    AuthDomain.markLoginSubmitted()
 
     try {
       await loginEmailPassword(values.email, values.password)
     } catch (error) {
-      // Close the window if login failed
-      AuthDomain.closeTargetWindow()
+      AuthDomain.clearLoginSubmitted()
 
       if (error instanceof ErrorRest) {
         setFormError(error.userMessage)

@@ -4,8 +4,8 @@ import { LoginForm } from './LoginForm'
 
 jest.mock('model', () => ({
   AuthDomain: {
-    prepareTargetWindow: jest.fn(),
-    closeTargetWindow: jest.fn(),
+    markLoginSubmitted: jest.fn(),
+    clearLoginSubmitted: jest.fn(),
     getAccountUrl: jest.fn((path?: string) =>
       path
         ? `https://account.example.com/${path}`

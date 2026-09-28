@@ -60,7 +60,6 @@ export const PageLogin: React.FC = () => {
       return
     }
 
-    AuthDomain.prepareTargetWindow()
     await ensureFreshJwtAndHandleAuthed(effectiveAuth ?? undefined)
   }
 

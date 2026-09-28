@@ -11,11 +11,9 @@ const ReactQueryDevtools = lazy(() =>
 import '../index.css'
 
 import { queryClient, browserPersister } from 'common'
-import { AuthDomainPopup } from 'model'
 import { ThemeProvider } from 'component/ThemeProvider'
 import { Toaster } from 'component/shadcn/sonner'
 import { SiteAccessGate } from 'component/SiteAccessGate'
-import { AuthWaitingPopup } from 'component/AuthWaitingPopup'
 import { CookieConsentBanner } from 'component/CookieConsent'
 import { GoogleAnalytics } from 'component/GoogleAnalytics'
 import { VersionUpdateBanner } from 'component/VersionUpdateBanner'
@@ -33,21 +31,13 @@ export const App: React.FC = () => {
       >
         <ThemeProvider>
           <SiteAccessGate>
-            {/* If this is a popup window opened for authentication, show waiting state
-                instead of rendering the full application to prevent user interaction */}
-            {AuthDomainPopup.isPopupWindow() ? (
-              <AuthWaitingPopup />
-            ) : (
-              <>
-                <AuthBroadcastProvider />
-                <Suspense fallback={<RouteLoading />}>
-                  <RouterProvider router={router} />
-                </Suspense>
-                <Suspense fallback={null}>
-                  <ReactQueryDevtools initialIsOpen={false} />
-                </Suspense>
-              </>
-            )}
+            <AuthBroadcastProvider />
+            <Suspense fallback={<RouteLoading />}>
+              <RouterProvider router={router} />
+            </Suspense>
+            <Suspense fallback={null}>
+              <ReactQueryDevtools initialIsOpen={false} />
+            </Suspense>
           </SiteAccessGate>
           <Toaster />
           <CookieConsentBanner />
