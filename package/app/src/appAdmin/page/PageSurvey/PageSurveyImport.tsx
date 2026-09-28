@@ -8,6 +8,7 @@ import { PageHeader } from 'component/PageHeader'
 import {
   useImportSurvey,
   useImportSurveyFull,
+  useImportSurveyMarkdown,
   useFileUpload,
   FileUploadZone,
   FileInfoDisplay,
@@ -40,6 +41,13 @@ export const PageSurveyImport: React.FC = () => {
     validationError: fullValidationError,
     result: fullResult,
   } = useImportSurveyFull()
+  const {
+    importSurveyMarkdown,
+    isLoading: isLoadingMarkdown,
+    error: markdownError,
+    validationError: markdownValidationError,
+    result: markdownResult,
+  } = useImportSurveyMarkdown()
 
   const {
     selectedFile,
@@ -52,7 +60,7 @@ export const PageSurveyImport: React.FC = () => {
     setUploadError,
     reset: resetFileUpload,
   } = useFileUpload({
-    acceptedExtensions: ['.vsst', '.vssa'],
+    acceptedExtensions: ['.vsst', '.vssa', '.md'],
   })
 
   const [forceMode, setForceMode] = useState<boolean>(false)
@@ -62,11 +70,24 @@ export const PageSurveyImport: React.FC = () => {
 
   usePageTitle('Import Survey', { suffix: 'Veysur Admin' })
 
-  const isVss = fileName?.endsWith('.vssa') ?? false
-  const isLoading = isVss ? isLoadingFull : isLoadingSurvey
-  const error = isVss ? fullError : surveyError
-  const validationError = isVss ? fullValidationError : surveyValidationError
-  const result = isVss ? fullResult : surveyResult
+  const isVssFull = fileName?.endsWith('.vssa') ?? false
+  const isMarkdown = fileName?.endsWith('.md') ?? false
+  const isLoading = isVssFull
+    ? isLoadingFull
+    : isMarkdown
+      ? isLoadingMarkdown
+      : isLoadingSurvey
+  const error = isVssFull ? fullError : isMarkdown ? markdownError : surveyError
+  const validationError = isVssFull
+    ? fullValidationError
+    : isMarkdown
+      ? markdownValidationError
+      : surveyValidationError
+  const result = isVssFull
+    ? fullResult
+    : isMarkdown
+      ? markdownResult
+      : surveyResult
 
   const runSurveyImport = async (force: boolean) => {
     if (!selectedFile) return
@@ -74,7 +95,8 @@ export const PageSurveyImport: React.FC = () => {
     setImportState({ status: 'uploading' })
 
     try {
-      const result = await importSurvey({
+      const importFn = isMarkdown ? importSurveyMarkdown : importSurvey
+      const result = await importFn({
         file: selectedFile,
         options: { force },
         onProgress: (progress) => {
@@ -100,7 +122,7 @@ export const PageSurveyImport: React.FC = () => {
   const handleImport = async () => {
     if (!selectedFile) return
 
-    if (isVss) {
+    if (isVssFull) {
       setImportState({ status: 'uploading' })
       try {
         const result = await importSurveyFull({
@@ -145,11 +167,16 @@ export const PageSurveyImport: React.FC = () => {
       <PageHeader
         icon={Upload}
         title="Import Survey"
-        description="Upload a .vsst or .vssa file to import a survey into your project"
+        description="Upload a .vsst, .vssa, or .md file to import a survey into your project"
         maxWidth="max-w-none"
         showBack={false}
         inlineNav={
-          <Button size="sm" variant="outline" tooltip="Create New Survey" asChild>
+          <Button
+            size="sm"
+            variant="outline"
+            tooltip="Create New Survey"
+            asChild
+          >
             <Link to="/survey/new">
               <Plus className="h-4 w-4" />
             </Link>
@@ -162,8 +189,8 @@ export const PageSurveyImport: React.FC = () => {
           {importState.status === 'idle' && (
             <>
               <FileUploadZone
-                accept=".vsst,.vssa"
-                fileTypeLabel="VSST or VSSA files (.vsst, .vssa)"
+                accept=".vsst,.vssa,.md"
+                fileTypeLabel="VSST, VSSA, or Markdown files (.vsst, .vssa, .md)"
                 onFileSelect={handleFileSelect}
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
@@ -185,7 +212,7 @@ export const PageSurveyImport: React.FC = () => {
                   isLoading={isLoading}
                   size="lg"
                   forceMode={
-                    !isVss
+                    !isVssFull
                       ? {
                           enabled: forceMode,
                           onChange: setForceMode,
@@ -220,7 +247,7 @@ export const PageSurveyImport: React.FC = () => {
               forceMode={forceMode}
               onReset={handleReset}
               onRetry={handleImport}
-              onRetryWithForce={!isVss ? handleRetryWithForce : undefined}
+              onRetryWithForce={!isVssFull ? handleRetryWithForce : undefined}
             />
           )}
         </div>

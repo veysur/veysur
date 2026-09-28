@@ -78,6 +78,18 @@ creates a new survey (or updates an existing one) leaving these fields at whatev
 default/inherited value `Survey`'s constructor and the target project already apply;
 the exporter never emits them.
 
+**`name` is a special case of the above, not an oversight.** `Survey.name` is a plain,
+non-localized, admin-only label (distinct from the public, localized `title`) — it has no
+grammar slot in v1, the same way a group section has no `code` slot (§2.2). On import, the
+importer derives it from the parsed `title`'s default-language value (mirroring
+`ServiceSurvey.create()`'s normal-creation behaviour, which seeds `title` from a user-entered
+`name` in the opposite direction), falling back to `'Untitled Survey'` only when the
+default-language title itself is empty (§3.5 Example D). The exporter never emits `name`
+(there is no markdown construct for it) and a re-export/re-import round trip is expected to
+re-derive it identically from `title` each time, not preserve whatever `name` an admin later
+typed in the UI — `name` is therefore the one survey-level field that is import-derived rather
+than either round-tripped or left untouched.
+
 ### 2.2 Group-level fields in scope
 
 | Field | Type | Notes |

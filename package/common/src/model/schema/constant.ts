@@ -97,6 +97,7 @@ export const ALLOWED_FILE_MIME_TYPES = [
   'image/jpg',
   'image/webp',
   'text/csv',
+  'text/markdown',
   'application/octet-stream',
   // Documents allowed for participant file-upload question answers. PDF and
   // Office formats are not browser-executable (unlike text/html or

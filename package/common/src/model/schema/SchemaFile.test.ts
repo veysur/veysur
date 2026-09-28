@@ -22,6 +22,7 @@ describe('SchemaFile', () => {
       'image/jpg',
       'image/webp',
       'text/csv',
+      'text/markdown',
       'application/octet-stream',
     ]
 

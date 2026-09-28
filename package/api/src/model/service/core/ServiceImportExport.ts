@@ -22,6 +22,7 @@ import { EntityHandlerRegistry } from './ImportExport/EntityHandlerRegistry'
 import { FormatRegistry } from './ImportExport/format/FormatRegistry'
 import { VsstFormatHandler } from './ImportExport/format/VsstFormatHandler'
 import { JsonFormatHandler } from './ImportExport/format/JsonFormatHandler'
+import { MarkdownFormatHandler } from './ImportExport/format/MarkdownFormatHandler'
 import { VsspFormatHandler } from './ImportExport/format/VsspFormatHandler'
 import { VssaFormatHandler } from './ImportExport/format/VssaFormatHandler'
 import { CsvFormatHandler } from './ImportExport/format/CsvFormatHandler'
@@ -68,6 +69,7 @@ export class ServiceImportExport extends Service {
 
     this.formatRegistry.register(new VsstFormatHandler(storageConfig))
     this.formatRegistry.register(new JsonFormatHandler())
+    this.formatRegistry.register(new MarkdownFormatHandler())
     this.formatRegistry.register(new VsspFormatHandler(storageConfig))
     this.formatRegistry.register(new VssaFormatHandler(storageConfig))
     this.formatRegistry.register(new CsvFormatHandler())

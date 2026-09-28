@@ -215,10 +215,13 @@ export class SurveyFullEntityHandler implements EntityHandlerInterface {
 
     let vsstValidation: ImportValidationResult<VsstResolvedContext>
     try {
-      vsstValidation = await this.surveyHandler.validateImport(
+      // this.surveyHandler.validateImport()'s return type also covers the
+      // markdown-format resolved shape, but vsstBundle above is always
+      // vsst-shaped, so the result is always ImportValidationResult<VsstResolvedContext>.
+      vsstValidation = (await this.surveyHandler.validateImport(
         vsstBundle,
         options,
-      )
+      )) as ImportValidationResult<VsstResolvedContext>
     } catch (err) {
       await data.cleanup()
       throw err

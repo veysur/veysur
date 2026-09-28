@@ -9,7 +9,12 @@ import { ActionMenu } from 'component/ActionMenu'
 import { DialogConfirmClickable } from 'component/DialogConfirmClickable'
 import { useFlashMessage } from 'component/FlashMessage'
 
-import { useSurveyDelete, useSurveyExport, useSurveyFullExport } from './hook'
+import {
+  useSurveyDelete,
+  useSurveyExport,
+  useSurveyExportMarkdown,
+  useSurveyFullExport,
+} from './hook'
 
 type Props = {
   survey: Survey
@@ -19,6 +24,8 @@ export const SurveyRowAction: React.FC<Props> = ({ survey }) => {
   const { surveyDelete } = useSurveyDelete()
   const { exportSurvey, isExporting } = useSurveyExport()
   const { exportSurveyFull, isExportingFull } = useSurveyFullExport()
+  const { exportSurveyMarkdown, isExportingMarkdown } =
+    useSurveyExportMarkdown()
   const { showFlashMessage } = useFlashMessage()
 
   const deleteAction = async () => {
@@ -48,6 +55,17 @@ export const SurveyRowAction: React.FC<Props> = ({ survey }) => {
     }
   }
 
+  const handleExportMarkdown = async () => {
+    try {
+      await exportSurveyMarkdown(survey._id)
+    } catch (error) {
+      showFlashMessage(
+        'error',
+        error instanceof Error ? error.message : 'Export failed',
+      )
+    }
+  }
+
   return (
     <ActionMenu title={undefined}>
       <DropdownMenuItem asChild>
@@ -63,6 +81,15 @@ export const SurveyRowAction: React.FC<Props> = ({ survey }) => {
       <DropdownMenuItem onClick={handleExportFull} disabled={isExportingFull}>
         <Download className="h-4 w-4" />
         <span>{isExportingFull ? 'Exporting...' : 'Export as .vssa'}</span>
+      </DropdownMenuItem>
+      <DropdownMenuItem
+        onClick={handleExportMarkdown}
+        disabled={isExportingMarkdown}
+      >
+        <Download className="h-4 w-4" />
+        <span>
+          {isExportingMarkdown ? 'Exporting...' : 'Export as Markdown'}
+        </span>
       </DropdownMenuItem>
       <DialogConfirmClickable
         as={DropdownMenuItem}

@@ -28,11 +28,17 @@ import { VsstExportCollector } from './SurveyEntityHandler/VsstExportCollector'
 import { VsstImportParser } from './SurveyEntityHandler/VsstImportParser'
 import { VsstImportResolver } from './SurveyEntityHandler/VsstImportResolver'
 import { VsstImportPersister } from './SurveyEntityHandler/VsstImportPersister'
+import { exportSurveyToMarkdown } from './SurveyEntityHandler/MarkdownSurveyExporter'
+import { parseMarkdownSurvey } from './SurveyEntityHandler/MarkdownSurveyParser'
+import { MarkdownImportResolver } from './SurveyEntityHandler/MarkdownImportResolver'
+import { MarkdownImportPersister } from './SurveyEntityHandler/MarkdownImportPersister'
 import {
   EmailTemplateEntry,
   VsstParticipantAttribute,
   VsstParsedBundle,
   VsstResolvedContext,
+  MarkdownParsedBundle,
+  MarkdownResolvedContext,
 } from './SurveyEntityHandler/types'
 
 /**
@@ -54,6 +60,8 @@ export class SurveyEntityHandler implements EntityHandlerInterface {
   private parser: VsstImportParser
   private resolver: VsstImportResolver
   private persister: VsstImportPersister
+  private markdownResolver: MarkdownImportResolver
+  private markdownPersister: MarkdownImportPersister
 
   constructor(
     repoSurvey: RepoSurvey,
@@ -84,6 +92,8 @@ export class SurveyEntityHandler implements EntityHandlerInterface {
       repoSurveyParticipantAttributeLanguage,
       repoEmailTemplate,
     )
+    this.markdownResolver = new MarkdownImportResolver(repoSurvey)
+    this.markdownPersister = new MarkdownImportPersister(repoSurvey)
   }
 
   async fetchForExport(
@@ -120,6 +130,11 @@ export class SurveyEntityHandler implements EntityHandlerInterface {
     formatHandler: FormatHandlerInterface,
     _options?: ExportOptions,
   ): Promise<Readable> {
+    if (formatHandler.format === 'markdown') {
+      const { survey } = data as { survey: Survey }
+      return formatHandler.serialize(exportSurveyToMarkdown(survey))
+    }
+
     const {
       survey,
       surveyLanguages = [],
@@ -190,15 +205,28 @@ export class SurveyEntityHandler implements EntityHandlerInterface {
     input: Readable,
     formatHandler: FormatHandlerInterface,
     context?: { importFileId?: string },
-  ): Promise<VsstParsedBundle> {
+  ): Promise<VsstParsedBundle | MarkdownParsedBundle> {
+    if (formatHandler.format === 'markdown') {
+      const markdownText = (await formatHandler.parse(input, context)) as string
+      return parseMarkdownSurvey(markdownText)
+    }
     return this.parser.parse(input, formatHandler, context)
   }
 
   async validateImport(
     data: unknown,
     options: { force?: boolean; projectId: string; aclContext: AclContext },
-  ): Promise<ImportValidationResult<VsstResolvedContext>> {
-    return this.resolver.resolve(data as VsstParsedBundle, options)
+  ): Promise<
+    ImportValidationResult<VsstResolvedContext | MarkdownResolvedContext>
+  > {
+    const bundle = data as VsstParsedBundle | MarkdownParsedBundle
+    if ((bundle as MarkdownParsedBundle).sourceFormat === 'markdown') {
+      return this.markdownResolver.resolve(
+        bundle as MarkdownParsedBundle,
+        options,
+      )
+    }
+    return this.resolver.resolve(bundle as VsstParsedBundle, options)
   }
 
   async persistImport(
@@ -209,11 +237,18 @@ export class SurveyEntityHandler implements EntityHandlerInterface {
     hasIdTranslations?: boolean
     warnings?: unknown[]
   }> {
-    return this.persister.persist(data as VsstResolvedContext, context)
+    const resolved = data as VsstResolvedContext | MarkdownResolvedContext
+    if ((resolved as MarkdownResolvedContext).sourceFormat === 'markdown') {
+      return this.markdownPersister.persist(
+        resolved as MarkdownResolvedContext,
+        context,
+      )
+    }
+    return this.persister.persist(resolved as VsstResolvedContext, context)
   }
 
   getSupportedFormats(): string[] {
-    return ['vsst']
+    return ['vsst', 'markdown']
   }
 
   getDefaultFormat(): string {

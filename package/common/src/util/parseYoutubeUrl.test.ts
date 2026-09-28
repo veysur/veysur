@@ -23,6 +23,8 @@ describe('parseYoutubeUrl', () => {
     [`https://www.youtube.com/watch?v=${ID}&start=42`, 42],
     [`https://www.youtube.com/embed/${ID}?start=1h2m3s`, 3723],
     [`https://youtu.be/${ID}#t=15`, 15],
+    // survey-markdown-format.md §3.4a Example F's exact fixture URL
+    [`https://www.youtube.com/watch?v=${ID}&t=90s`, 90],
   ])('reads the start offset from %s', (url, startAt) => {
     expect(parseYoutubeUrl(url)).toEqual({ videoId: ID, startAt })
   })

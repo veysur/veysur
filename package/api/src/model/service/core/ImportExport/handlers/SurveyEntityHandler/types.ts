@@ -85,3 +85,27 @@ export type VsstResolvedContext = {
 }
 
 export { FileResolution }
+
+/**
+ * markdown-format (survey-markdown-format.md v1) parsed/resolved shapes.
+ * Deliberately lighter than the vsst bundle types above: no file archive,
+ * no surveyLanguages/participantAttributes/emailTemplates (all out of scope
+ * for markdown v1 per spec §2.1). `sourceFormat` is a discriminant used by
+ * `SurveyEntityHandler.validateImport`/`.persistImport` to route between the
+ * markdown and vsst pipelines without touching the vsst types above (their
+ * `data` param is `unknown`, so no format is otherwise available at those
+ * call sites).
+ */
+export type MarkdownParsedBundle = {
+  sourceFormat: 'markdown'
+  survey: ImportSurveyEntity
+  sections: ImportSectionEntity[]
+  elements: ImportElementEntity[]
+}
+
+export type MarkdownResolvedContext = {
+  sourceFormat: 'markdown'
+  survey: ImportSurveyEntity
+  sections: ImportSectionEntity[]
+  elements: ImportElementEntity[]
+}
