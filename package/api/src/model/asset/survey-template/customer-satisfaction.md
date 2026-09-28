@@ -2,6 +2,7 @@
 spec: v1
 templateName: Customer satisfaction
 templateDescription: Measure how happy customers are with a product or service, and collect suggestions for improvement.
+templateCategory: Customer feedback
 language:
   default: en
   options: [en]

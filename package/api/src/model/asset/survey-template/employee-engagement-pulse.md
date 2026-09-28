@@ -2,6 +2,7 @@
 spec: v1
 templateName: Employee engagement pulse
 templateDescription: A short check-in on how staff feel about their work, their team and their manager.
+templateCategory: Human resources
 language:
   default: en
   options: [en]

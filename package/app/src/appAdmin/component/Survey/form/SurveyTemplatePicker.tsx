@@ -1,11 +1,19 @@
-import React from 'react'
+import React, { useMemo, useState } from 'react'
 
+import { SearchBar } from 'appAdmin/component/SearchBar'
+import { Badge } from 'component/shadcn/badge'
 import { Label } from 'component/shadcn/label'
 import { RadioGroup, RadioGroupItem } from 'component/shadcn/radio-group'
 import { Skeleton } from 'component/shadcn/skeleton'
+import { Tabs, TabsList, TabsTrigger } from 'component/shadcn/tabs'
 import { cn } from '@/common/cn'
 
 import { useSurveyTemplateList } from '../hook'
+import {
+  filterSurveyTemplates,
+  SURVEY_TEMPLATE_CATEGORY_ALL,
+  surveyTemplateCategories,
+} from './filterSurveyTemplates'
 
 export const SURVEY_TEMPLATE_BLANK = 'blank'
 
@@ -14,10 +22,21 @@ type Props = {
   onChange: (templateId: string) => void
 }
 
-type Option = { id: string; name: string; detail: string }
+type Option = { id: string; name: string; detail: string; category?: string }
 
 export const SurveyTemplatePicker: React.FC<Props> = ({ value, onChange }) => {
   const { templates, isLoading } = useSurveyTemplateList()
+  const [search, setSearch] = useState('')
+  const [category, setCategory] = useState(SURVEY_TEMPLATE_CATEGORY_ALL)
+
+  const categories = useMemo(
+    () => surveyTemplateCategories(templates),
+    [templates],
+  )
+  const visibleTemplates = useMemo(
+    () => filterSurveyTemplates(templates, search, category),
+    [templates, search, category],
+  )
 
   const options: Option[] = [
     {
@@ -25,18 +44,51 @@ export const SurveyTemplatePicker: React.FC<Props> = ({ value, onChange }) => {
       name: 'Blank survey',
       detail: 'Start with an empty survey and add your own questions.',
     },
-    ...templates.map((template) => ({
+    ...visibleTemplates.map((template) => ({
       id: template.id,
       name: template.name,
       detail: `${template.description} (${template.questionCount} questions)`,
+      category: template.category,
     })),
   ]
 
   return (
     <fieldset>
-      <legend className="mb-2 text-sm font-medium leading-none">
-        Start from
+      <legend className="mb-1 text-sm font-medium leading-none">
+        Start from a template{' '}
+        <span className="font-normal text-muted-foreground">(optional)</span>
       </legend>
+      <p className="mb-3 text-sm text-muted-foreground">
+        Choose a category or search to find a template, or keep the blank
+        survey. You can change everything once the survey is created.
+      </p>
+      <div
+        className="mb-3 flex flex-col gap-2"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') e.preventDefault()
+        }}
+      >
+        <SearchBar
+          searchQuery={search}
+          onSearchChange={setSearch}
+          placeholder="Search templates (optional)..."
+          className="w-full"
+        />
+        {categories.length > 0 && (
+          <Tabs value={category} onValueChange={setCategory}>
+            <TabsList className="h-auto flex-wrap justify-start">
+              <TabsTrigger value={SURVEY_TEMPLATE_CATEGORY_ALL}>
+                All
+              </TabsTrigger>
+              {categories.map((name) => (
+                <TabsTrigger key={name} value={name}>
+                  {name}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+        )}
+      </div>
       <RadioGroup
         value={value}
         onValueChange={onChange}
@@ -56,7 +108,13 @@ export const SurveyTemplatePicker: React.FC<Props> = ({ value, onChange }) => {
             >
               <RadioGroupItem id={inputId} value={option.id} className="mt-1" />
               <span className="flex flex-col gap-1">
-                <span className="font-medium">{option.name}</span>
+                <span className="flex items-center gap-2">
+                  <span className="font-medium">{option.name}</span>
+                  {option.category &&
+                    category === SURVEY_TEMPLATE_CATEGORY_ALL && (
+                      <Badge variant="secondary">{option.category}</Badge>
+                    )}
+                </span>
                 <span className="text-sm text-muted-foreground">
                   {option.detail}
                 </span>
@@ -66,6 +124,11 @@ export const SurveyTemplatePicker: React.FC<Props> = ({ value, onChange }) => {
         })}
         {isLoading && <Skeleton className="h-20 w-full" />}
       </RadioGroup>
+      {!isLoading && templates.length > 0 && visibleTemplates.length === 0 && (
+        <p className="mt-2 text-sm text-muted-foreground">
+          No templates match your search.
+        </p>
+      )}
     </fieldset>
   )
 }

@@ -2,6 +2,7 @@
 spec: v1
 templateName: Website feedback
 templateDescription: Find out whether visitors could do what they came to do, and what got in their way.
+templateCategory: Customer feedback
 language:
   default: en
   options: [en]

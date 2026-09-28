@@ -5,6 +5,7 @@ export type SurveyTemplateSummary = {
   id: string
   name: string
   description: string
+  category: string
 }
 
 type LoadedSurveyTemplate = SurveyTemplateSummary & { markdown: string }
@@ -42,11 +43,14 @@ export class SurveyTemplateLoader {
   }
 
   list(): SurveyTemplateSummary[] {
-    return [...this.load().values()].map(({ id, name, description }) => ({
-      id,
-      name,
-      description,
-    }))
+    return [...this.load().values()].map(
+      ({ id, name, description, category }) => ({
+        id,
+        name,
+        description,
+        category,
+      }),
+    )
   }
 
   /** Returns null for an id that is not a shipped template, never touching the filesystem with it. */
@@ -83,7 +87,11 @@ export class SurveyTemplateLoader {
         `Survey template '${id}' is missing 'templateDescription'`,
       )
     }
-    return { id, name, description, markdown }
+    const category = frontMatter.templateCategory
+    if (!category) {
+      throw new Error(`Survey template '${id}' is missing 'templateCategory'`)
+    }
+    return { id, name, description, category, markdown }
   }
 
   private readFrontMatter(markdown: string): Record<string, string> {

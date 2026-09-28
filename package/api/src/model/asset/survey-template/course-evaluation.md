@@ -2,6 +2,7 @@
 spec: v1
 templateName: Course evaluation
 templateDescription: Collect learner feedback on a course, covering content, teaching and how much they learned.
+templateCategory: Education
 language:
   default: en
   options: [en]

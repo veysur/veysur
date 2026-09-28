@@ -13,6 +13,7 @@ jest.mock('../hook', () => ({
         id: 'nps',
         name: 'Net Promoter Score',
         description: 'Ask the standard question.',
+        category: 'Customer feedback',
         questionCount: 3,
       },
     ],
@@ -35,7 +36,7 @@ describe('SurveyFormNew', () => {
 
   it('creates a blank survey by default, sending no template', async () => {
     renderForm()
-    fireEvent.change(screen.getByLabelText('Name'), {
+    fireEvent.change(screen.getByLabelText(/^name/i), {
       target: { name: 'name', value: 'My survey' },
     })
     fireEvent.click(screen.getByRole('button', { name: /create survey/i }))
@@ -50,7 +51,7 @@ describe('SurveyFormNew', () => {
 
   it('sends the chosen template id', async () => {
     renderForm()
-    fireEvent.change(screen.getByLabelText('Name'), {
+    fireEvent.change(screen.getByLabelText(/^name/i), {
       target: { name: 'name', value: 'My survey' },
     })
     fireEvent.click(screen.getByRole('radio', { name: /net promoter score/i }))

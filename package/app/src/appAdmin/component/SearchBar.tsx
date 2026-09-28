@@ -29,6 +29,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       />
       {searchQuery && (
         <button
+          type="button"
           onClick={() => onSearchChange('')}
           className="absolute right-2 p-1 rounded hover:bg-muted"
         >

@@ -2,6 +2,7 @@
 spec: v1
 templateName: Event feedback
 templateDescription: Gather reactions to a conference, workshop or meetup, including venue, content and what to run next time.
+templateCategory: Events
 language:
   default: en
   options: [en]

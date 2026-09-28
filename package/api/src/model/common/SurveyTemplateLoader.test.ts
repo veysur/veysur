@@ -16,10 +16,11 @@ describe('SurveyTemplateLoader (shipped templates)', () => {
   })
 
   test.each(loader.list().map((t) => [t.id, t] as const))(
-    '%s has a name and description and parses as survey markdown',
+    '%s has a name, description and category and parses as survey markdown',
     async (id, template) => {
       expect(template.name.trim()).not.toBe('')
       expect(template.description.trim()).not.toBe('')
+      expect(template.category.trim()).not.toBe('')
 
       const bundle = parseMarkdownSurvey(loader.getMarkdown(id))
       const kinds = bundle.sections.map((s) => s.kind)
@@ -61,27 +62,45 @@ describe('SurveyTemplateLoader (custom directory)', () => {
     fs.writeFileSync(path.join(dir, file), `---\n${frontMatter}\n---\n\n# T\n`)
 
   test('lists templates sorted by name, unquoting front matter values', () => {
-    write('b.md', 'templateName: "Beta"\ntemplateDescription: Second one')
-    write('a.md', "templateName: 'Zulu'\ntemplateDescription: First one")
+    write(
+      'b.md',
+      'templateName: "Beta"\ntemplateDescription: Second one\ntemplateCategory: Events',
+    )
+    write(
+      'a.md',
+      "templateName: 'Zulu'\ntemplateDescription: First one\ntemplateCategory: 'Human resources'",
+    )
     write('ignored.txt', 'templateName: X')
 
     expect(SurveyTemplateLoader.forDirectory(dir).list()).toEqual([
-      { id: 'b', name: 'Beta', description: 'Second one' },
-      { id: 'a', name: 'Zulu', description: 'First one' },
+      { id: 'b', name: 'Beta', description: 'Second one', category: 'Events' },
+      {
+        id: 'a',
+        name: 'Zulu',
+        description: 'First one',
+        category: 'Human resources',
+      },
     ])
   })
 
   test('throws when templateName is missing', () => {
-    write('a.md', 'templateDescription: Something')
+    write('a.md', 'templateDescription: Something\ntemplateCategory: Events')
     expect(() => SurveyTemplateLoader.forDirectory(dir).list()).toThrow(
       "'a' is missing 'templateName'",
     )
   })
 
   test('throws when templateDescription is missing', () => {
-    write('a.md', 'templateName: Something')
+    write('a.md', 'templateName: Something\ntemplateCategory: Events')
     expect(() => SurveyTemplateLoader.forDirectory(dir).list()).toThrow(
       "'a' is missing 'templateDescription'",
+    )
+  })
+
+  test('throws when templateCategory is missing', () => {
+    write('a.md', 'templateName: Something\ntemplateDescription: Else')
+    expect(() => SurveyTemplateLoader.forDirectory(dir).list()).toThrow(
+      "'a' is missing 'templateCategory'",
     )
   })
 })

@@ -101,7 +101,11 @@ export const SurveyFormNew: React.FC = () => {
         <CardContent>
           <div className="mb-3 relative">
             <Label htmlFor="name" className="mb-2">
-              Name
+              Name{' '}
+              <span className="text-destructive" aria-hidden="true">
+                *
+              </span>
+              <span className="sr-only">(required)</span>
             </Label>
             <Input
               id="name"
@@ -116,7 +120,9 @@ export const SurveyFormNew: React.FC = () => {
               <FieldError className="mt-1">{errors.name.join(', ')}</FieldError>
             )}
           </div>
-          <SurveyTemplatePicker value={templateId} onChange={setTemplateId} />
+          <div className="mt-6 border-t pt-4">
+            <SurveyTemplatePicker value={templateId} onChange={setTemplateId} />
+          </div>
         </CardContent>
         <CardFooter className="flex justify-end">
           <Button type="submit" disabled={formIsLoading}>

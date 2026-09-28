@@ -7,6 +7,7 @@ export type SurveyTemplateSummary = {
   id: string
   name: string
   description: string
+  category: string
   questionCount: number
 }
 

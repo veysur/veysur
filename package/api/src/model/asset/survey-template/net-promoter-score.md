@@ -2,6 +2,7 @@
 spec: v1
 templateName: Net Promoter Score
 templateDescription: Ask the standard likelihood-to-recommend question, then find out why participants gave their score.
+templateCategory: Customer feedback
 language:
   default: en
   options: [en]
