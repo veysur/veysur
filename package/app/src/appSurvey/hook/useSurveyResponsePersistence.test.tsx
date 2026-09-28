@@ -11,6 +11,11 @@ jest.mock('appSurvey/registry', () => ({
   getSurveyParticipantResponseApi: jest.fn(),
 }))
 
+jest.mock('../i18n', () => ({
+  __esModule: true,
+  default: { t: (key: string) => key },
+}))
+
 const createWrapper = (queryClient: QueryClient) => {
   // eslint-disable-next-line react/display-name -- test wrapper, not a rendered component that needs devtools naming
   return ({ children }: { children: React.ReactNode }) => (
