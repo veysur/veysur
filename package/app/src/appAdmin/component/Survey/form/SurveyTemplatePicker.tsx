@@ -21,7 +21,7 @@ export const SURVEY_TEMPLATE_BLANK = 'blank'
 
 type Props = {
   value: string
-  onChange: (templateId: string) => void
+  onChange: (templateId: string, templateName?: string) => void
 }
 
 type Option = { id: string; name: string; detail: string; category?: string }
@@ -109,8 +109,13 @@ export const SurveyTemplatePicker: React.FC<Props> = ({ value, onChange }) => {
           </div>
           <RadioGroup
             value={value}
-            onValueChange={onChange}
-            className="grid gap-2 sm:grid-cols-2"
+            onValueChange={(id) =>
+              onChange(
+                id,
+                templates.find((template) => template.id === id)?.name,
+              )
+            }
+            className="grid max-h-72 gap-2 overflow-y-auto pr-1 sm:grid-cols-2"
             data-testid="survey-template-picker"
           >
             {options.map((option) => {

@@ -51,6 +51,18 @@ export const SurveyFormNew: React.FC = () => {
     }))
   }
 
+  const handleTemplateChange = (id: string, templateName?: string) => {
+    setTemplateId(id)
+    if (templateName) {
+      setFormState((prevState) =>
+        prevState.name.trim()
+          ? prevState
+          : { ...prevState, name: templateName },
+      )
+      setErrors((prevErrors) => ({ ...prevErrors, name: undefined }))
+    }
+  }
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     event.stopPropagation()
@@ -121,7 +133,10 @@ export const SurveyFormNew: React.FC = () => {
             )}
           </div>
           <div className="mt-6 border-t pt-4">
-            <SurveyTemplatePicker value={templateId} onChange={setTemplateId} />
+            <SurveyTemplatePicker
+              value={templateId}
+              onChange={handleTemplateChange}
+            />
           </div>
         </CardContent>
         <CardFooter className="flex justify-end">
