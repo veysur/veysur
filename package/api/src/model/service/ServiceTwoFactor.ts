@@ -7,9 +7,8 @@ import {
 import * as bcryptjs from 'bcryptjs'
 import * as OTPAuth from 'otpauth'
 
-import { DEFAULT_PROJECT_ID } from 'veysur-common'
 import { RepoUser, ConfigJwt, ServiceProject } from 'model'
-import { attachProjectOwn, ErrorRef } from 'model/common'
+import { ErrorRef } from 'model/common'
 import { JWT_TYPE_PRE_AUTH } from 'acl/util/constant'
 import { Jwt } from 'acl/util/Jwt'
 import { ServiceAuthDirect } from './ServiceAuthDirect'
@@ -175,12 +174,7 @@ export class ServiceTwoFactor extends Service {
         ref: ErrorRef.UNAUTHORIZED,
         userMessage: 'No account found.',
       })
-    attachProjectOwn(
-      user,
-      await this.getService<ServiceProject>('project').getById(
-        DEFAULT_PROJECT_ID,
-      ),
-    )
+    await this.getService<ServiceProject>('project').attachOwnership(user)
 
     if (!user.twoFactorMeta?.enabled || !user.twoFactorSecret) {
       throw new ServerErrorForbidden({
@@ -298,11 +292,8 @@ export class ServiceTwoFactor extends Service {
       { _id: preAuthJwt._id },
       { includeDeleted: true, populate: userPopulate },
     )
-    attachProjectOwn(
+    await this.getService<ServiceProject>('project').attachOwnership(
       userWithTwoFactor,
-      await this.getService<ServiceProject>('project').getById(
-        DEFAULT_PROJECT_ID,
-      ),
     )
 
     return await this.getService<ServiceAuthDirect>('authDirect').loginDirect(

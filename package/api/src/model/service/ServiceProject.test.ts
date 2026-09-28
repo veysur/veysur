@@ -133,6 +133,42 @@ describe('ServiceProject', () => {
     })
   })
 
+  describe('attachOwnership', () => {
+    it("attaches the project to the user's projectOwn when they own it, and to every projectAdmin entry", async () => {
+      const { service, mockRepoProject } = buildService(configuredProject)
+      mockRepoProject.findOne.mockResolvedValueOnce({
+        _id: DEFAULT_PROJECT_ID,
+        ...configuredProject,
+      })
+
+      const user = await service.attachOwnership({
+        _id: 'user-1',
+        projectAdmin: [{ userId: 'user-1' }],
+      } as Parameters<typeof service.attachOwnership>[0])
+
+      expect(user.projectOwn).toEqual([
+        expect.objectContaining({ _id: DEFAULT_PROJECT_ID }),
+      ])
+      expect(user.projectAdmin[0].project).toEqual(
+        expect.objectContaining({ _id: DEFAULT_PROJECT_ID }),
+      )
+    })
+
+    it('leaves projectOwn empty for a user who is not the owner', async () => {
+      const { service, mockRepoProject } = buildService(configuredProject)
+      mockRepoProject.findOne.mockResolvedValueOnce({
+        _id: DEFAULT_PROJECT_ID,
+        ...configuredProject,
+      })
+
+      const user = await service.attachOwnership({
+        _id: 'someone-else',
+      } as Parameters<typeof service.attachOwnership>[0])
+
+      expect(user.projectOwn).toEqual([])
+    })
+  })
+
   describe('updateTimezone', () => {
     it('persists the new timezone and updates the cache', async () => {
       const { service, mockRepoProject } = buildService(configuredProject)

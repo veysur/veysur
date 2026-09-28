@@ -1,6 +1,7 @@
 import { ServerErrorBadRequest } from 'mzen-server'
 import { ServiceUser } from './ServiceUser'
 import { asPrivate } from 'test-utils/asPrivate'
+import { buildMockServiceProject } from 'test-utils/buildMockServiceProject'
 
 // Mocked, not real, per this file's/ServicePassword.test.ts's existing
 // convention — bcryptjs's real async hashing hangs indefinitely under this
@@ -201,13 +202,10 @@ describe('ServiceUser.listAccounts()', () => {
         },
       ]),
     }
-    const mockServiceProject = {
-      getById: jest.fn().mockResolvedValue({
-        _id: 'default',
-        name: 'Proj',
-        ownerId: 'user_1',
-      }),
-    }
+    const mockServiceProject = buildMockServiceProject({
+      name: 'Proj',
+      ownerId: 'user_1',
+    })
     const { service } = makeService({
       repoUser,
       services: { project: mockServiceProject },

@@ -1,5 +1,6 @@
 import { ServiceAuth } from './ServiceAuth'
 import { asPrivate } from 'test-utils/asPrivate'
+import { buildMockServiceProject } from 'test-utils/buildMockServiceProject'
 
 describe('ServiceAuth', () => {
   let service: ServiceAuth
@@ -39,13 +40,7 @@ describe('ServiceAuth', () => {
     mockServiceAuthDirect = {
       loginDirect: jest.fn().mockResolvedValue({ jwt: 'refreshed-token' }),
     }
-    const mockServiceProject = {
-      getById: jest.fn().mockResolvedValue({
-        _id: 'default',
-        name: 'Project',
-        ownerId: 'nobody',
-      }),
-    }
+    const mockServiceProject = buildMockServiceProject()
     jest.spyOn(service, 'getService').mockImplementation(((name: string) => {
       const map: Record<string, unknown> = {
         authDirect: mockServiceAuthDirect,

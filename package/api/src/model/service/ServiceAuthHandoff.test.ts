@@ -1,4 +1,5 @@
 import { ServiceAuthHandoff } from './ServiceAuthHandoff'
+import { buildMockServiceProject } from 'test-utils/buildMockServiceProject'
 import { authHandoffStore } from 'service/auth-handoff/AuthHandoffStore'
 
 jest.mock('service/auth-handoff/AuthHandoffStore', () => ({
@@ -33,13 +34,7 @@ describe('ServiceAuthHandoff', () => {
     mockServiceAuthDirect = {
       loginDirect: jest.fn().mockResolvedValue({ jwt: { token: 'fresh-jwt' } }),
     }
-    const mockServiceProject = {
-      getById: jest.fn().mockResolvedValue({
-        _id: 'default',
-        name: 'Project',
-        ownerId: 'nobody',
-      }),
-    }
+    const mockServiceProject = buildMockServiceProject()
     jest.spyOn(service, 'getService').mockImplementation(((name: string) => {
       const map: Record<string, unknown> = {
         authDirect: mockServiceAuthDirect,

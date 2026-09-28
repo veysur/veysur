@@ -1,9 +1,8 @@
 import { Service, ServerErrorUnauthorized } from 'mzen-server'
 import * as bcryptjs from 'bcryptjs'
-import { DEFAULT_PROJECT_ID } from 'veysur-common'
 
 import { RepoUser, ServiceProject } from 'model'
-import { attachProjectOwn, ErrorRef } from 'model/common'
+import { ErrorRef } from 'model/common'
 
 import { ServiceAuthDirect } from './ServiceAuthDirect'
 import { ServiceTwoFactor } from './ServiceTwoFactor'
@@ -53,11 +52,7 @@ export class ServiceAuthEmailPassword extends Service {
     // accounts are allowed to log in normally - the app shows a restore
     // prompt once authenticated.
     if (user && user.password && !user.anonymizedAt) {
-      const project =
-        await this.getService<ServiceProject>('project').getById(
-          DEFAULT_PROJECT_ID,
-        )
-      attachProjectOwn(user, project)
+      await this.getService<ServiceProject>('project').attachOwnership(user)
 
       const passwordsMatch = await bcryptjs.compare(password, user.password)
       if (!passwordsMatch) {

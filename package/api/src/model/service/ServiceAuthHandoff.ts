@@ -1,8 +1,6 @@
 import { Service, ServerErrorNotFound } from 'mzen-server'
-import { DEFAULT_PROJECT_ID } from 'veysur-common'
 
 import { Client, RepoUser, RepoUserClient, ServiceProject } from 'model'
-import { attachProjectOwn } from 'model/common'
 import { authHandoffStore } from 'service/auth-handoff/AuthHandoffStore'
 
 import { ServiceAuthDirect } from './ServiceAuthDirect'
@@ -55,11 +53,7 @@ export class ServiceAuthHandoff extends Service {
       throw new ServerErrorNotFound()
     }
 
-    const project =
-      await this.getService<ServiceProject>('project').getById(
-        DEFAULT_PROJECT_ID,
-      )
-    attachProjectOwn(user, project)
+    await this.getService<ServiceProject>('project').attachOwnership(user)
 
     const clientId = accessTokenClient ? accessTokenClient._id : jwt?.clientId
     const existingClient =

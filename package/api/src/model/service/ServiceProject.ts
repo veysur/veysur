@@ -1,6 +1,7 @@
 import { Service, ServerErrorNotFound } from 'mzen-server'
-import { DEFAULT_PROJECT_ID, Project } from 'veysur-common'
+import { DEFAULT_PROJECT_ID, Project, User } from 'veysur-common'
 
+import { attachProjectOwn } from 'model/common'
 import { RepoProject } from 'model/repo'
 
 /**
@@ -71,6 +72,17 @@ export class ServiceProject extends Service {
     }
 
     return this.cachedProject
+  }
+
+  /**
+   * Attaches the project onto a populated user (`projectOwn` /
+   * `projectAdmin[].project`) for callers that build a JWT or account listing
+   * from it. Self-hosted has no `RepoProject` relation to join against, so this
+   * does it by hand from the cached single project. An extension whose repos
+   * populate those relations already overrides this as a no-op.
+   */
+  async attachOwnership(user: User): Promise<User> {
+    return attachProjectOwn(user, await this.getById(DEFAULT_PROJECT_ID))
   }
 
   async updateTimezone({

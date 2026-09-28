@@ -2,6 +2,7 @@ import * as OTPAuth from 'otpauth'
 import { ServiceTwoFactor, PreAuthJwtPayload } from './ServiceTwoFactor'
 import { ConfigJwt } from 'model'
 import { asPrivate } from 'test-utils/asPrivate'
+import { buildMockServiceProject } from 'test-utils/buildMockServiceProject'
 
 jest.mock('bcryptjs', () => ({
   compare: jest.fn(),
@@ -44,13 +45,7 @@ describe('ServiceTwoFactor', () => {
       return {}
     }) as typeof service.getRepo)
 
-    const mockServiceProject = {
-      getById: jest.fn().mockResolvedValue({
-        _id: 'default',
-        name: 'Project',
-        ownerId: 'nobody',
-      }),
-    }
+    const mockServiceProject = buildMockServiceProject()
     jest.spyOn(service, 'getService').mockImplementation(((name: string) => {
       if (name === 'authDirect') return mockServiceAuthDirect
       if (name === 'project') return mockServiceProject

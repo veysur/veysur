@@ -7,7 +7,6 @@ import {
 import momentTimezone from 'moment-timezone'
 import * as bcryptjs from 'bcryptjs'
 import {
-  DEFAULT_PROJECT_ID,
   StringRandom,
   USER_ROLE_CUSTOMER,
   UserEmailMeta,
@@ -20,7 +19,6 @@ import {
   ServiceVerifyEmail,
   User,
 } from 'model'
-import { attachProjectOwn } from 'model/common'
 import { ServiceEmailDomainCheck } from './ServiceEmailDomainCheck'
 
 const ACCOUNT_DELETION_RETENTION = 'P1M'
@@ -529,25 +527,20 @@ export class ServiceUser extends Service {
   > {
     const repoUser = this.getRepo<RepoUser>('user')
     const users = await repoUser.find({})
-    const project =
-      await this.getService<ServiceProject>('project').getById(
-        DEFAULT_PROJECT_ID,
-      )
+    const projectService = this.getService<ServiceProject>('project')
+    await Promise.all(users.map((user) => projectService.attachOwnership(user)))
 
-    return users.map((user) => {
-      attachProjectOwn(user, project)
-      return {
-        userId: String(user._id),
-        email: user.email,
-        nameFirst: user.nameFirst,
-        nameLast: user.nameLast,
-        createdAt: user.createdAt,
-        projects: (user.projectOwn ?? []).map((ownedProject) => ({
-          projectId: String(ownedProject._id),
-          name: ownedProject.name,
-        })),
-      }
-    })
+    return users.map((user) => ({
+      userId: String(user._id),
+      email: user.email,
+      nameFirst: user.nameFirst,
+      nameLast: user.nameLast,
+      createdAt: user.createdAt,
+      projects: (user.projectOwn ?? []).map((ownedProject) => ({
+        projectId: String(ownedProject._id),
+        name: ownedProject.name,
+      })),
+    }))
   }
 
   /**

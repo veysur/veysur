@@ -1,8 +1,7 @@
 import { Service, ServerErrorNotFound } from 'mzen-server'
-import { DEFAULT_PROJECT_ID, UserClient } from 'veysur-common'
+import { UserClient } from 'veysur-common'
 
 import { Client, RepoUser, RepoUserClient, ServiceProject } from 'model'
-import { attachProjectOwn } from 'model/common'
 
 import { ServiceAuthDirect } from './ServiceAuthDirect'
 
@@ -31,11 +30,7 @@ export class ServiceAuth extends Service {
         populate: userPopulate,
       },
     )
-    const project =
-      await this.getService<ServiceProject>('project').getById(
-        DEFAULT_PROJECT_ID,
-      )
-    attachProjectOwn(user, project)
+    await this.getService<ServiceProject>('project').attachOwnership(user)
 
     // Always generate a new JWT with latest user data (projects, etc.)
     if (accessToken) {

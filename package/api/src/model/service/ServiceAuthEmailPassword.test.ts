@@ -1,6 +1,7 @@
 import * as bcryptjs from 'bcryptjs'
 import { ServiceAuthEmailPassword } from './ServiceAuthEmailPassword'
 import { asPrivate } from 'test-utils/asPrivate'
+import { buildMockServiceProject } from 'test-utils/buildMockServiceProject'
 
 jest.mock('bcryptjs', () => ({
   compare: jest.fn(),
@@ -45,13 +46,7 @@ describe('ServiceAuthEmailPassword', () => {
     mockServiceAuthDirect = {
       loginDirect: jest.fn().mockResolvedValue({ jwt: 'signed-token' }),
     }
-    const mockServiceProject = {
-      getById: jest.fn().mockResolvedValue({
-        _id: 'default',
-        name: 'Project',
-        ownerId: 'nobody',
-      }),
-    }
+    const mockServiceProject = buildMockServiceProject()
     jest.spyOn(service, 'getService').mockImplementation(((name: string) => {
       const map: Record<string, unknown> = {
         twoFactor: mockServiceTwoFactor,
