@@ -2,3 +2,4 @@
 backups/
 dist/
 certs/tls.*
+nginx/storage-s3.conf

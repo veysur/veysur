@@ -42,18 +42,25 @@ trap 'rm -rf "$STAGE"' EXIT
 info "Reading $ARCHIVE"
 tar -xf "$ARCHIVE" -C "$STAGE" || die "could not read the archive"
 DIR=$(find "$STAGE" -mindepth 1 -maxdepth 1 -type d | head -n 1)
-for part in MANIFEST env database.sql.gz files.tar.gz; do
+for part in MANIFEST env database.sql.gz; do
   [ -f "$DIR/$part" ] || die "the archive has no $part; it was not made by backup.sh"
 done
-gzip -t "$DIR/database.sql.gz" && gzip -t "$DIR/files.tar.gz" || die "the archive is damaged"
-
 manifest() { sed -n "s/^$1=//p" "$DIR/MANIFEST" | tail -n 1; }
+# S3 installs have no files archive: their files stay in the buckets.
+HAS_FILES=false
+case " $(manifest includes) " in *" files "*) HAS_FILES=true ;; esac
+if $HAS_FILES; then
+  [ -f "$DIR/files.tar.gz" ] || die "the archive has no files.tar.gz; it was not made by backup.sh"
+  gzip -t "$DIR/files.tar.gz" || die "the archive is damaged"
+fi
+gzip -t "$DIR/database.sql.gz" || die "the archive is damaged"
+
 echo "Backup of ${YELLOW}$(manifest domain)${NC}, taken $(manifest created_at), release $(manifest image_tag)."
 if [ -f "$DEPLOY_DIR/VERSION" ] && [ "$(cat "$DEPLOY_DIR/VERSION")" != "$(manifest image_tag)" ]; then
   warn "this is release $(cat "$DEPLOY_DIR/VERSION") but the backup came from $(manifest image_tag)."
   warn "The restored .env pins $(manifest image_tag). To go to the newer release afterwards: ./scripts/update.sh --tag $(cat "$DEPLOY_DIR/VERSION")"
 fi
-echo "This replaces the .env, databases and uploaded files on this host."
+echo "This replaces the .env and databases on this host, and the uploaded files if the backup holds them."
 if ! $ASSUME_YES; then
   read -r -p "Continue? [y/N] " confirm || true
   [ "${confirm:-}" = y ] || [ "${confirm:-}" = Y ] || die "cancelled"
@@ -92,9 +99,13 @@ mysql_app_databases | sed 's/.*/DROP DATABASE `&`;/' |
   compose exec -T mysql sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD"'
 gzip -dc "$DIR/database.sql.gz" | compose exec -T mysql sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD"'
 
-info "Restoring uploaded files"
-gzip -dc "$DIR/files.tar.gz" |
-  compose run --rm --no-deps -T --entrypoint sh api -c 'find /data/files -mindepth 1 -delete && tar -xf - -C /data/files'
+if $HAS_FILES; then
+  info "Restoring uploaded files"
+  gzip -dc "$DIR/files.tar.gz" |
+    compose run --rm --no-deps -T --entrypoint sh api -c 'find /data/files -mindepth 1 -delete && tar -xf - -C /data/files'
+else
+  warn "This backup holds no uploaded files: they are in the S3 buckets named in the restored .env. Restore those separately if they were lost."
+fi
 
 if [ -f "$DIR/caddy-data.tar.gz" ]; then
   info "Restoring Caddy's certificate store"

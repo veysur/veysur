@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # cspell:ignore mysqldump gzip caddy
-# On-demand backup: databases, uploaded files, .env and custom certificates in
+# On-demand backup: databases, uploaded files (local storage only), .env and custom certificates in
 # one archive. Safe to run while the stack is up. Restore with restore.sh.
 # Redis is not backed up: it holds only cache and rate-limit counters.
 set -euo pipefail
@@ -49,17 +49,24 @@ DIR="$STAGE/$name"
 info "Dumping the databases"
 mysql_dump_to "$DIR/database.sql.gz" || die "database dump failed; no backup was written"
 
-# A throwaway container mounts the volume, so this works whatever state the api is in.
-info "Archiving uploaded files"
-compose run --rm --no-deps -T --entrypoint tar api -C /data/files -czf - . >"$DIR/files.tar.gz" ||
-  die "could not archive the files volume; no backup was written"
-gzip -t "$DIR/files.tar.gz" || die "the files archive is corrupt; no backup was written"
+includes="database env certs"
+if [ "$(env_get API_S3_TYPE)" = s3 ]; then
+  # Files live in the operator's buckets, which this script cannot copy.
+  warn "Files are in S3 (buckets $(env_get API_S3_PUBLIC_BUCKET) and $(env_get API_S3_PRIVATE_BUCKET)) and are not in this archive."
+  warn "Back the buckets up separately (versioning or replication). Database records point at those files."
+else
+  # A throwaway container mounts the volume, so this works whatever state the api is in.
+  info "Archiving uploaded files"
+  compose run --rm --no-deps -T --entrypoint tar api -C /data/files -czf - . >"$DIR/files.tar.gz" ||
+    die "could not archive the files volume; no backup was written"
+  gzip -t "$DIR/files.tar.gz" || die "the files archive is corrupt; no backup was written"
+  includes="database files env certs"
+fi
 
 info "Saving configuration"
 cp "$ENV_FILE" "$DIR/env"
 [ ! -d "$DEPLOY_DIR/certs" ] || cp -r "$DEPLOY_DIR/certs" "$DIR/certs"
 
-includes="database files env certs"
 if $WITH_CADDY; then
   info "Archiving Caddy's certificate store"
   compose run --rm --no-deps -T --entrypoint tar caddy -C /data -czf - . >"$DIR/caddy-data.tar.gz" ||

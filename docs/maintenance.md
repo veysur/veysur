@@ -13,7 +13,7 @@ from the directory that holds `compose.yaml` and `scripts/` (`deploy/` in a sour
 | What | Where | In `backup.sh` | If it is lost |
 |---|---|---|---|
 | Surveys, responses, users, settings | `veysur-mysql-data` volume | Yes | Everything is lost |
-| Uploaded files | `veysur-files` volume | Yes | Images and attachments are lost; database records remain |
+| Uploaded files | `veysur-files` volume, or your S3 buckets | Volume only; buckets are your responsibility | Images and attachments are lost; database records remain |
 | `.env` | The deploy directory | Yes | See the secrets below |
 | Custom TLS certificate | `certs/` | Yes | Supply the certificate again |
 | Issued certificates | `veysur-caddy-data` volume | With `--include-caddy-data` | Caddy requests new ones, subject to Let's Encrypt rate limits |
@@ -25,7 +25,9 @@ The secrets in `.env` matter most, and the backup archive is the only copy you c
   two-factor secrets, become unreadable. Affected users cannot pass two-factor checks until an operator resets
   them. There is no key rotation.
 - `API_JWT_KEY`: every session ends and everyone signs in again. Nothing else is lost.
-- `API_S3_LOCAL_SECRET`: file links already issued stop working. No files are lost.
+- `API_S3_LOCAL_SECRET` (local storage): file links already issued stop working. No files are lost.
+- `API_S3_SECRET_ACCESS_KEY` (S3 storage): without it the API cannot read or write files. Create a new key in
+  your provider, update `.env` and run `./scripts/deploy.sh`.
 - `API_PROJECT_OWNER_ID`: without it the project has no owner in the app. Re-run
   `./scripts/admin-account-bootstrap.sh` or copy the value back.
 - `MYSQL_ROOT_PASSWORD` and `MYSQL_PASSWORD` apply only when the database volume is first created. Editing
@@ -86,7 +88,8 @@ Snapshots named `backups/veysur-*-before-*.sql.gz` are never deleted automatical
 ```
 
 This writes `backups/veysur-backup-<time>.tar` while the stack keeps running. It holds the databases, the
-uploaded files, `.env` and `certs/`.
+uploaded files, `.env` and `certs/`. With S3 storage there are no uploaded files in the archive: back the
+buckets up with your provider, see [storage.md](./storage.md#backup).
 
 | Option | Effect |
 |---|---|
@@ -119,7 +122,8 @@ A backup you have never restored is a guess. Restore one to a spare machine now 
 ./scripts/restore.sh backups/veysur-backup-20260921-020000.tar
 ```
 
-This replaces the databases, uploaded files and `.env` with the archive's contents, then starts the stack. It
+This replaces the databases, uploaded files (local storage) and `.env` with the archive's contents, then starts
+the stack. An S3 install's files stay in its buckets. It
 asks first (`--yes` skips the question). The previous `.env` is kept as `.env.pre-restore-<time>`.
 
 - The host needs Docker and an unpacked release. The images must already be present or pullable. From a

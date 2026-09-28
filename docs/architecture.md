@@ -18,7 +18,7 @@ VeySur runs as a small Docker Compose stack on one host. All apps share one orig
 | `redis` | `redis:7.2-alpine` | Cache and rate-limit state, no persistence |
 | `migrate` | `veysur/api` | One-shot migration runner (profile `tools`, not started by `up`) |
 
-Named volumes hold state: `veysur-files` (uploaded files), `veysur-mysql-data`, `veysur-mysql-logs`,
+Named volumes hold state: `veysur-files` (uploaded files, local storage only; see [storage.md](./storage.md)), `veysur-mysql-data`, `veysur-mysql-logs`,
 `veysur-caddy-data` (certificates) and `veysur-caddy-config`.
 
 ## One origin

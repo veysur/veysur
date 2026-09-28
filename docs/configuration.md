@@ -27,6 +27,11 @@ Required secrets fail at `docker compose config` if empty. Anything not listed h
 |---|---|
 | `API_WEB_DOMAIN`, `API_DOMAIN`, `API_CORS_ALLOWED_DOMAINS` | Public domain, no scheme |
 | `API_S3_PUBLIC_BASE_URL` | Public base URL for file links, includes any non-standard port |
+| `API_S3_TYPE` | File storage: `local` (default) or `s3`. See [storage.md](./storage.md) |
+| `API_S3_ENDPOINT`, `API_S3_REGION`, `API_S3_FORCE_PATH_STYLE` | S3 only: bare endpoint origin, signing region, and path-style addressing (`true`) |
+| `API_S3_PUBLIC_BUCKET`, `API_S3_PRIVATE_BUCKET` | Bucket names, default `veysur-files` and `veysur-private`. Must differ; set your own for AWS |
+| `API_S3_ACCESS_KEY_ID`, `API_S3_SECRET_ACCESS_KEY` | S3 only: the access key |
+| `VEYSUR_STORAGE_SNIPPET` | nginx storage include: `./nginx/storage-local.conf` (default) or the generated `./nginx/storage-s3.conf`. Set by `config-generate.sh` |
 | `API_BRAND_NAME` | Product name in non-legal contexts, default `VeySur` |
 | `API_PROJECT_OWNER_ID` | Written by `admin-account-bootstrap.sh`; do not edit |
 | `MYSQL_DATABASE`, `MYSQL_DATABASE_IP_LOCATION`, `MYSQL_USER` | Database names and user. The IP-location database is created but not used by the self-hosted edition |
@@ -37,13 +42,14 @@ Required secrets fail at `docker compose config` if empty. Anything not listed h
 
 The project name and timezone are not keys: they are seeded on first start and then edited in the admin app.
 
-Fixed in `compose.yaml`, not keys: `DEPLOYMENT_MODE=self-hosted`, local-disk file storage
-(`API_S3_TYPE=local`, `/data/files`, see [storage.md](./storage.md); external S3 is not supported), `MYSQL_HOST=mysql`, `REDIS_HOST=redis`, empty `BUGSINK_DSN`. There is no
+Fixed in `compose.yaml`, not keys: `DEPLOYMENT_MODE=self-hosted`, the local storage path (`/data/files`, see
+[storage.md](./storage.md)), `MYSQL_HOST=mysql`, `REDIS_HOST=redis`, empty `BUGSINK_DSN`. There is no
 `API_COMPOSITION_MODULE`; its absence keeps the API on plain core composition.
 
 ## Secrets
 
-`API_JWT_KEY`, `MYSQL_ROOT_PASSWORD`, `MYSQL_PASSWORD`, `REDIS_PASSWORD`, `API_S3_LOCAL_SECRET`, and the
+`API_JWT_KEY`, `MYSQL_ROOT_PASSWORD`, `MYSQL_PASSWORD`, `REDIS_PASSWORD`, `API_S3_LOCAL_SECRET` (local storage only),
+`API_S3_SECRET_ACCESS_KEY` (S3 only), and the
 field-encryption trio `API_ENCRYPTION_PUBLIC_KEY`, `API_ENCRYPTION_PRIVATE_KEY`,
 `API_ENCRYPTION_PRIVATE_KEY_PASSWORD` (the keys are base64 of a 4096-bit RSA PEM pair). Generated values are
 hex or base64 so they are safe unquoted in `.env`. `./scripts/backup.sh` includes `.env`. [maintenance.md](./maintenance.md) lists what losing each secret costs;

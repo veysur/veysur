@@ -141,6 +141,42 @@ if $DEV_MODE; then
   env_set API_MAIL_PORT 1025 "$WORK"
 fi
 
+# --- file storage ---------------------------------------------------------
+# Local disk needs nothing. S3 keeps files in your own bucket and needs the
+# endpoint, buckets and an access key; see docs/storage.md for the bucket policy.
+echo
+echo "File storage:"
+echo "  1) Local disk (Docker volume)"
+echo "  2) S3-compatible service (AWS S3, MinIO, ...)"
+if [ "$(current API_S3_TYPE)" = s3 ]; then storage_default=2; else storage_default=1; fi
+if $DEV_MODE; then storage_choice=1
+elif $NON_INTERACTIVE; then storage_choice=$storage_default
+else
+  read -r -p "Choose [${storage_default}]: " storage_choice || true
+  storage_choice=${storage_choice:-$storage_default}
+fi
+case $storage_choice in
+  1) env_set API_S3_TYPE local "$WORK"
+     env_set VEYSUR_STORAGE_SNIPPET ./nginx/storage-local.conf "$WORK" ;;
+  2) env_set API_S3_TYPE s3 "$WORK"
+     env_set VEYSUR_STORAGE_SNIPPET ./nginx/storage-s3.conf "$WORK"
+     env_set API_S3_FORCE_PATH_STYLE true "$WORK"
+     ask API_S3_ENDPOINT "S3 endpoint (for AWS: https://s3.<region>.amazonaws.com)" ""
+     ask API_S3_REGION "S3 region" "us-east-1"
+     ask API_S3_PUBLIC_BUCKET "Public bucket (survey images; must allow anonymous read)" "veysur-files"
+     ask API_S3_PRIVATE_BUCKET "Private bucket (response attachments, exports)" "veysur-private"
+     ask API_S3_ACCESS_KEY_ID "Access key ID" ""
+     s3_secret=$(read_secret "Secret access key (Enter keeps the current value)")
+     [ -z "$s3_secret" ] || env_set API_S3_SECRET_ACCESS_KEY "$s3_secret" "$WORK"
+     [ -n "$(current API_S3_SECRET_ACCESS_KEY)" ] || warn "no S3 secret access key set: set API_S3_SECRET_ACCESS_KEY before deploying"
+     if [ -n "$(current API_S3_ENDPOINT)" ]; then
+       storage_validate "$(current API_S3_ENDPOINT)" "$(current API_S3_PUBLIC_BUCKET)" "$(current API_S3_PRIVATE_BUCKET)"
+     else
+       warn "no S3 endpoint set: set API_S3_ENDPOINT before deploying"
+     fi ;;
+  *) die "choose 1 or 2" ;;
+esac
+
 # --- administrator and mail ----------------------------------------------
 echo
 ask VEYSUR_ADMIN_EMAIL "Administrator e-mail (used by the first-account bootstrap)" "admin@$domain"
@@ -169,7 +205,8 @@ ask_secret API_JWT_KEY "JWT signing key" 64
 ask_secret MYSQL_ROOT_PASSWORD "MySQL root password" 24
 ask_secret MYSQL_PASSWORD "MySQL application password" 24
 ask_secret REDIS_PASSWORD "Redis password" 24
-ask_secret API_S3_LOCAL_SECRET "File-storage signing secret" 32
+# Signs local-disk file links; S3 storage signs with the access key instead.
+[ "$(current API_S3_TYPE)" = s3 ] || ask_secret API_S3_LOCAL_SECRET "File-storage signing secret" 32
 
 if [ -z "$(current API_ENCRYPTION_PRIVATE_KEY)" ]; then
   info "Generating the field-encryption key pair (a few seconds)"
@@ -229,6 +266,7 @@ umask 077
 cat "$WORK" >"$ENV_FILE"
 chmod 600 "$ENV_FILE"
 ok "Wrote $ENV_FILE"
+storage_snippet_ensure
 if $DEV_MODE; then
   echo "Next: pnpm dev:migrate && pnpm dev   (from the repository root)"
 else

@@ -44,6 +44,9 @@ compose --profile tools run --rm migrate
 info "Starting the stack"
 compose up -d --wait
 
+# The storage include is a bind mount, so a regenerated file does not recreate the container.
+compose exec -T nginx nginx -s reload >/dev/null 2>&1 || warn "could not reload nginx; run ./scripts/veysur.sh restart nginx if file links fail"
+
 info "Checking the API"
 wait_for_api 30 || die "the API did not answer /api/ping. See: ./scripts/veysur.sh logs api"
 
