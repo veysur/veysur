@@ -53,14 +53,13 @@ Rules: always follow pattern order; use explicit action suffixes (`/edit`, `/vie
 | `appSurvey`   | Survey-taking interface for participants             |
 | `appAccount`  | Account management, including profile                |
 
-An extension may add further sub-apps (such as `appPlatform`) and `/api/platform/` endpoints. Those trees are not part of this repo, and the `/api/platform/` prefix is independent of which frontend app makes the request.
+An extension may add further sub-apps and API endpoints. Those trees are not part of this repo.
 
 ### Import boundary (lint-enforced)
 
 Shared code (`src/component/**`, `src/hook/**`, `src/common/**`, `src/registry/**`) **may
-not import** any sub-app tree (`appAdmin/**`, `appSurvey/**`, `appAccount/**`,
-`appPlatform/**`). `appAdmin/**` and `appSurvey/**` **may not
-import** `appPlatform/**`, `appAccount/billing/**`, or the extension package `veysur-common-cloud`. `pnpm lint`
+not import** any sub-app tree (`appAdmin/**`, `appSurvey/**`, `appAccount/**`, or an
+extension's). `appAdmin/**` and `appSurvey/**` **may not import** extension code. `pnpm lint`
 enforces this (`no-restricted-imports` in `eslint.config.mjs`).
 
 The rule runs at `error` — `pnpm lint` fails on any violation.
@@ -120,7 +119,7 @@ Every mutation hook must invalidate every query key whose underlying data the mu
 Format timestamps for display only through the helpers in `src/common/formatDateTime.ts`
 (`formatDate`, `formatDateTime`, `formatCalendar`, …) — never a bare `momentTimezone(x).format(...)`
 in a component. Pass the zone from the sub-app's `useDisplayTimezone()` hook (`appAdmin` → project
-zone, `appAccount` → browser zone, `appPlatform` → fixed `Europe/London`). State the zone once per
+zone, `appAccount` → browser zone). State the zone once per
 view with `<TimezoneNotice>` or a heading suffix, not on every timestamp. Full reference:
 [/docs/timestamps.md](../../docs/timestamps.md).
 
@@ -144,7 +143,7 @@ export function useEntityList() {
 }
 ```
 
-**Build every authenticated `useQuery` in `appAdmin`/`appAccount`/`appPlatform` with `useAuthdQuery`** (`/package/app/src/hook/useAuthdQuery.ts`), not a raw `useQuery`. `RestClient`'s JWT refresh (`jwtRefresher`) is registered by whichever `useAuth()`-calling component's `useEffect` happens to mount first — there is no single provider owning it, so a query that fires before any `useAuth()` instance has registered can go out with a stale token and 401 intermittently. `useAuthdQuery` closes this deterministically by awaiting `authRefreshWithRetry()` from its own local `useAuth()` instance before running `queryFn`, regardless of mount order. `useInvalidatingMutation` does the same for `mutationFn`, so mutation hooks get this for free. Exceptions (leave on plain `useQuery`): `useAuth.ts`'s own `[KEY_STATE_AUTH]` query (would be circular), local-persistence-only hooks with no network call (e.g. `usePaginationPerPage.ts`, `useCookieConsent.ts`), and genuinely unauthenticated/pre-login queries (e.g. geo/VAT lookups in `useBlockedCountries.ts`, `useCountryAccess.ts`, `useVatContext.ts`).
+**Build every authenticated `useQuery` in `appAdmin`/`appAccount` with `useAuthdQuery`** (`/package/app/src/hook/useAuthdQuery.ts`), not a raw `useQuery`. `RestClient`'s JWT refresh (`jwtRefresher`) is registered by whichever `useAuth()`-calling component's `useEffect` happens to mount first — there is no single provider owning it, so a query that fires before any `useAuth()` instance has registered can go out with a stale token and 401 intermittently. `useAuthdQuery` closes this deterministically by awaiting `authRefreshWithRetry()` from its own local `useAuth()` instance before running `queryFn`, regardless of mount order. `useInvalidatingMutation` does the same for `mutationFn`, so mutation hooks get this for free. Exceptions (leave on plain `useQuery`): `useAuth.ts`'s own `[KEY_STATE_AUTH]` query (would be circular), local-persistence-only hooks with no network call (e.g. `usePaginationPerPage.ts`, `useCookieConsent.ts`), and genuinely unauthenticated/pre-login queries (e.g. the geo lookups in `useBlockedCountries.ts` and `useCountryAccess.ts`).
 
 **`authRefresh(true)` calls must stay.** Force-refresh after any mutation that changes auth-related user data (email verification, 2FA toggle) to reload React auth state. This is distinct from keeping the JWT fresh — it pushes a server-side change into the React layer.
 

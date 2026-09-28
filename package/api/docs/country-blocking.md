@@ -1,7 +1,7 @@
 # Country Blocking
 
-Optional mechanism for blocking access from specific countries (e.g. for legal,
-regulatory, or sanctions-compliance reasons specific to a given deployment).
+Optional mechanism for blocking access from specific countries, for legal or regulatory
+reasons specific to a deployment. The self-hosted edition ships none of it enabled.
 
 ## Configuration
 
@@ -14,38 +14,33 @@ IP-geolocation and country-list configuration it chooses.
 
 ## Enforcement points
 
-### 1. The `geo` collaborator
+### 1. Server-side registration rejection
 
-Core resolves `detectCountry(args)` / `isCountryBlocked(countryCode)` via the
-`GeoServiceContract` seam and skips enforcement when no `geo` service is registered.
-The frontend hooks below expect a `GET /platform/geo/access-check` and
-`GET /platform/geo/blocked-countries` endpoint pair to exist; in the plain self-hosted
-build neither exists, so both hooks fail open (see below).
-
-### 2. Frontend gate — signup only (appAccount)
-
-`CountryAccessGate` (`package/app/src/component/CountryAccessGate/`) wraps only the `/signup` route in appAccount's `Router.tsx` — not the whole app. This is deliberate: an existing user whose country is later added to the block list must still be able to log in and manage their account. Only *new* signups are blocked at the frontend.
-
-appAdmin and appSurvey do not use `CountryAccessGate` at all — appAdmin has no signup route of its own (account creation is exclusively an appAccount concept), and appSurvey intentionally has no country gating (survey-taking and participant registration are unaffected by country blocking at the frontend level; see server-side enforcement below).
-
-`useCountryAccess()` (`package/app/src/hook/useCountryAccess.ts`) resolves country by server IP-based detection via `geo/access-check`. The gate sits on the signup route, where the visitor is not authenticated, so there is no saved country to consult.
-
-If blocked, the gated route renders a "Service Unavailable in Your Country" card. **Fails open** if the `access-check` request errors (e.g. network failure).
-
-Not applied to the docsite (no blocking needed).
-
-### 3. Server-side registration rejection
-
-Enforced independently of the frontend gate (a client-side redirect alone is bypassable via direct API calls) at each registration path:
+Enforced independently of any frontend gate (a client-side redirect alone is bypassable via
+direct API calls) at each registration path:
 
 | Path | Service method |
 |---|---|
 | Email/password signup | `ServiceSignup.user()` (`package/api/src/model/service/ServiceSignup.ts`) |
 | Survey participant registration | `ServiceAuthParticipant.register()` (`package/api/src/model/service/ServiceAuthParticipant.ts`) |
 
-Each resolves the `geo` collaborator via `GeoServiceContract`, calls `detectCountry({ ip })`, and rejects with `ServerErrorForbidden` if the resolved country is blocked — skipped entirely if no `geo` service is registered. The `ip` is sourced from the request via the endpoint's `data` map (`ip: { src: 'request' }`).
+Each resolves the `geo` collaborator via `GeoServiceContract`, calls `detectCountry({ ip })`,
+and rejects with `ServerErrorForbidden` if the resolved country is blocked. It is skipped
+entirely if no `geo` service is registered. The `ip` is sourced from the request via the
+endpoint's `data` map (`ip: { src: 'request' }`).
 
-**Facebook signup** (`postFacebook` in `package/api/src/endpoint/shared/signup.ts`) declares an `ip` field and an endpoint route, but no corresponding `facebook()` method exists on `ServiceSignup` — this signup path is currently unimplemented, so no country check was added for it. Add one alongside the method when it is implemented.
+**Facebook signup** (`postFacebook` in `package/api/src/endpoint/shared/signup.ts`) declares an
+`ip` field and an endpoint route, but no corresponding `facebook()` method exists on
+`ServiceSignup`, so this signup path is currently unimplemented and has no country check. Add
+one alongside the method when it is implemented.
+
+### 2. Frontend gate (appAccount signup)
+
+`CountryAccessGate` (`package/app/src/component/CountryAccessGate/`) wraps only the `/signup`
+route in appAccount's `Router.tsx`, not the whole app, so an existing user can still log in
+and manage their account. `useCountryAccess()` (`package/app/src/hook/useCountryAccess.ts`)
+asks the server whether the visitor is blocked. If a `geo` service is not registered, or the
+request errors, the hook fails open and nothing is blocked.
 
 ## Testing
 

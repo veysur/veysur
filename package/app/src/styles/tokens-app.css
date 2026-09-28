@@ -1,6 +1,6 @@
 /* App-only design tokens: chart, sidebar, code block, scrollbar, and the
    survey-editor active-element highlight. Colour tokens shared across app and
-   website live in veysur-theme; these are specific to appAdmin/appPlatform UI. */
+   website live in veysur-theme; these are specific to appAdmin UI. */
 
 /* Resolves to the correct light/dark shade automatically — no dark: variant needed */
 @utility bg-editor-active {

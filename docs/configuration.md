@@ -43,8 +43,7 @@ Required secrets fail at `docker compose config` if empty. Anything not listed h
 The project name and timezone are not keys: they are seeded on first start and then edited in the admin app.
 
 Fixed in `compose.yaml`, not keys: `DEPLOYMENT_MODE=self-hosted`, the local storage path (`/data/files`, see
-[storage.md](./storage.md)), `MYSQL_HOST=mysql`, `REDIS_HOST=redis`, empty `BUGSINK_DSN`. There is no
-`API_COMPOSITION_MODULE`; its absence keeps the API on plain core composition.
+[storage.md](./storage.md)), `MYSQL_HOST=mysql`, `REDIS_HOST=redis`, empty `BUGSINK_DSN`.
 
 ## Secrets
 

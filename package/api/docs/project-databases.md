@@ -78,8 +78,6 @@ Each request flows through multiple layers to resolve the correct project databa
    - DataSourceRegistry creates or reuses connection pool
    - Repo operations execute against the correct project database
 
-For detailed subdomain resolution flow, see [Project Subdomain Resolution](./project-subdomain-resolution.md).
-
 ## Project-Scoped Repositories
 
 The following VeySur repos use project-specific databases (configured with `dataSource: 'project'`):

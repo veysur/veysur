@@ -1,8 +1,6 @@
 name: veysur
 
 # VeySur self-hosted stack. Configuration comes from `.env` (copy .env.example).
-# API_COMPOSITION_MODULE is deliberately never set: its absence keeps the API on
-# plain core composition.
 
 x-api-environment: &api-environment
   DEPLOYMENT_MODE: self-hosted

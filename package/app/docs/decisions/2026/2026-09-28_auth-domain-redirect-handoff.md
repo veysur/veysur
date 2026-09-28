@@ -61,8 +61,8 @@ top-level code runs on import — and in practice, importing `AuthDomain` itself
 perform the redeem) already pulls in `queryClient.ts` via the `common` barrel before the
 redeem call ever fires. Rather than fight the import graph, `consumeIncomingHandoffIfPresent()`
 applies the redeemed payload directly via `queryClient.setQueryData(...)`, in addition to
-writing the same shape to the `veysur.authHandoff` localStorage key (kept only for
-`package/api-cloud/src/script/debug-mint-token.ts`'s dev/e2e session-injection path). Each
+writing the same shape to the `veysur.authHandoff` localStorage key (kept only for a
+dev/e2e session-injection hook). Each
 sub-app's bootstrap entry (`index.tsx`) awaits `consumeIncomingHandoffIfPresent()` before
 `ReactDOM.createRoot(...).render(<App/>)`.
 

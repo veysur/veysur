@@ -527,8 +527,8 @@ export class AuthDomain {
    * rememberMe}` directly to the query cache.
    *
    * Writes to the same `localStorage` handoff key `queryClient.ts`'s own
-   * module-init read consumes (kept for the `debug-mint-token.ts` dev/e2e
-   * session-injection path - see `package/api-cloud/AGENTS.md`), but does not
+   * module-init read consumes (kept for a dev/e2e session-injection hook),
+   * but does not
    * rely on that read running afterwards: by the time this method executes,
    * this module's own import chain has almost certainly already pulled in and
    * evaluated `common/queryClient.ts` (it finds nothing then, since the token

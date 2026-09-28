@@ -54,10 +54,10 @@ The rule runs at `error` — `pnpm lint` fails on any violation.
 Two subdirectories plus root-level files:
 
 - **`core/`** — Survey services: `ServiceSurvey`, `ServiceFile`, `ServiceSurveyParticipant`, `ServiceImportExport`, etc.
-- **`platform/`** — Reserved for services that an extension adds. Not part of this repo; an extension supplies this tree through the composition seam (`model-manager.ts`, `config/edition.ts`).
+- **`platform/`** — Reserved for an extension. Not part of this repo.
 - **root** — Cross-cutting infrastructure used by both: `ServiceAuth`, `ServiceUser`, `ServiceProject`, `ServiceEmail`, `ServicePing`, etc.
 
-**Decision rule**: Does it belong to an extension rather than this repo? → `platform/`. Is it needed by every deployment and not survey-specific? → root of `model/service/`. Survey-specific? → `core/`.
+**Decision rule**: Is it needed by every deployment and not survey-specific? → root of `model/service/`. Survey-specific? → `core/`.
 
 ### Model Shared Utilities (`src/model/common/`)
 
@@ -82,26 +82,14 @@ Non-model utilities shared across the server. Import via `'common'` or `'common/
 
 ### Endpoints (`src/endpoint/`) and URL prefixes
 
-Directory layout mirrors services (`core/`, `platform/`, `shared/`). All platform endpoints (those an extension adds) use an explicit `path: '/platform/<service-name>'` root prefix. Core and shared endpoints have no root `path` — mzen-server derives the URL from the service name automatically.
+Directory layout mirrors services (`core/`, `shared/`; `platform/` is reserved for an extension and is not part of this repo). Core and shared endpoints have no root `path`: mzen-server derives the URL from the service name automatically.
 
 ```typescript
-// Core / shared — URL derived from service name automatically
 export const surveyConfig = {
   service: 'survey',          // → /survey/*
   endpoints: { ... },
 }
-
-// Platform (added by an extension) — explicit /platform/ prefix
-export const exampleConfig = {
-  service: 'example',
-  path: '/platform/example',  // → /platform/example/*
-  endpoints: { ... },
-}
 ```
-
-**The `/platform/` prefix is about functionality, not frontend origin.** It marks endpoints that an extension adds and that are not part of this repo. The URL prefix does not indicate which frontend app makes the request; it indicates that the feature comes from an extension.
-
-**Frontend reminder**: any API class or fetch call in `package/app` targeting a platform endpoint must include `platform/` in its URL string, e.g. `'platform/example/list'` not `'example/list'`.
 
 **Project-scoped endpoints**: for any endpoint operating on a single project's data, use `role: 'projectOwner'`/`'projectAdmin'` ACL rules — not a generic role plus a manual ownership check in the service. See `docs/mzen-acl.md`.
 
@@ -110,10 +98,10 @@ export const exampleConfig = {
 Two subdirectories plus root-level files:
 
 - **`core/`** — project datasource (`dataSource: 'project'`), survey platform repos: `RepoSurvey`, `RepoFile`, `RepoSurveyResponse`, etc.
-- **`platform/`** — default datasource, repos that an extension adds. Not part of this repo; see the `platform/` note above.
+- **`platform/`** — Reserved for an extension. Not part of this repo.
 - **root** — default datasource, infrastructure: `RepoUser`, `RepoProject`, `RepoEmail`, `RepoTask`, etc.
 
-**Decision rule**: Does the repo use `dataSource: 'project'`? → `core/`. Added by an extension? → `platform/`. Otherwise → root of `model/repo/`. Data source and category always align — all `core/` repos use the project datasource; `platform/` and root repos use the default.
+**Decision rule**: Does the repo use `dataSource: 'project'`? → `core/`. Otherwise → root of `model/repo/`. All `core/` repos use the project datasource; root repos use the default.
 
 **Import via barrel** (`from 'model/repo'`) — avoid direct file-path imports.
 
@@ -189,7 +177,7 @@ Two subdirectories plus root-level files:
 
 ## Background Jobs
 
-Recurring/scheduled work (e.g. `ServicePaymentScheduler.processDuePayments`, file cleanup, FX rate fetching) runs via the generic `ServiceTaskManager`, triggered by a k8s CronJob every minute and gated by each `Task` record's own interval. See `docs/task-manager.md` for adding new scheduled tasks, concurrency/locking, and manual triggering. Bulk survey invite/reminder sends are paced through this same infrastructure — see `docs/mail-queue-pacing.md`.
+Recurring/scheduled work (e.g. file cleanup, mail queue dispatch) runs via the generic `ServiceTaskManager`, triggered by an external scheduler every minute and gated by each `Task` record's own interval. See `docs/task-manager.md` for adding new scheduled tasks, concurrency/locking, and manual triggering. Bulk survey invite/reminder sends are paced through this same infrastructure — see `docs/mail-queue-pacing.md`.
 
 ## Anonymous Surveys
 
@@ -201,7 +189,7 @@ non-time-based `randomSessionId()` value. See `docs/anonymous-surveys.md`.
 
 ## Country Blocking
 
-Access from countries without required local legal representation (e.g. Switzerland, Turkey) is blocked via `ServiceGeo`, an env-configured `BLOCKED_COUNTRIES` list, and enforcement in both the frontend gate and server-side registration paths. See `docs/country-blocking.md`.
+Optional country blocking runs through a `geo` collaborator that an extension registers; the self-hosted edition has none, so it is inert. See `docs/country-blocking.md`.
 
 ## Disposable Email Domain Blocking
 

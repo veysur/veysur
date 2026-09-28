@@ -7,9 +7,7 @@ import globals from 'globals'
 import ts from 'typescript-eslint'
 
 // Import boundaries between the sub-apps, shared code, and the extension
-// package veysur-app-cloud. appPlatform, appAccount/billing, appAccount/support,
-// and component/billing all live in that separate package, never
-// in this repo.
+// package veysur-app-cloud, whose code never lives in this repo.
 const cloudPackageGroup = {
   group: [
     'veysur-app-cloud',

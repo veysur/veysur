@@ -54,7 +54,7 @@ minutes.
 
 A single `edition` value (`self-hosted`) is fixed in `compose.yaml` for the API and baked into the frontend at
 build time. The frontend and API expose composition points so extra modules can be added at build time; a
-standard build leaves them at their committed defaults, and `API_COMPOSITION_MODULE` is deliberately never set.
+standard build leaves them at their committed defaults.
 
 ## Images
 

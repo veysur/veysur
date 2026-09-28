@@ -49,8 +49,8 @@ can't break this the way it would have broken the old popup approach - see the A
   it, and applies `{ auth, rememberMe }` directly to the query cache (`queryClient.setQueryData`)
   - each sub-app's `index.tsx` awaits this before rendering.
 - It also writes the same payload to the `veysur.authHandoff` localStorage key that
-  `queryClient.ts`'s own module-init read consumes, purely so the
-  `package/api-cloud/src/script/debug-mint-token.ts` dev/e2e session-injection path keeps
+  `queryClient.ts`'s own module-init read consumes, purely so a
+  dev/e2e session-injection hook keeps
   working - the direct `setQueryData` call is what actually applies it, since this module's own
   import chain typically evaluates `queryClient.ts` (finding nothing yet) before
   `consumeIncomingHandoffIfPresent()` runs.

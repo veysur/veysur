@@ -145,22 +145,22 @@ tick or two, well inside the `task-stale` threshold.
 
 ## Distributed Locking
 
-`Task.concurrency` limits how many executions of the _same_ task run at once, but some tasks fan out work across independent resources (e.g. one payment run per project) where two different tasks — or two overlapping runs of the same task — must never touch the same resource concurrently. `RepoTaskLock` provides that resource-level lock, independent of task concurrency.
+`Task.concurrency` limits how many executions of the _same_ task run at once, but some tasks fan out work across independent resources (e.g. one export per survey) where two different tasks — or two overlapping runs of the same task — must never touch the same resource concurrently. `RepoTaskLock` provides that resource-level lock, independent of task concurrency.
 
 ```typescript
 const acquired = await repoTaskLock.acquireLock(
-  `payment-project-${projectId}`, // lockKey — unique per resource
+  `export-survey-${surveyId}`, // lockKey — unique per resource
   executionId, // identifies the holder
   300, // ttlSeconds (default 300)
-  'payment', // resourceType
-  projectId, // resourceId
+  'export', // resourceType
+  surveyId, // resourceId
 )
 if (!acquired) return // another execution holds the lock
 
 try {
   // ... do the work ...
 } finally {
-  await repoTaskLock.releaseLock(`payment-project-${projectId}`, executionId)
+  await repoTaskLock.releaseLock(`export-survey-${surveyId}`, executionId)
 }
 ```
 

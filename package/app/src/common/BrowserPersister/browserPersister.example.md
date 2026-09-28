@@ -140,7 +140,7 @@ queryClient.setQueryDefaults([KEY_STATE_REMEMBER_ME], {
 - `sessionMaxAge` (24h) — sessionStorage already clears on browser close; this only bounds stale application data in a tab left open for days.
 - `localMaxAge` (180 days) — caps the remembered auth session at the API access-token horizon (`API_JWT_ACCESS_TOKEN_TTL_SECONDS` default). The server rejects an expired token before then anyway, and `useAuth.authRefresh` calls `logout()` on rejection.
 
-The `PersistQueryClientProvider` `maxAge` is set to `Infinity` in every app root (`appAccount`, `appAdmin`, `appPlatform`, `appSurvey`). The provider default (24h) drops **both** stores together via `removeClient()`, which is what previously logged out remembered users after a day; the per-store caps above replace it.
+The `PersistQueryClientProvider` `maxAge` is set to `Infinity` in every app root (`appAccount`, `appAdmin`, `appSurvey`). The provider default (24h) drops **both** stores together via `removeClient()`, which is what previously logged out remembered users after a day; the per-store caps above replace it.
 
 ## TypeScript Support
 
