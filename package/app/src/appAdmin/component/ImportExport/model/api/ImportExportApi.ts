@@ -44,7 +44,7 @@ export type ProcessImportResponse = {
   hasIdTranslations?: boolean
   repairs?: Array<{ type: string; entity: string; id: string; reason: string }>
   discards?: Array<{ type: string; entity: string; id: string; reason: string }>
-  warnings?: string[]
+  warnings?: Array<{ message: string }>
 }
 
 export type ExportEntityResponse = {
@@ -69,11 +69,7 @@ export type ImportJobEnqueuedResponse = {
 }
 
 export type ImportStatus =
-  | 'pending'
-  | 'queued'
-  | 'processing'
-  | 'completed'
-  | 'failed'
+  'pending' | 'queued' | 'processing' | 'completed' | 'failed'
 
 export type ImportStatusResponse = {
   fileId: string
@@ -82,10 +78,7 @@ export type ImportStatusResponse = {
 }
 
 export type DataTransferJobStatus =
-  | 'pending'
-  | 'processing'
-  | 'completed'
-  | 'failed'
+  'pending' | 'processing' | 'completed' | 'failed'
 
 export type DataTransferJobStatusResponse = {
   jobId: string
@@ -170,7 +163,9 @@ export class ImportExportApi extends Api {
     }
   }
 
-  async getExportJobStatus(jobId: string): Promise<DataTransferJobStatusResponse> {
+  async getExportJobStatus(
+    jobId: string,
+  ): Promise<DataTransferJobStatusResponse> {
     try {
       return await this.getClient().get<DataTransferJobStatusResponse>(
         `/data-transfer-job/status/${jobId}`,
@@ -179,5 +174,4 @@ export class ImportExportApi extends Api {
       throw ErrorRest.fromRequestError(error as Error)
     }
   }
-
 }

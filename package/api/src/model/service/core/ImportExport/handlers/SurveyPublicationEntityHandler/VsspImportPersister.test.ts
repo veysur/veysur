@@ -12,7 +12,11 @@ import type {
 import { VsspImportPersister } from './VsspImportPersister'
 import { SnapshotDataRemapper } from './SnapshotDataRemapper'
 import type { EntityParsedData } from '../../EntityHandlerInterface'
-import type { ResolvedImportContext, ResponseFileManifestEntry } from './types'
+import type {
+  FileResolution,
+  ResolvedImportContext,
+  ResponseFileManifestEntry,
+} from './types'
 import { mockRepoTransaction } from '../../../../../../test-utils/mockRepoTransaction'
 import { createStorageAdaptor } from 'common'
 
@@ -32,7 +36,11 @@ describe('VsspImportPersister', () => {
     transaction: jest.Mock
   }
   let mockRepoSurveyPublication: { insertOne: jest.Mock }
-  let mockRepoFile: { findOne: jest.Mock; create: jest.Mock }
+  let mockRepoFile: {
+    findOne: jest.Mock
+    create: jest.Mock
+    updateOne: jest.Mock
+  }
   let persister: VsspImportPersister
   let persisterWithFiles: VsspImportPersister
 
@@ -78,6 +86,7 @@ describe('VsspImportPersister', () => {
     mockRepoFile = {
       findOne: jest.fn().mockResolvedValue(null),
       create: jest.fn().mockResolvedValue(undefined),
+      updateOne: jest.fn().mockResolvedValue(undefined),
     }
 
     persister = new VsspImportPersister(
@@ -237,8 +246,11 @@ describe('VsspImportPersister', () => {
 
     test('creates a new File record and remaps the answer fileId when no matching file exists in this survey', async () => {
       mockRepoFile.findOne.mockResolvedValue(null)
+      ;(mockParsedData.getBinaryS3Key as jest.Mock).mockReturnValue(
+        'staging/archive-file-1.pdf',
+      )
 
-      await persisterWithFiles.persist(
+      const result = await persisterWithFiles.persist(
         buildContextWithResponseFile(),
         persistImportContext,
       )
@@ -253,6 +265,29 @@ describe('VsspImportPersister', () => {
       const insertedResponse = mockRepoSurveyResponse.insertOne.mock.calls[0][0]
       expect(insertedResponse.answers.q1.fileIds).toEqual([createdFile._id])
       expect(insertedResponse.answers.q1.fileIds[0]).not.toBe('archive-file-1')
+      expect(result.warnings).toBeUndefined()
+    })
+
+    test('does not create a File record and reports a warning when the archive entry is missing', async () => {
+      mockRepoFile.findOne.mockResolvedValue(null)
+      ;(mockParsedData.getBinaryS3Key as jest.Mock).mockReturnValue(null)
+
+      const result = await persisterWithFiles.persist(
+        buildContextWithResponseFile(),
+        persistImportContext,
+      )
+
+      expect(mockRepoFile.create).not.toHaveBeenCalled()
+      const insertedResponse = mockRepoSurveyResponse.insertOne.mock.calls[0][0]
+      // Falls back to the original (now-dangling) archive fileId rather than
+      // fabricating a File record for bytes that were never copied.
+      expect(insertedResponse.answers.q1.fileIds).toEqual(['archive-file-1'])
+      expect(result.warnings).toEqual([
+        {
+          message:
+            '1 response file(s) could not be restored from the archive and were skipped: cv.pdf',
+        },
+      ])
     })
 
     test('reuses an existing File with the same hash in this survey instead of creating a duplicate', async () => {
@@ -264,6 +299,27 @@ describe('VsspImportPersister', () => {
       )
 
       expect(mockRepoFile.create).not.toHaveBeenCalled()
+      const insertedResponse = mockRepoSurveyResponse.insertOne.mock.calls[0][0]
+      expect(insertedResponse.answers.q1.fileIds).toEqual(['existing-file-99'])
+    })
+
+    test('resurrects a soft-deleted File with the same hash instead of creating a duplicate', async () => {
+      mockRepoFile.findOne.mockResolvedValue({
+        _id: 'existing-file-99',
+        deletedAt: new Date('2026-06-01T00:00:00.000Z'),
+      })
+
+      await persisterWithFiles.persist(
+        buildContextWithResponseFile(),
+        persistImportContext,
+      )
+
+      expect(mockRepoFile.create).not.toHaveBeenCalled()
+      expect(mockRepoFile.updateOne).toHaveBeenCalledWith(
+        { _id: 'existing-file-99' },
+        { $set: { deletedAt: null, responseId: 'response-1' } },
+        expect.anything(),
+      )
       const insertedResponse = mockRepoSurveyResponse.insertOne.mock.calls[0][0]
       expect(insertedResponse.answers.q1.fileIds).toEqual(['existing-file-99'])
     })
@@ -283,13 +339,15 @@ describe('VsspImportPersister', () => {
       ;(mockParsedData.getBinaryS3Key as jest.Mock).mockReturnValue(
         'staging/archive-file-1.pdf',
       )
-      const mockAdaptor = (createStorageAdaptor as jest.Mock)(
-        {} as never,
-      ) as { copyObject: jest.Mock }
+      const mockAdaptor = (createStorageAdaptor as jest.Mock)({} as never) as {
+        copyObject: jest.Mock
+      }
 
       await persisterWithFiles.persist(
         buildContextWithResponseFile({
-          responseFileEntries: [{ ...responseFileEntry, bucketType: 'private' }],
+          responseFileEntries: [
+            { ...responseFileEntry, bucketType: 'private' },
+          ],
         }),
         persistImportContext,
       )
@@ -306,9 +364,9 @@ describe('VsspImportPersister', () => {
       ;(mockParsedData.getBinaryS3Key as jest.Mock).mockReturnValue(
         'staging/archive-file-1.pdf',
       )
-      const mockAdaptor = (createStorageAdaptor as jest.Mock)(
-        {} as never,
-      ) as { copyObject: jest.Mock }
+      const mockAdaptor = (createStorageAdaptor as jest.Mock)({} as never) as {
+        copyObject: jest.Mock
+      }
 
       await persisterWithFiles.persist(
         buildContextWithResponseFile(),
@@ -320,6 +378,82 @@ describe('VsspImportPersister', () => {
       )
       const createdFile = mockRepoFile.create.mock.calls[0][0]
       expect(createdFile.bucketType).toBe('public')
+    })
+  })
+
+  describe('embedded answer-option image restoration', () => {
+    const imageFileResolution: FileResolution = {
+      manifestEntry: {
+        fileId: 'archive-image-1',
+        filename: 'edited.jpg',
+        s3Key: 'project-x/survey/old-survey/imgset-abc/edited.jpg',
+        mimeType: 'image/jpeg',
+        hash: 'hash-abc',
+        size: 4321,
+        archiveEntryPath: 'files/imgset-abc/edited.jpg',
+        answerOptionId: 'ao-1',
+        fileContext: 'survey',
+        imageSetId: 'imgset-abc',
+        imageVariant: 'edited',
+      },
+      existingFileId: null,
+      newFileId: 'new-image-file-1',
+      newFilePath: `project-${projectId}/survey/${surveyId}/imgset-abc/edited.jpg`,
+      imageSetId: 'imgset-abc',
+      imageVariant: 'edited',
+      resurrect: false,
+    }
+
+    function buildContextWithImage(
+      overrides: Partial<ResolvedImportContext> = {},
+    ): ResolvedImportContext {
+      return {
+        ...buildContext({
+          publishedAt: '2026-01-01T00:00:00.000Z',
+          stoppedAt: null,
+        }),
+        fileResolutions: [imageFileResolution],
+        ...overrides,
+      } as ResolvedImportContext
+    }
+
+    test('copies the image and creates a File record when the archive entry is present', async () => {
+      mockRepoFile.findOne.mockResolvedValue(null)
+      ;(mockParsedData.getBinaryS3Key as jest.Mock).mockReturnValue(
+        'staging/imgset-abc/edited.jpg',
+      )
+      const mockAdaptor = (createStorageAdaptor as jest.Mock)({} as never) as {
+        copyObject: jest.Mock
+      }
+
+      const result = await persisterWithFiles.persist(
+        buildContextWithImage(),
+        persistImportContext,
+      )
+
+      expect(mockAdaptor.copyObject).toHaveBeenCalledTimes(1)
+      expect(mockRepoFile.create).toHaveBeenCalledTimes(1)
+      const createdFile = mockRepoFile.create.mock.calls[0][0]
+      expect(createdFile._id).toBe('new-image-file-1')
+      expect(result.warnings).toBeUndefined()
+    })
+
+    test('does not create a File record and reports a warning when the archive entry is missing', async () => {
+      mockRepoFile.findOne.mockResolvedValue(null)
+      ;(mockParsedData.getBinaryS3Key as jest.Mock).mockReturnValue(null)
+
+      const result = await persisterWithFiles.persist(
+        buildContextWithImage(),
+        persistImportContext,
+      )
+
+      expect(mockRepoFile.create).not.toHaveBeenCalled()
+      expect(result.warnings).toEqual([
+        {
+          message:
+            '1 embedded image(s) could not be restored from the archive and were skipped: edited.jpg',
+        },
+      ])
     })
   })
 })

@@ -55,7 +55,7 @@ export class VsstImportPersister {
   async persist(
     data: VsstResolvedContext,
     context: { projectId: string; aclContext: AclContext },
-  ): Promise<{ entityId: string }> {
+  ): Promise<{ entityId: string; warnings?: unknown[] }> {
     const { projectId, aclContext } = context
     const userId = aclContext.jwt._id
 
@@ -66,7 +66,7 @@ export class VsstImportPersister {
     const repoElement =
       this.repoSurvey.getRepo<RepoSurveyElement>('surveyElement')
 
-    await this.uploadBinaryFiles(
+    const unrestoredFileIds = await this.uploadBinaryFiles(
       data.fileResolutions,
       data.parsedData,
       dsContext,
@@ -184,6 +184,7 @@ export class VsstImportPersister {
       if (this.repoFile) {
         for (const r of data.fileResolutions ?? []) {
           if (r.existingFileId || !r.manifestEntry) continue
+          if (unrestoredFileIds.has(r.newFileId)) continue
           await this.repoFile.create(
             new File({
               _id: r.newFileId,
@@ -220,7 +221,21 @@ export class VsstImportPersister {
       )
     }
 
-    return { entityId: survey._id }
+    const warnings: unknown[] = []
+    if (unrestoredFileIds.size > 0) {
+      const names = (data.fileResolutions ?? [])
+        .filter((r) => unrestoredFileIds.has(r.newFileId))
+        .map((r) => r.manifestEntry?.filename)
+        .filter(Boolean)
+      warnings.push({
+        message: `${unrestoredFileIds.size} embedded image(s) could not be restored from the archive and were skipped: ${names.join(', ')}`,
+      })
+    }
+
+    return {
+      entityId: survey._id,
+      ...(warnings.length > 0 ? { warnings } : {}),
+    }
   }
 
   /**
@@ -270,11 +285,22 @@ export class VsstImportPersister {
     }
   }
 
+  /**
+   * Copies each new (non-dedup, non-resurrect) file's bytes from its temp
+   * archive location to its final storage path. Returns the `newFileId`s
+   * whose archive entry could not be located (`getBinaryS3Key` came back
+   * empty) — the caller must not create a `File` record for these, since
+   * without a copy that record would point at a path that was never
+   * written. See the `uploadBinaryFiles` counterpart in
+   * `SurveyPublicationEntityHandler/VsspImportPersister.ts` for the same
+   * pattern applied to per-publication images and response files.
+   */
   private async uploadBinaryFiles(
     fileResolutions: FileResolution[],
     parsedData: EntityParsedData,
     dsContext: DataSourceContext,
-  ): Promise<void> {
+  ): Promise<Set<string>> {
+    const unrestoredFileIds = new Set<string>()
     const adaptor =
       this.storageConfig && this.repoFile
         ? createStorageAdaptor(this.storageConfig)
@@ -290,8 +316,13 @@ export class VsstImportPersister {
         continue
       }
       if (r.existingFileId || !adaptor || !r.manifestEntry) continue
-      const tempKey = parsedData.getBinaryS3Key(r.manifestEntry.archiveEntryPath)
-      if (!tempKey) continue
+      const tempKey = parsedData.getBinaryS3Key(
+        r.manifestEntry.archiveEntryPath,
+      )
+      if (!tempKey) {
+        unrestoredFileIds.add(r.newFileId)
+        continue
+      }
       await adaptor.copyObject({
         Bucket: this.storageConfig.publicBucket,
         Key: r.newFilePath,
@@ -299,6 +330,8 @@ export class VsstImportPersister {
         ContentType: r.manifestEntry.mimeType,
       })
     }
+
+    return unrestoredFileIds
   }
 
   private buildFileIdMap(

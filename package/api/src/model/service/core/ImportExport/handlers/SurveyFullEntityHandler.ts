@@ -246,7 +246,11 @@ export class SurveyFullEntityHandler implements EntityHandlerInterface {
   async persistImport(
     data: unknown,
     context: PersistImportContext,
-  ): Promise<{ entityId: string; hasIdTranslations?: boolean }> {
+  ): Promise<{
+    entityId: string
+    hasIdTranslations?: boolean
+    warnings?: unknown[]
+  }> {
     const {
       vsstResolved,
       parsedData,
@@ -265,6 +269,7 @@ export class SurveyFullEntityHandler implements EntityHandlerInterface {
         context,
       )
       const surveyId = surveyResult.entityId
+      const warnings: unknown[] = [...(surveyResult.warnings ?? [])]
 
       // Resolve and persist each publication linked to the newly created survey
       for (const pub of publications) {
@@ -303,10 +308,17 @@ export class SurveyFullEntityHandler implements EntityHandlerInterface {
           })
         }
 
-        await this.pubHandler.persistImport(vsspValidation.data, context)
+        const pubResult = await this.pubHandler.persistImport(
+          vsspValidation.data,
+          context,
+        )
+        warnings.push(...(pubResult.warnings ?? []))
       }
 
-      return { entityId: surveyId }
+      return {
+        entityId: surveyId,
+        ...(warnings.length > 0 ? { warnings } : {}),
+      }
     } finally {
       await parsedData?.cleanup?.()
     }

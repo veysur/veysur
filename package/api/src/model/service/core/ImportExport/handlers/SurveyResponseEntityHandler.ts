@@ -18,6 +18,7 @@ import {
   RepoSurveyParticipant,
   RepoSurveySnapshot,
   RepoSurveyLanguageSnapshot,
+  RepoFile,
 } from 'model'
 import { mergeSurveyLanguageSnapshots } from 'model/common'
 
@@ -336,6 +337,7 @@ function asRecord(value: AnswerValue): AnswerRecord | undefined {
 function serializeAnswerForColumn(
   colDef: ColumnDef,
   answers: AnswerRecord,
+  fileNameById: Map<string, string> = new Map(),
 ): string {
   const questionAnswer = answers[colDef.questionCode]
   if (questionAnswer === null || questionAnswer === undefined)
@@ -415,13 +417,21 @@ function serializeAnswerForColumn(
   }
 
   if (type === FILE_UPLOAD_TYPE) {
-    // CSV has no way to carry file bytes - export the referenced fileIds
-    // only (comma-joined), never the file content. CSV import is a one-way
-    // degradation: this column is read-only on export, and reimporting a
-    // fileUpload column is skipped (see deserializeAnswerValue) rather than
-    // attempting to attach a file from a bare id string.
+    // CSV has no way to carry file bytes - export the referenced files'
+    // filenames only (comma-joined), never the file content. CSV import is a
+    // one-way degradation: this column is read-only on export, and
+    // reimporting a fileUpload column is skipped (see deserializeAnswerValue)
+    // rather than attempting to attach a file from a bare id string.
     const fileIds = asRecord(val)?.fileIds
-    return Array.isArray(fileIds) ? fileIds.join(',') : ''
+    return Array.isArray(fileIds)
+      ? fileIds
+          .map((fileId) =>
+            typeof fileId === 'string'
+              ? fileNameById.get(fileId) || fileId
+              : '',
+          )
+          .join(',')
+      : ''
   }
 
   if (MULTIPLE_CHOICE_TYPES.has(type)) {
@@ -599,6 +609,7 @@ export class SurveyResponseEntityHandler implements EntityHandlerInterface {
     private repoSurveyParticipant: RepoSurveyParticipant,
     private repoSurveySnapshot: RepoSurveySnapshot,
     private repoSurveyLanguageSnapshot: RepoSurveyLanguageSnapshot,
+    private repoFile: RepoFile,
   ) {}
 
   private buildResponseExportQuery(
@@ -670,6 +681,7 @@ export class SurveyResponseEntityHandler implements EntityHandlerInterface {
       publicationId: options?.publicationId ?? null,
       responses,
       snapshotData,
+      projectId: context.projectId,
     }
   }
 
@@ -678,15 +690,22 @@ export class SurveyResponseEntityHandler implements EntityHandlerInterface {
     formatHandler: FormatHandlerInterface,
     _options?: ExportOptions,
   ): Promise<Readable> {
-    const { surveyId, publicationId, responses, snapshotData } = data as {
-      surveyId: string
-      publicationId: string | null
-      responses: SurveyResponse[]
-      snapshotData: SurveySnapshot | null
-    }
+    const { surveyId, publicationId, responses, snapshotData, projectId } =
+      data as {
+        surveyId: string
+        publicationId: string | null
+        responses: SurveyResponse[]
+        snapshotData: SurveySnapshot | null
+        projectId: string
+      }
 
     if (formatHandler.format === 'csv') {
-      return this.buildCsvExport(responses, snapshotData, formatHandler)
+      return await this.buildCsvExport(
+        responses,
+        snapshotData,
+        formatHandler,
+        projectId,
+      )
     }
 
     return formatHandler.serialize(
@@ -694,11 +713,12 @@ export class SurveyResponseEntityHandler implements EntityHandlerInterface {
     )
   }
 
-  private buildCsvExport(
+  private async buildCsvExport(
     responses: SurveyResponse[],
     snapshotData: SurveySnapshot | null,
     formatHandler: FormatHandlerInterface,
-  ): Readable {
+    projectId: string,
+  ): Promise<Readable> {
     const surveyInstance = snapshotData?.survey
       ? new Survey(snapshotData.survey)
       : null
@@ -706,6 +726,35 @@ export class SurveyResponseEntityHandler implements EntityHandlerInterface {
     const columnDefs = surveyInstance
       ? buildColumnDefs(surveyInstance, lang)
       : []
+
+    const fileUploadColumns = columnDefs.filter(
+      (c) => c.questionType === FILE_UPLOAD_TYPE,
+    )
+    const fileNameById = new Map<string, string>()
+    if (fileUploadColumns.length > 0) {
+      const fileIds = new Set<string>()
+      for (const response of responses) {
+        const answers = (response.answers as AnswerRecord) || {}
+        for (const col of fileUploadColumns) {
+          const fileIdsForAnswer = asRecord(answers[col.questionCode])?.fileIds
+          if (Array.isArray(fileIdsForAnswer)) {
+            for (const fileId of fileIdsForAnswer) {
+              if (typeof fileId === 'string') fileIds.add(fileId)
+            }
+          }
+        }
+      }
+      if (fileIds.size > 0) {
+        const dsContext = contextForProject(projectId)
+        const fileRecords = await this.repoFile.find(
+          { _id: { $in: [...fileIds] } },
+          { context: dsContext },
+        )
+        for (const fileRecord of fileRecords) {
+          fileNameById.set(fileRecord._id, fileRecord.filename)
+        }
+      }
+    }
 
     // Row 1: headers (codes)
     const headerRow = [...FIXED_HEADERS, ...columnDefs.map((c) => c.key)]
@@ -735,7 +784,7 @@ export class SurveyResponseEntityHandler implements EntityHandlerInterface {
       ]
 
       const answerValues = columnDefs.map((col) =>
-        serializeAnswerForColumn(col, answers),
+        serializeAnswerForColumn(col, answers, fileNameById),
       )
 
       return [...fixedValues, ...answerValues]
@@ -831,6 +880,26 @@ export class SurveyResponseEntityHandler implements EntityHandlerInterface {
     const colDefByKey = new Map<string, ColumnDef>()
     for (const col of columnDefs) colDefByKey.set(col.key, col)
 
+    const fileUploadQuestionCodes = [
+      ...new Set(
+        columnDefs
+          .filter(
+            (col) =>
+              col.questionType === FILE_UPLOAD_TYPE &&
+              headers.includes(col.key),
+          )
+          .map((col) => col.questionCode),
+      ),
+    ]
+    const warnings =
+      fileUploadQuestionCodes.length > 0
+        ? [
+            {
+              message: `File upload columns cannot be imported from CSV and were skipped: ${fileUploadQuestionCodes.join(', ')}`,
+            },
+          ]
+        : undefined
+
     // Fetch existing responses with populated participants to detect duplicates
     const existingResponses = await this.repoSurveyResponse.find(
       { surveyId, publicationId },
@@ -883,6 +952,7 @@ export class SurveyResponseEntityHandler implements EntityHandlerInterface {
         colDefByKey: Object.fromEntries(colDefByKey.entries()),
       },
       discards,
+      warnings,
     }
   }
 

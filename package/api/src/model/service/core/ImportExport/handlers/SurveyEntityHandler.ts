@@ -109,7 +109,10 @@ export class SurveyEntityHandler implements EntityHandlerInterface {
       context,
       options,
     )
-    return embeddedFileEntries.reduce((sum, entry) => sum + (entry.size ?? 0), 0)
+    return embeddedFileEntries.reduce(
+      (sum, entry) => sum + (entry.size ?? 0),
+      0,
+    )
   }
 
   async prepareExportData(
@@ -201,7 +204,11 @@ export class SurveyEntityHandler implements EntityHandlerInterface {
   async persistImport(
     data: unknown,
     context: PersistImportContext,
-  ): Promise<{ entityId: string; hasIdTranslations?: boolean }> {
+  ): Promise<{
+    entityId: string
+    hasIdTranslations?: boolean
+    warnings?: unknown[]
+  }> {
     return this.persister.persist(data as VsstResolvedContext, context)
   }
 

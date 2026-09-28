@@ -42,6 +42,7 @@ interface ImportResult {
   hasIdTranslations: boolean
   repairs?: unknown[]
   discards?: unknown[]
+  warnings?: unknown[]
 }
 
 /**
@@ -87,6 +88,7 @@ export class ServiceImportExport extends Service {
       this.getRepo('surveyParticipant'),
       this.getRepo('surveySnapshot'),
       this.getRepo('surveyLanguageSnapshot'),
+      this.getRepo('file'),
     )
     this.entityHandlerRegistry.register(surveyResponseHandler)
 
@@ -178,8 +180,14 @@ export class ServiceImportExport extends Service {
     requestHost?: string
     requestProto?: string
   }) {
-    const { entityType, format, projectId, aclContext, requestHost, requestProto } =
-      params
+    const {
+      entityType,
+      format,
+      projectId,
+      aclContext,
+      requestHost,
+      requestProto,
+    } = params
     const handler = this.entityHandlerRegistry.get(entityType)
 
     if (!handler.getSupportedFormats().includes(format)) {
@@ -500,7 +508,10 @@ export class ServiceImportExport extends Service {
       { context },
     )
     if (!file) {
-      throw new ServerErrorNotFound({ message: 'Import file not found', fileId })
+      throw new ServerErrorNotFound({
+        message: 'Import file not found',
+        fileId,
+      })
     }
     return {
       fileId: file._id,
@@ -606,6 +617,11 @@ export class ServiceImportExport extends Service {
           translations: validation.repairs,
         })
 
+        const combinedWarnings = [
+          ...(validation.warnings ?? []),
+          ...(result.warnings ?? []),
+        ]
+
         importResult = {
           success: true,
           entityId: result.entityId,
@@ -614,6 +630,7 @@ export class ServiceImportExport extends Service {
             result.hasIdTranslations || validation.hasIdTranslations || false,
           repairs: validation.repairs,
           discards: validation.discards,
+          warnings: combinedWarnings.length > 0 ? combinedWarnings : undefined,
         }
       } finally {
         const cleanup = (parsedData as { cleanup?: () => Promise<void> })

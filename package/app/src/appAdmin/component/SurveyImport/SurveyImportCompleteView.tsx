@@ -64,9 +64,9 @@ export const SurveyImportCompleteView: React.FC<
           <StatusAlert variant="warning" showIcon={false}>
             <h4 className="font-medium mb-2">Warnings</h4>
             <ul className="space-y-1">
-              {result.warnings.map((w: string, idx: number) => (
+              {result.warnings.map((w: { message: string }, idx: number) => (
                 <li key={idx} className="text-sm">
-                  {w}
+                  {w.message}
                 </li>
               ))}
             </ul>

@@ -62,6 +62,7 @@ export const PageSurveyEditResponseImport: React.FC = () => {
   const [importStatus, setImportStatus] = useState<ImportStatus>('idle')
   const [importResult, setImportResult] = useState<{
     skipped: number
+    warnings: string[]
   } | null>(null)
 
   const handleBack = () => {
@@ -94,6 +95,7 @@ export const PageSurveyEditResponseImport: React.FC = () => {
       if (result) {
         setImportResult({
           skipped: result.discards?.length ?? 0,
+          warnings: (result.warnings ?? []).map((warning) => warning.message),
         })
         setImportStatus('complete')
       } else {
@@ -188,6 +190,16 @@ export const PageSurveyEditResponseImport: React.FC = () => {
                 )}
               </AlertDescription>
             </Alert>
+            {importResult.warnings.length > 0 && (
+              <Alert variant="default" className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  {importResult.warnings.map((warning) => (
+                    <div key={warning}>{warning}</div>
+                  ))}
+                </AlertDescription>
+              </Alert>
+            )}
             <div className="flex gap-2">
               <Button onClick={handleReset} variant="outline">
                 Import More

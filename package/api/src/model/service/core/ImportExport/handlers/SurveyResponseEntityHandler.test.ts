@@ -5,6 +5,7 @@ import type {
   RepoSurveyParticipant,
   RepoSurveySnapshot,
   RepoSurveyLanguageSnapshot,
+  RepoFile,
 } from 'model'
 import { SurveyResponse, SurveySnapshot } from 'veysur-common'
 
@@ -107,6 +108,7 @@ describe('SurveyResponseEntityHandler', () => {
   let mockRepoSurveyParticipant: { findOne: jest.Mock; create: jest.Mock }
   let mockRepoSurveySnapshot: { findOne: jest.Mock }
   let mockRepoSurveyLanguageSnapshot: { find: jest.Mock }
+  let mockRepoFile: { find: jest.Mock }
   let handler: SurveyResponseEntityHandler
 
   beforeEach(() => {
@@ -125,12 +127,16 @@ describe('SurveyResponseEntityHandler', () => {
     mockRepoSurveyLanguageSnapshot = {
       find: jest.fn().mockResolvedValue([]),
     }
+    mockRepoFile = {
+      find: jest.fn().mockResolvedValue([]),
+    }
 
     handler = new SurveyResponseEntityHandler(
       mockRepoSurveyResponse as unknown as RepoSurveyResponse,
       mockRepoSurveyParticipant as unknown as RepoSurveyParticipant,
       mockRepoSurveySnapshot as unknown as RepoSurveySnapshot,
       mockRepoSurveyLanguageSnapshot as unknown as RepoSurveyLanguageSnapshot,
+      mockRepoFile as unknown as RepoFile,
     )
   })
 
@@ -650,7 +656,11 @@ describe('SurveyResponseEntityHandler', () => {
       ],
     }
 
-    test('exports the referenced fileIds, comma-joined, never the file bytes', async () => {
+    test('exports the referenced files as resolved filenames, comma-joined, never the file bytes', async () => {
+      mockRepoFile.find.mockResolvedValue([
+        { _id: 'file-a', filename: 'cv.pdf' },
+        { _id: 'file-b', filename: 'cover-letter.pdf' },
+      ])
       const response = new SurveyResponse({
         _id: 'r1',
         surveyId,
@@ -672,6 +682,7 @@ describe('SurveyResponseEntityHandler', () => {
           publicationId,
           responses: [response],
           snapshotData,
+          projectId,
         },
         new CsvFormatHandler(),
       )
@@ -685,7 +696,52 @@ describe('SurveyResponseEntityHandler', () => {
 
       const q006Idx = headers.indexOf('Q006')
       expect(q006Idx).toBeGreaterThanOrEqual(0)
-      expect(dataCols[q006Idx]).toBe('file-a,file-b')
+      expect(dataCols[q006Idx]).toBe('cv.pdf,cover-letter.pdf')
+      expect(mockRepoFile.find).toHaveBeenCalledWith(
+        { _id: { $in: ['file-a', 'file-b'] } },
+        expect.anything(),
+      )
+    })
+
+    test('falls back to the raw fileId when the referenced File record is missing', async () => {
+      mockRepoFile.find.mockResolvedValue([
+        { _id: 'file-a', filename: 'cv.pdf' },
+      ])
+      const response = new SurveyResponse({
+        _id: 'r1',
+        surveyId,
+        publicationId,
+        snapshotId,
+        answers: {
+          Q001: 'Alice',
+          Q006: { fileIds: ['file-a', 'file-deleted'] },
+        },
+      })
+      const snapshotData = new SurveySnapshot({
+        snapshotId,
+        survey: fileUploadSurveyData,
+      })
+
+      const stream = await handler.prepareExportData(
+        {
+          surveyId,
+          publicationId,
+          responses: [response],
+          snapshotData,
+          projectId,
+        },
+        new CsvFormatHandler(),
+      )
+
+      const csv = await streamToString(stream)
+      const parsedRows = await new CsvFormatHandler().parse(
+        Readable.from([Buffer.from(csv, 'utf8')]),
+      )
+      const headers = parsedRows[0] as string[]
+      const dataCols = parsedRows[2] as string[]
+
+      const q006Idx = headers.indexOf('Q006')
+      expect(dataCols[q006Idx]).toBe('cv.pdf,file-deleted')
     })
 
     test('skips a fileUpload column on import rather than writing a bogus answer', async () => {
@@ -706,7 +762,13 @@ describe('SurveyResponseEntityHandler', () => {
       })
 
       const exportStream = await handler.prepareExportData(
-        { surveyId, publicationId, responses: [response], snapshotData },
+        {
+          surveyId,
+          publicationId,
+          responses: [response],
+          snapshotData,
+          projectId,
+        },
         new CsvFormatHandler(),
       )
       const csv = await streamToString(exportStream)
@@ -738,6 +800,106 @@ describe('SurveyResponseEntityHandler', () => {
       const insertedResponse = mockRepoSurveyResponse.insertOne.mock
         .calls[0][0] as SurveyResponse
       expect(insertedResponse.answers).toEqual({ Q001: 'Alice' })
+    })
+
+    test('returns a warning when the survey has a fileUpload question present in the CSV', async () => {
+      mockRepoSurveySnapshot.findOne.mockResolvedValue({
+        survey: fileUploadSurveyData,
+      })
+
+      const response = new SurveyResponse({
+        _id: 'r1',
+        surveyId,
+        publicationId,
+        snapshotId,
+        answers: { Q001: 'Alice', Q006: { fileIds: ['file-a'] } },
+      })
+      const snapshotData = new SurveySnapshot({
+        snapshotId,
+        survey: fileUploadSurveyData,
+      })
+
+      const exportStream = await handler.prepareExportData(
+        {
+          surveyId,
+          publicationId,
+          responses: [response],
+          snapshotData,
+          projectId,
+        },
+        new CsvFormatHandler(),
+      )
+      const csv = await streamToString(exportStream)
+
+      const csvFormatHandler = new CsvFormatHandler()
+      const parsedRows = await csvFormatHandler.parse(
+        Readable.from([Buffer.from(csv, 'utf8')]),
+      )
+      const headers = parsedRows[0] as string[]
+      const emailIdx = headers.indexOf('email')
+      ;(parsedRows[2] as string[])[emailIdx] = 'alice@example.com'
+
+      const validation = await handler.validateImport(parsedRows, {
+        projectId,
+        aclContext: { jwt: { _id: 'user-1' } },
+        surveyId,
+        publicationId,
+        snapshotId,
+      })
+
+      expect(validation.valid).toBe(true)
+      expect(validation.warnings).toEqual([
+        {
+          message:
+            'File upload columns cannot be imported from CSV and were skipped: Q006',
+        },
+      ])
+    })
+
+    test('returns no warnings when the survey has no fileUpload questions', async () => {
+      // Default beforeEach snapshot (surveyData) has no fileUpload questions
+      const response = new SurveyResponse({
+        _id: 'r1',
+        surveyId,
+        publicationId,
+        snapshotId,
+        answers: { Q001: 'Alice' },
+      })
+      const snapshotData = new SurveySnapshot({
+        snapshotId,
+        survey: surveyData,
+      })
+
+      const exportStream = await handler.prepareExportData(
+        {
+          surveyId,
+          publicationId,
+          responses: [response],
+          snapshotData,
+          projectId,
+        },
+        new CsvFormatHandler(),
+      )
+      const csv = await streamToString(exportStream)
+
+      const csvFormatHandler = new CsvFormatHandler()
+      const parsedRows = await csvFormatHandler.parse(
+        Readable.from([Buffer.from(csv, 'utf8')]),
+      )
+      const headers = parsedRows[0] as string[]
+      const emailIdx = headers.indexOf('email')
+      ;(parsedRows[2] as string[])[emailIdx] = 'alice@example.com'
+
+      const validation = await handler.validateImport(parsedRows, {
+        projectId,
+        aclContext: { jwt: { _id: 'user-1' } },
+        surveyId,
+        publicationId,
+        snapshotId,
+      })
+
+      expect(validation.valid).toBe(true)
+      expect(validation.warnings).toBeUndefined()
     })
   })
 })

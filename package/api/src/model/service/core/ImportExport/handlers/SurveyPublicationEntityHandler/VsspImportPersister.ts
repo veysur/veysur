@@ -76,7 +76,11 @@ export class VsspImportPersister {
   async persist(
     data: ResolvedImportContext,
     context: PersistImportContext,
-  ): Promise<{ entityId: string; hasIdTranslations?: boolean }> {
+  ): Promise<{
+    entityId: string
+    hasIdTranslations?: boolean
+    warnings?: unknown[]
+  }> {
     const { projectId, aclContext } = context
     const userId = aclContext.jwt._id
 
@@ -102,7 +106,11 @@ export class VsspImportPersister {
       parsedData,
     } = data
 
-    await this.uploadBinaryFiles(fileResolutions, parsedData, dsContext)
+    const unrestoredFileIds = await this.uploadBinaryFiles(
+      fileResolutions,
+      parsedData,
+      dsContext,
+    )
 
     const fileIdMap = this.buildFileIdMap(fileResolutions)
     const remappedSnapshotData = this.remapper.remap(
@@ -114,42 +122,73 @@ export class VsspImportPersister {
     )
 
     let hadResponseIdCollision: boolean
+    let unrestoredResponseFileNames: string[]
 
     await this.repoSurveyResponse.transaction(dsContext, async (dsContext) => {
-      ;({ hadResponseIdCollision } = await this.runTransaction(
-        {
-          createSurvey,
-          surveyDataForCreate,
-          createSnapshot,
-          publication,
-          snapshot,
-          surveyLanguageSnapshots,
-          surveyParticipantAttributeSnapshot,
-          surveyParticipantAttributeLanguageSnapshots,
-          responseBatchKeys,
-          resolvedSurveyId,
-          resolvedSnapshotId,
-          resolvedPublicationId,
-          fileResolutions,
-          remappedSnapshotData,
-          responseFileEntries,
-          parsedData,
-        },
-        { userId, dsContext, projectId },
-      ))
+      ;({ hadResponseIdCollision, unrestoredResponseFileNames } =
+        await this.runTransaction(
+          {
+            createSurvey,
+            surveyDataForCreate,
+            createSnapshot,
+            publication,
+            snapshot,
+            surveyLanguageSnapshots,
+            surveyParticipantAttributeSnapshot,
+            surveyParticipantAttributeLanguageSnapshots,
+            responseBatchKeys,
+            resolvedSurveyId,
+            resolvedSnapshotId,
+            resolvedPublicationId,
+            fileResolutions,
+            remappedSnapshotData,
+            responseFileEntries,
+            parsedData,
+            unrestoredFileIds,
+          },
+          { userId, dsContext, projectId },
+        ))
     })
+
+    const warnings: unknown[] = []
+    if (unrestoredFileIds.size > 0) {
+      const names = (fileResolutions ?? [])
+        .filter((r) => unrestoredFileIds.has(r.newFileId))
+        .map((r) => r.manifestEntry?.filename)
+        .filter(Boolean)
+      warnings.push({
+        message: `${unrestoredFileIds.size} embedded image(s) could not be restored from the archive and were skipped: ${names.join(', ')}`,
+      })
+    }
+    if (unrestoredResponseFileNames.length > 0) {
+      warnings.push({
+        message: `${unrestoredResponseFileNames.length} response file(s) could not be restored from the archive and were skipped: ${unrestoredResponseFileNames.join(', ')}`,
+      })
+    }
 
     return {
       entityId: resolvedSurveyId,
       hasIdTranslations: hadResponseIdCollision,
+      ...(warnings.length > 0 ? { warnings } : {}),
     }
   }
 
+  /**
+   * Copies each new (non-dedup, non-resurrect) file's bytes from its temp
+   * archive location to its final storage path. Returns the `newFileId`s
+   * whose archive entry could not be located (`getBinaryS3Key` came back
+   * empty) — the caller must not create a `File` record for these, since
+   * without a copy that record would point at a path that was never
+   * written. See `SurveyEntityHandler/VsstImportPersister.ts`'s
+   * `uploadBinaryFiles` for the same pattern applied to template-level
+   * images.
+   */
   private async uploadBinaryFiles(
     fileResolutions: FileResolution[],
     parsedData: EntityParsedData,
     dsContext: DataSourceContext,
-  ): Promise<void> {
+  ): Promise<Set<string>> {
+    const unrestoredFileIds = new Set<string>()
     const adaptor =
       this.storageConfig && this.repoFile
         ? createStorageAdaptor(this.storageConfig)
@@ -165,8 +204,13 @@ export class VsspImportPersister {
         continue
       }
       if (r.existingFileId || !adaptor || !r.manifestEntry) continue
-      const tempKey = parsedData.getBinaryS3Key(r.manifestEntry.archiveEntryPath)
-      if (!tempKey) continue
+      const tempKey = parsedData.getBinaryS3Key(
+        r.manifestEntry.archiveEntryPath,
+      )
+      if (!tempKey) {
+        unrestoredFileIds.add(r.newFileId)
+        continue
+      }
       await adaptor.copyObject({
         Bucket: this.storageConfig.publicBucket,
         Key: r.newFilePath,
@@ -174,6 +218,8 @@ export class VsspImportPersister {
         ContentType: r.manifestEntry.mimeType,
       })
     }
+
+    return unrestoredFileIds
   }
 
   /**
@@ -185,8 +231,20 @@ export class VsspImportPersister {
    * `ServiceFileUpload` uses at upload time, so a re-import of the same
    * archive (or a file whose bytes match one already imported for a
    * different response in this survey) reuses the existing record rather
-   * than creating a duplicate. Returns `undefined` when there is nothing to
-   * remap, so the caller can fall back to the original `answers` unchanged.
+   * than creating a duplicate. The dedup lookup deliberately omits a
+   * `deletedAt` filter and resurrects (clears `deletedAt`) a soft-deleted
+   * match rather than creating a new record — mirrors the `resurrect`
+   * handling `VsspImportResolver.resolveFiles` already does for embedded
+   * answer-option images. This matters when re-importing into the same
+   * (reused) surveyId: a file soft-deleted from the survey after the export
+   * was taken is still a valid restore target, not a genuinely-missing one.
+   * Returns `answers: undefined` when there is nothing to remap, so the
+   * caller can fall back to the original `answers` unchanged; always
+   * returns `unrestoredFilenames` (possibly empty) for entries whose
+   * archive entry could not be located — these are left unmapped (the
+   * original archive fileId stays in place, pointing at nothing in the
+   * importing project) rather than creating a `File` record for bytes that
+   * were never copied.
    */
   private async persistResponseFiles(
     answers: Record<string, unknown> | undefined,
@@ -199,17 +257,25 @@ export class VsspImportPersister {
       projectId: string
       parsedData: EntityParsedData
     },
-  ): Promise<Record<string, unknown> | undefined> {
-    if (!answers || !this.repoFile || !this.storageConfig) return undefined
+  ): Promise<{
+    answers: Record<string, unknown> | undefined
+    unrestoredFilenames: string[]
+  }> {
+    if (!answers || !this.repoFile || !this.storageConfig) {
+      return { answers: undefined, unrestoredFilenames: [] }
+    }
 
     const referencedIds = new Set<string>()
     for (const value of Object.values(answers)) {
       const fileIds = (value as { fileIds?: unknown } | null)?.fileIds
       if (Array.isArray(fileIds)) {
-        for (const id of fileIds) if (typeof id === 'string') referencedIds.add(id)
+        for (const id of fileIds)
+          if (typeof id === 'string') referencedIds.add(id)
       }
     }
-    if (referencedIds.size === 0) return undefined
+    if (referencedIds.size === 0) {
+      return { answers: undefined, unrestoredFilenames: [] }
+    }
 
     const entryById = new Map(
       responseFileEntries.map((entry) => [entry.fileId, entry]),
@@ -217,6 +283,7 @@ export class VsspImportPersister {
     const { userId, dsContext, projectId, parsedData } = ctx
     const adaptor = createStorageAdaptor(this.storageConfig)
     const resolvedIdMap: Record<string, string> = {}
+    const unrestoredFilenames: string[] = []
 
     for (const oldFileId of referencedIds) {
       const entry = entryById.get(oldFileId)
@@ -227,11 +294,18 @@ export class VsspImportPersister {
           surveyId: resolvedSurveyId,
           hash: entry.hash,
           fileContext: 'response',
-          deletedAt: null,
+          // no deleted filter — include soft-deleted for resurrection
         },
         { context: dsContext },
       )
       if (existing) {
+        if (existing.deletedAt) {
+          await this.repoFile.updateOne(
+            { _id: existing._id },
+            { $set: { deletedAt: null, responseId: newResponseId } },
+            { context: dsContext },
+          )
+        }
         resolvedIdMap[oldFileId] = existing._id
         continue
       }
@@ -249,17 +323,19 @@ export class VsspImportPersister {
 
       const bucketType = entry.bucketType || 'public'
       const tempKey = parsedData.getBinaryS3Key(entry.archiveEntryPath)
-      if (tempKey) {
-        await adaptor.copyObject({
-          Bucket:
-            bucketType === 'private'
-              ? this.storageConfig.privateBucket
-              : this.storageConfig.publicBucket,
-          Key: newFilePath,
-          CopySource: `${this.storageConfig.privateBucket}/${tempKey}`,
-          ContentType: entry.mimeType,
-        })
+      if (!tempKey) {
+        unrestoredFilenames.push(entry.filename)
+        continue // no bytes to restore — do not create a File record
       }
+      await adaptor.copyObject({
+        Bucket:
+          bucketType === 'private'
+            ? this.storageConfig.privateBucket
+            : this.storageConfig.publicBucket,
+        Key: newFilePath,
+        CopySource: `${this.storageConfig.privateBucket}/${tempKey}`,
+        ContentType: entry.mimeType,
+      })
 
       await this.repoFile.create(
         new File({
@@ -293,7 +369,7 @@ export class VsspImportPersister {
         ),
       }
     }
-    return remapped
+    return { answers: remapped, unrestoredFilenames }
   }
 
   private buildFileIdMap(
@@ -332,9 +408,13 @@ export class VsspImportPersister {
       remappedSnapshotData: SnapshotDataJson
       responseFileEntries: ResponseFileManifestEntry[]
       parsedData: EntityParsedData
+      unrestoredFileIds: Set<string>
     },
     ctx: { userId: string; dsContext: DataSourceContext; projectId: string },
-  ): Promise<{ hadResponseIdCollision: boolean }> {
+  ): Promise<{
+    hadResponseIdCollision: boolean
+    unrestoredResponseFileNames: string[]
+  }> {
     const {
       createSurvey,
       surveyDataForCreate,
@@ -352,6 +432,7 @@ export class VsspImportPersister {
       remappedSnapshotData,
       responseFileEntries,
       parsedData,
+      unrestoredFileIds,
     } = payload
     const { userId, dsContext, projectId } = ctx
 
@@ -517,6 +598,7 @@ export class VsspImportPersister {
     if (this.repoFile) {
       for (const r of fileResolutions ?? []) {
         if (r.existingFileId || !r.manifestEntry) continue
+        if (unrestoredFileIds.has(r.newFileId)) continue
         await this.repoFile.create(
           new File({
             _id: r.newFileId,
@@ -547,6 +629,7 @@ export class VsspImportPersister {
     const seenParticipantIds = new Set<string>()
     const participantIdMap: Record<string, string> = {}
     let hadResponseIdCollision = false
+    const unrestoredResponseFileNames: string[] = []
 
     for (const batchKey of responseBatchKeys) {
       const batchData =
@@ -606,13 +689,15 @@ export class VsspImportPersister {
             responseData.participantId)
           : null
 
-        const remappedAnswers = await this.persistResponseFiles(
-          responseData.answers as Record<string, unknown> | undefined,
-          responseFileEntries,
-          resolvedSurveyId,
-          newId,
-          { userId, dsContext, projectId, parsedData },
-        )
+        const { answers: remappedAnswers, unrestoredFilenames } =
+          await this.persistResponseFiles(
+            responseData.answers as Record<string, unknown> | undefined,
+            responseFileEntries,
+            resolvedSurveyId,
+            newId,
+            { userId, dsContext, projectId, parsedData },
+          )
+        unrestoredResponseFileNames.push(...unrestoredFilenames)
 
         const response = new SurveyResponse({
           ...responseData,
@@ -632,6 +717,6 @@ export class VsspImportPersister {
       parsedData.deleteJson?.(batchKey)
     }
 
-    return { hadResponseIdCollision }
+    return { hadResponseIdCollision, unrestoredResponseFileNames }
   }
 }

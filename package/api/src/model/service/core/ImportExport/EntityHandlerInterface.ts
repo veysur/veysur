@@ -29,6 +29,7 @@ export type ImportValidationResult<TData = unknown> = {
   data?: TData
   repairs?: unknown[]
   discards?: unknown[]
+  warnings?: unknown[]
   hasIdTranslations?: boolean
 }
 
@@ -173,6 +174,7 @@ export interface EntityHandlerInterface {
   ): Promise<{
     entityId: string
     hasIdTranslations?: boolean
+    warnings?: unknown[]
   }>
 
   /**

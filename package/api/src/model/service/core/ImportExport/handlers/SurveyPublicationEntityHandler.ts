@@ -250,7 +250,11 @@ export class SurveyPublicationEntityHandler implements EntityHandlerInterface {
   async persistImport(
     data: unknown,
     context: PersistImportContext,
-  ): Promise<{ entityId: string; hasIdTranslations?: boolean }> {
+  ): Promise<{
+    entityId: string
+    hasIdTranslations?: boolean
+    warnings?: unknown[]
+  }> {
     return this.persister.persist(data as ResolvedImportContext, context)
   }
 
