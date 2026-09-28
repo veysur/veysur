@@ -1,0 +1,42 @@
+# cspell:ignore rustfs
+# Override for storage-s3.e2e.sh: a throwaway S3 service and a one-shot job that
+# creates the buckets. Not part of the product stack.
+services:
+  s3:
+    image: ${S3TEST_IMAGE:-rustfs/rustfs:latest}
+    restart: "no"
+    environment:
+      RUSTFS_ACCESS_KEY: ${S3TEST_ACCESS_KEY:?}
+      RUSTFS_SECRET_KEY: ${S3TEST_SECRET_KEY:?}
+    volumes:
+      - s3test-data:/data
+
+  # Standard S3 API calls only, so another provider needs just a new `s3` service.
+  s3-init:
+    image: ${S3TEST_CLI_IMAGE:-amazon/aws-cli:latest}
+    profiles: ["tools"]
+    entrypoint: ["/bin/sh", "-c"]
+    environment:
+      AWS_ACCESS_KEY_ID: ${S3TEST_ACCESS_KEY:?}
+      AWS_SECRET_ACCESS_KEY: ${S3TEST_SECRET_KEY:?}
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_EC2_METADATA_DISABLED: "true"
+    command:
+      - |
+        set -e
+        aws="aws --endpoint-url http://s3:9000"
+        i=0
+        until $$aws s3api list-buckets >/dev/null 2>&1; do
+          i=$$((i + 1)); [ $$i -lt 60 ] || { echo "S3 service did not come up"; exit 1; }
+          sleep 1
+        done
+        for bucket in test-files test-files-2 test-private test-private-2; do
+          $$aws s3api create-bucket --bucket $$bucket >/dev/null
+        done
+        for bucket in test-files test-files-2; do
+          $$aws s3api put-bucket-policy --bucket $$bucket --policy '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":"*","Action":"s3:GetObject","Resource":"arn:aws:s3:::'$$bucket'/*"}]}'
+        done
+        echo "buckets ready"
+
+volumes:
+  s3test-data:

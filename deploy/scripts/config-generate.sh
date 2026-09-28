@@ -147,7 +147,7 @@ fi
 echo
 echo "File storage:"
 echo "  1) Local disk (Docker volume)"
-echo "  2) S3-compatible service (AWS S3, MinIO, ...)"
+echo "  2) S3-compatible service (AWS S3, RustFS, ...)"
 if [ "$(current API_S3_TYPE)" = s3 ]; then storage_default=2; else storage_default=1; fi
 if $DEV_MODE; then storage_choice=1
 elif $NON_INTERACTIVE; then storage_choice=$storage_default
@@ -157,7 +157,10 @@ else
 fi
 case $storage_choice in
   1) env_set API_S3_TYPE local "$WORK"
-     env_set VEYSUR_STORAGE_SNIPPET ./nginx/storage-local.conf "$WORK" ;;
+     env_set VEYSUR_STORAGE_SNIPPET ./nginx/storage-local.conf "$WORK"
+     # The volume holds fixed directories, so leftover S3 bucket names would break file links.
+     env_set API_S3_PUBLIC_BUCKET veysur-files "$WORK"
+     env_set API_S3_PRIVATE_BUCKET veysur-private "$WORK" ;;
   2) env_set API_S3_TYPE s3 "$WORK"
      env_set VEYSUR_STORAGE_SNIPPET ./nginx/storage-s3.conf "$WORK"
      env_set API_S3_FORCE_PATH_STYLE true "$WORK"

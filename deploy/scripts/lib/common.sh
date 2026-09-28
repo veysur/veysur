@@ -21,10 +21,12 @@ die() {
   exit 1
 }
 
-# VEYSUR_DEV=1 layers compose.dev.yaml over the production file.
+# VEYSUR_DEV=1 layers compose.dev.yaml over the production file. VEYSUR_COMPOSE_EXTRA
+# names one more override file (the storage test adds an S3 service this way).
 compose() {
   local files=(-f "$DEPLOY_DIR/compose.yaml")
   [ "${VEYSUR_DEV:-0}" != 1 ] || files+=(-f "$DEPLOY_DIR/compose.dev.yaml")
+  [ -z "${VEYSUR_COMPOSE_EXTRA:-}" ] || files+=(-f "$VEYSUR_COMPOSE_EXTRA")
   # The nginx include is a bind mount: a missing file would become a directory.
   [ ! -f "$ENV_FILE" ] || storage_snippet_ensure
   docker compose --env-file "$ENV_FILE" "${files[@]}" "$@"
@@ -128,6 +130,13 @@ require_env_keys() {
     [ "$(env_get VEYSUR_STORAGE_SNIPPET)" = ./nginx/storage-s3.conf ] ||
       die "API_S3_TYPE=s3 needs VEYSUR_STORAGE_SNIPPET=./nginx/storage-s3.conf in $ENV_FILE. Run ./scripts/config-generate.sh."
     storage_validate "$(env_get API_S3_ENDPOINT)" "$(env_get API_S3_PUBLIC_BUCKET)" "$(env_get API_S3_PRIVATE_BUCKET)"
+  fi
+
+  if [ "$(env_get API_S3_TYPE)" != s3 ]; then
+    local public private
+    public=$(env_get API_S3_PUBLIC_BUCKET) private=$(env_get API_S3_PRIVATE_BUCKET)
+    { [ -z "$public" ] || [ "$public" = veysur-files ]; } && { [ -z "$private" ] || [ "$private" = veysur-private ]; } ||
+      die "local storage serves fixed veysur-files and veysur-private directories, but $ENV_FILE sets other bucket names. Run ./scripts/config-generate.sh, or set API_S3_TYPE=s3."
   fi
 
   # Caddy cannot parse its automatic-TLS snippet without a contact e-mail.

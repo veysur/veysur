@@ -1,4 +1,4 @@
-<!-- cspell:ignore AKIA -->
+<!-- cspell:ignore AKIA rustfs -->
 # File storage
 
 **Parent:** [README.md](./README.md)
@@ -8,7 +8,7 @@ Uploaded files (survey images, response attachments, imports and exports) are st
 | Mode | Where files live | Set up |
 |---|---|---|
 | Local disk (default) | The `veysur-files` Docker volume | Nothing to configure |
-| S3-compatible | Your own buckets on AWS S3, MinIO or a similar service | [Use an S3 service](#use-an-s3-service) |
+| S3-compatible | Your own buckets on AWS S3 or a self-hosted S3-compatible service | [Use an S3 service](#use-an-s3-service) |
 
 Both modes keep every file link on the same origin as the site, so no CORS configuration is needed.
 
@@ -132,8 +132,10 @@ API_S3_SECRET_ACCESS_KEY=...
 VEYSUR_STORAGE_SNIPPET=./nginx/storage-s3.conf
 ```
 
-Use the regional endpoint that matches the bucket's region. For MinIO on the same Docker network, use
-`API_S3_ENDPOINT=http://minio:9000`, `API_S3_REGION=us-east-1` and the MinIO root or service account key.
+Use the regional endpoint that matches the bucket's region. For a self-hosted service on the same Docker network,
+use its address, for example `API_S3_ENDPOINT=http://s3:9000`, with `API_S3_REGION=us-east-1` and the service's
+access key. The bundled storage test runs against RustFS this way; see `deploy/tests/compose.s3test.yaml`.
+
 The service must allow anonymous reads through its S3 endpoint for the public bucket. Services that only
 expose public files on a separate public domain, such as Cloudflare R2, do not fit this design.
 

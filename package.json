@@ -11,6 +11,7 @@
   "scripts": {
     "dev": "docker compose --project-directory deploy -f deploy/compose.yaml -f deploy/compose.dev.yaml watch",
     "down": "./deploy/scripts/down.sh",
+    "test:storage": "./deploy/tests/storage-s3.e2e.sh",
     "dev:admin-account": "./deploy/scripts/admin-account-bootstrap.sh",
     "dev:task": "./deploy/scripts/task-run.sh",
     "dev:migrate": "docker compose --project-directory deploy -f deploy/compose.yaml -f deploy/compose.dev.yaml run --rm migrate",
