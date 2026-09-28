@@ -47,7 +47,7 @@ pnpm build && pnpm typecheck && pnpm lint && pnpm test
   `node_modules` so transitive requires resolve per package instead of through pnpm's hoisted path.
 - **Integration tests** (`*.integration.test.ts`) need MySQL: `pnpm --filter veysur-api test:integration`.
 - **Repo guards** run in the pre-commit hook and can be run directly: `scripts/check-no-private-repo-refs.sh`,
-  `check-survey-aliases.sh`, `check-survey-element-casts.sh`.
+  `check-no-cloud-detail-in-docs.sh`, `check-survey-aliases.sh`, `check-survey-element-casts.sh`.
 
 There is no CI workflow yet; run the commands above before opening a pull request. See
 [CONTRIBUTING.md](../CONTRIBUTING.md) for the contribution process and CLA.

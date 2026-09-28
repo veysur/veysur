@@ -46,6 +46,15 @@ if ! bash scripts/check-no-billing-logic.sh; then
     exit 1
 fi
 
+# Cloud-detail-in-docs guard: run on every commit, any doc may reintroduce it
+if ! bash scripts/check-no-cloud-detail-in-docs.sh; then
+    echo ""
+    echo "Cloud-detail-in-docs guard failed. Fix the matches above before committing."
+    echo "To bypass: git commit --no-verify"
+    echo ""
+    exit 1
+fi
+
 # Lint staged source files for each package that has an ESLint config
 LINT_TARGETS=(
     "package/app:ts|tsx|js|jsx"
