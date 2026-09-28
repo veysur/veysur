@@ -1,4 +1,4 @@
-<!-- cspell:ignore Kundenzufriedenheitsumfrage Allgemein Würden einem Freund empfehlen skimmable -->
+<!-- cspell:ignore Kundenzufriedenheitsumfrage Allgemein Würden einem Freund empfehlen skimmable youtu -->
 
 # Survey Markdown Format: v1 Specification
 
@@ -21,21 +21,31 @@ accepts (canonical form, plus any normalization). A hand-authored document that 
 optional fields must still import correctly; an exported document must always be
 byte-identical for the same survey, so round-trip tests are meaningful.
 
-**v1 covers simple question types only**: `text`, `number`, `checkbox`, `dropdown`,
-`yesNo`, `starRating`, `point5`, `point10`, `date`, `time`, `dateTime`. Explicitly out
-of scope for v1 (see §6 for how each will slot in later):
+**v1 covers simple question types, and content (non-input) elements**: question types
+`text`, `number`, `checkbox`, `dropdown`, `yesNo`, `starRating`, `point5`, `point10`,
+`date`, `time`, `dateTime`; content types `contentText` and `contentVideoYoutube`
+(`kind: 'content'` — instructional text or an embedded video, never validated, never
+collecting participant input). Content elements interleave with questions in document
+order within a group: a group is not "questions then content," the order is whatever
+the survey's own element order says.
+
+Explicitly out of scope for v1 (see §6 for how each will slot in later):
 
 - Matrix types (`matrixText`, `matrixNumber`, `matrixDate`, `matrixTime`,
   `matrixDateTime`, `matrixCheckbox`, `matrixYesNo`) and multi-part types
   (`multiPartText`, `multiPartNumber`, `multiPartYesNo`, `multiPartStarRating`,
   `multiPartPoint5`, `multiPartPoint10`).
 - `imageSelect`, `ranking`, `surveyLangSelect`, `button`.
-- `condition`/`conditionReferences` (branching/skip logic).
+- `condition`/`conditionReferences` (branching/skip logic) — on questions, groups, **and
+  content elements alike**: content is not given an early exception here even though it
+  has no other attribute machinery in v1 (see §2.4).
 - `{{expression}}` embedding in text fields.
+- Content types `contentImage`, `contentGallery`, `contentVideoS3`: not yet implemented
+  in the survey model at all, so there is nothing for a v1 document to represent.
 
 A v1 document has no way to express any of the above. An importer encountering a
-question `type:` outside the v1 list, or a `condition:` line, must reject the document
-with a clear error rather than silently dropping the unsupported content: see §4.
+question or content `type:` outside the v1 list, or a `condition:` line, must reject the
+document with a clear error rather than silently dropping the unsupported content: see §4.
 
 **Relationship to per-field content formatting.** This format is a **structural
 container only**. It says nothing about how question text, descriptions, or messages
@@ -118,11 +128,52 @@ attribute registry.
   `attributes`) belong to matrix/multi-part composite questions only: out of scope
   for v1 entirely, not just their attributes.
 
+### 2.4 Content-level fields, by v1 type
+
+Common to every v1 content type:
+
+| Field | Required? | Notes |
+|---|---|---|
+| `code` | Auto-generated if omitted | Stable identifier (e.g. `C001`); prefix `C`, not `Q` |
+| `type` | Yes | One of the 2 v1 content types (`contentText`, `contentVideoYoutube`) |
+| `text` | Yes (may be empty string) | `L10n`; body for `contentText`, optional caption for `contentVideoYoutube` |
+
+Content differs from a question (§2.3) in three load-bearing ways, not just omissions of
+degree:
+
+- **No `detail` field at all.** `detail` is question-only; content has nothing analogous.
+- **No answer options, no subquestions.** Content is always a leaf node.
+- **No `attributes` bullet list in v1, full stop.** This is stronger than questions'
+  "only `required` is common": there is no per-type attribute-metadata registry for
+  content the way there is for questions (`attributeMeta/attributes/*.ts`), `required`
+  is not a meaningful concept for content (it is never validated, never an answer
+  target), and `condition` is deferred to v2 (§1). A v1 content block therefore carries
+  zero attribute bullets, not merely "few" — an implementer should not go looking for a
+  content attribute registry, because none exists.
+
+Type-specific fields, for `contentVideoYoutube` only:
+
+| Field | Shape | Notes |
+|---|---|---|
+| `config.youtube.url` | `string` | Required when `type` is `contentVideoYoutube`; written verbatim as originally pasted, including any `start=`/`t=` query parameter |
+
+`config.youtube.videoId` and `config.youtube.startAt` are **never written** to the
+document: both are derived data, recomputed from `url` on import via the same
+`parseYoutubeUrl` utility the app's content editor already uses (it reads `startAt` from
+the URL's own `?start=`/`&t=`/`#t=` parameter — there is no separate start-time input
+anywhere in the model). Writing either would duplicate derived data the importer can
+already reconstruct; see §3.4a for the grammar this produces.
+
+`contentText`'s `config` is unused (`null`) and carries no grammar of its own beyond
+`text`.
+
 ## 3. Markdown grammar
 
 The grammar below was derived by drafting four worked examples first (§3.5) and
 generalizing only the rules those examples actually needed: no syntax exists in this
-grammar that isn't exercised by at least one example.
+grammar that isn't exercised by at least one example. Two further examples (E, F) were
+added later, following the same principle, when content blocks (§3.4a) extended the
+grammar.
 
 ### 3.1 Document shape
 
@@ -209,8 +260,10 @@ place in the document body.
 - `##` (H2): one per question group, in document order == group sort order. The text
   after `##` is the group `name`; a plain paragraph immediately following (before the
   first `###`) is the group `desc`, and is optional.
-- `###` (H3): one per question, in document order == question sort order within its
-  group. Format: `### <code> · <type>`: see §3.4.
+- `###` (H3): one per question or content element, in document order == element sort
+  order within its group (questions and content interleave in this one shared order,
+  not grouped separately). Format: `### <code> · <type>`: see §3.4 for questions,
+  §3.4a for content.
 - A literal `## Thank you` heading (this exact text, case-sensitive, English, always: it
   is a document delimiter, not L10n content) marks the thank-you section: the
   paragraph beneath it is `thankYou.message`, and an optional trailing markdown link
@@ -276,7 +329,51 @@ Options:
   checked state.
 - A horizontal rule (`---`) separates consecutive question blocks within a group,
   purely for human readability; the importer treats it as insignificant whitespace
-  (see §4): question boundaries are determined by `###` headings, not by `---`.
+  (see §4): block boundaries are determined by `###` headings, not by `---` — this
+  applies uniformly whether the two neighbouring blocks are both questions, both
+  content elements, or one of each (§3.4a).
+
+### 3.4a Content blocks
+
+```
+### <code> · <type>
+<content text or caption, one or more paragraphs>
+```
+
+- **Heading line**: identical shape to a question block, `### <code> · <type>`, with
+  `<type>` being `contentText` or `contentVideoYoutube`. The importer discriminates a
+  block's `kind` from `<type>` alone: v1's content and question type strings are
+  disjoint sets, so no separate `kind:` marker or different heading sigil is needed.
+  One uniform heading shape covers every H3 block regardless of kind.
+- **`contentText` body**: exactly like a question's `text` (§3.4) — one or more
+  paragraphs immediately after the heading line, up to the next block boundary. No
+  detail block (doesn't exist for content), no attributes block (nothing to emit in
+  v1), no options block (not applicable). §3.5 Example D's empty-question-text edge
+  case applies identically to an empty `contentText` body.
+- **`contentVideoYoutube` body**:
+
+  ```
+  ### C002 · contentVideoYoutube
+  <https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=90s>
+
+  <optional caption text>
+  ```
+
+  - The URL is written as a bare markdown autolink (`<url>`) on its own line
+    immediately after the heading — chosen over a labelled attribute bullet because
+    content has no attribute list in v1 (§2.4: nothing else would ever appear in it),
+    so a single dedicated line reads more directly than standing up the attribute-bullet
+    machinery for exactly one field. Autolink syntax was chosen over a bare bullet or a
+    markdown link (`[text](url)`) because it is unambiguous and needs no placeholder
+    link label.
+  - The URL is written **verbatim as originally pasted**, query parameters included.
+    `config.youtube.startAt` round-trips for free this way via `parseYoutubeUrl` on
+    import; no separate grammar element for start time exists or is needed.
+  - `config.youtube.videoId` and `config.youtube.startAt` are never written (§2.4):
+    always recomputed from `url` on import.
+  - The optional caption (`text`) is a plain paragraph **after** the URL line,
+    separated by a blank line — the URL is the primary content for this type, the
+    caption secondary. Omit the paragraph entirely when `text` is `''`.
 
 ### 3.5 Worked examples
 
@@ -406,6 +503,66 @@ is always present, per §2.3) serializes as a heading line with nothing but a bl
 before the next boundary, and that the importer must not treat a blank line here as an
 error.
 
+**Example E: a content block interleaved between two questions (§2.4, §3.4a):**
+
+```markdown
+---
+spec: v1
+language:
+  default: en
+  options: [en]
+---
+
+# Customer Satisfaction Survey
+
+## General
+
+### C001 · contentText
+Thank you for taking the time to complete this survey. It should take about two
+minutes.
+
+---
+
+### Q001 · yesNo
+Would you recommend us to a friend?
+
+---
+
+### Q002 · starRating
+How would you rate your overall experience?
+```
+
+This validates the content code prefix `C`, that a content block occupies the same
+document position a question block would (immediately under its group's `##` heading,
+in document order), and that the `---` divider separates a content block from a
+neighbouring question block exactly as it separates two questions.
+
+**Example F: a `contentVideoYoutube` block (§2.4, §3.4a):**
+
+```markdown
+---
+spec: v1
+language:
+  default: en
+  options: [en]
+---
+
+# Product Feedback
+
+## Usage
+
+### C002 · contentVideoYoutube
+<https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=90s>
+
+A quick walkthrough of how to complete this survey.
+```
+
+The `t=90s` query parameter is part of the URL as originally pasted, not a separate
+grammar element. Re-importing this document must recompute
+`config.youtube.videoId: 'dQw4w9WgXcQ'` and `config.youtube.startAt: 90` from the URL
+alone, via `parseYoutubeUrl`, and produce the same values the original survey had before
+export: this round-trip is the case §7's content checklist item verifies.
+
 ### 3.6 Multi-language content
 
 L10n fields store a plain `{ langCode: string }` map that is commonly **partially
@@ -458,11 +615,19 @@ is normalized; everything else is rejected with a clear per-line error:**
 | Missing optional fields (`detail`, group `desc`, thank-you section, non-default attributes) | Normalize: use type default / `null` |
 | Extra blank lines between blocks, or a missing `---` divider between questions | Normalize (§3.4: `---` is insignificant whitespace) |
 | An attribute bullet with an ID not in that question type's applicable set (§2.3) | **Reject**: e.g. `inputSize` on a `checkbox` question is an error, not a silent drop |
-| A `type:` outside the 11 v1 types (including matrix/multiPart/`imageSelect`/`ranking`/`surveyLangSelect`/`button`) | **Reject**: clear error naming the unsupported type and pointing at this spec's version boundary (not a v1 concept) |
-| A `condition:` line anywhere | **Reject**: same reasoning; branching does not exist until a later spec version |
+| A `type:` outside the 11 v1 question types (including matrix/multiPart/`imageSelect`/`ranking`/`surveyLangSelect`/`button`) | **Reject**: clear error naming the unsupported type and pointing at this spec's version boundary (not a v1 concept) |
+| A content `type:` outside the 2 v1 content types (`contentText`, `contentVideoYoutube`), including `contentImage`/`contentGallery`/`contentVideoS3` | **Reject**: same treatment as an unrecognised question type |
+| An attribute bullet list under a content block | **Reject**: content has no attributes in v1 (§2.4) — any `- <id>: <value>` line under a content heading is malformed input, not silently ignored |
+| A `contentVideoYoutube` block with no URL line | **Reject**: `config.youtube.url` is required whenever `type` is `contentVideoYoutube` |
+| A `condition:` line anywhere, including under a content block | **Reject**: same reasoning; branching does not exist until a later spec version |
 | A raw `{{expression}}` token inside question/group text | **Passed through verbatim, uninterpreted**: v1 does not parse or evaluate it; it round-trips as literal text. This is explicitly *not* the same as expression support (§6): it simply means v1's grammar must not corrupt or strip a `{{...}}` substring it doesn't understand, since a later spec version needs these to have survived any v1-era round-trip untouched |
 | Missing or non-`v1` `spec:` front-matter value | **Reject** for a value the importer doesn't recognise (e.g. `v2` when only v1 support is implemented: "upgrade or reject" per the versioning rule below); **reject** for a missing `spec:` key entirely (no implicit version) |
 | Duplicate question/group `code` | **Reject**: same uniqueness rule the model already enforces |
+
+The duplicate-`code` rule generalizes unchanged to content: `C001` and `Q001` already
+occupy visually distinct namespaces by prefix convention, but whether the model enforces
+`code` uniqueness survey-wide or partitions it by kind is a fact to confirm against the
+model, not a spec design choice — see §7's checklist.
 
 **Versioning.** The front-matter `spec:` key is the version marker. v1 importers
 recognise only `spec: v1` and reject anything else outright (see table). A future v2
@@ -488,7 +653,7 @@ This format and the per-field content-format settings (`resolveContentFormat()`,
   `markdownAllowed: false` stores those same fields as HTML.
 
 **Consequence for this spec**: when this format's exporter writes a question's `text`
-into a `###` block (§3.4), it writes that field's stored value **verbatim**, whatever
+(or a content element's `text`, §3.4a) into a `###` block (§3.4), it writes that field's stored value **verbatim**, whatever
 format it is already in: it does not re-render, re-interpret, or convert it. If the
 survey's resolved content format is `markdown`, the question text appearing under a
 `###` heading is itself markdown prose, and a markdown renderer processing the whole
@@ -530,7 +695,22 @@ later without requiring a v1 document rewrite:
   `attributeId: value` pair; `condition` merely needs to move from the "rejected
   attribute ID" list in §4's import-strictness table to the "recognised" list in a v2
   spec, with `<expression>` being the raw `SurveyExpression`-parseable string, quoted
-  if it contains `:` or other bullet-list-sensitive characters.
+  if it contains `:` or other bullet-list-sensitive characters. This applies equally to
+  content elements once v2 lands: v1 content has no attribute-bullet machinery at all
+  (§2.4), so a v2 `- condition: <expression>` bullet under a content block reuses this
+  same mechanism from a standing start, with no separate design needed.
+- **`contentImage`, `contentGallery`, `contentVideoS3`.** Each slots in the same way
+  `contentVideoYoutube` does (§3.4a): a `### <code> · <type>` heading whose body carries
+  whatever non-derived fields that type's `config` needs, following the same "derived
+  data is never written, only recomputed on import" principle established for
+  `contentVideoYoutube`'s `videoId`/`startAt`. `contentGallery` most likely needs a
+  labelled sub-block analogous to `Options:`/`Subquestions:` for its list of images;
+  `contentImage` and `contentVideoS3` most likely need only a single file-reference line
+  analogous to the `contentVideoYoutube` URL line. None of these three types are
+  implemented in the survey model yet (`SurveyContent.ts`'s own comment flags them as
+  planned, not present), so no concrete grammar is defined here: this entry exists only
+  to confirm the existing "labelled block after heading" and "derived fields aren't
+  written" extension points already generalize to them without a structural rework.
 - **`{{expression}}` embedding.** Already required to round-trip verbatim through v1
   as opaque text (§4's table) specifically so this extension is non-breaking: a v2
   importer/exporter simply starts *evaluating* (for preview/validation purposes) tokens
@@ -567,10 +747,28 @@ Before this spec is treated as final and implementation begins, run through:
    `AttributeMeta.initialValue` for every v1-applicable attribute in §2.3: verify each
    value programmatically rather than by inspection, since a silent drift between this
    table and the registry would make exported documents non-canonical.
+6. Hand-convert Example E and Example F (§3.5) into the patch-batch shape, confirming a
+   patch-batch operation equivalent to `addQuestion` exists for content (`addContent` in
+   `createSurveyOperations/contentOperations.ts`) with no new model getters required,
+   the same check item 1 already runs for questions.
+7. Confirm the reverse direction for content: reading `survey.elements` narrowed via
+   `isSurveyContent` is sufficient to recover `code`, `type`, `text`, and
+   `config.youtube.url` for export, with no new `Survey`/`SurveyContent` model methods
+   required.
+8. Confirm `parseYoutubeUrl` (`veysur-common`) round-trips `videoId` and `startAt`
+   correctly for real fixture URLs covering at least the `watch?v=` and `youtu.be/`
+   forms, and that it is importable from wherever `MarkdownFormatHandler`'s importer
+   will live (it already is, being exported from `veysur-common` rather than trapped
+   behind an app-only module boundary — confirm this holds once the importer's actual
+   location is chosen).
+9. Confirm whether `code` uniqueness is enforced survey-wide or partitioned by the
+   `C`/`Q` prefix convention (§4), so the importer's duplicate-code rejection is written
+   against the real constraint rather than an assumption.
 
 ## 8. Deliverable status
 
-This document covers: §2 (inventory), §3 (grammar + worked examples), §4
+This document covers: §2 (inventory, including content elements at §2.4), §3 (grammar +
+worked examples, including content blocks at §3.4a and Examples E-F), §4
 (round-trip/versioning), §5 (content-format cross-reference), §6 (deferred-feature
 extension sketch). §7 is the outstanding pre-implementation step; implementation of
 `MarkdownFormatHandler`, the exporter, the importer, and their tests is a separate future
