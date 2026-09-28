@@ -35,11 +35,11 @@ of scope for v1 (see §6 for how each will slot in later):
 
 A v1 document has no way to express any of the above. An importer encountering a
 question `type:` outside the v1 list, or a `condition:` line, must reject the document
-with a clear error rather than silently dropping the unsupported content — see §4.
+with a clear error rather than silently dropping the unsupported content: see §4.
 
 **Relationship to per-field content formatting.** This format is a **structural
 container only**. It says nothing about how question text, descriptions, or messages
-are rendered — that is owned entirely by the per-survey content-format settings
+are rendered: that is owned entirely by the per-survey content-format settings
 (`htmlAllowed`/`markdownAllowed`/`scriptTagsAllowed`, resolved via
 `resolveContentFormat()` and rendered via `renderContent.ts`). A markdown
 survey document's text fields (question `text`/`detail`, group `name`/`desc`,
@@ -62,7 +62,7 @@ document format implies it. Full reconciliation is in §5.
 
 Everything else on `SurveyInterface` (`presentation`, `participant`, `data`, `access`,
 `dataPolicy`, `legalNotice`, `schedule`, `notify`, `stats`, `content`) is **out of
-scope for v1** — these are project/deployment/behavioural settings, not survey
+scope for v1**: these are project/deployment/behavioural settings, not survey
 *content*, and are not represented in the markdown document at all. An importer
 creates a new survey (or updates an existing one) leaving these fields at whatever
 default/inherited value `Survey`'s constructor and the target project already apply;
@@ -100,28 +100,28 @@ against `questionAttributeConfig.ts`):
 | `numberMinMax` | `number` | `{ min: number, max: number }` (`0` = no limit) | `{ min: 0, max: 0 }` |
 | `numberNegAllowed` | `number` | `boolean` | `false` |
 | `choiceMinMax` | `checkbox`, `dropdown` | `{ min: number, max: number }` (`0` = no limit) | `{ min: 0, max: 0 }` |
-| `choiceOther` | `checkbox`, `dropdown` | `boolean` — adds a free-text "Other" option | `false` |
-| `choiceRandomise` | `checkbox`, `dropdown` | `boolean` — randomise answer-option order at render time | `false` |
+| `choiceOther` | `checkbox`, `dropdown` | `boolean`: adds a free-text "Other" option | `false` |
+| `choiceRandomise` | `checkbox`, `dropdown` | `boolean`: randomise answer-option order at render time | `false` |
 
 `yesNo`, `starRating`, `point5`, `point10`, `date`, `time`, `dateTime` carry only the
-common `required` attribute in v1 — no type-specific attributes apply to them per the
+common `required` attribute in v1: no type-specific attributes apply to them per the
 attribute registry.
 
 **Children, by type:**
 
-- `checkbox`, `dropdown` — one or more `SurveyAnswerOption` (`code`, `label: L10n`).
+- `checkbox`, `dropdown`: one or more `SurveyAnswerOption` (`code`, `label: L10n`).
   `image` is out of scope for v1 (belongs to `imageSelect`, itself deferred).
 - `yesNo`, `starRating`, `point5`, `point10`, `date`, `time`, `dateTime`, `text`,
-  `number` — no answer options in v1 (their answer sets are implicit in the type, or
+  `number`: no answer options in v1 (their answer sets are implicit in the type, or
   free-form).
 - **Subquestions** (`SurveySubquestion`: `code`, `type`, `text`, `detail`,
-  `attributes`) belong to matrix/multi-part composite questions only — out of scope
+  `attributes`) belong to matrix/multi-part composite questions only: out of scope
   for v1 entirely, not just their attributes.
 
 ## 3. Markdown grammar
 
 The grammar below was derived by drafting four worked examples first (§3.5) and
-generalizing only the rules those examples actually needed — no syntax exists in this
+generalizing only the rules those examples actually needed: no syntax exists in this
 grammar that isn't exercised by at least one example.
 
 ### 3.1 Document shape
@@ -176,10 +176,10 @@ Options:
 [<Thank-you link text>](<Thank-you link url>)
 ```
 
-### 3.2 Front matter (YAML) — survey-level metadata
+### 3.2 Front matter (YAML): survey-level metadata
 
 A YAML front-matter block is **required** and always the first thing in the document.
-It carries only non-prose metadata — never anything that is itself L10n prose content:
+It carries only non-prose metadata: never anything that is itself L10n prose content:
 
 ```yaml
 ---
@@ -196,29 +196,29 @@ language:
   `language.default`.
 
 Front matter was chosen over inline markdown for this metadata because it is
-structured/typed data (a version tag, a list of codes), not prose — mixing it into
+structured/typed data (a version tag, a list of codes), not prose: mixing it into
 headings or a bullet list read worse in the drafted examples and it has no natural
 place in the document body.
 
 ### 3.3 Headings
 
 - `#` (H1), exactly one, immediately after front matter: the survey `title`
-  (default-language shorthand — see §3.6). A blockquote (`> ...`) directly under the H1
+  (default-language shorthand: see §3.6). A blockquote (`> ...`) directly under the H1
   is the `welcome.message`, and is optional (omit the blockquote entirely if there is
   no welcome message).
 - `##` (H2): one per question group, in document order == group sort order. The text
   after `##` is the group `name`; a plain paragraph immediately following (before the
   first `###`) is the group `desc`, and is optional.
 - `###` (H3): one per question, in document order == question sort order within its
-  group. Format: `### <code> · <type>` — see §3.4.
-- A literal `## Thank you` heading (this exact text, case-sensitive, English, always —
-  it is a document delimiter, not L10n content) marks the thank-you section: the
+  group. Format: `### <code> · <type>`: see §3.4.
+- A literal `## Thank you` heading (this exact text, case-sensitive, English, always: it
+  is a document delimiter, not L10n content) marks the thank-you section: the
   paragraph beneath it is `thankYou.message`, and an optional trailing markdown link
   `[text](url)` is `thankYou.link`. This section is optional; omit it entirely (heading
   included) if the survey has no thank-you message and no thank-you link.
 
 Heading levels were chosen over a flatter numbered-list structure because groups and
-questions naturally nest under a survey the way sections nest under a document title —
+questions naturally nest under a survey the way sections nest under a document title;
 this read far more naturally in the drafted examples than a list-based scheme, and
 gives each question its own addressable anchor.
 
@@ -226,7 +226,7 @@ gives each question its own addressable anchor.
 
 ```
 ### <code> · <type>
-<question text — one or more paragraphs>
+<question text, one or more paragraphs>
 
 *<question detail>*
 
@@ -246,22 +246,22 @@ Options:
   table/link syntax in some editors; middle dot does not and reads cleanly.
 - **Question text**: the paragraph(s) immediately after the heading line, up to the
   first blank-line-delimited block that matches the detail/attributes/options syntax
-  below. This is `text` (L10n content — see §3.6 for multi-language).
+  below. This is `text` (L10n content: see §3.6 for multi-language).
 - **Detail** (optional): a single paragraph wrapped entirely in `*...*` (markdown
   emphasis), immediately after the question text. Chosen deliberately as a visual
   distinguisher from body text, since `detail` is help/hint text, not the question
   itself; omit entirely if `detail` is `null`.
 - **Attributes** (optional): a flat bullet list, one `- <attributeId>: <value>` line
   per non-default attribute. `<attributeId>` is the exact attribute ID from
-  `attributeMeta/constants.ts` (§2.3) — never a UI label. `<value>` is:
+  `attributeMeta/constants.ts` (§2.3): never a UI label. `<value>` is:
   - `true`/`false` for booleans.
   - a bare number or string for scalars.
   - `{ min: <n>, max: <n> }` for the `MinMax`-shaped attributes (`lengthMinMax`,
-    `numberMinMax`, `choiceMinMax`) — flow-style YAML/JSON-like inline object, chosen
+    `numberMinMax`, `choiceMinMax`): flow-style YAML/JSON-like inline object, chosen
     because it is unambiguous and short, and mirrors the shape already used in
     `AttributeMeta.initialValue`.
 
-  **Only non-default attributes are emitted** (see §4 — the exporter never writes an
+  **Only non-default attributes are emitted** (see §4: the exporter never writes an
   attribute whose value equals `AttributeMeta.initialValue`, keeping typical documents
   short). `required: true` is the default for every question type, so an ordinary
   required text question emits *no* attributes block at all. The importer applies each
@@ -269,14 +269,14 @@ Options:
 - **Options** (checkbox/dropdown only): a literal `Options:` line followed by a
   markdown task-list, `- [ ] <code> · <label>` per answer option, in document order ==
   answer-option sort order. The `[ ]` checkbox markup carries no semantic meaning in
-  v1 (it is not a "default checked" indicator — v1 has no concept of pre-filled
-  answers) — it was chosen purely because it is what every markdown renderer already
+  v1 (it is not a "default checked" indicator: v1 has no concept of pre-filled
+  answers): it was chosen purely because it is what every markdown renderer already
   displays as a clean option list, and reads immediately as "these are the choices"
   without inventing new syntax. Always unchecked on export; the importer ignores the
   checked state.
 - A horizontal rule (`---`) separates consecutive question blocks within a group,
   purely for human readability; the importer treats it as insignificant whitespace
-  (see §4) — question boundaries are determined by `###` headings, not by `---`.
+  (see §4): question boundaries are determined by `###` headings, not by `---`.
 
 ### 3.5 Worked examples
 
@@ -284,7 +284,7 @@ The four examples below are the source the grammar rules in §3.1–§3.4 were d
 from; they are the normative reference for "what does canonical output look like",
 not just illustrations.
 
-**Example A — simple satisfaction survey (single language, no optional fields):**
+**Example A: simple satisfaction survey (single language, no optional fields):**
 
 ```markdown
 ---
@@ -307,12 +307,12 @@ How would you rate your overall experience?
 ### Q003 · text
 Any other comments?
 
-*Optional — leave blank if you have nothing to add.*
+*Optional: leave blank if you have nothing to add.*
 
 - required: false
 ```
 
-**Example B — mixed question types with non-default attributes:**
+**Example B: mixed question types with non-default attributes:**
 
 ```markdown
 ---
@@ -355,7 +355,7 @@ Options:
 - [ ] A003 · Enterprise
 ```
 
-**Example C — multi-language content (see §3.6 for the escape-hatch grammar):**
+**Example C: multi-language content (see §3.6 for the escape-hatch grammar):**
 
 ```markdown
 ---
@@ -383,7 +383,7 @@ Würden Sie uns einem Freund empfehlen?
 ::end
 ```
 
-**Example D — edge case: empty/optional fields (no detail, no group description, no
+**Example D, edge case: empty/optional fields (no detail, no group description, no
 thank-you section, an intentionally empty question text):**
 
 ```markdown
@@ -401,7 +401,7 @@ language:
 ### Q001 · text
 ```
 
-This validates that a question with genuinely empty `text` (`''`, not `null` — `text`
+This validates that a question with genuinely empty `text` (`''`, not `null`: `text`
 is always present, per §2.3) serializes as a heading line with nothing but a blank line
 before the next boundary, and that the importer must not treat a blank line here as an
 error.
@@ -436,7 +436,7 @@ that field has no value for that language (`L10n` key absent, not `''`).
 
 An L10n field with an **explicit empty string** for a non-default language (distinct
 from "absent") is written as an empty `::lang[<code>]` block (heading/paragraph with no
-content before `::end`) — this is exercised in §6's validation pass, not in the
+content before `::end`): this is exercised in §6's validation pass, not in the
 worked examples above, since it did not arise naturally in any of the four scenarios
 drafted; the rule is stated here for completeness and must be covered by an importer
 test before implementation.
@@ -447,30 +447,30 @@ test before implementation.
 byte-identical markdown, always. This means the exporter has one canonical
 serialization for every value (e.g. attribute bullet order follows a fixed list per
 question type, not the iteration order of the `attributes` object; only non-default
-attributes are ever emitted — see §3.4).
+attributes are ever emitted: see §3.4).
 
-**Import strictness — canonical form is accepted; a documented set of variations
+**Import strictness: canonical form is accepted; a documented set of variations
 is normalized; everything else is rejected with a clear per-line error:**
 
 | Input variation | Importer behaviour |
 |---|---|
 | Attribute bullets in a different order than canonical | Normalize (order is not semantic) |
-| Missing optional fields (`detail`, group `desc`, thank-you section, non-default attributes) | Normalize — use type default / `null` |
-| Extra blank lines between blocks, or a missing `---` divider between questions | Normalize (§3.4 — `---` is insignificant whitespace) |
-| An attribute bullet with an ID not in that question type's applicable set (§2.3) | **Reject** — e.g. `inputSize` on a `checkbox` question is an error, not a silent drop |
-| A `type:` outside the 11 v1 types (including matrix/multiPart/`imageSelect`/`ranking`/`surveyLangSelect`/`button`) | **Reject** — clear error naming the unsupported type and pointing at this spec's version boundary (not a v1 concept) |
-| A `condition:` line anywhere | **Reject** — same reasoning; branching does not exist until a later spec version |
-| A raw `{{expression}}` token inside question/group text | **Passed through verbatim, uninterpreted** — v1 does not parse or evaluate it; it round-trips as literal text. This is explicitly *not* the same as expression support (§6) — it simply means v1's grammar must not corrupt or strip a `{{...}}` substring it doesn't understand, since a later spec version needs these to have survived any v1-era round-trip untouched |
-| Missing or non-`v1` `spec:` front-matter value | **Reject** for a value the importer doesn't recognise (e.g. `v2` when only v1 support is implemented — "upgrade or reject" per the versioning rule below); **reject** for a missing `spec:` key entirely (no implicit version) |
-| Duplicate question/group `code` | **Reject** — same uniqueness rule the model already enforces |
+| Missing optional fields (`detail`, group `desc`, thank-you section, non-default attributes) | Normalize: use type default / `null` |
+| Extra blank lines between blocks, or a missing `---` divider between questions | Normalize (§3.4: `---` is insignificant whitespace) |
+| An attribute bullet with an ID not in that question type's applicable set (§2.3) | **Reject**: e.g. `inputSize` on a `checkbox` question is an error, not a silent drop |
+| A `type:` outside the 11 v1 types (including matrix/multiPart/`imageSelect`/`ranking`/`surveyLangSelect`/`button`) | **Reject**: clear error naming the unsupported type and pointing at this spec's version boundary (not a v1 concept) |
+| A `condition:` line anywhere | **Reject**: same reasoning; branching does not exist until a later spec version |
+| A raw `{{expression}}` token inside question/group text | **Passed through verbatim, uninterpreted**: v1 does not parse or evaluate it; it round-trips as literal text. This is explicitly *not* the same as expression support (§6): it simply means v1's grammar must not corrupt or strip a `{{...}}` substring it doesn't understand, since a later spec version needs these to have survived any v1-era round-trip untouched |
+| Missing or non-`v1` `spec:` front-matter value | **Reject** for a value the importer doesn't recognise (e.g. `v2` when only v1 support is implemented: "upgrade or reject" per the versioning rule below); **reject** for a missing `spec:` key entirely (no implicit version) |
+| Duplicate question/group `code` | **Reject**: same uniqueness rule the model already enforces |
 
 **Versioning.** The front-matter `spec:` key is the version marker. v1 importers
 recognise only `spec: v1` and reject anything else outright (see table). A future v2
 importer reads `spec:` and dispatches to the matching parser generation, so a v1
-document remains valid input to a v2-capable importer without modification — v2 only
+document remains valid input to a v2-capable importer without modification: v2 only
 *adds* grammar (matrix/multiPart blocks, a `condition:` attribute line, live
 `{{expression}}` evaluation), it does not change what a `spec: v1` document means.
-This is why §3's grammar must not paint itself into a corner — see §6.
+This is why §3's grammar must not paint itself into a corner: see §6.
 
 ## 5. Reconciliation with per-field content formatting
 
@@ -489,20 +489,20 @@ This format and the per-field content-format settings (`resolveContentFormat()`,
 
 **Consequence for this spec**: when this format's exporter writes a question's `text`
 into a `###` block (§3.4), it writes that field's stored value **verbatim**, whatever
-format it is already in — it does not re-render, re-interpret, or convert it. If the
+format it is already in: it does not re-render, re-interpret, or convert it. If the
 survey's resolved content format is `markdown`, the question text appearing under a
 `###` heading is itself markdown prose, and a markdown renderer processing the whole
 document will render it correctly "for free" as a side effect, not because this format
 defines any text-rendering rules of its own. If the survey's resolved content format is
 `html` or `plain`, the stored value (HTML markup, or escaped plain text respectively)
-is still written verbatim into the same document position — a `plain`-format survey
+is still written verbatim into the same document position: a `plain`-format survey
 would round-trip cleanly through this spec's grammar even though its content doesn't
 look like "real" markdown prose when viewed. **This spec never validates or blocks on
-content format** — that enforcement already happens at publish time via
+content format**: that enforcement already happens at publish time via
 `SurveyValidation`'s `validateContentFormat` check, independent of import/export.
 
 One explicit non-goal: this spec's importer/exporter do not read or write
-`content.htmlAllowed`/`markdownAllowed`/`scriptTagsAllowed` at all (§2.1 — `content` is
+`content.htmlAllowed`/`markdownAllowed`/`scriptTagsAllowed` at all (§2.1: `content` is
 out of scope survey-level fields). Those settings are a property of the *survey as a
 whole* set independently in the settings UI; a markdown import creates/updates
 questions and groups without touching them.
@@ -514,19 +514,19 @@ later without requiring a v1 document rewrite:
 
 - **Matrix and multi-part types.** A matrix/multi-part question adds a nested list of
   subquestions under its `###` block, parallel to how `checkbox`/`dropdown` already
-  nest an `Options:` list (§3.4) — most naturally a `Subquestions:` block using the
+  nest an `Options:` list (§3.4): most naturally a `Subquestions:` block using the
   same `- <code> · <label>` shape, with subquestion-level `attributes` following the
   same bullet-list convention as question-level attributes. Because the current
   grammar already treats "a labelled block after the attributes list" as an extension
   point (only `Options:` exists today, for exactly two types), adding `Subquestions:`
-  as a sibling block for a new set of `<type>` values is additive — a v1 parser
+  as a sibling block for a new set of `<type>` values is additive: a v1 parser
   encountering `Subquestions:` under a v1-only type still hits the existing type-check
   rejection (§4) rather than a grammar collision.
 - **`condition`/branching.** Slots in as a `- condition: <expression>` attribute
   bullet under the same flat attribute list already used for `required`/`choiceMinMax`
   etc. (§3.4), evaluated the same way `SurveyQuestionGroup.condition`/
   `SurveyQuestion.condition` are evaluated today via `ConditionParser`. No new block
-  type needed — the attribute-bullet mechanism already generalizes to any
+  type needed: the attribute-bullet mechanism already generalizes to any
   `attributeId: value` pair; `condition` merely needs to move from the "rejected
   attribute ID" list in §4's import-strictness table to the "recognised" list in a v2
   spec, with `<expression>` being the raw `SurveyExpression`-parseable string, quoted
@@ -535,7 +535,7 @@ later without requiring a v1 document rewrite:
   as opaque text (§4's table) specifically so this extension is non-breaking: a v2
   importer/exporter simply starts *evaluating* (for preview/validation purposes) tokens
   that a v1 importer already preserved untouched inside `text`/`detail` L10n content.
-  No grammar change is needed at all for this one — it was never a structural feature,
+  No grammar change is needed at all for this one: it was never a structural feature,
   only an interpretation one, so the escape-hatch requirement in §4 is the entire
   extension point.
 
@@ -545,26 +545,26 @@ Before this spec is treated as final and implementation begins, run through:
 
 1. Hand-convert each of the four worked examples (§3.5) into the patch-batch shape
    `createSurveyOperations.ts`'s factories consume (`{ type, action, id, data }` via
-   `validateAndBuffer` — see `questionOperations.ts`'s `addQuestion` for the reference
+   `validateAndBuffer`: see `questionOperations.ts`'s `addQuestion` for the reference
    shape) and confirm every field the grammar claims to carry maps onto an existing
    `SurveyQuestion`/`SurveyQuestionGroup`/`SurveyAnswerOption` constructor field with no
    new model getters required.
 2. Confirm the reverse direction: for each v1 field, confirm a getter/property already
    exists on `Survey`'s collections (`survey.groups`, `survey.questions`,
-   `question.answerOptions`) sufficient to read back every value the exporter needs —
+   `question.answerOptions`) sufficient to read back every value the exporter needs:
    no new `Survey` model methods required for v1.
 3. Confirm the new format fits `EntityHandlerRegistry`/`format/` as a
    `MarkdownFormatHandler` implementing `FormatHandlerInterface` (`serialize`/`parse`
-   against a `Readable`, alongside `VsstFormatHandler`/`JsonFormatHandler`) — not a
+   against a `Readable`, alongside `VsstFormatHandler`/`JsonFormatHandler`): not a
    parallel import/export pathway. `SurveyEntityHandler` remains the entity handler;
    only a new format handler is added to `FormatRegistry`.
 4. Sanity-check §3.6's multi-language grammar against a real 2+-language survey
    (`language.options: [en, de]` or similar) where at least one field (e.g. a single
-   answer-option label) is populated for `en` only — confirm the exporter omits any
+   answer-option label) is populated for `en` only: confirm the exporter omits any
    `::lang[de]` block for that field, and that re-importing produces an `L10n` value
    with only the `en` key present, not a `de` key with an empty string.
 5. Confirm §3.4's "only non-default attributes are emitted" rule against
-   `AttributeMeta.initialValue` for every v1-applicable attribute in §2.3 — verify each
+   `AttributeMeta.initialValue` for every v1-applicable attribute in §2.3: verify each
    value programmatically rather than by inspection, since a silent drift between this
    table and the registry would make exported documents non-canonical.
 
