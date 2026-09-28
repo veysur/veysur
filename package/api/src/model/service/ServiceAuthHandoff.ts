@@ -19,7 +19,7 @@ interface AuthHandoffPayload {
  * Mints and redeems the short-lived, single-use token that carries an
  * authenticated session across domains (account <-> project admin subdomain
  * <-> platform), replacing the popup/postMessage handoff. See
- * docs/plan/virtual-spinning-elephant.md and the ADR this change adds.
+ * package/app/docs/decisions/2026/2026-09-28_auth-domain-redirect-handoff.md.
  */
 export class ServiceAuthHandoff extends Service {
   constructor() {
