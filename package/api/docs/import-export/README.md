@@ -53,6 +53,7 @@ Step 3: Client → POST /api/import/process/:fileId
 - **[import-export-lifecycle.md](./import-export-lifecycle.md)** - State transitions and workflows
 - **[import-export-api-guide.md](./import-export-api-guide.md)** - Practical usage and troubleshooting
 - **[response-csv.md](./response-csv.md)** - Response CSV import/export format and usage
+- **[survey-markdown-format.md](./survey-markdown-format.md)** - Survey markdown format spec (v1, not yet implemented)
 
 ## Supported Formats
 
