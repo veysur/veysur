@@ -82,11 +82,13 @@ export interface SurveyData {
     show?: boolean | null
     link?: boolean | null
     text?: PropsOf<L10n> | null
+    url?: PropsOf<L10n> | null
   }
   legalNotice?: {
     show?: boolean | null
     link?: boolean | null
     text?: PropsOf<L10n> | null
+    url?: PropsOf<L10n> | null
   }
   schedule?: {
     start?: Date | null
@@ -224,19 +226,23 @@ export class SurveyBase {
     show?: boolean | null
     link?: boolean | null
     text?: L10n | null
+    url?: L10n | null
   } = {
     show: null,
     link: null,
     text: null,
+    url: null,
   }
   legalNotice?: {
     show?: boolean | null
     link?: boolean | null
     text?: L10n | null
+    url?: L10n | null
   } = {
     show: null,
     link: null,
     text: null,
+    url: null,
   }
   schedule?: {
     start?: Date | null
@@ -308,6 +314,12 @@ export class SurveyBase {
             : data.dataPolicy.text
               ? new L10n(data.dataPolicy.text)
               : null,
+        url:
+          data.dataPolicy.url instanceof L10n
+            ? data.dataPolicy.url
+            : data.dataPolicy.url
+              ? new L10n(data.dataPolicy.url)
+              : null,
       }
     }
 
@@ -319,6 +331,12 @@ export class SurveyBase {
             ? data.legalNotice.text
             : data.legalNotice.text
               ? new L10n(data.legalNotice.text)
+              : null,
+        url:
+          data.legalNotice.url instanceof L10n
+            ? data.legalNotice.url
+            : data.legalNotice.url
+              ? new L10n(data.legalNotice.url)
               : null,
       }
     }

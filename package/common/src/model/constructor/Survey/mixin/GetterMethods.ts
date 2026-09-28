@@ -101,6 +101,7 @@ export function GetterMethods<T extends Constructor<SurveyBase>>(Base: T) {
         show: this.dataPolicy?.show ?? defaults.dataPolicy.show,
         link: this.dataPolicy?.link ?? defaults.dataPolicy.link,
         text: this.dataPolicy?.text ?? defaults.dataPolicy.text,
+        url: this.dataPolicy?.url ?? defaults.dataPolicy.url,
       }
     }
 
@@ -109,6 +110,7 @@ export function GetterMethods<T extends Constructor<SurveyBase>>(Base: T) {
         show: this.legalNotice?.show ?? defaults.legalNotice.show,
         link: this.legalNotice?.link ?? defaults.legalNotice.link,
         text: this.legalNotice?.text ?? defaults.legalNotice.text,
+        url: this.legalNotice?.url ?? defaults.legalNotice.url,
       }
     }
 

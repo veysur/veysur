@@ -10,7 +10,7 @@ export const CookieSettingsButton: React.FC = () => {
     <button
       onClick={resetConsent}
       title="Cookie Settings"
-      className="inline-flex items-center gap-1.5 text-muted-foreground/60 transition-colors hover:text-muted-foreground cursor-pointer text-xs"
+      className="inline-flex items-center gap-1.5 text-footer-foreground/60 transition-colors hover:text-footer-foreground cursor-pointer text-xs"
     >
       <Cookie size={14} />
       Cookie Settings

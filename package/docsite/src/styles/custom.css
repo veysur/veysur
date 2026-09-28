@@ -1,22 +1,40 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import 'tailwindcss';
 @import 'veysur-theme/palette.css';
 @import 'veysur-theme/brand.css';
 
+/* Self-hosted, matching the rest of the design system (see
+   veysur-theme/base.css and design-system/plan.md) — docsite doesn't import
+   base.css (Starlight has its own base layer), so it declares this itself. */
+@font-face {
+  font-family: 'Geist';
+  src: url('/fonts/Geist-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ── Starlight brand overrides ── */
 :root {
-  --sl-font: 'Inter', system-ui, -apple-system, sans-serif;
+  --sl-font: 'Geist', system-ui, -apple-system, sans-serif;
   --sl-line-height: 1.6;
 
   --sl-color-accent-low: oklch(0.85 0.06 var(--brand-hue));
   --sl-color-accent: var(--brand-primary);
   --sl-color-accent-high: var(--brand-primary);
 
-  --sl-color-bg: oklch(0.9624 0.0025 48.72);
-  --sl-color-bg-nav: oklch(0.923 0.003 48.717);
-  --sl-color-bg-sidebar: oklch(0.923 0.003 48.717);
+  /* Warm-tinted (hue 88), matching veysur-theme/tokens.css's neutral ramp —
+     was near-grey (chroma ~0.003). Nav/sidebar stay mode-following rather
+     than permanently ink-dark like app/website's header: Starlight's own
+     --sl-color-gray-* scale (used for nav/sidebar text) is calibrated
+     against a light nav in light mode, and this package has no dev server
+     available in this session to verify a dark-nav override wouldn't clip
+     contrast the way it did in app/website before that fix — see
+     design-system/plan.md's Phase 3 follow-up. */
+  --sl-color-bg: oklch(0.965 0.006 88);
+  --sl-color-bg-nav: oklch(0.93 0.01 88);
+  --sl-color-bg-sidebar: oklch(0.93 0.01 88);
 
-  --sl-color-text: oklch(0.147 0.004 49.25);
+  --sl-color-text: oklch(0.17 0.012 88);
   --sl-color-text-accent: var(--brand-primary);
 }
 
@@ -25,11 +43,11 @@
   --sl-color-accent: oklch(0.55 0.12 var(--brand-hue));
   --sl-color-accent-high: oklch(0.78 0.1 var(--brand-hue));
 
-  --sl-color-bg: oklch(0.21 0 0);
-  --sl-color-bg-nav: oklch(0.191 0 0);
-  --sl-color-bg-sidebar: oklch(0.191 0 0);
+  --sl-color-bg: oklch(0.19 0.01 88);
+  --sl-color-bg-nav: oklch(0.23 0.01 88);
+  --sl-color-bg-sidebar: oklch(0.23 0.01 88);
 
-  --sl-color-text: oklch(0.985 0 0);
+  --sl-color-text: oklch(0.94 0.006 88);
   --sl-color-text-accent: oklch(0.65 0.12 var(--brand-hue));
 }
 

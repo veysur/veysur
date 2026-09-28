@@ -1,4 +1,10 @@
-import React, { useMemo, useEffect, useState, useCallback } from 'react'
+import React, {
+  useMemo,
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+} from 'react'
 import { Menu } from 'lucide-react'
 import {
   Survey as SurveyEntity,
@@ -61,6 +67,7 @@ type Props = {
   initAnswers?: SurveyAnswers
   initSeeds?: Record<string, number>
   initLanguage?: string
+  hasExistingResponse?: boolean
   participantData?: ParticipantData
   onSaveResponse?: (
     answers: SurveyAnswers,
@@ -80,6 +87,7 @@ export const Survey: React.FC<Props> = ({
   initAnswers = {},
   initSeeds = {},
   initLanguage,
+  hasExistingResponse,
   participantData = {},
   onSaveResponse,
   onLanguageChange,
@@ -114,6 +122,11 @@ export const Survey: React.FC<Props> = ({
 
   // Ref for synchronous access to latest answers when saving seeds
   const answersRef = useLatestRef(answers)
+
+  // Tracks whether a response row is already known to exist server-side, so
+  // ensureResponseStarted only fires the extra save once, on a survey whose
+  // very first participant action is a file upload.
+  const responseStartedRef = useRef(!!hasExistingResponse)
 
   const presentation: SurveyPresentationConfig = survey?.getPresentation(
     settingSurvey,
@@ -573,6 +586,15 @@ export const Survey: React.FC<Props> = ({
     }
   }
 
+  // Guarantees a response row exists before a file-upload question uploads its
+  // first file, for the case where no answer has been saved yet (the survey's
+  // very first participant action). No-op once a response is known to exist.
+  const ensureResponseStarted = useCallback(async () => {
+    if (responseStartedRef.current || !onSaveResponse || !authToken) return
+    await onSaveResponse(answersRef.current, false, randomSeeds, langCurrent)
+    responseStartedRef.current = true
+  }, [onSaveResponse, authToken, answersRef, randomSeeds, langCurrent])
+
   const handleSeedRequired = useCallback(
     (key: string, seed: number) => {
       setrandomSeeds((prev) => {
@@ -742,6 +764,7 @@ export const Survey: React.FC<Props> = ({
             getContentExpressionContext={getContentExpressionContext}
             validationErrors={validationErrors}
             authToken={authToken}
+            ensureResponseStarted={ensureResponseStarted}
           />
         )
       case 'question':
@@ -763,6 +786,7 @@ export const Survey: React.FC<Props> = ({
             getContentExpressionContext={getContentExpressionContext}
             validationErrors={validationErrors}
             authToken={authToken}
+            ensureResponseStarted={ensureResponseStarted}
           />
         )
       case 'all':
@@ -784,6 +808,7 @@ export const Survey: React.FC<Props> = ({
             getContentExpressionContext={getContentExpressionContext}
             validationErrors={validationErrors}
             authToken={authToken}
+            ensureResponseStarted={ensureResponseStarted}
           />
         )
     }

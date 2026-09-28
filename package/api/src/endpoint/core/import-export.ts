@@ -46,6 +46,7 @@ export const importExportConfig = {
         entityType: { src: 'param', required: true },
         format: { src: 'body', required: true },
         options: { src: 'body', default: {} },
+        fileHash: { src: 'body', required: false },
         projectId: { src: 'header', srcPath: 'X-Project-Id', required: true },
         requestHost: {
           src: 'header',
@@ -86,6 +87,25 @@ export const importExportConfig = {
           Error: { http: { code: 500 } },
           ServerErrorInternal: { http: { code: 500 } },
           ServerErrorBadRequest: { http: { code: 400 } },
+          ServerErrorNotFound: { http: { code: 404 } },
+        },
+      },
+    },
+    getImportStatus: {
+      path: '/import/status/:fileId',
+      method: 'getImportStatus',
+      verbs: ['get'],
+      data: {
+        fileId: { src: 'param', required: true },
+        projectId: { src: 'header', srcPath: 'X-Project-Id', required: true },
+      },
+      acl: {
+        rules: [{ allow: true, role: 'projectAdmin' }],
+      },
+      response: {
+        error: {
+          Error: { http: { code: 500 } },
+          ServerErrorInternal: { http: { code: 500 } },
           ServerErrorNotFound: { http: { code: 404 } },
         },
       },

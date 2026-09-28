@@ -52,7 +52,7 @@ export const ParticipantTokenCell: React.FC<ParticipantTokenCellProps> = ({
         }
       >
         {copied ? (
-          <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
+          <Check className="h-3 w-3 text-success" />
         ) : (
           <Copy className="h-3 w-3 text-muted-foreground" />
         )}

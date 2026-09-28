@@ -166,3 +166,6 @@ Math
 rseidelsohn
 ICLA
 unbrand
+Geist
+Vercel
+Vite

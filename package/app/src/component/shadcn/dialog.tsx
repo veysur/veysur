@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { cn } from 'common/cn'
-import { Cross2Icon } from '@radix-ui/react-icons'
+import { XIcon } from 'lucide-react'
 
 const Dialog = DialogPrimitive.Root
 
@@ -51,7 +51,7 @@ const DialogContent = React.forwardRef<
           'fixed left-[50%] top-[50%] ' +
             'z-50 flex flex-col ' +
             'translate-x-[-50%] translate-y-[-50%] ' +
-            'border bg-background shadow-lg rounded-lg',
+            'border bg-background shadow-lg rounded-xl',
           'max-w-2xl max-h-[90vh] w-[calc(100%-2rem)] overflow-y-auto',
           className,
         )}
@@ -66,7 +66,7 @@ const DialogContent = React.forwardRef<
             'disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground'
           }
         >
-          <Cross2Icon className="h-4 w-4" />
+          <XIcon className="h-4 w-4" />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
       </DialogPrimitive.Content>

@@ -9,4 +9,5 @@ export const KEY_REGISTRY_API_SURVEY_PARTICIPANT_ATTRIBUTE =
 export const KEY_REGISTRY_API_SURVEY_RESPONSE = 'serviceSurveyResponse'
 export const KEY_REGISTRY_API_SURVEY_STATS = 'serviceSurveyStats'
 export const KEY_REGISTRY_API_IMPORT_EXPORT = 'serviceImportExport'
+export const KEY_REGISTRY_API_NOTIFICATION = 'serviceNotification'
 export { KEY_REGISTRY_API_PROJECT } from 'common/keyRegistry'

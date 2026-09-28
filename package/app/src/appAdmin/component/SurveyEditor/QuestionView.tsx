@@ -260,10 +260,8 @@ const QuestionViewComponent: React.FC<QuestionProps> = ({
       id={`${QUESTION_ID_PREFIX}${question._id}`}
       data-testid="question-container"
       className={cn(
-        'question mb-10 group relative transition-colors rounded-md p-4 mb-4 hover:bg-editor-active',
-        {
-          'bg-editor-active': focused,
-        },
+        'question mb-10 group relative transition-colors rounded-md p-4 mb-4 border-l-4 border-transparent',
+        focused ? 'border-primary bg-primary/5' : 'hover:bg-muted dark:hover:bg-muted/25',
       )}
     >
       <div className="grow relative" onClick={handleOnFocus}>
@@ -300,7 +298,7 @@ const QuestionViewComponent: React.FC<QuestionProps> = ({
                 conditionValidity.invalidReferencingConditions.length > 0 && (
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <AlertCircle className="h-4 w-4 text-amber-500 flex-shrink-0" />
+                      <AlertCircle className="h-4 w-4 text-warning flex-shrink-0" />
                     </TooltipTrigger>
                     <TooltipContent>
                       <p className="text-xs">

@@ -11,6 +11,11 @@ import { StorageConfig } from 'model/service/core/ServiceFile/FileS3Config'
 
 import { FormatFileEntry } from '../EntityHandlerInterface'
 import { ArchiveReader } from './ArchiveReader'
+import {
+  MAX_IMPORT_ARCHIVE_ENTRY_COUNT,
+  MAX_IMPORT_ARCHIVE_TOTAL_SIZE,
+  MAX_IMPORT_JSON_ENTRY_SIZE,
+} from './importArchiveLimits'
 
 /**
  * Abstract base class providing tar+gz archive serialization and parsing.
@@ -91,11 +96,39 @@ export abstract class TarGzFormatHandler {
 
     const extract = tarStream.extract()
 
+    let entryCount = 0
+    let totalSize = 0
+    let limitError: ServerErrorBadRequest | undefined
+
     const extractPromise = new Promise<void>((resolve, reject) => {
       extract.on('entry', (header, stream, next) => {
+        entryCount += 1
+        totalSize += header.size ?? 0
+
+        if (
+          entryCount > MAX_IMPORT_ARCHIVE_ENTRY_COUNT ||
+          totalSize > MAX_IMPORT_ARCHIVE_TOTAL_SIZE
+        ) {
+          stream.resume()
+          limitError = new ServerErrorBadRequest({
+            message: `Import archive exceeds the maximum allowed size (max ${MAX_IMPORT_ARCHIVE_ENTRY_COUNT} entries, ${MAX_IMPORT_ARCHIVE_TOTAL_SIZE} bytes total)`,
+          })
+          extract.destroy(limitError)
+          return next(limitError)
+        }
+
         const name = header.name
 
         if (name.endsWith('.json')) {
+          if ((header.size ?? 0) > MAX_IMPORT_JSON_ENTRY_SIZE) {
+            stream.resume()
+            limitError = new ServerErrorBadRequest({
+              message: `Import entry "${name}" exceeds the maximum allowed size (${MAX_IMPORT_JSON_ENTRY_SIZE} bytes)`,
+            })
+            extract.destroy(limitError)
+            return next(limitError)
+          }
+
           const chunks: Buffer[] = []
           stream.on('data', (chunk: Buffer) => chunks.push(chunk))
           stream.on('end', () => {
@@ -141,6 +174,9 @@ export abstract class TarGzFormatHandler {
       ])
     } catch {
       await reader.cleanup()
+      if (limitError) {
+        throw limitError
+      }
       throw new ServerErrorBadRequest({
         message: 'Invalid file: not a valid tar+gz archive',
       })

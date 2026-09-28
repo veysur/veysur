@@ -12,7 +12,7 @@ Neither import nor export writes any temporary files to the pod's local filesyst
 - JSON entries are buffered in memory (typically &lt; 1 MB each)
 - Binary entries (images) are piped directly to a temp S3 key (`import-temp/{importFileId}/{name}`)
 - File hash and byte count are computed inline via a `PassThrough` tap
-- Temp S3 keys are cleaned up by `ArchiveReader.cleanup()` in the `finally` block of `processImport()`
+- Temp S3 keys are cleaned up by `ArchiveReader.cleanup()` in the `finally` block of `runImport()` (called inline by `processImport()`, or off-request by `processQueue()` for async-eligible formats)
 
 **Export** — fully streaming, zero disk writes:
 

@@ -70,6 +70,7 @@ export default defineConfig({
                     { label: 'Matrix', slug: 'reference/survey-editor/question-types/matrix' },
                     { label: 'Multi-Part', slug: 'reference/survey-editor/question-types/multi-part' },
                     { label: 'Ranking', slug: 'reference/survey-editor/question-types/ranking' },
+                    { label: 'File Upload', slug: 'reference/survey-editor/question-types/file-upload' },
                   ],
                 },
                 { label: 'Preview', slug: 'reference/survey-editor/preview' },

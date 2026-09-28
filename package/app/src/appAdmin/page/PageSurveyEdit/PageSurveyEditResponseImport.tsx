@@ -87,10 +87,18 @@ export const PageSurveyEditResponseImport: React.FC = () => {
         snapshotId,
       })
 
-      setImportResult({
-        skipped: result.discards?.length ?? 0,
-      })
-      setImportStatus('complete')
+      // A queued (async) import already showed its own flash message and
+      // is tracked via the notification bell, not this page - reset back
+      // to idle rather than waiting here for a result that may never come
+      // on this page load.
+      if (result) {
+        setImportResult({
+          skipped: result.discards?.length ?? 0,
+        })
+        setImportStatus('complete')
+      } else {
+        handleReset()
+      }
     } catch (error) {
       setUploadError(error instanceof Error ? error.message : 'Import failed')
       setImportStatus('idle')
@@ -168,7 +176,7 @@ export const PageSurveyEditResponseImport: React.FC = () => {
         {importStatus === 'complete' && importResult && (
           <div className="py-4">
             <Alert variant="default" className="mb-4">
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
+              <CheckCircle2 className="h-4 w-4 text-success" />
               <AlertDescription>
                 <strong>Import complete.</strong>
                 {importResult.skipped > 0 && (

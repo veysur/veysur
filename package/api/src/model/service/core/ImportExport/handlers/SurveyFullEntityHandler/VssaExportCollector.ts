@@ -1,5 +1,6 @@
 import { Readable } from 'stream'
 
+import { ServerErrorBadRequest } from 'mzen-server'
 import { Survey, SurveyLanguage } from 'veysur-common'
 
 import { createStorageAdaptor, contextForProject } from 'common'
@@ -22,6 +23,10 @@ import {
   VsstParticipantAttribute,
 } from '../SurveyEntityHandler/types'
 import { SurveyPublicationEntityHandler } from '../SurveyPublicationEntityHandler'
+import {
+  MAX_RESPONSE_EXPORT_FILE_COUNT,
+  MAX_RESPONSE_EXPORT_TOTAL_SIZE,
+} from '../util/responseFileExportLimits'
 
 export class VssaExportCollector {
   constructor(
@@ -162,6 +167,27 @@ export class VssaExportCollector {
       allResponseFileEntries.push(...(pubData.responseFileEntries ?? []))
     }
 
+    // The per-publication guardrail in VsspExportCollector caps each
+    // publication's response files individually, but a .vssa aggregates
+    // every publication into one archive; each could pass its own cap
+    // while the combined total still blows past what a single synchronous
+    // export can safely bundle. Re-check across the full aggregate here.
+    const totalFileCount = allFileEntries.length + allResponseFileEntries.length
+    if (totalFileCount > MAX_RESPONSE_EXPORT_FILE_COUNT) {
+      throw new ServerErrorBadRequest({
+        message: `This export would bundle ${totalFileCount} files across all publications, exceeding the ${MAX_RESPONSE_EXPORT_FILE_COUNT} limit for a single export. Contact support to arrange an alternative.`,
+      })
+    }
+    const totalFileSize = [...allFileEntries, ...allResponseFileEntries].reduce(
+      (sum, entry) => sum + (entry.size ?? 0),
+      0,
+    )
+    if (totalFileSize > MAX_RESPONSE_EXPORT_TOTAL_SIZE) {
+      throw new ServerErrorBadRequest({
+        message: `This export's files exceed the ${MAX_RESPONSE_EXPORT_TOTAL_SIZE} byte total size limit for a single export. Contact support to arrange an alternative.`,
+      })
+    }
+
     if (allFileEntries.length > 0) {
       const manifest = { version: '1.0', files: allFileEntries }
       entries.push({
@@ -170,7 +196,7 @@ export class VssaExportCollector {
       })
       for (const entry of allFileEntries) {
         entries.push({
-          filename: entry.zipPath,
+          filename: entry.archiveEntryPath,
           size: entry.size,
           stream: this.makeBinaryFileStream(entry),
         })
@@ -178,17 +204,25 @@ export class VssaExportCollector {
     }
 
     if (allResponseFileEntries.length > 0) {
-      const responseManifest = {
-        version: '1.0',
-        files: allResponseFileEntries,
+      const entriesByBucket = new Map<string, ResponseFileManifestEntry[]>()
+      for (const entry of allResponseFileEntries) {
+        const group = entriesByBucket.get(entry.bucket) ?? []
+        group.push(entry)
+        entriesByBucket.set(entry.bucket, group)
       }
-      entries.push({
-        filename: 'files/response-manifest.json',
-        content: JSON.stringify(responseManifest, null, 2),
-      })
+      for (const [bucket, bucketEntries] of entriesByBucket) {
+        entries.push({
+          filename: `files/response-manifest-${bucket}.json`,
+          content: JSON.stringify(
+            { version: '1.0', files: bucketEntries },
+            null,
+            2,
+          ),
+        })
+      }
       for (const entry of allResponseFileEntries) {
         entries.push({
-          filename: entry.zipPath,
+          filename: entry.archiveEntryPath,
           size: entry.size,
           stream: this.makeBinaryFileStream(entry),
         })
@@ -201,12 +235,19 @@ export class VssaExportCollector {
     }
   }
 
-  private makeBinaryFileStream(entry: { s3Key: string }): () => Promise<Readable> {
+  private makeBinaryFileStream(entry: {
+    s3Key: string
+    bucketType?: 'public' | 'private'
+  }): () => Promise<Readable> {
     return async () => {
       const adaptor = createStorageAdaptor(this.storageConfig)
+      const bucket =
+        entry.bucketType === 'private'
+          ? this.storageConfig.privateBucket
+          : this.storageConfig.publicBucket
       try {
         const result = await adaptor.getObject({
-          Bucket: this.storageConfig.publicBucket,
+          Bucket: bucket,
           Key: entry.s3Key,
         })
         return result.Body as Readable

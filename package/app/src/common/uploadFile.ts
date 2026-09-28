@@ -1,3 +1,4 @@
+// cspell:ignore msword wordprocessingml spreadsheetml presentationml
 import CryptoJS from 'crypto-js'
 import { RestClient } from './RestClient'
 
@@ -361,6 +362,39 @@ export function validateFileSize(
   return null
 }
 
+const FILE_TYPE_LABELS: Record<string, string> = {
+  'image/png': 'images',
+  'image/jpeg': 'images',
+  'image/jpg': 'images',
+  'image/webp': 'images',
+  'text/csv': 'CSV',
+  'application/pdf': 'PDF',
+  'application/msword': 'Word',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+    'Word',
+  'application/vnd.ms-excel': 'Excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+    'Excel',
+  'application/vnd.ms-powerpoint': 'PowerPoint',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation':
+    'PowerPoint',
+  'application/octet-stream': 'other files',
+}
+
+/**
+ * Format a short, human-readable summary of allowed MIME types, grouped into
+ * friendly categories (e.g. "images, PDF, Word") instead of listing every
+ * MIME string verbatim.
+ * @param allowedTypes - Array of allowed MIME types
+ * @returns Formatted message, e.g. "Accepted file types: images, PDF"
+ */
+export function formatAllowedFileTypesMessage(allowedTypes: string[]): string {
+  const labels = Array.from(
+    new Set(allowedTypes.map((type) => FILE_TYPE_LABELS[type] || type)),
+  )
+  return `Accepted file types: ${labels.join(', ')}`
+}
+
 /**
  * Validate file type against allowed MIME types
  * @param file - File to validate
@@ -372,7 +406,7 @@ export function validateFileType(
   allowedTypes: string[],
 ): string | null {
   if (!allowedTypes.includes(file.type)) {
-    return `File type ${file.type} is not allowed. Allowed types: ${allowedTypes.join(', ')}`
+    return `File type not allowed. ${formatAllowedFileTypesMessage(allowedTypes)}`
   }
   return null
 }

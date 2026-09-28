@@ -586,7 +586,7 @@ export const ConditionEditor: React.FC<ConditionEditorProps> = function ({
             {hasErrors ? (
               <AlertCircle className="h-4 w-4 text-destructive" />
             ) : (
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
+              <CheckCircle2 className="h-4 w-4 text-success" />
             )}
           </span>
         )}

@@ -143,11 +143,13 @@ export class SchemaSettingSurvey extends Schema {
             show: sb.boolean().default(null),
             link: sb.boolean().default(null),
             text: { $schema: 'l10nHtml' },
+            url: { $schema: 'l10nUrl' },
           },
           legalNotice: {
             show: sb.boolean().default(null),
             link: sb.boolean().default(null),
             text: { $schema: 'l10nHtml' },
+            url: { $schema: 'l10nUrl' },
           },
           // Who to notify when participant completes survey
           notify: {

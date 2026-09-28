@@ -7,7 +7,8 @@ import { useProjectDomain } from 'appAdmin/hook'
 import { getFileApi } from 'appAdmin/registry/getFileApi'
 
 /** Files a participant uploaded for `fileUpload` question answers on a
- * single response, each with a resolved public download URL. */
+ * single response. Fetch a download URL for one on demand with
+ * `useFileDownload`, rather than resolving one per file up front. */
 export function useResponseFiles(surveyId: string, responseId: string) {
   const queryClient = useQueryClient()
   const project = useProjectDomain()

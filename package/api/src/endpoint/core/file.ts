@@ -192,6 +192,20 @@ export const fileConfig = {
         projectId: { src: 'header', srcPath: 'X-Project-Id', required: true },
         page: { src: 'query', default: 1 },
         perPage: { src: 'query', default: 50 },
+      },
+      acl: {
+        rules: [{ allow: true, role: 'projectAdmin' }],
+      },
+    },
+
+    getFileDownloadUrl: {
+      service: 'file',
+      path: '/:fileId/download-url',
+      method: 'generateDownloadUrl',
+      verbs: ['get'],
+      data: {
+        fileId: { src: 'param', required: true },
+        projectId: { src: 'header', srcPath: 'X-Project-Id', required: true },
         requestHost: {
           src: 'header',
           srcPath: 'X-Forwarded-Host',
@@ -205,6 +219,12 @@ export const fileConfig = {
       },
       acl: {
         rules: [{ allow: true, role: 'projectAdmin' }],
+      },
+      response: {
+        error: {
+          Error: { http: { code: 500 } },
+          ServerErrorNotFound: { http: { code: 404 } },
+        },
       },
     },
   },

@@ -302,6 +302,7 @@ export const PageSurvey: React.FC = () => {
         participantData={participantData}
         initAnswers={response}
         initSeeds={loadedResponse?.randomSeeds}
+        hasExistingResponse={!!loadedResponse}
         initLanguage={initLanguage}
         onSaveResponse={handleSaveResponse}
         onLanguageChange={handleLanguageChange}

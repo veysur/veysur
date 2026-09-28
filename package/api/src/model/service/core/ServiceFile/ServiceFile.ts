@@ -1,7 +1,14 @@
 import { Service, ServerErrorNotFound } from 'mzen-server'
 
 import { RepoFile } from 'model'
-import { contextForProject } from 'common'
+import {
+  contextForProject,
+  createStorageAdaptor,
+  generateSignedDownloadUrl,
+} from 'common'
+import { getStorageConfig } from './FileS3Config'
+
+const DOWNLOAD_URL_EXPIRES_IN_SECONDS = 300
 
 export class ServiceFile extends Service {
   constructor() {
@@ -101,16 +108,12 @@ export class ServiceFile extends Service {
     projectId,
     page,
     perPage,
-    requestHost,
-    requestProto,
   }: {
     surveyId: string
     responseId: string
     projectId: string
     page?: number
     perPage?: number
-    requestHost?: string
-    requestProto?: string
   }) {
     const context = contextForProject(projectId)
     const repo = this.getRepo<RepoFile>('file')
@@ -125,15 +128,8 @@ export class ServiceFile extends Service {
       { context },
     )
 
-    const baseUrl =
-      requestHost && requestProto ? `${requestProto}://${requestHost}` : ''
-    const filesWithUrl = files.map((file) => ({
-      ...file,
-      url: file.getUrl(baseUrl),
-    }))
-
     return {
-      files: filesWithUrl,
+      files,
       pagination: {
         page: page || 1,
         perPage: perPage || 50,
@@ -148,6 +144,59 @@ export class ServiceFile extends Service {
    */
   getFileUrl({ file, baseUrl }) {
     return file.getUrl(baseUrl)
+  }
+
+  /**
+   * Generate a presigned download URL for a file on demand - works for either
+   * bucketType, so it serves both new private-bucket files and pre-existing
+   * public-bucket ones through the same call.
+   */
+  async generateDownloadUrl({
+    fileId,
+    projectId,
+    requestHost,
+    requestProto,
+  }: {
+    fileId: string
+    projectId: string
+    requestHost?: string
+    requestProto?: string
+  }) {
+    const context = contextForProject(projectId)
+    const repo = this.getRepo<RepoFile>('file')
+
+    const file = await repo.findOne(
+      { _id: fileId, uploadedAt: { $ne: null }, deletedAt: null },
+      { context },
+    )
+    if (!file) {
+      throw new ServerErrorNotFound('File not found')
+    }
+
+    const storageConfig = getStorageConfig(this.config)
+    const effectiveConfig =
+      requestHost && requestProto
+        ? { ...storageConfig, publicBaseUrl: `${requestProto}://${requestHost}` }
+        : storageConfig
+    const adaptor = createStorageAdaptor(effectiveConfig)
+    const bucketType = file.bucketType || 'public'
+    const bucket =
+      bucketType === 'private'
+        ? effectiveConfig.privateBucket
+        : effectiveConfig.publicBucket
+
+    const downloadUrl = await generateSignedDownloadUrl(
+      effectiveConfig,
+      adaptor,
+      bucket,
+      file.filePath,
+      { expiresIn: DOWNLOAD_URL_EXPIRES_IN_SECONDS, filename: file.filename },
+    )
+
+    return {
+      downloadUrl,
+      expiresAt: new Date(Date.now() + DOWNLOAD_URL_EXPIRES_IN_SECONDS * 1000),
+    }
   }
 }
 

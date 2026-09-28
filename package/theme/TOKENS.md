@@ -53,10 +53,36 @@ real example.
   tables, the legal-doc body. In `package/app` prefer the `<Card>`
   primitive (`src/component/shadcn/card.tsx:10`); `package/website` and
   `package/blogsite` apply the same class string by hand.
-- `--header` and `--footer` (with their `-foreground` pairs) currently alias
-  `--card`. Chrome uses `bg-header` / `bg-footer` so the two can diverge later
-  without touching every header.
 - Avoid: `bg-[var(--card)]` arbitrary values. Use `bg-card`.
+
+### `header` / `header-foreground`, `footer` / `footer-foreground`
+
+- Utilities: `bg-header`, `text-header-foreground`, `bg-footer`, `text-footer-foreground`.
+- Use for: the top nav bar and page footer only.
+- These are **not** an alias of `--card`. Header/footer chrome is permanently
+  ink-dark in both light and dark mode (the same value as `--ink` in light
+  mode; darker still than `--card` in dark mode) — a deliberate visual
+  signature, not a mode-following surface. `--footer` aliases `--header`.
+- Any component rendered inside header/footer chrome must use
+  `text-header-foreground` / `text-footer-foreground` for its text, never
+  `text-foreground` / `text-muted-foreground` — those track the *page's*
+  mode, not the chrome's, and will go low-contrast against it. Likewise the
+  VeySur logo must render its light-wordmark (`-dark.svg`) variant
+  unconditionally on these surfaces, not gated on `.dark` — see
+  `NavbarBrand.tsx` for the reference pattern.
+
+### `ink` / `ink-foreground`
+
+- Utilities: `bg-ink`, `text-ink-foreground`.
+- Use for: the design system's deliberate *second* colour — a near-black /
+  near-white neutral (not the brand hue) for high-contrast buttons, active
+  states, and chart series, so the brand green isn't the only thing that
+  reads as accented.
+- Unlike `header`/`footer`, this token **inverts per mode**: a dark chip in
+  light mode, a light chip in dark mode (`--ink-dark`/`--ink-light` in
+  `brand.css`) — it always reads as the highest-contrast neutral against
+  whatever it sits on.
+- Example: the "New survey" button in `NavbarBrand.tsx`.
 
 ### `popover` / `popover-foreground`
 
@@ -139,6 +165,18 @@ The most-used token. Two distinct jobs:
   hand. The token is under-adopted; much "success" UI still uses raw `green-*` (see
   the appendix).
 
+### `warning` / `warning-foreground`
+
+- Utilities: `bg-warning`, `text-warning`.
+- Use for: cautionary accents that aren't yet an error: warning icons, a
+  transfer/import "partially completed" state, an unverified-email badge.
+- `--warning-base` is the light value; dark mode dims it via `--dim-brightness`,
+  same pattern as `success`.
+- **There is no `warning` Button or Badge variant, and no `alert-warning`
+  rewiring to this token yet** (`alerts.css`'s `alert-warning`/`toast-warning`
+  classes predate this token and use their own yellow mix). Newly added; most
+  "warning" UI still uses raw `amber-*` (see the appendix) pending a sweep.
+
 ### `border`
 
 - Utilities: `border`, `border-border`, `divide-border`.
@@ -153,8 +191,10 @@ The most-used token. Two distinct jobs:
 - Use for: form-control borders (`border border-input`). In dark mode also a
   translucent field fill (`dark:bg-input/23` to `/30`) and the "off" state of a switch
   track.
-- Note: `--input` here is green-tinted (`oklch(0.62 0.08 155)`), not the neutral
-  grey stock shadcn ships. Effectively `package/app` only.
+- Note: neutral warm-88, a touch darker than `--border` for visible definition
+  on interactive controls. Was green-tinted (`oklch(0.62 0.08 155)`, matching
+  `--success-base`) in light mode until it read as a permanent focus/error
+  ring on every input — fixed. Effectively `package/app` only.
 
 ### `ring`
 
@@ -188,6 +228,8 @@ The most-used token. Two distinct jobs:
 | Secondary button | `variant="secondary"` (`bg-secondary`) |
 | Destructive action | `variant="destructive"` / `text-destructive` |
 | Positive confirmation accent | `text-success` / `bg-success` |
+| Cautionary / warning accent | `text-warning` / `bg-warning` |
+| A high-contrast button/badge, not the brand hue | `bg-ink text-ink-foreground` |
 | Focus ring | `ring-ring` |
 | Hairline / separator | `border` (inherits `--border`) |
 | Invalid form field | `aria-invalid:border-destructive` |
@@ -224,21 +266,30 @@ Current drift to be aware of: selected rows appear as `bg-muted`, `bg-muted/70` 
 
 A checklist for follow-up cleanup tasks. None of these are addressed by this doc.
 
-- `package/app/src/component/shadcn/progress.tsx:19` hard-codes `bg-lime-700`;
-  should be `bg-primary`.
-- Invalid `hsl(var(--token))` wrapping where the token is `oklch`:
-  `package/app/src/styles/html-content.css:69` (`hsl(var(--muted))`) and
-  `package/app/src/component/shadcn/sidebar.tsx:555` (`hsl(var(--sidebar-border))`,
-  `hsl(var(--sidebar-accent))`). The declarations are silently dropped.
-- `--field-error-bg` is defined only in `.dark` (`package/app/src/styles/alerts.css:98`);
-  it has no light-mode value.
-- Around seven delete-confirm dialogs hand-roll
-  `className="bg-destructive text-white hover:bg-destructive/90"` instead of
-  `variant="destructive"` (for example
-  `appAdmin/component/SurveyPublication/PublicationDeleteDialog.tsx`).
-- Roughly thirty raw `amber-*` / `green-*` / `red-*` status pills and
-  `border-red-500` invalid-field borders that a `warning` / `success` token or the
-  existing `alert-*` classes would cover.
+- ~~`package/app/src/component/shadcn/progress.tsx:19` hard-codes `bg-lime-700`~~ —
+  fixed, now `bg-primary`.
+- ~~Invalid `hsl(var(--token))` wrapping where the token is `oklch`~~ — fixed.
+  `html-content.css` was already using `var(--muted)` directly (this entry was
+  stale); `sidebar.tsx`'s `shadow-[...hsl(var(--sidebar-border))...]` /
+  `hsl(var(--sidebar-accent))` moved to plain `var(...)`.
+- ~~`--field-error-bg` is defined only in `.dark`~~ — not actually a bug: its
+  only consumer (`FieldError.tsx`) only ever reads it inside a `dark:` variant
+  (`dark:bg-[var(--field-error-bg)]`); light mode uses `bg-destructive/10`
+  directly and never touches the var.
+- ~~Around seven delete-confirm dialogs hand-roll `className="bg-destructive
+  text-white hover:bg-destructive/90"`~~ — fixed. `AlertDialogAction` now
+  accepts and forwards a `variant` prop; all six call sites use
+  `variant="destructive"`.
+- ~~Roughly thirty raw `amber-*` / `green-*` / `red-*` status pills~~ — mostly
+  fixed: mapped onto `border-destructive`/`text-destructive` (invalid fields,
+  required-field asterisk), `text-success`/`bg-success` (checkmarks, status
+  pills), and the new `text-warning`/`bg-warning` (warning icons, notification
+  dots, `SurveySaveStatus`'s pending pill). `ImportValidationErrors.tsx`
+  rewritten to use `<Alert variant="warning"|"destructive"|"info">` instead of
+  hand-rolling equivalent styling. Left alone, deliberately: two decorative
+  blue stat values in `MergeStatistics.tsx` (not worth a new `info` token for
+  two usages — `palette.css` already makes raw one-off accents safe), and
+  `PageTestFileUpload.tsx` (an obscure `/test/file-upload` QA-harness route).
 - `--radius` is duplicated as a literal `0.45rem` in
   `package/docsite/src/styles/custom.css:45`; a theme radius change misses the docsite.
 - Redundant identical `.dark` overrides for `--chart-3/4/5` and `--code-*` in

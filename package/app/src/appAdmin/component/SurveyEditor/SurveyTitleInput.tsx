@@ -49,9 +49,10 @@ export const SurveyTitleInput: React.FC = () => {
   return (
     <div
       id={SURVEY_UI_ID_TITLE}
-      className={cn('transition-colors rounded-md p-4 hover:bg-editor-active', {
-        'bg-editor-active': focused,
-      })}
+      className={cn(
+        'transition-colors rounded-md p-4 border-l-4 border-transparent',
+        focused ? 'border-primary bg-primary/5' : 'hover:bg-muted dark:hover:bg-muted/25',
+      )}
     >
       <div className="text-lg font-thin">
         <ContentEditable

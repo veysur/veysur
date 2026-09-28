@@ -77,12 +77,30 @@ export class VssaImportParser {
     }
 
     let responseFileEntries: ResponseFileManifestEntry[] = []
-    const responseManifest = reader.getJson<{
+    const legacyResponseManifest = reader.getJson<{
       version: string
       files: ResponseFileManifestEntry[]
     }>('files/response-manifest.json')
-    if (responseManifest) {
-      responseFileEntries = responseManifest.files ?? []
+    if (legacyResponseManifest) {
+      // Archives exported before per-bucket manifests were introduced.
+      responseFileEntries = legacyResponseManifest.files ?? []
+    } else {
+      const responseManifestKeys = reader
+        .listEntries()
+        .filter(
+          (name) =>
+            name.startsWith('files/response-manifest-') && name.endsWith('.json'),
+        )
+        .sort()
+      for (const key of responseManifestKeys) {
+        const bucketManifest = reader.getJson<{
+          version: string
+          files: ResponseFileManifestEntry[]
+        }>(key)
+        if (bucketManifest) {
+          responseFileEntries.push(...(bucketManifest.files ?? []))
+        }
+      }
     }
 
     const snapshots = new Map<string, RawJson>()

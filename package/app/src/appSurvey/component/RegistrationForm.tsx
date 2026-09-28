@@ -130,7 +130,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     return (
       <SurveyPageContainer>
         <div className="flex flex-col items-center text-center py-4">
-          <CheckCircle2 className="h-14 w-14 text-green-500 mb-4" />
+          <CheckCircle2 className="h-14 w-14 text-success mb-4" />
           <h2 className="text-2xl font-semibold mb-3">
             {t('registration.successTitle')}
           </h2>

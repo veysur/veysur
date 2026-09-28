@@ -319,4 +319,26 @@ export class SurveyFullEntityHandler implements EntityHandlerInterface {
   getDefaultFormat(): string {
     return 'vssa'
   }
+
+  /**
+   * .vssa always bundles the live survey's own embedded answer-option
+   * images (VssaExportCollector.collect() starts from
+   * surveyHandler.fetchForExport(), unconditionally, even for a survey with
+   * zero publications), plus every publication's own snapshot images and
+   * responses. Both components are summed without deduping images that
+   * happen to appear in both: an overestimate only risks queueing an export
+   * that could have run inline, whereas missing either component risks the
+   * opposite — running a multi-megabyte export on the request thread.
+   */
+  async estimateExportSize(
+    entityId: string,
+    context: EntityExportContext,
+    options?: ExportOptions,
+  ): Promise<number> {
+    const [surveySize, publicationsSize] = await Promise.all([
+      this.surveyHandler.estimateExportSize(entityId, context, options),
+      this.pubHandler.estimateExportSize(entityId, context, options),
+    ])
+    return surveySize + publicationsSize
+  }
 }

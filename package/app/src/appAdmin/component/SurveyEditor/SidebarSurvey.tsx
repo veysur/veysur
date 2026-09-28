@@ -148,7 +148,7 @@ export const SidebarSurvey: React.FC = () => {
                         <span className="relative">
                           <Icon className="size-4" />
                           {item.showChangeDot && (
-                            <span className="absolute -top-0.5 -right-0.5 size-1.5 rounded-full bg-amber-500" />
+                            <span className="absolute -top-0.5 -right-0.5 size-1.5 rounded-full bg-warning" />
                           )}
                         </span>
                         <span className="text-xs text-center">
@@ -164,7 +164,7 @@ export const SidebarSurvey: React.FC = () => {
                         <span className="relative">
                           <Icon className="size-4" />
                           {item.showChangeDot && (
-                            <span className="absolute -top-0.5 -right-0.5 size-1.5 rounded-full bg-amber-500" />
+                            <span className="absolute -top-0.5 -right-0.5 size-1.5 rounded-full bg-warning" />
                           )}
                         </span>
                         <span className="text-xs text-center">

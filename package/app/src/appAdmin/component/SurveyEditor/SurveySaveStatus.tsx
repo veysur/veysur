@@ -58,7 +58,7 @@ const statusConfig: Record<string, SurveySaveStatusConfig> = {
     spinner: false,
     variant: 'default',
     className:
-      'save-status-pending bg-amber-500 dark:bg-yellow-600 text-white hover:bg-yellow-600 dark:hover:bg-yellow-700 rounded-md',
+      'save-status-pending bg-warning text-warning-foreground hover:bg-warning/90 rounded-md',
     statusTest: ({ patchBuffer }) => patchBuffer?.hasPending(),
   },
   [SURVEY_SAVE_STATUS_SUCCESS]: {
@@ -68,7 +68,7 @@ const statusConfig: Record<string, SurveySaveStatusConfig> = {
     spinner: false,
     variant: 'default',
     className:
-      'save-status-success bg-green-600 dark:bg-green-700 text-white hover:bg-green-700 dark:hover:bg-green-800 rounded-md',
+      'save-status-success bg-success text-success-foreground hover:bg-success/90 rounded-md',
     statusTest: ({ patchMutation }) => patchMutation?.isSuccess,
   },
   [SURVEY_SAVE_STATUS_FETCHING]: {

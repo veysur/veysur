@@ -120,7 +120,7 @@ export const SelectionRules: AttributeConfig['component'] = function ({
               placeholder="no min"
               onChange={handleChangeMin}
               value={minDisplayValue}
-              className={!isValid && !!errorsMin ? 'border-red-500' : ''}
+              className={!isValid && !!errorsMin ? 'border-destructive' : ''}
             />
             {!isValid && errorsMin && (
               <FieldError className="mt-1">{errorsMin}</FieldError>
@@ -133,7 +133,7 @@ export const SelectionRules: AttributeConfig['component'] = function ({
               placeholder="no max"
               onChange={handleChangeMax}
               value={maxDisplayValue}
-              className={!isValid && !!errorsMax ? 'border-red-500' : ''}
+              className={!isValid && !!errorsMax ? 'border-destructive' : ''}
             />
             {!isValid && errorsMax && (
               <FieldError className="mt-1">{errorsMax}</FieldError>

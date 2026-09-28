@@ -34,6 +34,9 @@ export type QuestionTypeProps = {
   /** Participant JWT - only `QuestionTypeFileUpload` uses it, to call the
    * participant file-upload endpoints. Undefined in admin preview. */
   authToken?: string
+  /** Ensures a response row exists server-side before a file upload proceeds - only
+   * `QuestionTypeFileUpload` uses it. No-op if a response has already been saved. */
+  ensureResponseStarted?: () => Promise<void>
 }
 
 /**

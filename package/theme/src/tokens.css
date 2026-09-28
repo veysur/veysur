@@ -1,36 +1,63 @@
+/* cspell:ignore retint */
 @import './brand.css';
 
 :root {
   --dim-brightness: 0.9;
   --radius: 0.45rem;
-  --background: oklch(0.9702 0 0);
-  --foreground: oklch(0.147 0.004 49.25);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.268 0.007 34.298);
-  --header: var(--card);
-  --header-foreground: var(--card-foreground);
-  --footer: var(--card);
-  --footer-foreground: var(--card-foreground);
-  --popover: oklch(0.97 0.001 106.424);
-  --popover-foreground: oklch(0.374 0.01 67.558);
+  /* Tailwind's shadow-* utilities all consume var(--tw-shadow-color, #0000001a)
+     — setting it once here warm-tints every shadow in the app with no
+     per-component edits, the same way the rest of the neutral ramp works. */
+  --tw-shadow-color: oklch(0.19 0.012 88 / 14%);
+  /* Neutral ramp — warm-tinted (hue 88, matching --ink-hue in brand.css),
+     never true grey. Replaces the previous chroma-0 greys. */
+  --background: oklch(0.965 0.006 88);
+  --foreground: oklch(0.17 0.012 88);
+  /* A brighter tint of --background, not pure white — a raised panel should
+     still read as part of the same warm family, not jump to a stark neutral. */
+  --card: oklch(0.985 0.004 88);
+  --card-foreground: oklch(0.17 0.012 88);
+  /* Header/footer chrome is permanently ink-dark in both light and dark mode
+     (the "bold" direction) — not an alias of --card. Consumers must render
+     the dark-wordmark logo variant unconditionally on these surfaces; see
+     NavbarBrand.tsx / AppFooter.tsx / website Navbar.astro+Footer.astro /
+     blogsite Header.astro. */
+  --header: oklch(0.19 0.012 88);
+  --header-foreground: oklch(0.97 0.004 88);
+  --footer: var(--header);
+  --footer-foreground: var(--header-foreground);
+  --popover: oklch(0.99 0.004 88);
+  --popover-foreground: oklch(0.19 0.012 88);
   --primary-base: var(--brand-primary);
   --primary: var(--primary-base);
   --primary-foreground-base: oklch(0.97 0.001 106.424);
   --primary-foreground: var(--primary-foreground-base);
-  --secondary: oklch(0.8978 0 0);
-  --secondary-foreground: oklch(0.374 0.01 67.558);
-  --muted: oklch(0.9191 0.0029 84.56);
-  --muted-foreground: oklch(0.374 0.01 67.558);
+  --secondary: oklch(0.9 0.01 88);
+  --secondary-foreground: oklch(0.3 0.012 88);
+  --muted: oklch(0.93 0.01 88);
+  --muted-foreground: oklch(0.44 0.012 88);
   --accent: var(--sidebar-accent); /* structure hover */
   --accent-foreground: var(--sidebar-accent-foreground);
+  /* Ink neutral-accent — the design system's deliberate second colour
+     (not the brand hue), for high-contrast buttons/active states/chart
+     series. Inverts per mode via brand.css's --ink-dark/--ink-light. */
+  --ink: var(--ink-dark);
+  --ink-foreground: var(--ink-dark-foreground);
   --destructive-base: oklch(45.976% 0.188 28.106);
   --destructive: var(--destructive-base);
   --destructive-foreground: oklch(1 0 0);
   --success-base: oklch(0.54 0.15 155);
   --success: var(--success-base);
   --success-foreground: oklch(1 0 0);
-  --border: oklch(0.869 0.005 56.366);
-  --input: oklch(0.62 0.08 155);
+  --warning-base: oklch(0.62 0.16 70);
+  --warning: var(--warning-base);
+  --warning-foreground: oklch(1 0 0);
+  --border: oklch(0.855 0.014 88);
+  /* Was oklch(0.62 0.08 155), a real saturated green (hue 155, matching
+     --success-base) inherited unchanged from the pre-retint scaffold —
+     read as a permanent focus/error ring on every form control, not a
+     subtle border. Neutral warm-88, a touch darker than --border so
+     interactive controls stay visually distinct from plain hairlines. */
+  --input: oklch(0.78 0.014 88);
   --ring-base: oklch(
     from var(--primary) calc(l * 1.2) calc(c * 1.2) h / 0.6
   );
@@ -48,12 +75,21 @@
    --dim-brightness while keeping the hue, so brand/semantic colours stay on-brand
    but recede against the dark background. */
 .dark {
-  --background: oklch(0.178 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.151 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.269 0 0);
-  --popover-foreground: oklch(0.985 0 0);
+  /* Darker and more opaque than the light-mode value — needs to read against
+     a dark card raised on a dark page, where a faint tint would vanish. */
+  --tw-shadow-color: oklch(0.04 0.008 88 / 45%);
+  --background: oklch(0.19 0.01 88);
+  --foreground: oklch(0.94 0.006 88);
+  --card: oklch(0.23 0.01 88);
+  --card-foreground: oklch(0.94 0.006 88);
+  /* Header/footer stay ink-dark, but darker still than --card so the chrome
+     reads as a distinct band rather than blending into the page. */
+  --header: oklch(0.12 0.01 88);
+  --header-foreground: oklch(0.96 0.006 88);
+  --footer: var(--header);
+  --footer-foreground: var(--header-foreground);
+  --popover: oklch(0.27 0.01 88);
+  --popover-foreground: oklch(0.94 0.006 88);
   --primary: oklch(
     from var(--primary-base) calc(l * var(--dim-brightness))
       calc(c * var(--dim-brightness)) h
@@ -62,12 +98,19 @@
     from var(--primary-foreground-base) calc(l * var(--dim-brightness))
       calc(c * var(--dim-brightness)) h
   );
-  --secondary: oklch(0.371 0 0);
-  --secondary-foreground: oklch(0.923 0.003 48.717);
-  --muted: oklch(0.24 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.271 0 0);
-  --accent-foreground: oklch(0.923 0.003 48.717);
+  --secondary: oklch(0.34 0.01 88);
+  --secondary-foreground: oklch(0.9 0.006 88);
+  --muted: oklch(0.26 0.01 88);
+  --muted-foreground: oklch(0.66 0.01 88);
+  /* Was identical to --popover (0.27) — dropdown/select menu items render on
+     bg-popover with hover:bg-accent, so an equal value made the hover state
+     invisible. Lighter than --popover so it reads as a highlight. */
+  --accent: oklch(0.33 0.012 88);
+  --accent-foreground: oklch(0.9 0.006 88);
+  /* Ink accent inverts: a light ink chip (dark text) reads as the highest-
+     contrast neutral against a dark page, mirroring the light-mode dark chip. */
+  --ink: var(--ink-light);
+  --ink-foreground: var(--ink-light-foreground);
   --destructive: var(--color-red-500);
   --destructive-foreground: oklch(0.985 0 0);
   --success: oklch(
@@ -75,8 +118,17 @@
       calc(c * var(--dim-brightness)) h
   );
   --success-foreground: oklch(0.78 0.1 145);
-  --border: oklch(0.29 0 0);
-  --input: oklch(0.39 0 0);
+  --warning: oklch(
+    from var(--warning-base) calc(l * var(--dim-brightness))
+      calc(c * var(--dim-brightness)) h
+  );
+  --warning-foreground: oklch(0.82 0.14 80);
+  /* Was 0.34/0.39 — far enough above --card (0.23) / --background (0.19)
+     that every card outline and form-control border read as a bright
+     glowing line rather than a subtle hairline. Pulled down close to the
+     surfaces they outline. */
+  --border: oklch(0.3 0.012 88);
+  --input: oklch(0.32 0.01 88);
   --ring: oklch(
     from var(--ring-base) calc(l * var(--dim-brightness))
       calc(c * var(--dim-brightness)) h
@@ -118,10 +170,14 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-ink: var(--ink);
+  --color-ink-foreground: var(--ink-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);

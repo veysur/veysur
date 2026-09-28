@@ -145,6 +145,14 @@ export const SurveySetting: React.FC<Props> = ({
         const lang = language || survey.language?.default || 'en'
         operations?.updateSurveyLegalNoticeText(value, lang)
       },
+      updateDataPolicyUrl: (value, language) => {
+        const lang = language || survey.language?.default || 'en'
+        operations?.updateSurveyDataPolicyUrl(value, lang)
+      },
+      updateLegalNoticeUrl: (value, language) => {
+        const lang = language || survey.language?.default || 'en'
+        operations?.updateSurveyLegalNoticeUrl(value, lang)
+      },
       updateLanguageOptions: (selectedLanguages) =>
         operations?.updateSurvey({
           language: { ...survey.language, options: selectedLanguages },

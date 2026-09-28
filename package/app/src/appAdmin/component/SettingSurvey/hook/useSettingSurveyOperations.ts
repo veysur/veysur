@@ -188,6 +188,26 @@ export function useSettingSurveyOperations({ useSettingSurveyState }: Props) {
     [updateSettingSurvey, settingSurvey],
   )
 
+  const updateSettingSurveyDataPolicyUrl = useCallback(
+    (value: string, lang?: string) => {
+      const language = lang || settingSurvey?.language?.default || 'en'
+      updateSettingSurvey((setting) =>
+        setting.updateDataPolicyUrl(value, language),
+      )
+    },
+    [updateSettingSurvey, settingSurvey],
+  )
+
+  const updateSettingSurveyLegalNoticeUrl = useCallback(
+    (value: string, lang?: string) => {
+      const language = lang || settingSurvey?.language?.default || 'en'
+      updateSettingSurvey((setting) =>
+        setting.updateLegalNoticeUrl(value, language),
+      )
+    },
+    [updateSettingSurvey, settingSurvey],
+  )
+
   // Email template operations (direct API calls, not part of SettingSurvey)
   const updateProjectEmailTemplate = useCallback(
     async (type: string, lang: string, subject: string, body: string) => {
@@ -227,6 +247,8 @@ export function useSettingSurveyOperations({ useSettingSurveyState }: Props) {
     updateSettingSurveyContentFormatProperty,
     updateSettingSurveyDataPolicyText,
     updateSettingSurveyLegalNoticeText,
+    updateSettingSurveyDataPolicyUrl,
+    updateSettingSurveyLegalNoticeUrl,
     updateProjectEmailTemplate,
   }
 

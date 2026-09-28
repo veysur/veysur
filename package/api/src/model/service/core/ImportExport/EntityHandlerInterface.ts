@@ -72,7 +72,7 @@ export type EntityEmbeddedFileManifestEntry = {
   mimeType: string
   hash: string | null
   size: number
-  zipPath: string // 'files/${imageSetId}/${imageVariant}.jpg'
+  archiveEntryPath: string // 'files/${imageSetId}/${imageVariant}.jpg'
   answerOptionId: string
   // Path context — passed to generateImageSetBasePath on import
   fileContext: 'project' | 'survey' | 'response' | 'temp' | 'import' | null
@@ -188,4 +188,22 @@ export interface EntityHandlerInterface {
    * @returns Default format identifier (e.g., 'vsst')
    */
   getDefaultFormat(): string
+
+  /**
+   * Estimate the byte size of exporting this entity, used to decide whether
+   * to run the export inline or hand it to ServiceDataTransferJob (see
+   * ASYNC_TRANSFER_SIZE_THRESHOLD_BYTES). Cheap to compute — either an exact
+   * figure from a fetch that's already inexpensive (e.g. SurveyEntityHandler,
+   * whose export has no response data), or an approximation where an exact
+   * figure would cost as much as doing the export (e.g. response-bearing
+   * handlers, which weight by response count rather than walking every
+   * response's answers for embedded files). Omitting this method entirely is
+   * treated as "always small" — only appropriate for a handler with no
+   * bulk content of any kind.
+   */
+  estimateExportSize?(
+    entityId: string,
+    context: EntityExportContext,
+    options?: ExportOptions,
+  ): Promise<number>
 }

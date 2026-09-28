@@ -211,6 +211,26 @@ export async function objectExists(
 }
 
 /**
+ * Get the byte size of a single object, or null if it doesn't exist
+ */
+export async function getObjectSize(
+  adaptor: S3Adaptor,
+  bucket: string,
+  key: string,
+): Promise<number | null> {
+  try {
+    const result = await adaptor.listObjects({
+      Bucket: bucket,
+      Prefix: key,
+      MaxKeys: 10,
+    })
+    return result.Contents.find((obj) => obj.Key === key)?.Size ?? null
+  } catch {
+    return null
+  }
+}
+
+/**
  * List all objects with a given prefix
  * Note: pagination via continuation token is not yet supported by s3-adaptor API
  */
@@ -311,6 +331,27 @@ export function generateStoredFilename(
 }
 
 /**
+ * Number of hash buckets response-attached files are spread across, both in
+ * live S3 storage and in the `.vssp`/`.vssa` export archive layout (see
+ * `VsspExportCollector`). Bounds the number of `response/{bucket}/` prefixes
+ * under a survey regardless of response volume. Safe to change later: keys
+ * are computed once at write time and then persisted (`File.filePath`), so a
+ * change only affects new uploads, never existing ones.
+ */
+export const RESPONSE_FILE_BUCKET_COUNT = 256
+
+/**
+ * Deterministic hash bucket for a response's attached files, derived purely
+ * from responseId so no batch/sequence state needs to be stored on the
+ * response itself.
+ */
+export function responseFileBucket(responseId: string): string {
+  const hash = crypto.createHash('md5').update(responseId).digest()
+  const bucket = hash.readUInt32BE(0) % RESPONSE_FILE_BUCKET_COUNT
+  return String(bucket).padStart(3, '0')
+}
+
+/**
  * Generate file path using context-based organization
  */
 export function generateFilePath(
@@ -327,7 +368,8 @@ export function generateFilePath(
   const fileContextType = context.fileContext || null
 
   if (fileContextType === 'response' && surveyId && responseId) {
-    return `project-${projectId}/survey/${surveyId}/response/${responseId}/${storedFilename}`
+    const bucket = responseFileBucket(responseId)
+    return `project-${projectId}/survey/${surveyId}/response/${bucket}/${responseId}/${storedFilename}`
   }
 
   if (fileContextType === 'survey' && surveyId) {

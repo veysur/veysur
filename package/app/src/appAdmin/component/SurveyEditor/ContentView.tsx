@@ -162,8 +162,8 @@ const ContentViewComponent: React.FC<ContentViewProps> = ({
       id={`${CONTENT_ID_PREFIX}${element._id}`}
       data-testid="content-container"
       className={cn(
-        'content mb-10 group relative transition-colors rounded-md p-4 mb-4 hover:bg-editor-active',
-        { 'bg-editor-active': focused },
+        'content mb-10 group relative transition-colors rounded-md p-4 mb-4 border-l-4 border-transparent',
+        focused ? 'border-primary bg-primary/5' : 'hover:bg-muted dark:hover:bg-muted/25',
       )}
     >
       <div className="grow relative" onClick={handleOnFocus}>

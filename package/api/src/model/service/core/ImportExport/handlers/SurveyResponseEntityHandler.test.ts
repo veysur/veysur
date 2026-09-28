@@ -99,7 +99,11 @@ describe('SurveyResponseEntityHandler', () => {
     ],
   }
 
-  let mockRepoSurveyResponse: { find: jest.Mock; insertOne: jest.Mock }
+  let mockRepoSurveyResponse: {
+    find: jest.Mock
+    insertOne: jest.Mock
+    count: jest.Mock
+  }
   let mockRepoSurveyParticipant: { findOne: jest.Mock; create: jest.Mock }
   let mockRepoSurveySnapshot: { findOne: jest.Mock }
   let mockRepoSurveyLanguageSnapshot: { find: jest.Mock }
@@ -109,6 +113,7 @@ describe('SurveyResponseEntityHandler', () => {
     mockRepoSurveyResponse = {
       find: jest.fn().mockResolvedValue([]),
       insertOne: jest.fn().mockResolvedValue(undefined),
+      count: jest.fn().mockResolvedValue(0),
     }
     mockRepoSurveyParticipant = {
       findOne: jest.fn().mockResolvedValue(null),
@@ -426,6 +431,40 @@ describe('SurveyResponseEntityHandler', () => {
     expect(insertedResponse.answers).toEqual({
       Q001: 'Alice',
       Q003: { P001: 'first answer', P002: 'second answer' },
+    })
+  })
+
+  describe('estimateExportSize', () => {
+    test('scales with the response count for the query', async () => {
+      mockRepoSurveyResponse.count.mockResolvedValue(10)
+
+      const estimate = await handler.estimateExportSize(
+        surveyId,
+        {
+          projectId,
+          aclConditions: {},
+          aclContext: { jwt: { _id: 'user-1' } },
+        } as unknown as EntityExportContext,
+        { publicationId },
+      )
+
+      expect(mockRepoSurveyResponse.count).toHaveBeenCalledWith(
+        { surveyId, publicationId },
+        expect.anything(),
+      )
+      expect(estimate).toBe(10 * 2048)
+    })
+
+    test('is zero when there are no matching responses', async () => {
+      mockRepoSurveyResponse.count.mockResolvedValue(0)
+
+      const estimate = await handler.estimateExportSize(surveyId, {
+        projectId,
+        aclConditions: {},
+        aclContext: { jwt: { _id: 'user-1' } },
+      } as unknown as EntityExportContext)
+
+      expect(estimate).toBe(0)
     })
   })
 

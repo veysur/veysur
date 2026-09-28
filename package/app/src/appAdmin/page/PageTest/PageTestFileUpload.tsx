@@ -25,7 +25,6 @@ import {
   UploadProgress,
   UploadResult,
 } from 'common/uploadFile'
-import { S3_DEFAULT_BUCKET } from 'veysur-common'
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB
 
@@ -144,14 +143,14 @@ export const PageTestFileUpload: React.FC = () => {
     }
   }
 
-  const getFileUrl = () => {
-    if (!uploadResult?.file) return null
-    const baseUrl = window.location.protocol + '//' + window.location.host
-    // filePath format is context-based, need to add bucket
-    const bucketType = uploadResult.file.bucketType || 'public'
-    const bucket =
-      bucketType === 'private' ? 'veysur-private' : S3_DEFAULT_BUCKET
-    return `${baseUrl}/${bucket}/${uploadResult.file.filePath}`
+  const handleOpenUploadedFile = async () => {
+    if (!project?._id || !auth?.jwt?.token || !uploadResult?.file) return
+    const { downloadUrl } = await getFileApi().getDownloadUrl(
+      project._id,
+      auth.jwt.token,
+      uploadResult.file._id,
+    )
+    window.open(downloadUrl, '_blank')
   }
 
   return (
@@ -404,15 +403,14 @@ export const PageTestFileUpload: React.FC = () => {
                 )}
 
                 <div className="pt-2">
-                  <a
-                    href={getFileUrl() || '#'}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
+                    onClick={handleOpenUploadedFile}
                     className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm font-medium"
                   >
                     <ExternalLink className="h-4 w-4" />
                     Open Uploaded File
-                  </a>
+                  </button>
                 </div>
               </StatusAlert>
             )}

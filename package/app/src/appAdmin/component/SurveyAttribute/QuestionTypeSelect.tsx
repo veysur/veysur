@@ -42,7 +42,7 @@ export const QuestionTypeSelect: AttributeConfig['component'] = function ({
           variant="outline"
           className={cn(
             'w-full justify-start gap-2',
-            !isValid && 'border-red-500',
+            !isValid && 'border-destructive',
           )}
           onClick={() => setIsModalOpen(true)}
         >

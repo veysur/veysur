@@ -32,7 +32,7 @@ export const InputSizeSelect: AttributeConfig['component'] = function ({
       <Label className="mb-2">{config.name}</Label>
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger
-          className={!isValid ? 'border-red-500' : ''}
+          className={!isValid ? 'border-destructive' : ''}
           aria-label="Select input size"
         >
           <SelectValue />

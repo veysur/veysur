@@ -72,5 +72,38 @@ describe('useImportSurveyResponse', () => {
     expect(invalidateQueriesSpy).toHaveBeenCalledWith({
       queryKey: [KEY_STATE_SURVEY_STATS, surveyId],
     })
+    expect(mockGenerateImportUrl).toHaveBeenCalledWith(
+      'surveyResponse',
+      expect.objectContaining({ fileHash: expect.any(String) }),
+    )
+  })
+
+  it('skips the upload and process steps when the file is already queued', async () => {
+    mockGenerateImportUrl.mockResolvedValue({
+      alreadyQueued: true,
+      jobId: 'job-1',
+      status: 'processing',
+    })
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    })
+
+    const { result } = renderHook(() => useImportSurveyResponse(), {
+      wrapper: createWrapper(queryClient),
+    })
+
+    await result.current.importSurveyResponse({
+      file: new File(['a'], 'a.csv'),
+      surveyId,
+      publicationId: 'publication-1',
+      snapshotId: 'snapshot-1',
+    })
+
+    await waitFor(() => {
+      expect(mockGenerateImportUrl).toHaveBeenCalled()
+    })
+
+    expect(mockUploadToS3).not.toHaveBeenCalled()
+    expect(mockProcessImport).not.toHaveBeenCalled()
   })
 })

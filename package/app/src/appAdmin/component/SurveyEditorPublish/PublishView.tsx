@@ -124,9 +124,9 @@ export const PublishView: React.FC<Props> = ({
 
       {isPublished && (publication || snapshot) && (
         <div className="mb-4 relative rounded-md bg-muted/30 border border-border/50 pl-4 pr-3 py-3 overflow-hidden">
-          <div className="absolute left-0 top-0 bottom-0 w-1 bg-green-700 rounded-l-md" />
+          <div className="absolute left-0 top-0 bottom-0 w-1 bg-success rounded-l-md" />
           <div className="flex items-center gap-1.5 mb-1">
-            <CheckCircle2 className="h-3.5 w-3.5 text-green-600/70 shrink-0" />
+            <CheckCircle2 className="h-3.5 w-3.5 text-success/70 shrink-0" />
             <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Currently Published
             </span>

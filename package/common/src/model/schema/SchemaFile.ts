@@ -81,7 +81,13 @@ export class SchemaFile extends Schema {
               status: sb
                 .string()
                 .nullable()
-                .inArray(['pending', 'processing', 'completed', 'failed']),
+                .inArray([
+                  'pending',
+                  'queued',
+                  'processing',
+                  'completed',
+                  'failed',
+                ]),
               result: sb
                 .object({
                   success: sb.boolean().required(),

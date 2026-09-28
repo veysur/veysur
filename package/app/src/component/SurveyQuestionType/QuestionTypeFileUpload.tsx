@@ -27,6 +27,7 @@ export const QuestionTypeFileUpload: React.FC<QuestionTypeProps> = ({
   value,
   onChange,
   authToken,
+  ensureResponseStarted,
 }) => {
   const options =
     (question?.attributes?.fileUploadOptions as
@@ -64,6 +65,7 @@ export const QuestionTypeFileUpload: React.FC<QuestionTypeProps> = ({
 
     setUploading(true)
     try {
+      await ensureResponseStarted?.()
       const { fileId } = await uploadSurveyParticipantFile(
         getRestClient(),
         file,

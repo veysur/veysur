@@ -52,7 +52,7 @@ export const PublicationDeleteDialog: React.FC<
           <AlertDialogAction
             onClick={onConfirm}
             disabled={isDeleting}
-            className="bg-destructive text-white hover:bg-destructive/90"
+            variant="destructive"
           >
             {isDeleting ? 'Deleting...' : 'Delete'}
           </AlertDialogAction>

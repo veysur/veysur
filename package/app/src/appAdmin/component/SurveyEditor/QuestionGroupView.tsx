@@ -188,10 +188,8 @@ const QuestionGroupViewComponent: React.FC<QuestionGroupViewProps> = ({
       <div
         id={`${QUESTION_GROUP_ID_PREFIX}${group._id}`}
         className={cn(
-          'relative group transition-colors rounded-md px-4 mb-1 hover:bg-editor-active',
-          {
-            'bg-editor-active': focused,
-          },
+          'relative group transition-colors rounded-md px-4 mb-1 border-l-4 border-transparent',
+          focused ? 'border-primary bg-primary/5' : 'hover:bg-muted dark:hover:bg-muted/25',
         )}
       >
         <div
@@ -231,7 +229,7 @@ const QuestionGroupViewComponent: React.FC<QuestionGroupViewProps> = ({
                   conditionValidity.invalidReferencingConditions.length > 0 && (
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <AlertCircle className="h-4 w-4 text-amber-500 flex-shrink-0" />
+                        <AlertCircle className="h-4 w-4 text-warning flex-shrink-0" />
                       </TooltipTrigger>
                       <TooltipContent>
                         <p className="text-xs">

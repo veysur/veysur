@@ -133,7 +133,7 @@ export const QuestionTypeRanking: React.FC<QuestionTypeProps> = ({
           </DndContext>
         )}
         {showMinHint && (
-          <p className="mt-1 text-xs text-amber-600">
+          <p className="mt-1 text-xs text-warning">
             Please rank at least {minRequired} option
             {minRequired !== 1 ? 's' : ''}
             {rankedCount > 0 ? ` (${rankedCount} ranked so far)` : ''}.

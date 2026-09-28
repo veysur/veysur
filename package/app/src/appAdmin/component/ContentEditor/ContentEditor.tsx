@@ -1,3 +1,4 @@
+// cspell:ignore noopener noreferrer
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useEditor, EditorContent, Editor as TiptapEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
@@ -231,6 +232,10 @@ const RichContentEditorComponent: React.FC<ContentEditorProps> = ({
         StyledTextStyle,
         StyledLink.configure({
           openOnClick: false,
+          HTMLAttributes: {
+            target: '_blank',
+            rel: 'noopener noreferrer',
+          },
         }),
         // StarterKit ships no image node, so without this markdown `![alt](url)`
         // (typed, pasted, or loaded via the source editor) is silently dropped

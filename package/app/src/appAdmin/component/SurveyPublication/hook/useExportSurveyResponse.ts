@@ -2,9 +2,11 @@ import { useMutation } from '@tanstack/react-query'
 
 import { useProjectDomain } from 'appAdmin/hook'
 import { getImportExportApi } from 'appAdmin/component/ImportExport/registry'
+import { useStartExportDownload } from 'appAdmin/component/ImportExport/hook/useStartExportDownload'
 
 export function useExportSurveyResponse() {
   const project = useProjectDomain()
+  const startExportDownload = useStartExportDownload()
 
   const mutation = useMutation({
     mutationFn: async ({
@@ -19,14 +21,13 @@ export function useExportSurveyResponse() {
       }
 
       const api = getImportExportApi()
-      const { downloadUrl } = await api.exportEntity(
+      const result = await api.exportEntity(
         'surveyResponse',
         surveyId,
         'json',
         { publicationId },
       )
-
-      window.open(downloadUrl, '_blank')
+      await startExportDownload(result)
     },
   })
 

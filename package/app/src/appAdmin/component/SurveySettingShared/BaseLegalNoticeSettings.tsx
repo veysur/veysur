@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from 'component/shadcn/card'
 import { LanguageSelector } from 'component/LanguageSelector'
 
 import { DefaultableValueContentEditor } from './DefaultableValueContentEditor'
+import { DefaultableValueInput } from './DefaultableValueInput'
 import { DefaultableButtonSwitch } from './DefaultableButtonSwitch'
 import { SettingsDataAdapter, SettingsHandlers } from './SettingSurveyAdapter'
 import { useLanguageSelector } from './hook/useLanguageSelector'
@@ -110,7 +111,31 @@ export function BaseLegalNoticeSettings<T>({
               placeholder="Legal notice text"
               withToolbar={true}
               format={contentFormat}
+              className={data.legalNotice?.link ? 'mb-3' : 'mb-0'}
             />
+
+            {data.legalNotice?.link && (
+              <DefaultableValueInput
+                label="URL"
+                type="url"
+                currentValue={getText(data.legalNotice?.url, langEditing)}
+                defaultValue={
+                  getText(
+                    data.getDefault?.<L10n | null>('legalNotice', 'url'),
+                    langEditing,
+                  ) || ''
+                }
+                section="legalNotice"
+                field="url"
+                handler={(section, field, value) =>
+                  handlers.handleL10nChange?.(section, field, value, langEditing)
+                }
+                hasDefaults={hasDefaults}
+                placeholder="https://example.com/legal-notice"
+                helpText="URL the clickable link opens for this language."
+                className="mb-0"
+              />
+            )}
           </CardContent>
         </Card>
       </div>

@@ -78,5 +78,19 @@ export default defineConfig({
       port: 3000,
     },
   },
+  tools: {
+    // Unlike Vite/Astro (used by website/blogsite/docsite), which treats a
+    // leading-'/' CSS url() as a runtime public-root reference and leaves it
+    // alone, css-loader's default `url: true` tries to resolve every url() —
+    // including absolute ones — as a build-time module import, which fails
+    // for veysur-theme/base.css's `url('/fonts/Geist-Variable.woff2')` (a
+    // public/ asset, not a module). Skip resolution for absolute paths so
+    // they pass through as literal public-root references, same as Vite.
+    cssLoader: {
+      url: {
+        filter: (url: string) => !url.startsWith('/'),
+      },
+    },
+  },
   plugins: [pluginReact()],
 })

@@ -28,7 +28,9 @@ import type {
 
 type PolicyTextLike = {
   show?: boolean | null
+  link?: boolean | null
   text?: { getLang?: (lang: string, langDefault?: string) => string } | null
+  url?: { getLang?: (lang: string, langDefault?: string) => string } | null
 }
 
 type SurveyWelcomeData = {
@@ -79,6 +81,11 @@ export const SurveyWelcome: React.FC<Props> = ({
   const showDataPolicy = dataPolicy.show
   const showLegalNotice = legalNotice.show
   const showWelcomeMessage = presentation.welcomeMessage
+
+  const dataPolicyUrl = dataPolicy.url?.getLang?.(lang, langDefault)
+  const legalNoticeUrl = legalNotice.url?.getLang?.(lang, langDefault)
+  const dataPolicyLink = !!dataPolicy.link && !!dataPolicyUrl
+  const legalNoticeLink = !!legalNotice.link && !!legalNoticeUrl
 
   const rawWelcomeMessage =
     survey?.welcomeSection?.desc?.getLang?.(lang, langDefault) ||
@@ -155,12 +162,23 @@ export const SurveyWelcome: React.FC<Props> = ({
             </div>
           </CardHeader>
           <CardContent>
-            <SurveyContent
-              raw={dataPolicy.text?.getLang?.(lang, langDefault)}
-              format={contentFormat.format}
-              scriptTagsAllowed={contentFormat.scriptTagsAllowed}
-              className="policy-content html-content text-sm mb-4"
-            />
+            {dataPolicyLink ? (
+              <a
+                href={dataPolicyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="policy-content-link text-sm mb-4 inline-block underline"
+              >
+                {t('welcome.dataPolicyBadge')}
+              </a>
+            ) : (
+              <SurveyContent
+                raw={dataPolicy.text?.getLang?.(lang, langDefault)}
+                format={contentFormat.format}
+                scriptTagsAllowed={contentFormat.scriptTagsAllowed}
+                className="policy-content html-content text-sm mb-4"
+              />
+            )}
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="data-policy-checkbox"
@@ -193,12 +211,23 @@ export const SurveyWelcome: React.FC<Props> = ({
             </div>
           </CardHeader>
           <CardContent>
-            <SurveyContent
-              raw={legalNotice.text?.getLang?.(lang, langDefault)}
-              format={contentFormat.format}
-              scriptTagsAllowed={contentFormat.scriptTagsAllowed}
-              className="policy-content html-content text-sm mb-4"
-            />
+            {legalNoticeLink ? (
+              <a
+                href={legalNoticeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="policy-content-link text-sm mb-4 inline-block underline"
+              >
+                {t('welcome.legalNoticeBadge')}
+              </a>
+            ) : (
+              <SurveyContent
+                raw={legalNotice.text?.getLang?.(lang, langDefault)}
+                format={contentFormat.format}
+                scriptTagsAllowed={contentFormat.scriptTagsAllowed}
+                className="policy-content html-content text-sm mb-4"
+              />
+            )}
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="legal-notice-checkbox"

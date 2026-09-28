@@ -7,6 +7,8 @@
    ↓
 [Pending] ──────────────────────────────────────┐
    ↓                                            │
+[Queued]* ───────────────────────────────────── │
+   ↓                                            │
 [Processing]                                    │
    ↓                                            │
 ┌──┴────┐                                       │
@@ -18,9 +20,16 @@
 (7 days after processing)
 ```
 
+\* `.vsst`/`.json`/`.csv` imports skip straight from `Pending` to `Processing` within the same
+request. `.vssp`/`.vssa` (async-eligible, can bundle bulky files) pass through `Queued` first,
+`processImport()` sets it and enqueues a `ServiceDataTransferJob`, returning
+`{ async: true, jobId }` immediately; `processQueue()` later moves `Queued → Processing` off the
+request. See [import-export-system.md#async-eligibility-the-data-transfer-job-pipeline](import-export-system.md#async-eligibility-the-data-transfer-job-pipeline).
+
 ### State Descriptions
 
 - **Pending**: Upload URL generated, awaiting S3 upload from client
+- **Queued**: Async-eligible import handed to `ServiceDataTransferJob`, awaiting `processQueue()`
 - **Processing**: Import triggered, file being validated and persisted
 - **Completed**: Import successful, entity created
 - **Failed**: Validation or persistence error occurred
@@ -49,9 +58,15 @@
    └─ Return to client
 ```
 
-**Timing**: Export operations complete synchronously within 1-2 seconds for typical surveys.
+**Timing**: `.vsst`/`.json`/`.csv` export completes synchronously within 1-2 seconds for typical
+surveys. `.vssp`/`.vssa` (async-eligible) instead enqueue a `ServiceDataTransferJob` at step 1
+and return `{ async: true, jobId }` immediately; steps 2-4 run off-request in
+`processQueue()`. The bell/panel the client actually watches polls `GET /notification/list`,
+not the job itself - see
+[import-export-system.md#notifications](import-export-system.md#notifications).
 
-See: `/package/api/src/model/service/core/ServiceImportExport.ts:export()`
+See: `/package/api/src/model/service/core/ServiceImportExport.ts:export()` (branches to
+`compileExport()` for steps 2-4, whether called inline or from `processQueue()`)
 
 ## Import Workflow
 
@@ -88,8 +103,14 @@ Client Request
    ↓
 Fetch File Record
    ├─ Verify: fileContext='import'
-   ├─ Verify: status='pending'
+   ├─ Verify: status not 'processing'/'queued'/'completed'
    └─ Verify: not expired
+   ↓
+Async-eligible? (handler.isAsyncEligible?.('import', format))
+   ├─ Yes → status='queued', enqueue ServiceDataTransferJob,
+   │        return { async: true, jobId }, rest of this diagram
+   │        runs later in processQueue() → runImport(), off-request
+   └─ No  → continue inline (runImport())
    ↓
 Update: status='processing'
    ↓
@@ -126,9 +147,12 @@ Validate
                  Return Result
 ```
 
-**Timing**: Varies by entity size (typically 1-5 seconds for surveys)
+**Timing**: Varies by entity size (typically 1-5 seconds for surveys, synchronously, for
+non-async-eligible formats). `.vssp`/`.vssa` return `{ async: true, jobId }` immediately; poll
+`GET /import-export/import/status/:fileId` for the result.
 
-See: `/package/api/src/model/service/core/ServiceImportExport.ts:processImport()`
+See: `/package/api/src/model/service/core/ServiceImportExport.ts:processImport()` (branches to
+`runImport()`, called inline or from `processQueue()`)
 
 ## ID Translation Process
 
@@ -206,6 +230,16 @@ See: `/package/common/src/model/constructor/File.ts`
 Multiple simultaneous imports of same file prevented:
 - Status check ensures only one `processImport()` call succeeds
 - Others receive "already processing" error
+
+For async-eligible imports (`.vssp`/`.vssa`), a second, broader guard also applies: the
+client sends a hash of the file's content (`sourceFileHash`), and
+`ServiceDataTransferJob.findActiveImportJob()` matches it against any other still-active
+job for the same project/user/entityType/format/options - even from a **different**
+`fileId` (e.g. the same archive re-uploaded, or two browser tabs uploading the same file).
+A match returns the existing job (`alreadyQueued: true`) instead of enqueueing a duplicate.
+This is a distinct guarantee from the same-`fileId` check above: it catches duplicate
+*content*, not just a duplicate call against the same upload. See
+[import-export-system.md#async-eligibility-the-data-transfer-job-pipeline](import-export-system.md#async-eligibility-the-data-transfer-job-pipeline).
 
 ### Network Failures
 

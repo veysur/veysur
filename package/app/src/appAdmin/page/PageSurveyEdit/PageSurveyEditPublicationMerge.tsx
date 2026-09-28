@@ -215,7 +215,7 @@ export const PageSurveyEditPublicationMerge: React.FC = () => {
             {previewResult && (
               <div className="px-6 py-4">
                 {previewResult.compatibility.isCompatible ? (
-                  <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-400">
+                  <div className="flex items-center gap-2 text-sm text-success">
                     <CheckCircle className="h-4 w-4 shrink-0" />
                     <span>
                       Compatible — no incompatible changes with the previous

@@ -20,9 +20,7 @@ export interface FileListResponse {
   }
 }
 
-export interface ResponseFile extends FileModel {
-  url: string
-}
+export type ResponseFile = FileModel
 
 export interface ResponseFileListResponse {
   files: ResponseFile[]
@@ -149,7 +147,8 @@ export class FileApi extends Api {
 
   /**
    * List files uploaded by a participant for a single response (fileUpload
-   * question answers), each with a resolved public download `url`.
+   * question answers). Use `getDownloadUrl` to fetch a presigned download URL
+   * on demand rather than a resolved URL per file.
    */
   async getFilesForResponse(
     projectId: string,
@@ -167,6 +166,30 @@ export class FileApi extends Api {
           },
         },
       )
+    } catch (error) {
+      throw ErrorRest.fromRequestError(error as Error)
+    }
+  }
+
+  /**
+   * Generate a short-lived presigned download URL for a file, on demand -
+   * call this when the user clicks a download link, not once per render.
+   */
+  async getDownloadUrl(
+    projectId: string,
+    jwtToken: string,
+    fileId: string,
+  ): Promise<{ downloadUrl: string; expiresAt: string }> {
+    try {
+      return await this.getClient().get<{
+        downloadUrl: string
+        expiresAt: string
+      }>(`/file/${fileId}/download-url`, {
+        headers: {
+          'X-Project-Id': projectId,
+          Authorization: `Bearer ${jwtToken}`,
+        },
+      })
     } catch (error) {
       throw ErrorRest.fromRequestError(error as Error)
     }

@@ -15,6 +15,7 @@ import {
   RepoFile,
 } from 'model'
 import { StorageConfig } from 'model/service/core/ServiceFile/FileS3Config'
+import { contextForProject } from 'common'
 
 import {
   EntityHandlerInterface,
@@ -25,6 +26,7 @@ import {
   ImportValidationResult,
   PersistImportContext,
 } from '../EntityHandlerInterface'
+import { ESTIMATED_BYTES_PER_RESPONSE } from './util/asyncTransferSizeThreshold'
 import { FormatHandlerInterface } from '../format/FormatHandlerInterface'
 import { SnapshotDataRemapper } from './SurveyPublicationEntityHandler/SnapshotDataRemapper'
 import { VsspExportCollector } from './SurveyPublicationEntityHandler/VsspExportCollector'
@@ -193,7 +195,7 @@ export class SurveyPublicationEntityHandler implements EntityHandlerInterface {
       })
       for (const entry of embeddedFileEntries) {
         files.push({
-          filename: entry.zipPath,
+          filename: entry.archiveEntryPath,
           size: entry.size,
           stream: this.collector.makeBinaryFileStream(entry),
         })
@@ -201,14 +203,21 @@ export class SurveyPublicationEntityHandler implements EntityHandlerInterface {
     }
 
     if (responseFileEntries?.length > 0) {
-      const responseManifest = { version: '1.0', files: responseFileEntries }
-      files.push({
-        filename: 'files/response-manifest.json',
-        content: JSON.stringify(responseManifest, null, 2),
-      })
+      const entriesByBucket = new Map<string, ResponseFileManifestEntry[]>()
+      for (const entry of responseFileEntries) {
+        const group = entriesByBucket.get(entry.bucket) ?? []
+        group.push(entry)
+        entriesByBucket.set(entry.bucket, group)
+      }
+      for (const [bucket, entries] of entriesByBucket) {
+        files.push({
+          filename: `files/response-manifest-${bucket}.json`,
+          content: JSON.stringify({ version: '1.0', files: entries }, null, 2),
+        })
+      }
       for (const entry of responseFileEntries) {
         files.push({
-          filename: entry.zipPath,
+          filename: entry.archiveEntryPath,
           size: entry.size,
           stream: this.collector.makeBinaryFileStream(entry),
         })
@@ -251,5 +260,47 @@ export class SurveyPublicationEntityHandler implements EntityHandlerInterface {
 
   getDefaultFormat(): string {
     return 'vssp'
+  }
+
+  /**
+   * Estimate export size as response-count-based weight plus the actual
+   * embedded answer-option image size (see VsspExportCollector.estimateSize).
+   * When no publicationId is given (SurveyFullEntityHandler's vssa
+   * delegation, estimating the whole survey), sums the image size across
+   * every publication — a handful of publications/images at most, cheap to
+   * enumerate, and never worse than an overestimate that queues something
+   * that could have run inline.
+   */
+  async estimateExportSize(
+    entityId: string,
+    context: EntityExportContext,
+    options?: ExportOptions,
+  ): Promise<number> {
+    const dsContext = contextForProject(context.projectId)
+    const query: Record<string, unknown> = { surveyId: entityId }
+    if (options?.publicationId) query.publicationId = options.publicationId
+
+    const responseCount = await this.repoSurveyResponse.count(query, {
+      context: dsContext,
+    })
+
+    const publicationIds = options?.publicationId
+      ? [options.publicationId]
+      : (
+          await this.repoSurveyPublication.find(
+            { surveyId: entityId },
+            { context: dsContext },
+          )
+        ).map((publication) => publication._id)
+
+    let imageSize = 0
+    for (const publicationId of publicationIds) {
+      imageSize += await this.collector.estimateSize(context, {
+        ...options,
+        publicationId,
+      })
+    }
+
+    return responseCount * ESTIMATED_BYTES_PER_RESPONSE + imageSize
   }
 }

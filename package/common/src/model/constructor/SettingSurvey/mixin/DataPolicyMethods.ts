@@ -6,6 +6,7 @@ const defaultDataPolicy = {
   show: false,
   link: false,
   text: new L10n(),
+  url: new L10n(),
 }
 
 export function DataPolicyMethods<
@@ -34,6 +35,11 @@ export function DataPolicyMethods<
     updateDataPolicyText(text?: string | null, lang: string = 'en'): this {
       const current = this.dataPolicy || defaultDataPolicy
       return this.updateL10nProperty(current, 'dataPolicy', 'text', text, lang)
+    }
+
+    updateDataPolicyUrl(url?: string | null, lang: string = 'en'): this {
+      const current = this.dataPolicy || defaultDataPolicy
+      return this.updateL10nProperty(current, 'dataPolicy', 'url', url, lang)
     }
   }
 }

@@ -34,7 +34,7 @@ export const ImageColumnsSelect: AttributeConfig['component'] = function ({
       <Label className="mb-2">{config.name}</Label>
       <Select value={stringValue} onValueChange={(v) => onChange(Number(v))}>
         <SelectTrigger
-          className={!isValid ? 'border-red-500' : ''}
+          className={!isValid ? 'border-destructive' : ''}
           aria-label="Select columns"
         >
           <SelectValue />

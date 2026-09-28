@@ -233,7 +233,16 @@ const executions = await repoTaskExecution.find(
 
 Run any service action outside the scheduler by executing `run.js` in the running `api` container with
 `API_TASK`, `API_ACTION` and optional `API_TASK_JSON` set. Useful for development testing and
-production one-off fixes. Run from `deploy/`:
+production one-off fixes.
+
+The quickest way: `pnpm dev:task -- <task> <action> [optionsJson]` from the repo root
+(`deploy/scripts/task-run.sh` — detects dev vs. production stack automatically). For example:
+
+```bash
+pnpm dev:task -- dataTransferJob processQueue
+```
+
+Or run `docker compose exec` directly, from `deploy/`:
 
 ```bash
 docker compose exec -T -e API_TASK=fileDeletion -e API_ACTION=hardDeleteAll api node dist/run.js
@@ -292,6 +301,26 @@ Both the task entrypoint and `processQueue()` itself log what they're doing, so 
 ```
 
 This `[Task] Running <task>.<action>` / `[Task] Completed <task>.<action>: <result>` pair comes from `src/run.ts` itself, so it applies to every manual task invocation above, not just this one.
+
+**Data transfer job processing**: compiles/runs due async survey export and import jobs
+(`.vssp`/`.vssa`, which can carry embedded response/answer-option files, see
+`docs/import-export/import-export-system.md`). Like the mail queue, needs no `RepoTaskLock`:
+`concurrency: 1` on the seeded task already prevents overlapping runs. Runs automatically
+every 15s in a deployed stack.
+
+```bash
+docker compose exec -T -e API_TASK=dataTransferJob -e API_ACTION=processQueue api node dist/run.js
+```
+
+**Notification cleanup**: deletes settled (read/dismissed) `Notification` rows once they've
+aged past retention, and their related `DataTransferJob` row alongside them
+(`ServiceNotification.cleanupOld()` - see
+`docs/import-export/import-export-system.md#notifications`). Runs automatically every hour
+in a deployed stack.
+
+```bash
+docker compose exec -T -e API_TASK=notification -e API_ACTION=cleanupOld api node dist/run.js
+```
 
 ## Key Files
 

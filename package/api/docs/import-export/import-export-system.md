@@ -33,6 +33,9 @@ This allows adding new entity types or formats independently without modifying c
 - **parseImportData()** - Parse uploaded file
 - **validateImport()** - Validate and optionally repair data
 - **persistImport()** - Insert entity into database
+- **isAsyncEligible()** *(optional)* - Whether a format/direction should run
+  off the request through `ServiceDataTransferJob` rather than synchronously,
+  see [Async eligibility](#async-eligibility-the-data-transfer-job-pipeline)
 
 **Current implementations**:
 
@@ -115,7 +118,7 @@ This allows adding new entity types or formats independently without modifying c
   ```
 
 - **SurveyResponseEntityHandler** — Survey response export (.json/.csv). Export-only; filtered by publicationId. CSV export/import degrades `fileUpload`-question answers: export writes the referenced fileIds comma-joined (never the file bytes — CSV has no binary channel), and import silently skips a `fileUpload` column rather than writing a bogus answer from a bare id string. Only `.vssp`/`.vssa` import restores actual files. See [response-csv.md](response-csv.md).
-- **SurveyPublicationEntityHandler** — Composite import/export (.vssp). Bundles `surveyPublication.json` + `surveySnapshotData.json` + `surveySnapshot.json` + `responses/batch-00000N.json` (batched, 1000 responses per file) + language snapshot records + binary image files for answer options + binary files for `fileUpload`-question answers. On export, streams each image (and each response file) from S3 into the archive one-by-one; a `MAX_RESPONSE_EXPORT_FILE_COUNT`/`MAX_RESPONSE_EXPORT_TOTAL_SIZE` guardrail (see `handlers/util/responseFileExportLimits.ts`) rejects an export whose bundled response files would be too large for the current synchronous request/response export path (see [docs/plan/considering/async-survey-export.md](../../../../../docs/plan/considering/async-survey-export.md) in the monorepo root for the follow-up to make export asynchronous). On import, binary images and response files are streamed from the archive to temp S3 keys by the parser, then copied to final destinations before the DB transaction; creates survey (optional), snapshot (with contentHash deduplication), publication, and File records in a single transaction; responses are inserted one batch at a time (O(batch_size) peak memory) with participant resolution and response-ID-collision detection performed inline per batch — each batch is freed from memory after insertion. Section, element, `sectionIds`, and `elementIds` are always assigned fresh IDs on import to prevent collisions.
+- **SurveyPublicationEntityHandler** — Composite import/export (.vssp). Bundles `surveyPublication.json` + `surveySnapshotData.json` + `surveySnapshot.json` + `responses/batch-00000N.json` (batched, 1000 responses per file) + language snapshot records + binary image files for answer options + binary files for `fileUpload`-question answers. On export, streams each image (and each response file) from S3 into the archive one-by-one; a `MAX_RESPONSE_EXPORT_FILE_COUNT`/`MAX_RESPONSE_EXPORT_TOTAL_SIZE` guardrail (see `handlers/util/responseFileExportLimits.ts`) rejects an export whose bundled response files would be too large for a single archive (checked per-publication here, and again across the combined archive in `SurveyFullEntityHandler`/`VssaExportCollector` for `.vssa`). `.vssp`/`.vssa` exports estimate size from response count, see [Async eligibility](#async-eligibility-the-data-transfer-job-pipeline) below. On import, binary images and response files are streamed from the archive to temp S3 keys by the parser, then copied to final destinations before the DB transaction; creates survey (optional), snapshot (with contentHash deduplication), publication, and File records in a single transaction; responses are inserted one batch at a time (O(batch_size) peak memory) with participant resolution and response-ID-collision detection performed inline per batch — each batch is freed from memory after insertion. Section, element, `sectionIds`, and `elementIds` are always assigned fresh IDs on import to prevent collisions.
 
   Response files are handled as a parallel, additive pipeline kept deliberately separate from the answer-option image-set machinery (`FileResolution`/`imageSetIdMap`), since a response file has none of the image-set model's concepts (no `imageSetId`/`imageVariant`/`answerOptionId`). Manifest entries live in their own `files/response-manifest.json` (type `ResponseFileManifestEntry`, see `SurveyPublicationEntityHandler/types.ts`) rather than being folded into the shared `EntityEmbeddedFileManifestEntry` list. On import, dedup is scoped to `(surveyId, hash, fileContext: 'response')` — deliberately broader than the per-response scoping `ServiceFileUpload` uses at normal upload time — so re-importing the same archive (or a file whose bytes match one already imported for a different response in the same survey) reuses the existing `File` record instead of creating a duplicate.
 
@@ -166,6 +169,8 @@ See: `/package/api/src/model/service/core/ImportExport/format/FormatHandlerInter
 │   POST /api/export/:entityType/:id/:format          │
 │   POST /api/import/url/:entityType                  │
 │   POST /api/import/process/:fileId                  │
+│   GET  /api/import/status/:fileId    (async import) │
+│   GET  /api/data-transfer-job/status/:jobId (export) │
 └────────────────────┬────────────────────────────────┘
                      │
 ┌────────────────────▼────────────────────────────────┐
@@ -193,12 +198,21 @@ See: `/package/api/src/model/service/core/ImportExport/format/FormatHandlerInter
 
 1. **API Request** → ServiceImportExport.export()
 2. **Lookup Handler** → EntityHandlerRegistry.get(entityType)
-3. **Fetch Entity** → EntityHandler.fetchForExport()
-4. **Lookup Format** → FormatRegistry.getByFormat(format)
-5. **Serialize** → EntityHandler.prepareExportData() → FormatHandler.serialize() → `Readable`
-6. **Stream to S3** → ServiceFileTempDownload.createTempDownloadFromStream() — no disk write; hash/size computed inline
-7. **Generate URL** → Presigned download URL
-8. **Return** → { downloadUrl, filename, expiresAt }
+3. **Async-eligible?** (`handler.isAsyncEligible?.('export', format)`)
+   - **No** → continue inline via `compileExport()` (steps 4-8 below)
+   - **Yes** → `ServiceDataTransferJob.enqueueExport()`, return `{ async: true, jobId, status }`
+     immediately; `processQueue()` later runs `compileExport()` off-request. `enqueueExport()`
+     also creates a related `Notification` (`ServiceNotification.create()`), which
+     `processOne()` updates to `success`/`error` on completion/failure
+     (`ServiceNotification.updateForDataTransferJob()`) — the notification bell/panel polls
+     `GET /notification/list`, not the job endpoint directly. See
+     [Notifications](#notifications) below.
+4. **Fetch Entity** → EntityHandler.fetchForExport()
+5. **Lookup Format** → FormatRegistry.getByFormat(format)
+6. **Serialize** → EntityHandler.prepareExportData() → FormatHandler.serialize() → `Readable`
+7. **Stream to S3** → ServiceFileTempDownload.createTempDownloadFromStream() — no disk write; hash/size computed inline
+8. **Generate URL** → Presigned download URL
+9. **Return** → { downloadUrl, filename, expiresAt }
 
 ### Import Data Flow
 
@@ -207,13 +221,180 @@ See: `/package/api/src/model/service/core/ImportExport/format/FormatHandlerInter
    - Generate S3 presigned PUT URL
 2. **Client Upload** → Direct to S3 (no API involvement)
 3. **Process Import** → ServiceImportExport.processImport()
-   - Stream from S3 directly through tar+gz parser — no disk writes
-   - Hash and byte count computed inline via PassThrough
-   - Parse via FormatHandler (JSON in memory; binary → temp S3 keys)
-   - Validate via EntityHandler
-   - Persist via EntityHandler (images copied from temp S3 keys to final destination)
-   - Temp S3 keys cleaned up in finally block
-   - Update File record with result
+   - Look up the entity handler for `file.import.entityType`
+   - **Async-eligible?** (`handler.isAsyncEligible?.('import', file.import.format)`)
+     - **No** → continue inline via `runImport()` (steps below)
+     - **Yes** → mark `File.import.status = 'queued'`, `ServiceDataTransferJob.enqueueImport()`,
+       return `{ async: true, jobId, status }` immediately; `processQueue()` later runs
+       `runImport()` off-request and the client polls `GET /import-export/import/status/:fileId`
+       (not the generic `GET /file/:fileId`, which 404s pre-completion, see below)
+   - **runImport()**:
+     - Stream from S3 directly through tar+gz parser — no disk writes
+     - Hash and byte count computed inline via PassThrough
+     - Parse via FormatHandler (JSON in memory; binary → temp S3 keys)
+     - Validate via EntityHandler
+     - Persist via EntityHandler (images copied from temp S3 keys to final destination)
+     - Temp S3 keys cleaned up in finally block
+     - Update File record with result
+
+### Async eligibility: the Data Transfer Job pipeline
+
+The sync-vs-async decision is size-based, not format-based: an import/export whose estimated
+size exceeds `ASYNC_TRANSFER_SIZE_THRESHOLD_BYTES` (1MB, see
+`handlers/util/asyncTransferSizeThreshold.ts`) runs off the request via
+**ServiceDataTransferJob** instead of inline:
+
+- **Export**: `EntityHandlerInterface.estimateExportSize()` (optional) gives a cheap estimate:
+  - `SurveyEntityHandler` (`.vsst`) has no response data, so its `collect()` fetch is already
+    cheap (survey + embedded answer-option images + templates/attributes, nothing scaling
+    with response count) — `estimateExportSize` just runs it and sums the actual embedded
+    image sizes.
+  - `SurveyPublicationEntityHandler` (`.vssp`) sums two components per publication: a response
+    count times `ESTIMATED_BYTES_PER_RESPONSE` (an exact response-file figure would cost almost
+    as much as doing the export — it requires walking every response's answers to find embedded
+    files, the same work `VsspExportCollector.collect()` already does), **plus** the actual
+    embedded answer-option image size for that publication's snapshot
+    (`VsspExportCollector.estimateSize()`, reusing the same image-set lookup `collect()` uses),
+    since that's cheap regardless of response volume — bounded by the number of images in the
+    survey, not by responses. With no `publicationId` (used by `SurveyFullEntityHandler` below),
+    it sums this across every publication for the survey.
+  - `SurveyFullEntityHandler` (`.vssa`) sums **two independent sources**, matching
+    `VssaExportCollector.collect()`'s own structure: `SurveyEntityHandler.estimateExportSize()`
+    for the *live* survey's embedded images (`VssaExportCollector.collect()` always starts from
+    `surveyHandler.fetchForExport()`, unconditionally — even a survey with zero publications
+    still bundles its own answer-option images) **plus**
+    `SurveyPublicationEntityHandler.estimateExportSize()` (no `publicationId`) for every
+    publication's own snapshot images and responses. The two aren't deduped against each other;
+    an overestimate only risks queueing something that could have run inline, which is the safe
+    direction to err in. Missing the live-survey component entirely was the cause of a real bug:
+    an unpublished survey (zero publications) with large answer-option images estimated as 0 and
+    ran a multi-megabyte `.vssa` export inline.
+  - `SurveyResponseEntityHandler` (`.json`/`.csv`) has no embedded images, only the
+    response-count component.
+- **Import**: no handler method needed — decided from the real uploaded object's size in S3
+  (`common/getObjectSize()`), since the file is already fully uploaded by the time
+  `processImport()` runs.
+
+- **`DataTransferJob`** (`/package/common/src/model/schema/SchemaDataTransferJob.ts`) is a
+  cross-project queue-pointer row: `direction: 'import' | 'export'`, `status: 'pending' |
+  'processing' | 'completed' | 'failed'`, plus `entityType`/`entityId`/`format`/`options`/
+  `resultFileId` (export) or `sourceFileId` (import). It uses the **default (account)
+  datasource, not project-scoped**: `File` and the survey/publication data itself live in
+  each project's own datasource, which can't be queried across projects in one call, the same
+  reason `RepoEmail` (mail queue) isn't project-scoped either.
+- **Import's detailed status/result is never duplicated onto the job row**: it stays on the
+  existing `File.import.status`/`import.result` fields (see [File Entity Extensions](#file-entity-extensions)
+  below); the job row exists purely so `processQueue()` can find due imports across every
+  project in one query.
+- A seeded `Task` (`task: 'dataTransferJob', action: 'processQueue'`, `concurrency: 1`, every
+  15s) drains due jobs. No `RepoTaskLock` is needed: `concurrency: 1` already prevents
+  overlapping runs, same as the mail queue (see `docs/mail-queue-pacing.md`,
+  `docs/task-manager.md`).
+- `processQueue()` calls `ServiceImportExport.compileExport()`/`.runImport()` directly, never
+  `.export()`/`.processImport()`, which would re-check the size threshold and enqueue the job
+  again.
+- **Worker authorization**: the worker has no live request/JWT. It reconstructs a minimal
+  `aclContext` from the job's own `projectId`/`requestedByUserId` rather than storing a
+  credential: a job row only exists because an authorized (`projectAdmin`) request created
+  it, so that authorization doesn't need re-checking at process time.
+
+**Active-job reuse (export and import)**: `enqueueExport()` looks up still-active
+(pending/processing) jobs for the same `projectId`/`requestedByUserId`/`entityType`/
+`entityId`/`format` (`RepoDataTransferJob.findActiveMatch()`), then filters to an exact
+options match (`optionsEqual()`, a sorted-key JSON comparison). A match is returned as-is
+(`{ jobId, status, alreadyQueued: true }`) instead of creating a duplicate row.
+`enqueueImport()` does the equivalent via `findActiveImportJob()`, but matches on
+**`sourceFileHash`** (the uploaded content's hash) rather than `entityId`, since an import
+job has no entity yet, see below.
+
+**Import content-hash dedup**: the client computes a hash of the file being imported
+(`calculateFileHash` in `useImportFlow`, app side) and sends it as `sourceFileHash`.
+`findActiveImportJob()` returns `null` immediately if no hash was sent (no accidental
+false-positive dedup), otherwise matches an active job with the same hash via
+`RepoDataTransferJob.findActiveImportMatch()`. This is checked in two places: once in
+`generateImportUrl()` (short-circuits before the client even uploads) and again in
+`enqueueImport()` (belt-and-suspenders against the same race `enqueueExport()` tolerates).
+It is a distinct mechanism from the same-`fileId` rejection in
+[Import Data Flow](#import-data-flow) above: content-hash dedup catches two *different*
+uploads of identical bytes, not just a second `processImport()` call against the same
+already-uploaded file.
+
+**Job labels**: both `enqueueExport()`/`enqueueImport()` and `processOne()` build a
+human-readable label via `buildJobLabel()`: the job's own `label` if one was passed,
+otherwise `Export (.vsst)` / `Import (.vssp)` etc. (`${direction === 'export' ? 'Export' :
+'Import'} (.${format})`). This label is shared as-is with the related Notification's
+`title`, so the bell/panel and any job-status API response show the same text.
+
+**Deleting jobs**: `deleteJob()` is the admin-facing manual delete - rejects a job that
+isn't settled (`status` still `pending`/`processing`) and checks the caller owns the job
+(matching `projectId` and `requestedByUserId`). It never touches the job's `resultFileId`
+File, which has its own independent expiry (`ServiceFileTempDownload`). `deleteSettledJob()`
+is the internal counterpart used only by `ServiceNotification.cleanupOld()`: no ACL check,
+and silently no-ops (rather than throwing) on a missing or still-active job, since it's only
+ever called for a job a settled notification already points to.
+
+**Stale-job reaping**: `processQueue()` calls `reapStale()` before draining the pending
+queue on every tick. A job stuck `pending` (queue processor was down) or `processing` (API
+crashed mid-`processOne()`) for longer than `dataTransfer.staleAfterMs` (config, default 15
+minutes) is marked `failed` rather than deleted. Marking it failed (not deleting it) also
+drops it out of the active-job dedup match set (`findActiveMatch()`/
+`findActiveImportMatch()` both filter to `pending`/`processing`), so the next request
+creates a fresh job instead of latching onto a dead one.
+
+See: `/package/api/src/model/service/core/ServiceDataTransferJob.ts`
+
+### Notifications
+
+`DataTransferJob` tracks job state only - it does not surface anything to the user directly.
+**`Notification`** (`/package/common/src/model/schema/SchemaNotification.ts`) is a related,
+generic entity: `enqueueExport()`/`enqueueImport()` create one (`level: 'info'`) via
+`ServiceNotification.create()`, and `processOne()` updates it to `level: 'success'`/`'error'`
+via `ServiceNotification.updateForDataTransferJob()` as the job settles. `Notification.type`
+discriminates the notification's source; each type gets its own nullable FK
+(`dataTransferJobId` today) with its own `belongsToOne` relation on `RepoNotification` - mzen-om
+relations bind to a single repo each, so there is no single polymorphic `relatedEntityId`.
+
+The frontend notification bell/panel (`DataTransferNotificationBell`) polls
+`GET /notification/list`, not the job endpoint - `ServiceNotification.list()` populates the
+`dataTransferJob` relation and resolves the download URL server-side in the same call. Dismissing
+a notification (`ServiceNotification.dismiss()`) never deletes the underlying `DataTransferJob`
+row; that row is deleted as a side effect of `ServiceNotification.cleanupOld()` once its
+notification has been read/dismissed and aged out (a seeded `task: 'notification', action:
+'cleanupOld'` Task) - `DataTransferJob` has no cleanup task of its own.
+
+See: `/package/api/src/model/service/core/ServiceNotification.ts`
+
+### Notification tray (frontend)
+
+`DataTransferNotificationBell` (`/package/app/src/appAdmin/component/DataTransferNotification/`)
+and its hooks are the frontend counterpart to the notification backend above:
+
+- **`useNotifications()`** — the bell/panel's data source: lists the calling admin's
+  notifications via `getNotificationApi().listNotifications()` and polls every 15s
+  (`POLL_INTERVAL_MS`) only while at least one listed notification's
+  `dataTransferJobStatus` is still `pending`/`processing` — otherwise polling stops. It also
+  fires a one-off toast the first time a given notification is observed moving to a settled
+  `level` (`'success'`/`'error'`), independent of the persistent panel record, which never
+  disappears just because a toast was missed.
+- **`useDismissNotification()`** — calls `dismiss()` (`DELETE /notification/:notificationId`)
+  and optimistically removes the row from the TanStack Query cache in `onMutate` (rolling
+  back on failure) so the panel updates instantly rather than waiting for the round trip.
+  Never touches the related `DataTransferJob` row — see
+  [Notifications](#notifications) above for who owns that.
+- **`useMarkNotificationRead()`** — calls `markRead()` for each unread notification visible
+  when the panel opens; the server's `status` field is the source of truth for the unread
+  badge count (supersedes an earlier localStorage-based approach).
+
+On the import side, **`useImportFlow()`**
+(`/package/app/src/appAdmin/component/ImportExport/hook/useImportFlow.ts`) is the shared
+mutation hook behind every survey import entry point (`useImportSurvey`,
+`useImportSurveyFull`, `useImportSurveyPublication`, `useImportSurveyResponse`): it hashes
+the file (`calculateFileHash`), calls `generateImportUrl()` with that hash as
+`sourceFileHash`, short-circuits to `useResolveImportResult()` without uploading at all when
+the response carries `alreadyQueued: true` (see
+[Async eligibility](#async-eligibility-the-data-transfer-job-pipeline) above), otherwise
+uploads to S3 and calls `processImport()`. Each import hook wrapper only supplies its own
+`entityType`/`format`/`buildOptions` and which queries to invalidate on success.
 
 ## File Entity Extensions
 
@@ -226,7 +407,7 @@ File {
   import?: {
     entityType: 'survey' | 'surveyResponse' | 'surveyPublication' | ...
     format: 'vsst' | 'json' | 'vssp' | ...
-    status: 'pending' | 'processing' | 'completed' | 'failed'
+    status: 'pending' | 'queued' | 'processing' | 'completed' | 'failed'
     options: { force: boolean, surveyId?: string }
     result?: {
       success: boolean
@@ -238,6 +419,11 @@ File {
   }
 }
 ```
+
+`queued` (between `pending` and `processing`) means an async-eligible import has been handed
+to `ServiceDataTransferJob` and is waiting for `processQueue()` to pick it up; `pending`
+alone doesn't distinguish "not yet processed" from "already enqueued," which matters for
+rejecting a duplicate `processImport()` call on the same file.
 
 See: `/package/common/src/model/schema/SchemaFile.ts`
 
@@ -270,8 +456,12 @@ See example: `/package/api/src/model/service/core/ImportExport/format/VsstFormat
 ## Implementation Files
 
 - **Orchestration**: `/package/api/src/model/service/core/ServiceImportExport.ts`
+- **Async job queue/worker**: `/package/api/src/model/service/core/ServiceDataTransferJob.ts`,
+  `/package/api/src/model/repo/RepoDataTransferJob.ts`,
+  `/package/common/src/model/schema/SchemaDataTransferJob.ts`
 - **Registries**: `/package/api/src/model/service/core/ImportExport/EntityHandlerRegistry.ts`
 - **Entity Handlers**: `/package/api/src/model/service/core/ImportExport/handlers/`
 - **Format Handlers**: `/package/api/src/model/service/core/ImportExport/format/`
-- **Endpoints**: `/package/api/src/endpoint/import-export.ts`
+- **Endpoints**: `/package/api/src/endpoint/core/import-export.ts`,
+  `/package/api/src/endpoint/core/data-transfer-job.ts`
 - **Schema**: `/package/common/src/model/schema/SchemaFile.ts`

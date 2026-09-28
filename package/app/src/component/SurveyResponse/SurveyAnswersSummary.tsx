@@ -36,6 +36,8 @@ interface SurveyAnswersSummaryProps {
   /** Participant-uploaded files for this response's fileUpload answers -
    * see `FileUploadAnswerSummary`. */
   files?: ResponseFileSummary[]
+  /** See `FileUploadAnswerSummary`'s `onDownload` prop. */
+  onDownloadFile?: (fileId: string) => void
 }
 
 export const SurveyAnswersSummary: React.FC<SurveyAnswersSummaryProps> = ({
@@ -44,6 +46,7 @@ export const SurveyAnswersSummary: React.FC<SurveyAnswersSummaryProps> = ({
   lang,
   isPrint = false,
   files,
+  onDownloadFile,
 }) => {
   const renderAnswer = (question: SurveyQuestion, answerValue: unknown) => {
     if (question.type === 'fileUpload') {
@@ -51,6 +54,7 @@ export const SurveyAnswersSummary: React.FC<SurveyAnswersSummaryProps> = ({
         <FileUploadAnswerSummary
           answerValue={answerValue as { fileIds?: string[] } | null}
           files={files}
+          onDownload={onDownloadFile}
         />
       )
     }

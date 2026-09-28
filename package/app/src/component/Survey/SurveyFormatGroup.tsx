@@ -34,6 +34,7 @@ type Props = {
   onAnswerChange: (questionCode: string, value: unknown) => void
   validationErrors: ValidationErrors
   authToken?: string
+  ensureResponseStarted?: () => Promise<void>
 }
 
 const sectionOf = (item: SurveyRenderItem): SurveySection =>
@@ -54,6 +55,7 @@ export const SurveyFormatGroup: React.FC<Props> = ({
   onAnswerChange,
   validationErrors,
   authToken,
+  ensureResponseStarted,
 }) => {
   const questionOrder = new Map(
     allElements
@@ -117,6 +119,7 @@ export const SurveyFormatGroup: React.FC<Props> = ({
               onAnswerChange={onAnswerChange}
               validationErrors={validationErrors}
               authToken={authToken}
+              ensureResponseStarted={ensureResponseStarted}
             />
           )
         })}

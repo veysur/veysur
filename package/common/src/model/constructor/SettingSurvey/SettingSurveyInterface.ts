@@ -71,11 +71,13 @@ export interface SettingSurveyProperties {
     show: boolean
     link: boolean
     text: L10n
+    url: L10n
   }
   legalNotice: {
     show: boolean
     link: boolean
     text: L10n
+    url: L10n
   }
   schedule: {
     start: Date | null
@@ -137,11 +139,13 @@ export interface SettingSurveyMethods {
   setDataPolicyProperty(key: string, value: unknown): this
   updateDataPolicy(updates: Record<string, unknown>): this
   updateDataPolicyText(text: string, lang?: string): this
+  updateDataPolicyUrl(url: string, lang?: string): this
 
   // Legal Notice methods
   setLegalNoticeProperty(key: string, value: unknown): this
   updateLegalNotice(updates: Record<string, unknown>): this
   updateLegalNoticeText(text: string, lang?: string): this
+  updateLegalNoticeUrl(url: string, lang?: string): this
 
   // Schedule methods
   setScheduleProperty(key: string, value: unknown): this

@@ -35,7 +35,7 @@ describe('PublishButton', () => {
       <PublishButton isPublished hasUnpublishedChanges onClick={jest.fn()} />,
     )
 
-    expect(container.querySelector('.bg-amber-500')).toBeInTheDocument()
+    expect(container.querySelector('.bg-warning')).toBeInTheDocument()
 
     rerender(
       <PublishButton
@@ -45,6 +45,6 @@ describe('PublishButton', () => {
       />,
     )
 
-    expect(container.querySelector('.bg-amber-500')).not.toBeInTheDocument()
+    expect(container.querySelector('.bg-warning')).not.toBeInTheDocument()
   })
 })

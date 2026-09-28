@@ -74,14 +74,22 @@ export const PageSurveyImport: React.FC = () => {
     setImportState({ status: 'uploading' })
 
     try {
-      await importSurvey({
+      const result = await importSurvey({
         file: selectedFile,
         options: { force },
         onProgress: (progress) => {
           setImportState({ status: progress.stage })
         },
       })
-      setImportState({ status: 'complete' })
+      // A queued (async) import already showed its own flash message and
+      // is tracked via the notification bell, not this page - reset back
+      // to idle rather than waiting here for a result that may never come
+      // on this page load.
+      if (result) {
+        setImportState({ status: 'complete' })
+      } else {
+        handleReset()
+      }
     } catch (err) {
       console.error('Import error:', err)
       setImportState({ status: 'error' })
@@ -95,13 +103,17 @@ export const PageSurveyImport: React.FC = () => {
     if (isVss) {
       setImportState({ status: 'uploading' })
       try {
-        await importSurveyFull({
+        const result = await importSurveyFull({
           file: selectedFile,
           onProgress: (progress) => {
             setImportState({ status: progress.stage })
           },
         })
-        setImportState({ status: 'complete' })
+        if (result) {
+          setImportState({ status: 'complete' })
+        } else {
+          handleReset()
+        }
       } catch (err) {
         console.error('Import error:', err)
         setImportState({ status: 'error' })

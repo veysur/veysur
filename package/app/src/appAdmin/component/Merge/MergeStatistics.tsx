@@ -62,10 +62,10 @@ export const MergeStatistics: React.FC<Props> = ({ stats }) => {
       : 0
   const transferRateColor =
     transferRate >= 80
-      ? 'text-green-600'
+      ? 'text-success'
       : transferRate >= 50
-        ? 'text-amber-600'
-        : 'text-red-600'
+        ? 'text-warning'
+        : 'text-destructive'
 
   return (
     <div className="space-y-4">
@@ -106,7 +106,7 @@ export const MergeStatistics: React.FC<Props> = ({ stats }) => {
           label="New Responses Created"
           description="New responses to be copied to target"
           value={stats.responsesCreated}
-          valueClassName="text-green-600"
+          valueClassName="text-success"
         />
 
         {stats.responsesAlreadyMerged > 0 && (
@@ -134,7 +134,7 @@ export const MergeStatistics: React.FC<Props> = ({ stats }) => {
           label="Answers Transferred"
           description="Individual answers successfully copied"
           value={stats.answersTransferred}
-          valueClassName="text-green-600"
+          valueClassName="text-success"
         />
 
         <StatItem
@@ -142,7 +142,7 @@ export const MergeStatistics: React.FC<Props> = ({ stats }) => {
           label="Answers Skipped"
           description="Answers not copied due to incompatibility"
           value={stats.answersSkipped}
-          valueClassName="text-amber-600"
+          valueClassName="text-warning"
         />
       </div>
 

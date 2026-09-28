@@ -99,11 +99,13 @@ export interface SettingSurveyData {
     show: boolean
     link: boolean
     text: PropsOf<L10n>
+    url: PropsOf<L10n>
   }
   legalNotice: {
     show: boolean
     link: boolean
     text: PropsOf<L10n>
+    url: PropsOf<L10n>
   }
   schedule: {
     start: Date | null
@@ -228,19 +230,23 @@ export class SettingSurveyBase {
     show: boolean
     link: boolean
     text: L10n
+    url: L10n
   } = {
     show: false,
     link: false,
     text: new L10n(),
+    url: new L10n(),
   }
   legalNotice: {
     show: boolean
     link: boolean
     text: L10n
+    url: L10n
   } = {
     show: false,
     link: false,
     text: new L10n(),
+    url: new L10n(),
   }
   schedule: {
     start: Date | null
@@ -292,7 +298,7 @@ export class SettingSurveyBase {
     this.data = mergeDefined(this.data, data?.data)
     this.access = mergeDefined(this.access, data?.access)
 
-    // Smart dataPolicy handling: reuse instances or create new ones with proper L10n text
+    // Smart dataPolicy handling: reuse instances or create new ones with proper L10n text/url
     if (data?.dataPolicy) {
       this.dataPolicy = {
         ...this.dataPolicy,
@@ -301,10 +307,14 @@ export class SettingSurveyBase {
           data.dataPolicy.text instanceof L10n
             ? data.dataPolicy.text
             : new L10n(data.dataPolicy.text),
+        url:
+          data.dataPolicy.url instanceof L10n
+            ? data.dataPolicy.url
+            : new L10n(data.dataPolicy.url),
       }
     }
 
-    // Smart legalNotice handling: reuse instances or create new ones with proper L10n text
+    // Smart legalNotice handling: reuse instances or create new ones with proper L10n text/url
     if (data?.legalNotice) {
       this.legalNotice = {
         ...this.legalNotice,
@@ -313,6 +323,10 @@ export class SettingSurveyBase {
           data.legalNotice.text instanceof L10n
             ? data.legalNotice.text
             : new L10n(data.legalNotice.text),
+        url:
+          data.legalNotice.url instanceof L10n
+            ? data.legalNotice.url
+            : new L10n(data.legalNotice.url),
       }
     }
 

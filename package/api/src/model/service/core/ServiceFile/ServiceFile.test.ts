@@ -28,6 +28,22 @@ describe('ServiceFile', () => {
       const map: Record<string, unknown> = { file: mockRepoFile }
       return map[name] ?? {}
     }) as typeof service.getRepo)
+
+    service.config = {
+      model: {
+        app: {
+          s3: {
+            type: 'local',
+            maxUploadSize: 10 * 1024 * 1024,
+            localPath: '/tmp/veysur-test-uploads',
+            publicBaseUrl: 'https://account.veysur.local',
+            publicBucket: 'veysur-files',
+            privateBucket: 'veysur-private',
+            uploadSecret: 'test-secret-at-least-32-characters-long',
+          },
+        },
+      },
+    } as unknown as ServiceFile['config']
   })
 
   describe('getOne', () => {
@@ -173,10 +189,59 @@ describe('ServiceFile', () => {
           context: expect.any(Object),
         }),
       )
-      expect(result.files).toEqual([
-        expect.objectContaining({ _id: 'file_1', url: expect.any(String) }),
-      ])
+      expect(result.files).toEqual(mockFiles)
+      expect(result.files[0]).not.toHaveProperty('url')
       expect(result.pagination.total).toBe(1)
+    })
+  })
+
+  describe('generateDownloadUrl', () => {
+    test('signs against the private bucket for a private file', async () => {
+      mockRepoFile.findOne.mockResolvedValue(
+        new File({
+          _id: 'file_1',
+          filename: 'resume.pdf',
+          filePath: 'proj_123/survey/survey_1/response/resp_1/resume_abc.pdf',
+          bucketType: 'private',
+          uploadedAt: new Date(),
+        }),
+      )
+
+      const result = await service.generateDownloadUrl({
+        fileId: 'file_1',
+        projectId: 'proj_123',
+      })
+
+      expect(result.downloadUrl).toContain('/veysur-private/')
+      expect(result.downloadUrl).toContain('?token=')
+      expect(result.expiresAt).toBeInstanceOf(Date)
+    })
+
+    test('signs against the public bucket for a public file', async () => {
+      mockRepoFile.findOne.mockResolvedValue(
+        new File({
+          _id: 'file_1',
+          filename: 'logo.png',
+          filePath: 'proj_123/logo_abc.png',
+          bucketType: 'public',
+          uploadedAt: new Date(),
+        }),
+      )
+
+      const result = await service.generateDownloadUrl({
+        fileId: 'file_1',
+        projectId: 'proj_123',
+      })
+
+      expect(result.downloadUrl).toContain('/veysur-files/')
+    })
+
+    test('throws when the file is not found', async () => {
+      mockRepoFile.findOne.mockResolvedValue(null)
+
+      await expect(
+        service.generateDownloadUrl({ fileId: 'file_1', projectId: 'proj_123' }),
+      ).rejects.toThrow('File not found')
     })
   })
 

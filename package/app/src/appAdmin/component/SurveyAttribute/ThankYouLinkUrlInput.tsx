@@ -77,7 +77,7 @@ export const ThankYouLinkUrlInput: AttributeConfig['component'] = function (
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleConfirm}
-                className="bg-destructive text-white hover:bg-destructive/90"
+                variant="destructive"
               >
                 Clear
               </AlertDialogAction>

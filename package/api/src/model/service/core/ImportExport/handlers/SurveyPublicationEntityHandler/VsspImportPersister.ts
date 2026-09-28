@@ -165,7 +165,7 @@ export class VsspImportPersister {
         continue
       }
       if (r.existingFileId || !adaptor || !r.manifestEntry) continue
-      const tempKey = parsedData.getBinaryS3Key(r.manifestEntry.zipPath)
+      const tempKey = parsedData.getBinaryS3Key(r.manifestEntry.archiveEntryPath)
       if (!tempKey) continue
       await adaptor.copyObject({
         Bucket: this.storageConfig.publicBucket,
@@ -247,10 +247,14 @@ export class VsspImportPersister {
         fileContext: 'response',
       })
 
-      const tempKey = parsedData.getBinaryS3Key(entry.zipPath)
+      const bucketType = entry.bucketType || 'public'
+      const tempKey = parsedData.getBinaryS3Key(entry.archiveEntryPath)
       if (tempKey) {
         await adaptor.copyObject({
-          Bucket: this.storageConfig.publicBucket,
+          Bucket:
+            bucketType === 'private'
+              ? this.storageConfig.privateBucket
+              : this.storageConfig.publicBucket,
           Key: newFilePath,
           CopySource: `${this.storageConfig.privateBucket}/${tempKey}`,
           ContentType: entry.mimeType,
@@ -271,7 +275,7 @@ export class VsspImportPersister {
           surveyId: resolvedSurveyId,
           responseId: newResponseId,
           fileContext: 'response',
-          bucketType: 'public',
+          bucketType,
         }),
         { context: dsContext },
       )

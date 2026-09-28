@@ -18,7 +18,9 @@ export type ResponseFileManifestEntry = {
   mimeType: string
   hash: string | null
   size: number
-  zipPath: string // 'files/response/${fileId}${ext}'
+  bucket: string // responseFileBucket(responseId) — also groups entries into files/response-manifest-{bucket}.json
+  archiveEntryPath: string // 'files/response/${bucket}/${fileId}${ext}'
+  bucketType?: 'public' | 'private'
 }
 
 export type FileResolution = {

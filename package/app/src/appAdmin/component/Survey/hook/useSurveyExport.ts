@@ -2,9 +2,11 @@ import { useMutation } from '@tanstack/react-query'
 
 import { useProjectDomain } from 'appAdmin/hook'
 import { getImportExportApi } from 'appAdmin/component/ImportExport/registry'
+import { useStartExportDownload } from 'appAdmin/component/ImportExport/hook/useStartExportDownload'
 
 export function useSurveyExport() {
   const project = useProjectDomain()
+  const startExportDownload = useStartExportDownload()
 
   const mutation = useMutation({
     mutationFn: async (surveyId: string) => {
@@ -13,10 +15,8 @@ export function useSurveyExport() {
       }
 
       const api = getImportExportApi()
-      const { downloadUrl } = await api.exportEntity('survey', surveyId, 'vsst')
-
-      // Open presigned URL in blank page to trigger download
-      window.open(downloadUrl, '_blank')
+      const result = await api.exportEntity('survey', surveyId, 'vsst')
+      await startExportDownload(result)
     },
   })
 

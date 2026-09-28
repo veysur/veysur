@@ -538,6 +538,42 @@ describe('SurveyValidation - L10n content validation', () => {
 
       expect(result.errors['questions.q1.text.en']).toBeDefined()
     })
+
+    test('legal notice / data policy text with a link is accepted (forced target/rel is not disallowed markup)', async () => {
+      const survey = new Survey({
+        ...baseSurvey(),
+        contentFormat: { htmlAllowed: true, markdownAllowed: false },
+        legalNotice: {
+          text: {
+            en: 'See our <a href="https://example.com/legal">legal notice</a>.',
+          },
+        },
+        dataPolicy: {
+          text: {
+            en: 'See our <a href="https://example.com/privacy">privacy policy</a>.',
+          },
+        },
+      })
+
+      const result = await validator.validate(survey)
+
+      expect(result.errors['legalNotice.text.en']).toBeUndefined()
+      expect(result.errors['dataPolicy.text.en']).toBeUndefined()
+    })
+
+    test('legal notice text with a disallowed tag is still rejected', async () => {
+      const survey = new Survey({
+        ...baseSurvey(),
+        contentFormat: { htmlAllowed: true, markdownAllowed: false },
+        legalNotice: {
+          text: { en: 'See our <script>alert(1)</script> legal notice.' },
+        },
+      })
+
+      const result = await validator.validate(survey)
+
+      expect(result.errors['legalNotice.text.en']).toBeDefined()
+    })
   })
 
   describe('embedded text-expression validation', () => {

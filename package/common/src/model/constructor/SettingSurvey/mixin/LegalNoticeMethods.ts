@@ -6,6 +6,7 @@ const defaultLegalNotice = {
   show: false,
   link: false,
   text: new L10n(),
+  url: new L10n(),
 }
 
 export function LegalNoticeMethods<
@@ -34,6 +35,11 @@ export function LegalNoticeMethods<
     updateLegalNoticeText(text?: string | null, lang: string = 'en'): this {
       const current = this.legalNotice || defaultLegalNotice
       return this.updateL10nProperty(current, 'legalNotice', 'text', text, lang)
+    }
+
+    updateLegalNoticeUrl(url?: string | null, lang: string = 'en'): this {
+      const current = this.legalNotice || defaultLegalNotice
+      return this.updateL10nProperty(current, 'legalNotice', 'url', url, lang)
     }
   }
 }

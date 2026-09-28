@@ -5,7 +5,7 @@ import { DataSourceContext } from 'mzen-om'
 import { ServerErrorBadRequest, ServerErrorNotFound } from 'mzen-server'
 import { SurveySnapshot, SurveyLanguageSnapshot } from 'veysur-common'
 
-import { createStorageAdaptor, contextForProject } from 'common'
+import { createStorageAdaptor, contextForProject, responseFileBucket } from 'common'
 import {
   RepoSurveyLanguageSnapshot,
   RepoSurveyParticipantAttributeSnapshot,
@@ -166,12 +166,63 @@ export class VsspExportCollector {
     }
   }
 
-  makeBinaryFileStream(entry: { s3Key: string }): () => Promise<Readable> {
+  /**
+   * Estimate the byte size of this publication's embedded answer-option
+   * images (used by estimateExportSize; see asyncTransferSizeThreshold.ts).
+   * Cheap: bounded by the number of images in the survey, not by response
+   * count. Deliberately excludes response-embedded (fileUpload) files,
+   * whose size scales with response volume and would require the same
+   * per-response batch walk collect() does — estimated separately via a
+   * response-count heuristic instead.
+   */
+  async estimateSize(
+    context: EntityExportContext,
+    options?: ExportOptions,
+  ): Promise<number> {
+    if (!options?.publicationId) return 0
+    const dsContext = contextForProject(context.projectId)
+
+    const publication = await this.repoSurveyPublication.findOne(
+      { _id: options.publicationId },
+      { context: dsContext },
+    )
+    if (!publication) return 0
+
+    const snapshotData = await this.repoSurveySnapshot.findOne(
+      { snapshotId: publication.snapshotId },
+      { context: dsContext },
+    )
+    if (!snapshotData?.survey) return 0
+
+    const surveyLanguageSnapshots = this.repoSurveyLanguageSnapshot
+      ? await this.repoSurveyLanguageSnapshot.find(
+          { snapshotId: publication.snapshotId },
+          { context: dsContext },
+        )
+      : []
+
+    const embeddedFileEntries = await this.collectAnswerOptionFileEntries(
+      snapshotData,
+      surveyLanguageSnapshots,
+      dsContext,
+    )
+
+    return embeddedFileEntries.reduce((sum, entry) => sum + (entry.size ?? 0), 0)
+  }
+
+  makeBinaryFileStream(entry: {
+    s3Key: string
+    bucketType?: 'public' | 'private'
+  }): () => Promise<Readable> {
     return async () => {
       const adaptor = createStorageAdaptor(this.storageConfig)
+      const bucket =
+        entry.bucketType === 'private'
+          ? this.storageConfig.privateBucket
+          : this.storageConfig.publicBucket
       try {
         const result = await adaptor.getObject({
-          Bucket: this.storageConfig.publicBucket,
+          Bucket: bucket,
           Key: entry.s3Key,
         })
         return result.Body as Readable
@@ -217,7 +268,7 @@ export class VsspExportCollector {
           mimeType: variant.mimeType,
           hash: variant.hash,
           size: variant.size,
-          zipPath: `files/${record.imageSetId}/${variant.imageVariant}.jpg`,
+          archiveEntryPath: `files/${record.imageSetId}/${variant.imageVariant}.jpg`,
           answerOptionId: undefined,
           fileContext: variant.fileContext ?? 'survey',
           imageSetId: record.imageSetId,
@@ -249,7 +300,7 @@ export class VsspExportCollector {
         { _id: fileId, deletedAt: null },
         { context: dsContext },
       )
-      if (!file) continue
+      if (!file || !file.responseId) continue
 
       totalSize += file.size ?? 0
       if (totalSize > MAX_RESPONSE_EXPORT_TOTAL_SIZE) {
@@ -259,6 +310,7 @@ export class VsspExportCollector {
       }
 
       const ext = extname(file.filename) || ''
+      const bucket = responseFileBucket(file.responseId)
       entries.push({
         fileId: file._id,
         filename: file.filename,
@@ -266,7 +318,9 @@ export class VsspExportCollector {
         mimeType: file.mimeType,
         hash: file.hash,
         size: file.size,
-        zipPath: `files/response/${file._id}${ext}`,
+        bucket,
+        archiveEntryPath: `files/response/${bucket}/${file._id}${ext}`,
+        bucketType: file.bucketType || 'public',
       })
     }
 

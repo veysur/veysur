@@ -44,6 +44,8 @@ type Props = {
   /** Participant JWT, forwarded to `QuestionTypeFileUpload` for its upload
    * calls - undefined in admin preview, where no real upload is possible. */
   authToken?: string
+  /** Forwarded to `QuestionTypeFileUpload` - see `QuestionTypeProps`. */
+  ensureResponseStarted?: () => Promise<void>
 }
 
 export const SurveyQuestionRenderer: React.FC<Props> = ({
@@ -60,6 +62,7 @@ export const SurveyQuestionRenderer: React.FC<Props> = ({
   onAnswerChange,
   validationErrors,
   authToken,
+  ensureResponseStarted,
 }) => {
   // Stable, pre-registered component reference from a module-level
   // registry keyed by question type - not created during render.
@@ -149,6 +152,7 @@ export const SurveyQuestionRenderer: React.FC<Props> = ({
               }
               expressionContext={expressionContext}
               authToken={authToken}
+              ensureResponseStarted={ensureResponseStarted}
             />
           </Suspense>
         </div>

@@ -16,8 +16,8 @@ Files are stored in one of two S3 buckets based on their access requirements:
 
 | Bucket Type | Bucket Name | Usage | Current Status |
 |-------------|-------------|-------|----------------|
-| **Public** | `veysur-files` | General file uploads (surveys, responses, projects) | Active - all files currently use this |
-| **Private** | `veysur-private` | Sensitive operations requiring controlled access | Infrastructure ready - planned for import/export |
+| **Public** | `veysur-files` | General file uploads (project/survey attachments, image sets) | Active |
+| **Private** | `veysur-private` | Sensitive operations requiring controlled access | Active - import/export, and `fileUpload`-question participant answers (`fileContext: 'response'`) |
 
 Each file record includes a `bucketType` field (`public` or `private`) that determines which bucket stores the file and how URLs are constructed.
 
@@ -106,19 +106,19 @@ File URLs include the bucket name as a path prefix:
 https://{host}/{bucket-name}/{s3-path}
 ```
 
-**Public Bucket Examples** (current - all files):
+**Public Bucket Examples**:
 - Project file: `https://project-1.veysur.local/veysur-files/project-33JLwlFkwL/logo_abc123.png`
 - Survey file: `https://account.veysur.local/veysur-files/project-33JLwlFkwL/survey/survey_x/doc_def456.pdf`
-- Temp file: `https://account.veysur.local/veysur-files/project-33JLwlFkwL/temp/export_jkl012.json`
 
-**Private Bucket Examples** (planned - import/export):
+**Private Bucket Examples**:
 - Import file: `https://account.veysur.local/veysur-private/project-33JLwlFkwL/import/data_abc123.csv`
 - Export file: `https://account.veysur.local/veysur-private/project-33JLwlFkwL/temp/export_def456.json`
+- Response file (`fileUpload` question answer): `https://account.veysur.local/veysur-private/project-33JLwlFkwL/survey/survey_x/response/response_1/resume_ghi789.pdf`
 
 **How It Works**:
-- Nginx proxies `veysur-files/*` and `veysur-private/*` paths to API storage middleware
-- File entity's `bucketType` field determines which bucket prefix to use
-- Presigned URLs use same domain as API request (no CORS issues)
+- Nginx proxies `veysur-files/*` unsigned - anyone with the URL can read it, so only non-sensitive files belong there.
+- `veysur-private/*` objects are only ever reachable via a presigned URL (`ServiceFile.generateDownloadUrl`, `ServiceFileTempDownload`) - there is no static/direct URL an admin UI can link to for a private-bucket file. Callers fetch a short-lived presigned URL on demand (e.g. on a download button click), not once per render.
+- File entity's `bucketType` field determines which bucket a presigned URL is signed against.
 
 ## Implementation
 

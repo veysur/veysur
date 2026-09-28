@@ -122,6 +122,16 @@ GET /api/file/survey/:surveyId
 GET /api/file/survey/:surveyId/response/:responseId
 ```
 
+### Download a File
+
+```typescript
+// Generate a short-lived presigned download URL (5 min) - call this on the
+// user's download click, not once per rendered link. Works for either
+// bucketType.
+GET /api/file/:fileId/download-url
+// → { downloadUrl: string, expiresAt: string }
+```
+
 ### Delete Files
 
 ```typescript

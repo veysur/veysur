@@ -2,13 +2,27 @@
    Import after @import 'tailwindcss' and after veysur-theme/tokens.css.
    Package-specific base rules (page chrome, rich-text content, etc.) stay in
    the consuming package's own stylesheet. */
+
+/* Self-hosted per this package's design-system direction: a clean
+   SaaS-neutral geometric sans, not Inter. Each consuming package keeps its
+   own copy of the font file under its own public/fonts/ (same convention as
+   the logo SVGs) since /fonts/... resolves against that site's own origin —
+   see design-system/plan.md. SIL OFL 1.1, Vercel + basement.studio. */
+@font-face {
+  font-family: 'Geist';
+  src: url('/fonts/Geist-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   * {
     box-sizing: border-box;
     border-color: var(--border);
   }
   html {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Geist', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }

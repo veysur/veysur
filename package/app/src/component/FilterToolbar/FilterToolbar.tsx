@@ -120,7 +120,7 @@ export const FilterToolbar: React.FC<FilterToolbarProps> = ({
           <ChevronDown className="ml-1 h-4 w-4" />
           {hasActiveFilters && (
             <span
-              className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500"
+              className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-primary"
               aria-label="Filters active"
             />
           )}

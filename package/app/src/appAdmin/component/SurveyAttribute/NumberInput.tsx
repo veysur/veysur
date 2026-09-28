@@ -27,7 +27,7 @@ export const NumberInput: AttributeConfig['component'] = function ({
         placeholder=""
         onChange={handleChange}
         value={value}
-        className={!isValid ? 'border-red-500' : ''}
+        className={!isValid ? 'border-destructive' : ''}
       />
       {!isValid && attributeErrors && (
         <FieldError className="mt-1">{attributeErrors}</FieldError>

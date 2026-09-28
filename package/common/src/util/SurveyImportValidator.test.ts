@@ -410,4 +410,26 @@ describe('SurveyImportValidator', () => {
       expect(reservedErrors).toHaveLength(3)
     })
   })
+
+  describe('validateElementTypes', () => {
+    test('fileUpload question type is accepted', async () => {
+      const validator = new SurveyImportValidator()
+      const data = createImportData({
+        elements: [
+          {
+            _id: 'q-1',
+            surveyId: 'survey-1',
+            sectionId: 'section-1',
+            code: 'Q001',
+            type: 'fileUpload',
+            answerOptions: [],
+            subquestions: [],
+          },
+        ],
+      })
+      const result = await validator.validate(data)
+      const typeErrors = result.errors.filter((e) => e.type === 'elementType')
+      expect(typeErrors).toHaveLength(0)
+    })
+  })
 })

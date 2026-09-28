@@ -34,6 +34,7 @@ type Props = {
   onAnswerChange: (questionCode: string, value: unknown) => void
   validationErrors: ValidationErrors
   authToken?: string
+  ensureResponseStarted?: () => Promise<void>
 }
 
 const sectionOf = (item: SurveyRenderItem): SurveySection =>
@@ -53,6 +54,7 @@ export const SurveyFormatAll: React.FC<Props> = ({
   onAnswerChange,
   validationErrors,
   authToken,
+  ensureResponseStarted,
 }) => {
   // Global question number = position among questions only (content elements
   // never consume a number).
@@ -116,6 +118,7 @@ export const SurveyFormatAll: React.FC<Props> = ({
                     onAnswerChange={onAnswerChange}
                     validationErrors={validationErrors}
                     authToken={authToken}
+                    ensureResponseStarted={ensureResponseStarted}
                   />
                 )
               })}

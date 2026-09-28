@@ -29,19 +29,15 @@ export function NavbarBrand({
   children,
   right,
 }: NavbarBrandProps) {
+  // The header background is permanently ink-dark in both light and dark
+  // mode, so the logo always renders the light-wordmark (-dark.svg) variant
+  // here, unlike surfaces that follow the page's colour scheme.
   const logoImages = (
-    <>
-      <img
-        src="/image/veysur-logo-light.svg"
-        alt="VeySur"
-        className="h-12 -translate-y-2 w-auto dark:hidden"
-      />
-      <img
-        src="/image/veysur-logo-dark.svg"
-        alt="VeySur"
-        className="h-12 -translate-y-2 w-auto hidden dark:block"
-      />
-    </>
+    <img
+      src="/image/veysur-logo-dark.svg"
+      alt="VeySur"
+      className="h-12 -translate-y-2 w-auto"
+    />
   )
 
   return (
@@ -59,14 +55,14 @@ export function NavbarBrand({
           </BrandLink>
           {title &&
             (typeof title === 'string' ? (
-              <span className="text-lg font-large text-foreground/80 hidden sm:inline">
+              <span className="text-lg font-large text-header-foreground/80 hidden sm:inline">
                 <span className="ml-3 mr-3">|</span>
                 <BrandLink href={href} linkPath={linkPath} aria-label={title}>
                   {title}
                 </BrandLink>
               </span>
             ) : (
-              <div className="hidden sm:flex items-center text-foreground/80 gap-1.5">
+              <div className="hidden sm:flex items-center text-header-foreground/80 gap-1.5">
                 <span>|</span>
                 {title}
               </div>

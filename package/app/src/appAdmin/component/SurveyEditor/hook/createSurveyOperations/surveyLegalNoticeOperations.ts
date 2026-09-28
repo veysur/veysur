@@ -8,11 +8,13 @@ import { OperationDependencies } from './type'
 import { SURVEY_ENTITY_TYPE_SURVEY } from '../../constant'
 
 const l10nHtmlSchema = schemaManager.getSchema('l10nHtml')
+const l10nUrlSchema = schemaManager.getSchema('l10nUrl')
 
 type LegalNotice = {
   show: boolean
   link: boolean
   text: L10n
+  url: L10n
 }
 
 export const createSurveyLegalNoticeOperations = ({
@@ -72,6 +74,31 @@ export const createSurveyLegalNoticeOperations = ({
           entityType: 'survey',
           entityId: s._id,
           field: `legalNotice.text.${lang}`,
+        },
+      })
+      return s
+    })
+  },
+
+  updateSurveyLegalNoticeUrl: (url?: string | null, lang: string = 'en') => {
+    updateSurveyState((s) => {
+      s = s.updateLegalNoticeUrl(url, lang)
+      validateAndBuffer({
+        patches: [
+          {
+            type: SURVEY_ENTITY_TYPE_SURVEY,
+            action: BUFFERED_PATCH_ACTION_UPDATE,
+            id: s._id,
+            data: { legalNotice: s.legalNotice },
+          },
+        ],
+        validation: {
+          schema: l10nUrlSchema,
+          path: lang,
+          value: url ?? '',
+          entityType: 'survey',
+          entityId: s._id,
+          field: `legalNotice.url.${lang}`,
         },
       })
       return s

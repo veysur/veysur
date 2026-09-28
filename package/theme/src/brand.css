@@ -9,4 +9,16 @@
   --brand-c: 0.11754;
   --brand-hue: 137.924;
   --brand-primary: oklch(var(--brand-l) var(--brand-c) var(--brand-hue));
+
+  /* Ink neutral-accent primitives — the design system's deliberate "second
+     colour": a near-black / near-white neutral (not the brand hue) used for
+     high-contrast buttons, active states and chart series, so green isn't the
+     only thing that reads as accented. Warm-tinted to match the neutral ramp
+     in tokens.css, never true grey. Consumed via --ink/--ink-foreground in
+     tokens.css, which swaps dark<->light per colour scheme. */
+  --ink-hue: 88;
+  --ink-dark: oklch(0.19 0.012 var(--ink-hue));
+  --ink-dark-foreground: oklch(0.97 0.004 var(--ink-hue));
+  --ink-light: oklch(0.96 0.006 var(--ink-hue));
+  --ink-light-foreground: oklch(0.15 0.01 var(--ink-hue));
 }

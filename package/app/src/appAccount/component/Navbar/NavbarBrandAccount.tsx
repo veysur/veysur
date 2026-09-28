@@ -67,7 +67,7 @@ export const NavbarBrandAccount: React.FC<NavbarBrandAccountProps> = (
           key={path}
           variant="link"
           tooltip={tooltip}
-          className="text-foreground/70 hover:text-primary dark:text-foreground/80 dark:hover:text-primary gap-1.5"
+          className="text-header-foreground/70 hover:text-primary gap-1.5"
           asChild
         >
           <AuthLink
@@ -85,7 +85,7 @@ export const NavbarBrandAccount: React.FC<NavbarBrandAccountProps> = (
         <Button
           variant="link"
           tooltip="Team"
-          className="text-foreground/70 hover:text-primary dark:text-foreground/80 dark:hover:text-primary gap-1.5"
+          className="text-header-foreground/70 hover:text-primary gap-1.5"
           asChild
         >
           <AuthLink
@@ -103,7 +103,7 @@ export const NavbarBrandAccount: React.FC<NavbarBrandAccountProps> = (
           <DropdownMenuTrigger tooltip="Settings" asChild>
             <Button
               variant="link"
-              className="text-foreground/70 hover:text-primary dark:text-foreground/80 dark:hover:text-primary gap-1.5"
+              className="text-header-foreground/70 hover:text-primary gap-1.5"
             >
               <Settings className="h-4 w-4 shrink-0" />
               <span className="hidden lg:inline">Settings</span>
@@ -148,7 +148,11 @@ export const NavbarBrandAccount: React.FC<NavbarBrandAccountProps> = (
     <DropdownMenu>
       <DropdownMenuTrigger tooltip="My Account" asChild>
         <Avatar className="h-8 w-8 cursor-pointer">
-          <AvatarFallback>K</AvatarFallback>
+          {/* AvatarFallback's default bg-muted/inherited-text pairing assumes
+              a page-mode surface; override for the permanently-dark header. */}
+          <AvatarFallback className="bg-header-foreground/15 text-header-foreground">
+            K
+          </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
@@ -185,7 +189,7 @@ export const NavbarBrandAccount: React.FC<NavbarBrandAccountProps> = (
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-amber-500 hover:text-amber-600"
+              className="h-8 w-8 text-warning hover:text-warning/80"
               onClick={() =>
                 navigate(
                   `/verify-email?${new URLSearchParams({ email: auth.user.email }).toString()}`,

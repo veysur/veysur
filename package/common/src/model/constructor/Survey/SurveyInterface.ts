@@ -99,11 +99,13 @@ export interface SurveyInterface
     show?: boolean | null
     link?: boolean | null
     text?: L10n | null
+    url?: L10n | null
   }
   legalNotice?: {
     show?: boolean | null
     link?: boolean | null
     text?: L10n | null
+    url?: L10n | null
   }
   schedule?: {
     start?: Date | null
@@ -185,11 +187,13 @@ export interface SurveyInterface
     show: boolean
     link: boolean
     text: L10n
+    url: L10n
   }
   getLegalNotice(defaults: SettingSurvey): {
     show: boolean
     link: boolean
     text: L10n
+    url: L10n
   }
   getSchedule(defaults: SettingSurvey): {
     start: Date

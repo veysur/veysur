@@ -1,5 +1,10 @@
 import React, { useState, useCallback, useEffect } from 'react'
-import { uploadFile, UploadResult, formatFileSize } from 'common/uploadFile'
+import {
+  uploadFile,
+  UploadResult,
+  formatFileSize,
+  formatAllowedFileTypesMessage,
+} from 'common/uploadFile'
 import { formatDate } from 'common'
 import { useDisplayTimezone } from 'appAdmin/hook'
 import { RestClient } from 'common/RestClient'
@@ -90,7 +95,7 @@ export const SurveyFileManager: React.FC<SurveyFileManagerProps> = ({
     // Validate file type
     if (allowedTypes && !allowedTypes.includes(selectedFile.type)) {
       toast.error(
-        `File type ${selectedFile.type} not allowed. Allowed: ${allowedTypes.join(', ')}`,
+        `File type not allowed. ${formatAllowedFileTypesMessage(allowedTypes)}`,
       )
       return
     }
@@ -193,7 +198,7 @@ export const SurveyFileManager: React.FC<SurveyFileManagerProps> = ({
             {allowedTypes && (
               <>
                 <br />
-                Allowed types: {allowedTypes.join(', ')}
+                {formatAllowedFileTypesMessage(allowedTypes)}
               </>
             )}
           </p>

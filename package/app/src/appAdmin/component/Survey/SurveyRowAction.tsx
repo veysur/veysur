@@ -30,7 +30,10 @@ export const SurveyRowAction: React.FC<Props> = ({ survey }) => {
     try {
       await exportSurvey(survey._id)
     } catch (error) {
-      console.error('Export failed:', error)
+      showFlashMessage(
+        'error',
+        error instanceof Error ? error.message : 'Export failed',
+      )
     }
   }
 
@@ -38,7 +41,10 @@ export const SurveyRowAction: React.FC<Props> = ({ survey }) => {
     try {
       await exportSurveyFull(survey._id)
     } catch (error) {
-      console.error('Full export failed:', error)
+      showFlashMessage(
+        'error',
+        error instanceof Error ? error.message : 'Export failed',
+      )
     }
   }
 

@@ -9,7 +9,7 @@ const appDomain = process.env.PUBLIC_APP_DOMAIN || 'veysur.com'
 const contactUrl = `${window.location.protocol}//www.${appDomain}/contact`
 
 export const footerNavClass =
-  'h-auto p-0 hover:text-foreground hover:bg-transparent'
+  'h-auto p-0 hover:text-footer-foreground hover:bg-transparent'
 
 interface AppFooterProps {
   extraNavItems?: React.ReactNode
@@ -52,21 +52,18 @@ export const AppFooter: React.FC<AppFooterProps> = ({
               isNavbarLogoVisible ? 'opacity-0' : 'opacity-100'
             }`}
           >
-            <img
-              src="/image/veysur-logo-light.svg"
-              alt="VeySur"
-              className="h-12 w-auto dark:hidden"
-            />
+            {/* bg-footer is permanently ink-dark in both modes, so this
+                always renders the light-wordmark (-dark.svg) variant. */}
             <img
               src="/image/veysur-logo-dark.svg"
               alt="VeySur"
-              className="h-12 w-auto hidden dark:block"
+              className="h-12 w-auto"
             />
-            <span className="text-muted-foreground text-sm">
+            <span className="text-footer-foreground/70 text-sm">
               Plan Promote Progress
             </span>
           </div>
-          <nav className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
+          <nav className="flex flex-wrap justify-center gap-6 text-sm text-footer-foreground/70">
             {!hideContactLink && (
               <Button
                 variant="ghost"
@@ -86,7 +83,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
         </div>
         <div className="mt-6 flex items-center justify-between">
           <CookieSettingsButton />
-          <p className="text-xs text-muted-foreground/60">
+          <p className="text-xs text-footer-foreground/60">
             &copy; {year} VeySur. All rights reserved.
           </p>
         </div>

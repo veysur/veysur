@@ -12,6 +12,7 @@ describe('SettingSurvey Legal Notice Methods', () => {
         show: false,
         link: false,
         text: new L10n({ en: 'Legal notice text' }),
+        url: new L10n(),
       },
     })
   })
@@ -203,6 +204,71 @@ describe('SettingSurvey Legal Notice Methods', () => {
     })
   })
 
+  describe('updateLegalNoticeUrl', () => {
+    test('updates legal notice url for default language', () => {
+      const updatedSettingSurvey = surveySetting.updateLegalNoticeUrl(
+        'https://example.com/legal-notice',
+      )
+
+      expect(updatedSettingSurvey).not.toBe(surveySetting)
+      expect(updatedSettingSurvey.legalNotice.url.en).toBe(
+        'https://example.com/legal-notice',
+      )
+      expect(surveySetting.legalNotice.url.en).toBeFalsy()
+    })
+
+    test('updates legal notice url for specific language', () => {
+      const updatedSettingSurvey = surveySetting.updateLegalNoticeUrl(
+        'https://example.com/fr/legal-notice',
+        'fr',
+      )
+
+      expect(updatedSettingSurvey).not.toBe(surveySetting)
+      expect(updatedSettingSurvey.legalNotice.url.fr).toBe(
+        'https://example.com/fr/legal-notice',
+      )
+    })
+
+    test('returns same instance if setting to current value', () => {
+      const withUrl = surveySetting.updateLegalNoticeUrl(
+        'https://example.com/legal-notice',
+      )
+      const updatedSettingSurvey = withUrl.updateLegalNoticeUrl(
+        'https://example.com/legal-notice',
+      )
+
+      expect(updatedSettingSurvey).toBe(withUrl)
+    })
+
+    test('preserves other legal notice properties', () => {
+      const updatedSettingSurvey = surveySetting.updateLegalNoticeUrl(
+        'https://example.com/legal-notice',
+      )
+
+      expect(updatedSettingSurvey.legalNotice.show).toBe(false)
+      expect(updatedSettingSurvey.legalNotice.link).toBe(false)
+      expect(updatedSettingSurvey.legalNotice.text.en).toBe('Legal notice text')
+    })
+
+    test('preserves other languages in url', () => {
+      const multiLangSettingSurvey = surveySetting.updateLegalNoticeUrl(
+        'https://example.com/fr/legal-notice',
+        'fr',
+      )
+      const updatedSettingSurvey = multiLangSettingSurvey.updateLegalNoticeUrl(
+        'https://example.com/en/legal-notice',
+        'en',
+      )
+
+      expect(updatedSettingSurvey.legalNotice.url.en).toBe(
+        'https://example.com/en/legal-notice',
+      )
+      expect(updatedSettingSurvey.legalNotice.url.fr).toBe(
+        'https://example.com/fr/legal-notice',
+      )
+    })
+  })
+
   describe('method chaining', () => {
     test('methods can be chained together', () => {
       const updatedSettingSurvey = surveySetting
@@ -249,6 +315,7 @@ describe('SettingSurvey Legal Notice Methods', () => {
             en: 'Plain object legal text',
             fr: 'Texte légal objet simple',
           },
+          url: new L10n(),
         },
       })
 
@@ -269,6 +336,7 @@ describe('SettingSurvey Legal Notice Methods', () => {
           show: true,
           link: false,
           text: existingText,
+          url: new L10n(),
         },
       })
 
@@ -276,6 +344,38 @@ describe('SettingSurvey Legal Notice Methods', () => {
       expect(surveySettingWithL10nText.legalNotice.text.en).toBe(
         'Existing L10n legal text',
       )
+    })
+
+    test('constructor properly converts plain object url to L10n', () => {
+      const surveySettingWithPlainUrl = new SettingSurvey({
+        _id: '1',
+        legalNotice: {
+          show: true,
+          link: true,
+          text: new L10n(),
+          url: { en: 'https://example.com/legal-notice' },
+        },
+      })
+
+      expect(surveySettingWithPlainUrl.legalNotice.url).toBeInstanceOf(L10n)
+      expect(surveySettingWithPlainUrl.legalNotice.url.en).toBe(
+        'https://example.com/legal-notice',
+      )
+    })
+
+    test('constructor reuses existing L10n instances for url', () => {
+      const existingUrl = new L10n({ en: 'https://example.com/legal-notice' })
+      const surveySettingWithL10nUrl = new SettingSurvey({
+        _id: '1',
+        legalNotice: {
+          show: true,
+          link: true,
+          text: new L10n(),
+          url: existingUrl,
+        },
+      })
+
+      expect(surveySettingWithL10nUrl.legalNotice.url).toBe(existingUrl)
     })
 
     test('can modify schema defaults', () => {

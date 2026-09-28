@@ -181,6 +181,118 @@ describe('SurveyWelcome Component', () => {
     ).toBeInTheDocument()
   })
 
+  test('renders a link instead of inline text when link is true and a url resolves', () => {
+    const survey = createMockSurvey({
+      show: true,
+      link: true,
+      text: { getLang: jest.fn(() => 'Data policy content') },
+      url: { getLang: jest.fn(() => 'https://example.com/privacy-policy') },
+    })
+    const presentation = createMockPresentation()
+
+    renderWithI18n(
+      <SurveyWelcome
+        survey={survey}
+        presentation={presentation}
+        contentFormat={contentFormat}
+        lang="eng"
+        langDefault="eng"
+        onContinue={mockOnContinue}
+        countdown={0}
+      />,
+    )
+
+    const link = screen.getByRole('link', { name: 'Data Policy' })
+    expect(link).toHaveAttribute('href', 'https://example.com/privacy-policy')
+    expect(screen.queryByText('Data policy content')).not.toBeInTheDocument()
+    expect(
+      screen.getByText('I have read and agree to the Data Policy'),
+    ).toBeInTheDocument()
+  })
+
+  test('falls back to inline text when link is true but no url resolves', () => {
+    const survey = createMockSurvey({
+      show: true,
+      link: true,
+      text: { getLang: jest.fn(() => 'Data policy content') },
+      url: { getLang: jest.fn(() => '') },
+    })
+    const presentation = createMockPresentation()
+
+    renderWithI18n(
+      <SurveyWelcome
+        survey={survey}
+        presentation={presentation}
+        contentFormat={contentFormat}
+        lang="eng"
+        langDefault="eng"
+        onContinue={mockOnContinue}
+        countdown={0}
+      />,
+    )
+
+    expect(screen.getByText('Data policy content')).toBeInTheDocument()
+    expect(
+      screen.queryByRole('link', { name: 'Data Policy' }),
+    ).not.toBeInTheDocument()
+  })
+
+  test('renders inline text as before when link is false', () => {
+    const survey = createMockSurvey({
+      show: true,
+      link: false,
+      text: { getLang: jest.fn(() => 'Data policy content') },
+      url: { getLang: jest.fn(() => 'https://example.com/privacy-policy') },
+    })
+    const presentation = createMockPresentation()
+
+    renderWithI18n(
+      <SurveyWelcome
+        survey={survey}
+        presentation={presentation}
+        contentFormat={contentFormat}
+        lang="eng"
+        langDefault="eng"
+        onContinue={mockOnContinue}
+        countdown={0}
+      />,
+    )
+
+    expect(screen.getByText('Data policy content')).toBeInTheDocument()
+    expect(
+      screen.queryByRole('link', { name: 'Data Policy' }),
+    ).not.toBeInTheDocument()
+  })
+
+  test('renders legal notice link instead of inline text when link is true and a url resolves', () => {
+    const survey = createMockSurvey(
+      {},
+      {
+        show: true,
+        link: true,
+        text: { getLang: jest.fn(() => 'Legal notice content') },
+        url: { getLang: jest.fn(() => 'https://example.com/legal-notice') },
+      },
+    )
+    const presentation = createMockPresentation()
+
+    renderWithI18n(
+      <SurveyWelcome
+        survey={survey}
+        presentation={presentation}
+        contentFormat={contentFormat}
+        lang="eng"
+        langDefault="eng"
+        onContinue={mockOnContinue}
+        countdown={0}
+      />,
+    )
+
+    const link = screen.getByRole('link', { name: 'Legal Notice' })
+    expect(link).toHaveAttribute('href', 'https://example.com/legal-notice')
+    expect(screen.queryByText('Legal notice content')).not.toBeInTheDocument()
+  })
+
   test('calls onContinue when continue button is clicked and conditions are met', () => {
     const survey = createMockSurvey()
     const presentation = createMockPresentation({ welcomeMessage: true })

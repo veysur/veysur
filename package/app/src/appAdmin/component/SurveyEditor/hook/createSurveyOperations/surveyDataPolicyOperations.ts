@@ -8,11 +8,13 @@ import { OperationDependencies } from './type'
 import { SURVEY_ENTITY_TYPE_SURVEY } from '../../constant'
 
 const l10nHtmlSchema = schemaManager.getSchema('l10nHtml')
+const l10nUrlSchema = schemaManager.getSchema('l10nUrl')
 
 type DataPolicy = {
   show: boolean
   link: boolean
   text: L10n
+  url: L10n
 }
 
 export const createSurveyDataPolicyOperations = ({
@@ -72,6 +74,31 @@ export const createSurveyDataPolicyOperations = ({
           entityType: 'survey',
           entityId: s._id,
           field: `dataPolicy.text.${lang}`,
+        },
+      })
+      return s
+    })
+  },
+
+  updateSurveyDataPolicyUrl: (url?: string | null, lang: string = 'en') => {
+    updateSurveyState((s) => {
+      s = s.updateDataPolicyUrl(url, lang)
+      validateAndBuffer({
+        patches: [
+          {
+            type: SURVEY_ENTITY_TYPE_SURVEY,
+            action: BUFFERED_PATCH_ACTION_UPDATE,
+            id: s._id,
+            data: { dataPolicy: s.dataPolicy },
+          },
+        ],
+        validation: {
+          schema: l10nUrlSchema,
+          path: lang,
+          value: url ?? '',
+          entityType: 'survey',
+          entityId: s._id,
+          field: `dataPolicy.url.${lang}`,
         },
       })
       return s

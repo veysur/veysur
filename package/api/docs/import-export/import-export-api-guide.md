@@ -10,14 +10,37 @@ Headers:
   X-Project-Id: <projectId>
   Authorization: Bearer <token>
 
-Response:
+Response (sync: .vsst, .json, .csv):
 {
   "fileId": "file_abc123",
   "downloadUrl": "https://s3.../...",
   "filename": "survey-name-2025-01-15.vsst",
   "expiresAt": "2025-01-15T12:00:00Z"
 }
+
+Response (async: .vssp, .vssa; can bundle bulky embedded files):
+{
+  "async": true,
+  "jobId": "job_abc123",
+  "status": "pending"
+}
+
+Response (async, matches an already-active job for the same entity/format/options):
+{
+  "async": true,
+  "jobId": "job_abc123",
+  "status": "pending",
+  "alreadyQueued": true
+}
 ```
+
+`alreadyQueued: true` means no new job was created - the request matched an existing
+pending/processing job for the same `projectId`/user/`entityId`/`format`/`options`, and the
+returned `jobId` is that existing job. Poll it exactly as you would a freshly created one.
+
+Poll `GET /api/data-transfer-job/status/:jobId` until `status: "completed"` returns
+`{ jobId, status, resultFileId, downloadUrl, filename, expiresAt }`. See
+[import-export-system.md#async-eligibility-the-data-transfer-job-pipeline](import-export-system.md#async-eligibility-the-data-transfer-job-pipeline).
 
 **Parameters**:
 - `entityType`: `'survey' | 'surveyResponse' | 'surveyPublication' | 'surveyFull'`
@@ -71,13 +94,20 @@ Headers:
   X-Project-Id: <projectId>
   Authorization: Bearer <token>
 
-Response (success):
+Response (sync success: .vsst, .json, .csv):
 {
   "success": true,
   "entityId": "survey_xyz",
   "entityType": "survey",
   "hasIdTranslations": true,
   "repairs": [...]
+}
+
+Response (async: .vssp, .vssa; can bundle bulky embedded files):
+{
+  "async": true,
+  "jobId": "job_abc123",
+  "status": "pending"
 }
 
 Response (validation error):
@@ -88,6 +118,47 @@ Response (validation error):
   "hint": "Use force=true to attempt automatic repair"
 }
 ```
+
+For an async response, poll `GET /api/import-export/import/status/:fileId` until
+`status: "completed"` returns `{ fileId, status, result }` with the same `result` shape as the
+sync success response above (or `status: "failed"` with `result: { success: false, error }`).
+
+If `Body.sourceFileHash` (a client-computed hash of the uploaded content, sent from the
+generate-upload-URL step) matches an active import job for the same
+project/user/entityType/format/options, both the generate-URL step and this endpoint return
+`{ async: true, jobId, status, alreadyQueued: true }` for the existing job instead of
+enqueueing a duplicate - see
+[import-export-system.md#async-eligibility-the-data-transfer-job-pipeline](import-export-system.md#async-eligibility-the-data-transfer-job-pipeline).
+
+### Manage Data Transfer Jobs
+
+```http
+GET /api/data-transfer-job/list
+DELETE /api/data-transfer-job/:jobId
+```
+
+`GET .../list` returns the caller's own jobs (paginated). `DELETE .../:jobId` deletes a
+single **settled** (`completed`/`failed`) job the caller owns; deleting a job still
+`pending`/`processing` returns a `BadRequest`. Deleting a job never deletes its
+`resultFileId` download file - that expires independently. Both require `projectAdmin`.
+
+### Notifications
+
+```http
+GET /api/notification/list
+POST /api/notification/:notificationId/read
+DELETE /api/notification/:notificationId
+```
+
+`GET .../list` (paginated) is what the frontend notification bell/panel actually polls -
+each row includes the related `dataTransferJob` and, for a completed export, an
+already-resolved `downloadUrl` in the same response (no second call to
+`data-transfer-job/status/:jobId` needed). `POST .../:notificationId/read` marks a
+notification read. `DELETE .../:notificationId` dismisses it - this does **not** delete the
+underlying `DataTransferJob` row; that happens later, automatically, once the notification
+has aged out (see
+[import-export-system.md#notifications](import-export-system.md#notifications)). All three
+require `projectAdmin`.
 
 ## Common Operations
 
@@ -114,7 +185,7 @@ a.download = filename
 a.click()
 ```
 
-See: `/package/api/src/endpoint/import-export.ts:export()`
+See: `/package/api/src/endpoint/core/import-export.ts:export()`
 
 ### Import Survey (Three Steps)
 
@@ -164,7 +235,7 @@ if (result.hasIdTranslations) {
 }
 ```
 
-See: `/package/api/src/endpoint/import-export.ts:processImport()`
+See: `/package/api/src/endpoint/core/import-export.ts:processImport()`
 
 ### Import with Auto-Repair
 
@@ -238,7 +309,7 @@ Future additions require implementing new handlers - no code changes to core sys
 | Format not supported | Invalid format or entity doesn't support format | Check entity.getSupportedFormats() |
 | File not found/expired | Upload URL expired or file already processed | Generate new upload URL |
 | Import validation failed | Data doesn't match schema | Fix data or use `force: true` |
-| Already processing | processImport() called twice | Wait for first call to complete |
+| Already processing | processImport() called twice (`status: 'processing'` or `'queued'`) | Wait for the first call/job to complete, poll `GET .../import/status/:fileId` |
 
 ### Validation Error Structure
 

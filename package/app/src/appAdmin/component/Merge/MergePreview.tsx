@@ -112,12 +112,12 @@ export const MergePreview: React.FC<Props> = ({ mergeResult }) => {
                     </div>
                     <div className="flex gap-4 text-xs text-muted-foreground mt-1">
                       <span className="flex items-center gap-1">
-                        <CheckCircle className="h-3 w-3 text-green-600" />
+                        <CheckCircle className="h-3 w-3 text-success" />
                         {mappedCount} transferred
                       </span>
                       {skippedCount > 0 && (
                         <span className="flex items-center gap-1">
-                          <XCircle className="h-3 w-3 text-amber-600" />
+                          <XCircle className="h-3 w-3 text-warning" />
                           {skippedCount} skipped
                         </span>
                       )}
@@ -132,17 +132,17 @@ export const MergePreview: React.FC<Props> = ({ mergeResult }) => {
                           <h4 className="text-xs font-semibold mb-2 text-muted-foreground">
                             Original Answers ({originalCount})
                           </h4>
-                          <pre className="text-xs bg-gray-100 dark:bg-gray-800 dark:text-gray-100 p-3 rounded overflow-x-auto">
+                          <pre className="text-xs bg-muted p-3 rounded overflow-x-auto">
                             {JSON.stringify(mapping.originalAnswers, null, 2)}
                           </pre>
                         </div>
 
                         {/* Mapped Answers */}
                         <div>
-                          <h4 className="text-xs font-semibold mb-2 text-green-600">
+                          <h4 className="text-xs font-semibold mb-2 text-success">
                             Mapped Answers ({mappedCount})
                           </h4>
-                          <pre className="text-xs bg-green-50 dark:bg-green-950 dark:text-green-100 p-3 rounded overflow-x-auto">
+                          <pre className="text-xs bg-success/10 text-success p-3 rounded overflow-x-auto">
                             {JSON.stringify(mapping.mappedAnswers, null, 2)}
                           </pre>
                         </div>
@@ -150,14 +150,14 @@ export const MergePreview: React.FC<Props> = ({ mergeResult }) => {
                         {/* Skipped Answers */}
                         {skippedCount > 0 && (
                           <div>
-                            <h4 className="text-xs font-semibold mb-2 text-amber-600">
+                            <h4 className="text-xs font-semibold mb-2 text-warning">
                               Skipped Answers ({skippedCount})
                             </h4>
                             <div className="space-y-2">
                               {mapping.skippedAnswers.map((skip, skipIndex) => (
                                 <div
                                   key={skipIndex}
-                                  className="text-xs bg-amber-50 dark:bg-amber-950 dark:text-amber-100 p-2 rounded"
+                                  className="text-xs bg-warning/10 text-warning p-2 rounded"
                                 >
                                   <div className="font-semibold">
                                     {skip.questionCode}

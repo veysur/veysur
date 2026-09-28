@@ -2,6 +2,8 @@ import {
   generateFilePath,
   generatePlatformFilePath,
   generateStoredFilename,
+  responseFileBucket,
+  RESPONSE_FILE_BUCKET_COUNT,
 } from './s3Client'
 
 describe('S3 Path Generation', () => {
@@ -34,8 +36,9 @@ describe('S3 Path Generation', () => {
         responseId: 'resp_789',
         fileContext: 'response',
       })
+      const bucket = responseFileBucket('resp_789')
       expect(path).toBe(
-        'project-33JLwlFkwL/survey/survey_456/response/resp_789/resume_abc123.pdf',
+        `project-33JLwlFkwL/survey/survey_456/response/${bucket}/resp_789/resume_abc123.pdf`,
       )
     })
 
@@ -137,8 +140,9 @@ describe('S3 Path Generation', () => {
           fileContext: 'response',
         },
       )
+      const bucket = responseFileBucket('resp_xyz')
       expect(path).toBe(
-        'project-33JLwlFkwL/survey/survey_abc/response/resp_xyz/resume_def4567890abcdef.pdf',
+        `project-33JLwlFkwL/survey/survey_abc/response/${bucket}/resp_xyz/resume_def4567890abcdef.pdf`,
       )
     })
 
@@ -193,9 +197,30 @@ describe('S3 Path Generation', () => {
       expect(surveyPath).toBe(
         'project-33JLwlFkwL/survey/survey_456/test_abc123.pdf',
       )
+      const bucket = responseFileBucket('resp_789')
       expect(responsePath).toBe(
-        'project-33JLwlFkwL/survey/survey_456/response/resp_789/test_abc123.pdf',
+        `project-33JLwlFkwL/survey/survey_456/response/${bucket}/resp_789/test_abc123.pdf`,
       )
+    })
+  })
+
+  describe('responseFileBucket', () => {
+    test('is deterministic for the same responseId', () => {
+      expect(responseFileBucket('resp_789')).toBe(responseFileBucket('resp_789'))
+    })
+
+    test('returns a zero-padded 3-digit bucket within range', () => {
+      const bucket = responseFileBucket('resp_789')
+      expect(bucket).toMatch(/^\d{3}$/)
+      expect(Number(bucket)).toBeGreaterThanOrEqual(0)
+      expect(Number(bucket)).toBeLessThan(RESPONSE_FILE_BUCKET_COUNT)
+    })
+
+    test('spreads different responseIds across multiple buckets', () => {
+      const buckets = new Set(
+        Array.from({ length: 50 }, (_, i) => responseFileBucket(`resp_${i}`)),
+      )
+      expect(buckets.size).toBeGreaterThan(1)
     })
   })
 

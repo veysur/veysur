@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from 'component/shadcn/card'
 import { LanguageSelector } from 'component/LanguageSelector'
 
 import { DefaultableValueContentEditor } from './DefaultableValueContentEditor'
+import { DefaultableValueInput } from './DefaultableValueInput'
 import { DefaultableButtonSwitch } from './DefaultableButtonSwitch'
 import { SettingsDataAdapter, SettingsHandlers } from './SettingSurveyAdapter'
 import { useLanguageSelector } from './hook/useLanguageSelector'
@@ -110,8 +111,31 @@ export function BaseDataPolicySettings<T>({
               placeholder="Data policy text"
               withToolbar={true}
               format={contentFormat}
-              className="mb-0"
+              className={data.dataPolicy?.link ? 'mb-3' : 'mb-0'}
             />
+
+            {data.dataPolicy?.link && (
+              <DefaultableValueInput
+                label="URL"
+                type="url"
+                currentValue={getText(data.dataPolicy?.url, langEditing)}
+                defaultValue={
+                  getText(
+                    data.getDefault?.<L10n | null>('dataPolicy', 'url'),
+                    langEditing,
+                  ) || ''
+                }
+                section="dataPolicy"
+                field="url"
+                handler={(section, field, value) =>
+                  handlers.handleL10nChange?.(section, field, value, langEditing)
+                }
+                hasDefaults={hasDefaults}
+                placeholder="https://example.com/privacy-policy"
+                helpText="URL the clickable link opens for this language."
+                className="mb-0"
+              />
+            )}
           </CardContent>
         </Card>
       </div>

@@ -10,7 +10,7 @@ import { S3Adaptor } from 's3-adaptor'
  */
 export class ArchiveReader {
   private jsonEntries = new Map<string, unknown>()
-  private binaryS3Keys = new Map<string, string>() // archivePath → temp S3 key
+  private binaryS3Keys = new Map<string, string>() // archiveEntryPath → temp S3 key
 
   constructor(
     private readonly adaptor: S3Adaptor,

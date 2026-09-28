@@ -9,7 +9,7 @@ import { schemaManager } from '../schema-manager'
 import { isMatrixQuestionType } from '../constructor/Survey/Matrix'
 import { isMultiPartQuestionType } from '../constructor/Survey/MultiPart'
 import { resolveContentFormat } from '../content/resolveContentFormat'
-import { sanitizeContent } from '../content/sanitizeContent'
+import { sanitizeContent, normalizeSafeLinks } from '../content/sanitizeContent'
 import { renderMarkdownToHtml } from '../content/renderMarkdown'
 import {
   ConditionValidator,
@@ -374,11 +374,14 @@ export class SurveyValidation {
         if (format === 'plain') {
           isValid = !HTML_TAG_PATTERN.test(raw)
         } else if (format === 'html') {
-          isValid = sanitizeContent(raw, { scriptTagsAllowed }) === raw
+          isValid =
+            sanitizeContent(raw, { scriptTagsAllowed }) ===
+            normalizeSafeLinks(raw)
         } else {
           const rendered = renderMarkdownToHtml(raw)
           isValid =
-            sanitizeContent(rendered, { scriptTagsAllowed }) === rendered
+            sanitizeContent(rendered, { scriptTagsAllowed }) ===
+            normalizeSafeLinks(rendered)
         }
 
         if (!isValid) {

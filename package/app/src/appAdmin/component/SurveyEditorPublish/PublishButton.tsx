@@ -40,7 +40,7 @@ export const PublishButton: React.FC<Props> = ({
       <span className="relative">
         <Globe className="h-4 w-4" />
         {isPublished && hasUnpublishedChanges && (
-          <span className="absolute -top-0.5 -right-0.5 size-1.5 rounded-full bg-amber-500" />
+          <span className="absolute -top-0.5 -right-0.5 size-1.5 rounded-full bg-warning" />
         )}
       </span>
       {label}

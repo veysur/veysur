@@ -290,7 +290,7 @@ export class VsstImportPersister {
         continue
       }
       if (r.existingFileId || !adaptor || !r.manifestEntry) continue
-      const tempKey = parsedData.getBinaryS3Key(r.manifestEntry.zipPath)
+      const tempKey = parsedData.getBinaryS3Key(r.manifestEntry.archiveEntryPath)
       if (!tempKey) continue
       await adaptor.copyObject({
         Bucket: this.storageConfig.publicBucket,

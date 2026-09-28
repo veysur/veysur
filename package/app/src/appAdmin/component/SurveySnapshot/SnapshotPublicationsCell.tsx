@@ -52,7 +52,7 @@ export const SnapshotPublicationsCell: React.FC<Props> = ({
             <span
               className={cn(
                 'px-1.5 py-0.5 rounded-full text-xs font-medium',
-                'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+                'bg-success/10 text-success',
               )}
             >
               Published

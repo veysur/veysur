@@ -67,9 +67,10 @@ export const SurveyThankYouMessage: React.FC = () => {
   return (
     <div
       data-testid="survey-thankyou-container"
-      className={cn('transition-colors rounded-md p-4 hover:bg-editor-active', {
-        'bg-editor-active': focused,
-      })}
+      className={cn(
+        'transition-colors rounded-md p-4 border-l-4 border-transparent',
+        focused ? 'border-primary bg-primary/5' : 'hover:bg-muted dark:hover:bg-muted/25',
+      )}
     >
       <Card className="shadow-sm bg-muted border-muted">
         <CardContent>

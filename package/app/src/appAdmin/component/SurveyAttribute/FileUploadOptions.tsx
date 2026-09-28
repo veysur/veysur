@@ -121,7 +121,7 @@ export const FileUploadOptions: AttributeConfig['component'] = function ({
             step="0.1"
             onChange={handleChangeMaxSizeMb}
             value={valueInternal.maxFileSize / BYTES_PER_MB}
-            className={errorFor('maxFileSize') ? 'border-red-500' : ''}
+            className={errorFor('maxFileSize') ? 'border-destructive' : ''}
           />
           {errorFor('maxFileSize') && (
             <FieldError className="mt-1">{errorFor('maxFileSize')}</FieldError>
@@ -135,7 +135,7 @@ export const FileUploadOptions: AttributeConfig['component'] = function ({
             step={1}
             onChange={handleChangeMaxCount}
             value={valueInternal.maxFileCount}
-            className={errorFor('maxFileCount') ? 'border-red-500' : ''}
+            className={errorFor('maxFileCount') ? 'border-destructive' : ''}
           />
           {errorFor('maxFileCount') && (
             <FieldError className="mt-1">{errorFor('maxFileCount')}</FieldError>

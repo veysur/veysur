@@ -59,11 +59,13 @@ export interface SettingsDataAdapter<T> {
     show?: boolean | null
     link?: boolean | null
     text?: L10n | null
+    url?: L10n | null
   }
   legalNotice?: {
     show?: boolean | null
     link?: boolean | null
     text?: L10n | null
+    url?: L10n | null
   }
   notify?: {
     basic?: string | null

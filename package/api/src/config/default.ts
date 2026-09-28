@@ -74,6 +74,8 @@ const {
   API_EMAIL_SUPPRESSION_SOFT_BOUNCE_EXPIRY_DAYS,
   // Bulk mail queue pacing (see docs/mail-queue-pacing.md)
   API_MAIL_QUEUE_PROCESS_BATCH_SIZE,
+  // DataTransferJob staleness reap (see ServiceDataTransferJob.reapStale())
+  API_DATA_TRANSFER_STALE_AFTER_MS,
   // Sendmail (fallback transport)
   API_MAIL_SENDMAIL_PATH,
   API_MAIL_SENDMAIL_NEWLINE,
@@ -274,6 +276,11 @@ export const app = {
         ? Number(API_MAIL_QUEUE_PROCESS_BATCH_SIZE)
         : 200,
     },
+  },
+  dataTransfer: {
+    staleAfterMs: API_DATA_TRANSFER_STALE_AFTER_MS
+      ? Number(API_DATA_TRANSFER_STALE_AFTER_MS)
+      : 15 * 60 * 1000,
   },
   sms: {
     logOnly: API_SMS_LOG_ONLY ? API_SMS_LOG_ONLY == 'true' : true,

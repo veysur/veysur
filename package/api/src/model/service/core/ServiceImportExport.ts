@@ -8,13 +8,14 @@ import {
 import MzenId from 'mzen-id'
 import { File } from 'veysur-common'
 
-import { RepoFile } from 'model'
+import { RepoFile, RepoSurvey } from 'model'
 import { AclConditions, AclContext } from 'model/entity/AclContext'
 import {
   createStorageAdaptor,
   generateSignedUploadUrl,
   generateFilePath,
   contextForProject,
+  getObjectSize,
 } from 'common'
 
 import { EntityHandlerRegistry } from './ImportExport/EntityHandlerRegistry'
@@ -31,6 +32,8 @@ import { SurveyFullEntityHandler } from './ImportExport/handlers/SurveyFullEntit
 import { ExportOptions } from './ImportExport/EntityHandlerInterface'
 import { getStorageConfig } from './ServiceFile/FileS3Config'
 import { ServiceFileTempDownload } from './ServiceFile/ServiceFileTempDownload'
+import { ServiceDataTransferJob } from './ServiceDataTransferJob'
+import { ASYNC_TRANSFER_SIZE_THRESHOLD_BYTES } from './ImportExport/handlers/util/asyncTransferSizeThreshold'
 
 interface ImportResult {
   success: boolean
@@ -157,9 +160,77 @@ export class ServiceImportExport extends Service {
   }
 
   /**
-   * Export entity in specified format
+   * Export entity in specified format. When the handler's estimated export
+   * size (see EntityHandlerInterface.estimateExportSize) exceeds
+   * ASYNC_TRANSFER_SIZE_THRESHOLD_BYTES, enqueue a job and return
+   * immediately instead of compiling inline; the caller polls
+   * ServiceDataTransferJob.getStatus() for the result. Otherwise compile
+   * and return the download URL synchronously, as before.
    */
-  async export({
+  async export(params: {
+    entityType: string
+    entityId: string
+    format: string
+    options?: ExportOptions
+    projectId: string
+    aclConditions: AclConditions
+    aclContext: AclContext
+    requestHost?: string
+    requestProto?: string
+  }) {
+    const { entityType, format, projectId, aclContext, requestHost, requestProto } =
+      params
+    const handler = this.entityHandlerRegistry.get(entityType)
+
+    if (!handler.getSupportedFormats().includes(format)) {
+      throw new ServerErrorBadRequest({
+        message: `Format '${format}' not supported for entity type '${entityType}'`,
+        supportedFormats: handler.getSupportedFormats(),
+      })
+    }
+
+    const estimatedSize =
+      (await handler.estimateExportSize?.(
+        params.entityId,
+        { projectId, aclConditions: params.aclConditions, aclContext },
+        params.options,
+      )) ?? 0
+
+    if (estimatedSize > ASYNC_TRANSFER_SIZE_THRESHOLD_BYTES) {
+      const repoSurvey = this.getRepo<RepoSurvey>('survey')
+      const survey = await repoSurvey.findOne(
+        { _id: params.entityId },
+        { context: contextForProject(projectId) },
+      )
+      const label = survey ? `${survey.name} (.${format})` : null
+
+      const serviceDataTransferJob =
+        this.getService<ServiceDataTransferJob>('dataTransferJob')
+      const { jobId, status, alreadyQueued } =
+        await serviceDataTransferJob.enqueueExport({
+          entityType,
+          entityId: params.entityId,
+          format,
+          options: params.options,
+          projectId,
+          requestedByUserId: aclContext.jwt?._id ?? '',
+          requestHost,
+          requestProto,
+          label,
+        })
+      return { async: true as const, jobId, status, alreadyQueued }
+    }
+
+    return this.compileExport(params)
+  }
+
+  /**
+   * The synchronous compile-and-upload path shared by export()'s
+   * non-async-eligible branch and ServiceDataTransferJob.processQueue()
+   * (which calls this directly, never export(), to avoid re-triggering
+   * the async-eligibility branch and enqueueing itself forever).
+   */
+  async compileExport({
     entityType,
     entityId,
     format,
@@ -181,14 +252,6 @@ export class ServiceImportExport extends Service {
     requestProto?: string
   }) {
     const handler = this.entityHandlerRegistry.get(entityType)
-
-    if (!handler.getSupportedFormats().includes(format)) {
-      throw new ServerErrorBadRequest({
-        message: `Format '${format}' not supported for entity type '${entityType}'`,
-        supportedFormats: handler.getSupportedFormats(),
-      })
-    }
-
     const entity = await handler.fetchForExport(
       entityId,
       { projectId, aclConditions, aclContext },
@@ -225,6 +288,7 @@ export class ServiceImportExport extends Service {
     entityType,
     format,
     options = {},
+    fileHash,
     projectId,
     aclContext,
     requestHost,
@@ -233,6 +297,7 @@ export class ServiceImportExport extends Service {
     entityType: string
     format: string
     options?: Record<string, unknown>
+    fileHash?: string
     projectId: string
     aclContext: AclContext
     requestHost?: string
@@ -245,6 +310,28 @@ export class ServiceImportExport extends Service {
         message: `Format '${format}' not supported for entity type '${entityType}'`,
         supportedFormats: handler.getSupportedFormats(),
       })
+    }
+
+    // Short-circuit before creating a File record or presigned URL if this
+    // exact file content is already queued/processing for this
+    // project/user/entityType/format/options - avoids the client wasting
+    // bandwidth re-uploading a file whose import is already in flight.
+    const existingJob = await this.getService<ServiceDataTransferJob>(
+      'dataTransferJob',
+    ).findActiveImportJob({
+      projectId,
+      requestedByUserId: aclContext.jwt._id,
+      entityType,
+      format,
+      sourceFileHash: fileHash,
+      options,
+    })
+    if (existingJob) {
+      return {
+        alreadyQueued: true as const,
+        jobId: existingJob._id,
+        status: existingJob.status,
+      }
     }
 
     const formatHandler = this.formatRegistry.getByFormat(format)
@@ -263,7 +350,7 @@ export class ServiceImportExport extends Service {
       _id: fileId,
       filename,
       storedFilename,
-      hash: null,
+      hash: fileHash ?? null,
       size: 0,
       mimeType: formatHandler.getMimeType(),
       filePath,
@@ -313,7 +400,11 @@ export class ServiceImportExport extends Service {
   }
 
   /**
-   * Process uploaded import file
+   * Entry point for an uploaded import file. When the uploaded file's size
+   * exceeds ASYNC_TRANSFER_SIZE_THRESHOLD_BYTES, mark it 'queued' and
+   * enqueue a ServiceDataTransferJob instead of parsing inline; the caller
+   * polls getImportStatus() for the result. Otherwise parse and persist
+   * synchronously, as before.
    */
   async processImport({
     fileId,
@@ -343,13 +434,109 @@ export class ServiceImportExport extends Service {
       })
     }
 
-    if (file.import?.status === 'processing') {
+    if (
+      file.import?.status === 'processing' ||
+      file.import?.status === 'queued'
+    ) {
       throw new ServerErrorBadRequest({
         message: 'Import is already being processed',
       })
     }
     if (file.import?.status === 'completed') {
       return file.import.result
+    }
+
+    const storageConfig = this.getStorageConfig()
+    const adaptor = createStorageAdaptor(storageConfig)
+    const uploadedSize = await getObjectSize(
+      adaptor,
+      storageConfig.privateBucket,
+      file.filePath,
+    )
+
+    if ((uploadedSize ?? 0) > ASYNC_TRANSFER_SIZE_THRESHOLD_BYTES) {
+      await repoFile.updateOne(
+        { _id: fileId },
+        { $set: { 'import.status': 'queued' } },
+        { context },
+      )
+      const serviceDataTransferJob =
+        this.getService<ServiceDataTransferJob>('dataTransferJob')
+      const { jobId, status, alreadyQueued } =
+        await serviceDataTransferJob.enqueueImport({
+          fileId,
+          entityType: file.import.entityType,
+          format: file.import.format,
+          options: file.import.options,
+          sourceFileHash: file.hash,
+          projectId,
+          requestedByUserId: aclContext.jwt?._id ?? '',
+          label: file.filename,
+        })
+      return { async: true as const, jobId, status, alreadyQueued }
+    }
+
+    return this.runImport({ fileId, projectId, aclContext })
+  }
+
+  /**
+   * Read an import's current status/result for polling. The generic
+   * `GET /file/:fileId` endpoint can't serve this: it filters on
+   * `uploadedAt: { $ne: null }`, which isn't set until runImport() has
+   * already started downloading the file, so a 'pending'/'queued' import
+   * would 404 there.
+   */
+  async getImportStatus({
+    fileId,
+    projectId,
+  }: {
+    fileId: string
+    projectId: string
+  }) {
+    const context = contextForProject(projectId)
+    const repoFile = this.getRepo<RepoFile>('file')
+    const file = await repoFile.findOne(
+      { _id: fileId, fileContext: 'import' },
+      { context },
+    )
+    if (!file) {
+      throw new ServerErrorNotFound({ message: 'Import file not found', fileId })
+    }
+    return {
+      fileId: file._id,
+      status: file.import?.status ?? null,
+      result: file.import?.result ?? null,
+    }
+  }
+
+  /**
+   * The synchronous download-parse-validate-persist path shared by
+   * processImport()'s non-async-eligible branch and
+   * ServiceDataTransferJob.processQueue() (which calls this directly,
+   * never processImport(), to avoid re-triggering the async-eligibility
+   * check and enqueueing itself forever).
+   */
+  async runImport({
+    fileId,
+    projectId,
+    aclContext,
+  }: {
+    fileId: string
+    projectId: string
+    aclContext: AclContext
+  }) {
+    const context = contextForProject(projectId)
+    const repoFile = this.getRepo<RepoFile>('file')
+
+    const file = await repoFile.findOne(
+      { _id: fileId, fileContext: 'import' },
+      { context },
+    )
+    if (!file) {
+      throw new ServerErrorNotFound({
+        message: 'Import file not found or expired',
+        fileId,
+      })
     }
 
     await repoFile.updateOne(

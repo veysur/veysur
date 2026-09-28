@@ -12,6 +12,7 @@ describe('SettingSurvey Data Policy Methods', () => {
         show: false,
         link: false,
         text: new L10n({ en: 'Data policy text' }),
+        url: new L10n(),
       },
     })
   })
@@ -201,6 +202,71 @@ describe('SettingSurvey Data Policy Methods', () => {
     })
   })
 
+  describe('updateDataPolicyUrl', () => {
+    test('updates data policy url for default language', () => {
+      const updatedSettingSurvey = surveySetting.updateDataPolicyUrl(
+        'https://example.com/data-policy',
+      )
+
+      expect(updatedSettingSurvey).not.toBe(surveySetting)
+      expect(updatedSettingSurvey.dataPolicy.url.en).toBe(
+        'https://example.com/data-policy',
+      )
+      expect(surveySetting.dataPolicy.url.en).toBeFalsy()
+    })
+
+    test('updates data policy url for specific language', () => {
+      const updatedSettingSurvey = surveySetting.updateDataPolicyUrl(
+        'https://example.com/fr/data-policy',
+        'fr',
+      )
+
+      expect(updatedSettingSurvey).not.toBe(surveySetting)
+      expect(updatedSettingSurvey.dataPolicy.url.fr).toBe(
+        'https://example.com/fr/data-policy',
+      )
+    })
+
+    test('returns same instance if setting to current value', () => {
+      const withUrl = surveySetting.updateDataPolicyUrl(
+        'https://example.com/data-policy',
+      )
+      const updatedSettingSurvey = withUrl.updateDataPolicyUrl(
+        'https://example.com/data-policy',
+      )
+
+      expect(updatedSettingSurvey).toBe(withUrl)
+    })
+
+    test('preserves other data policy properties', () => {
+      const updatedSettingSurvey = surveySetting.updateDataPolicyUrl(
+        'https://example.com/data-policy',
+      )
+
+      expect(updatedSettingSurvey.dataPolicy.show).toBe(false)
+      expect(updatedSettingSurvey.dataPolicy.link).toBe(false)
+      expect(updatedSettingSurvey.dataPolicy.text.en).toBe('Data policy text')
+    })
+
+    test('preserves other languages in url', () => {
+      const multiLangSettingSurvey = surveySetting.updateDataPolicyUrl(
+        'https://example.com/fr/data-policy',
+        'fr',
+      )
+      const updatedSettingSurvey = multiLangSettingSurvey.updateDataPolicyUrl(
+        'https://example.com/en/data-policy',
+        'en',
+      )
+
+      expect(updatedSettingSurvey.dataPolicy.url.en).toBe(
+        'https://example.com/en/data-policy',
+      )
+      expect(updatedSettingSurvey.dataPolicy.url.fr).toBe(
+        'https://example.com/fr/data-policy',
+      )
+    })
+  })
+
   describe('method chaining', () => {
     test('methods can be chained together', () => {
       const updatedSettingSurvey = surveySetting
@@ -244,6 +310,7 @@ describe('SettingSurvey Data Policy Methods', () => {
           show: true,
           link: false,
           text: { en: 'Plain object text', fr: 'Texte objet simple' },
+          url: new L10n(),
         },
       })
 
@@ -264,6 +331,7 @@ describe('SettingSurvey Data Policy Methods', () => {
           show: true,
           link: false,
           text: existingText,
+          url: new L10n(),
         },
       })
 
@@ -271,6 +339,38 @@ describe('SettingSurvey Data Policy Methods', () => {
       expect(surveySettingWithL10nText.dataPolicy.text.en).toBe(
         'Existing L10n text',
       )
+    })
+
+    test('constructor properly converts plain object url to L10n', () => {
+      const surveySettingWithPlainUrl = new SettingSurvey({
+        _id: '1',
+        dataPolicy: {
+          show: true,
+          link: true,
+          text: new L10n(),
+          url: { en: 'https://example.com/data-policy' },
+        },
+      })
+
+      expect(surveySettingWithPlainUrl.dataPolicy.url).toBeInstanceOf(L10n)
+      expect(surveySettingWithPlainUrl.dataPolicy.url.en).toBe(
+        'https://example.com/data-policy',
+      )
+    })
+
+    test('constructor reuses existing L10n instances for url', () => {
+      const existingUrl = new L10n({ en: 'https://example.com/data-policy' })
+      const surveySettingWithL10nUrl = new SettingSurvey({
+        _id: '1',
+        dataPolicy: {
+          show: true,
+          link: true,
+          text: new L10n(),
+          url: existingUrl,
+        },
+      })
+
+      expect(surveySettingWithL10nUrl.dataPolicy.url).toBe(existingUrl)
     })
 
     test('can modify schema defaults', () => {

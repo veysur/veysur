@@ -30,6 +30,7 @@ import {
 } from '../EntityHandlerInterface'
 import { FormatHandlerInterface } from '../format/FormatHandlerInterface'
 import { buildResponseEnvelope } from './util/buildResponseEnvelope'
+import { ESTIMATED_BYTES_PER_RESPONSE } from './util/asyncTransferSizeThreshold'
 import { contextForProject } from 'common'
 
 const FIXED_HEADERS = [
@@ -600,13 +601,10 @@ export class SurveyResponseEntityHandler implements EntityHandlerInterface {
     private repoSurveyLanguageSnapshot: RepoSurveyLanguageSnapshot,
   ) {}
 
-  async fetchForExport(
+  private buildResponseExportQuery(
     surveyId: string,
-    context: EntityExportContext,
     options?: ExportOptions,
-  ): Promise<unknown> {
-    const dsContext = contextForProject(context.projectId)
-
+  ): Record<string, unknown> {
     const query: Record<string, unknown> = {
       surveyId,
     }
@@ -617,6 +615,30 @@ export class SurveyResponseEntityHandler implements EntityHandlerInterface {
     } else if (options?.merged === 'notMerged') {
       query.$nor = [{ 'merge.fromSnapshotId': { $ne: null } }]
     }
+
+    return query
+  }
+
+  async estimateExportSize(
+    entityId: string,
+    context: EntityExportContext,
+    options?: ExportOptions,
+  ): Promise<number> {
+    const dsContext = contextForProject(context.projectId)
+    const query = this.buildResponseExportQuery(entityId, options)
+    const responseCount = await this.repoSurveyResponse.count(query, {
+      context: dsContext,
+    })
+    return responseCount * ESTIMATED_BYTES_PER_RESPONSE
+  }
+
+  async fetchForExport(
+    surveyId: string,
+    context: EntityExportContext,
+    options?: ExportOptions,
+  ): Promise<unknown> {
+    const dsContext = contextForProject(context.projectId)
+    const query = this.buildResponseExportQuery(surveyId, options)
 
     const responses = await this.repoSurveyResponse.find(query, {
       context: dsContext,

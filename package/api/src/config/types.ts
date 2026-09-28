@@ -74,6 +74,9 @@ export interface AppConfig {
       processBatchSize: number
     }
   }
+  dataTransfer: {
+    staleAfterMs: number
+  }
   sms: {
     logOnly: boolean
   }

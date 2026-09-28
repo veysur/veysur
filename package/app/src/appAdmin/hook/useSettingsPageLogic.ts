@@ -47,6 +47,8 @@ export type SettingOperations = {
   updateContentFormatProperty?: (field: string, value: unknown) => void
   updateDataPolicyText?: (value: string | null, language?: string) => void
   updateLegalNoticeText?: (value: string | null, language?: string) => void
+  updateDataPolicyUrl?: (value: string | null, language?: string) => void
+  updateLegalNoticeUrl?: (value: string | null, language?: string) => void
   updateLanguageOptions?: (selectedLanguages: string[]) => void
 }
 
@@ -126,16 +128,24 @@ export const createSettingsHandlers = (operations: SettingOperations) => {
 
   const handleL10nChange = (
     section: string,
-    _field: string,
+    field: string,
     value: string | null,
     language?: string,
   ) => {
     switch (section) {
       case 'dataPolicy':
-        operations.updateDataPolicyText?.(value, language)
+        if (field === 'url') {
+          operations.updateDataPolicyUrl?.(value, language)
+        } else {
+          operations.updateDataPolicyText?.(value, language)
+        }
         break
       case 'legalNotice':
-        operations.updateLegalNoticeText?.(value, language)
+        if (field === 'url') {
+          operations.updateLegalNoticeUrl?.(value, language)
+        } else {
+          operations.updateLegalNoticeText?.(value, language)
+        }
         break
     }
   }

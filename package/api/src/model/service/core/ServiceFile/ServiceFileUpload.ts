@@ -58,6 +58,20 @@ export class ServiceFileUpload extends Service {
     return getStorageConfig(this.config)
   }
 
+  // Participant fileUpload-question answers (fileContext 'response') go to the
+  // private bucket - nginx serves the public bucket with no auth check, and
+  // these can be sensitive participant attachments. Every other fileContext
+  // (project/survey/temp/import) stays on the public bucket.
+  private resolveBucket(
+    storageConfig: StorageConfig,
+    fileContext?: InstanceType<typeof File>['fileContext'],
+  ): { bucket: string; bucketType: 'public' | 'private' } {
+    if (fileContext === 'response') {
+      return { bucket: storageConfig.privateBucket, bucketType: 'private' }
+    }
+    return { bucket: storageConfig.publicBucket, bucketType: 'public' }
+  }
+
   private validateFileSize(config: StorageConfig, fileSize: number): void {
     if (fileSize > config.maxUploadSize) {
       throw new ServerErrorBadRequest(
@@ -309,9 +323,10 @@ export class ServiceFileUpload extends Service {
           context,
         )
 
+        const { bucket } = this.resolveBucket(storageConfig, fileContext)
         const uploadUrl = await generateSignedUploadUrl(
           effectiveConfig,
-          storageConfig.publicBucket,
+          bucket,
           existingFile.filePath,
           900,
         )
@@ -335,9 +350,10 @@ export class ServiceFileUpload extends Service {
       fileContext: fileContext || null,
     })
 
+    const { bucket, bucketType } = this.resolveBucket(storageConfig, fileContext)
     const uploadUrl = await generateSignedUploadUrl(
       effectiveConfig,
-      effectiveConfig.publicBucket,
+      bucket,
       filePath,
       900,
     )
@@ -354,7 +370,7 @@ export class ServiceFileUpload extends Service {
       surveyId: surveyId || null,
       responseId: responseId || null,
       fileContext: fileContext || null,
-      bucketType: 'public',
+      bucketType,
     })
 
     await repoFile.create(file, { context })

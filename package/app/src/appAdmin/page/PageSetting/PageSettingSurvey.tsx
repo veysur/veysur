@@ -77,6 +77,10 @@ export const PageSettingSurvey: React.FC = () => {
       operations?.updateSettingSurveyDataPolicyText(value || '', language),
     updateLegalNoticeText: (value, language) =>
       operations?.updateSettingSurveyLegalNoticeText(value || '', language),
+    updateDataPolicyUrl: (value, language) =>
+      operations?.updateSettingSurveyDataPolicyUrl(value || '', language),
+    updateLegalNoticeUrl: (value, language) =>
+      operations?.updateSettingSurveyLegalNoticeUrl(value || '', language),
     updateLanguageOptions: (selectedLanguages) =>
       operations?.updateSettingSurveyLanguageProperty(
         'options',

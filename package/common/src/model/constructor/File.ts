@@ -28,7 +28,7 @@ export class File {
     entityType?: string | null // 'survey', 'participant', etc.
     format?: string | null // 'vsst', 'csv', etc.
     options?: Record<string, unknown> | null // { force: true }
-    status?: 'pending' | 'processing' | 'completed' | 'failed' | null
+    status?: 'pending' | 'queued' | 'processing' | 'completed' | 'failed' | null
     result?: {
       success: boolean
       entityId?: string

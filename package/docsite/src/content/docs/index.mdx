@@ -3,13 +3,31 @@ title: Introduction
 description: An introduction to the VeySur Admin Guide.
 ---
 
+import { CardGrid, LinkCard } from '@astrojs/starlight/components'
+
 VeySur is a survey platform for project administrators. Administrators can build and publish surveys, manage who takes part, and review the results, all from a single interface.
 
 Prefer to watch? The [Video Tutorials](/video-tutorials/) page has short walkthroughs of the main tasks.
 
-This guide covers the features available to administrators. It is organised into three sections:
+This guide covers the features available to administrators, organised into three sections:
 
-**Getting Started** walks through the basics. If you are new to VeySur, start with [First Survey](/getting-started/first-survey/) for a guided introduction to creating and publishing your first survey.
+<CardGrid>
+  <LinkCard
+    title="Getting Started"
+    description="New to VeySur? Start here for a guided introduction to creating and publishing your first survey."
+    href="/getting-started/first-survey/"
+  />
+  <LinkCard
+    title="Reference"
+    description="Detailed documentation for each part of the survey editor."
+    href="/reference/survey-editor/survey-structure/"
+  />
+  <LinkCard
+    title="Guides"
+    description="Step-by-step instructions for common tasks."
+    href="/guides/invite-participants/"
+  />
+</CardGrid>
 
 **Reference** documents each part of the survey editor in detail:
 

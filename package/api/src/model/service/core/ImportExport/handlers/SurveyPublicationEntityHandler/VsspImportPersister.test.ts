@@ -14,6 +14,7 @@ import { SnapshotDataRemapper } from './SnapshotDataRemapper'
 import type { EntityParsedData } from '../../EntityHandlerInterface'
 import type { ResolvedImportContext, ResponseFileManifestEntry } from './types'
 import { mockRepoTransaction } from '../../../../../../test-utils/mockRepoTransaction'
+import { createStorageAdaptor } from 'common'
 
 jest.mock('common', () => ({
   ...jest.requireActual('common'),
@@ -198,7 +199,8 @@ describe('VsspImportPersister', () => {
       mimeType: 'application/pdf',
       hash: 'hash-abc',
       size: 1234,
-      zipPath: 'files/response/archive-file-1.pdf',
+      bucket: '000',
+      archiveEntryPath: 'files/response/000/archive-file-1.pdf',
     }
 
     function buildContextWithResponseFile(
@@ -274,6 +276,50 @@ describe('VsspImportPersister', () => {
 
       const insertedResponse = mockRepoSurveyResponse.insertOne.mock.calls[0][0]
       expect(insertedResponse.answers.q1.fileIds).toEqual(['archive-file-1'])
+    })
+
+    test('copies a private-bucket response file into the private bucket and preserves its bucketType', async () => {
+      mockRepoFile.findOne.mockResolvedValue(null)
+      ;(mockParsedData.getBinaryS3Key as jest.Mock).mockReturnValue(
+        'staging/archive-file-1.pdf',
+      )
+      const mockAdaptor = (createStorageAdaptor as jest.Mock)(
+        {} as never,
+      ) as { copyObject: jest.Mock }
+
+      await persisterWithFiles.persist(
+        buildContextWithResponseFile({
+          responseFileEntries: [{ ...responseFileEntry, bucketType: 'private' }],
+        }),
+        persistImportContext,
+      )
+
+      expect(mockAdaptor.copyObject).toHaveBeenCalledWith(
+        expect.objectContaining({ Bucket: 'private' }),
+      )
+      const createdFile = mockRepoFile.create.mock.calls[0][0]
+      expect(createdFile.bucketType).toBe('private')
+    })
+
+    test('copies a public (or unspecified bucketType) response file into the public bucket', async () => {
+      mockRepoFile.findOne.mockResolvedValue(null)
+      ;(mockParsedData.getBinaryS3Key as jest.Mock).mockReturnValue(
+        'staging/archive-file-1.pdf',
+      )
+      const mockAdaptor = (createStorageAdaptor as jest.Mock)(
+        {} as never,
+      ) as { copyObject: jest.Mock }
+
+      await persisterWithFiles.persist(
+        buildContextWithResponseFile(),
+        persistImportContext,
+      )
+
+      expect(mockAdaptor.copyObject).toHaveBeenCalledWith(
+        expect.objectContaining({ Bucket: 'public' }),
+      )
+      const createdFile = mockRepoFile.create.mock.calls[0][0]
+      expect(createdFile.bucketType).toBe('public')
     })
   })
 })

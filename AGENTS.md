@@ -43,6 +43,22 @@ Once packages land, the usual commands apply per package:
 Each package has its own `AGENTS.md` with package-specific commands and
 conventions once it's added.
 
+### Dev Docker Compose stack (`deploy/`)
+
+- `pnpm dev` - start the dev stack (`docker compose ... watch`)
+- `pnpm down` - stop it (`deploy/scripts/down.sh`); tears down the same dev
+  compose overlay `pnpm dev` started (not just the base `compose.yaml`), and
+  first clears any orphaned `docker compose ... watch` process left behind
+  by an abruptly killed `pnpm dev` (closed terminal, workstation slept) -
+  that straggler otherwise holds the project's exclusive lock and makes the
+  next `pnpm dev` fail with "cannot take exclusive lock"
+- `pnpm dev:task` - manually trigger a task-manager task/action against the
+  running dev stack (`./deploy/scripts/task-run.sh`); see
+  `package/api/docs/task-manager.md`'s "Manual Triggering" section
+- MySQL is published on `localhost:3310` by default (override with
+  `VEYSUR_MYSQL_PORT`) so a local MySQL client can connect to the dev
+  stack's database directly
+
 ## Code style
 
 - **TypeScript**: prefer concrete types; fall back to `unknown` with

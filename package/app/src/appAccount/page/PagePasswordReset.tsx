@@ -269,7 +269,7 @@ export const PagePasswordReset: React.FC = () => {
     return (
       <PageLayout>
         <StatusMessage
-          icon={<CheckCircle className="h-12 w-12 text-green-600" />}
+          icon={<CheckCircle className="h-12 w-12 text-success" />}
           title="Password Reset!"
           description="Your password has been successfully reset."
         >

@@ -201,7 +201,7 @@ export class VsstExportCollector {
           mimeType: variant.mimeType,
           hash: variant.hash,
           size: variant.size,
-          zipPath: `files/${record.imageSetId}/${variant.imageVariant}.jpg`,
+          archiveEntryPath: `files/${record.imageSetId}/${variant.imageVariant}.jpg`,
           answerOptionId: undefined,
           fileContext: variant.fileContext ?? 'survey',
           imageSetId: record.imageSetId,

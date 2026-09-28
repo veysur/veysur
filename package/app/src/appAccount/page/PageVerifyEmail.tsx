@@ -171,7 +171,7 @@ export const PageVerifyEmail: React.FC = () => {
           </div>
         ) : status === 'success' ? (
           <StatusMessage
-            icon={<CheckCircle className="h-12 w-12 text-green-600" />}
+            icon={<CheckCircle className="h-12 w-12 text-success" />}
             title="Email Verified!"
             description="Your email has been verified."
           >

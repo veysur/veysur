@@ -1,4 +1,4 @@
-// cspell:ignore hrefs msgbox
+// cspell:ignore hrefs msgbox noopener noreferrer
 import { sanitizeContent } from './sanitizeContent'
 
 describe('sanitizeContent', () => {
@@ -43,5 +43,30 @@ describe('sanitizeContent', () => {
     const result = sanitizeContent('<strong>bold</strong> <em>italic</em>')
     expect(result).toContain('<strong>bold</strong>')
     expect(result).toContain('<em>italic</em>')
+  })
+
+  test('forces target="_blank" and rel="noopener noreferrer" on links', () => {
+    const result = sanitizeContent('<a href="https://example.com">x</a>')
+    expect(result).toContain('target="_blank"')
+    expect(result).toContain('rel="noopener noreferrer"')
+  })
+
+  test('merges an existing rel value rather than discarding it', () => {
+    const result = sanitizeContent(
+      '<a href="https://example.com" rel="nofollow">x</a>',
+    )
+    const relMatch = result.match(/rel="([^"]*)"/)
+    const relTokens = relMatch?.[1].split(/\s+/) ?? []
+    expect(relTokens).toEqual(
+      expect.arrayContaining(['nofollow', 'noopener', 'noreferrer']),
+    )
+  })
+
+  test('overrides an existing target value', () => {
+    const result = sanitizeContent(
+      '<a href="https://example.com" target="_self">x</a>',
+    )
+    expect(result).toContain('target="_blank"')
+    expect(result).not.toContain('target="_self"')
   })
 })

@@ -90,7 +90,7 @@ export function makeMinMaxAttribute<T>(
               placeholder="no min"
               onChange={handleChangeMin}
               value={minDisplayValue}
-              className={!isValid && !!errorsMin ? 'border-red-500' : ''}
+              className={!isValid && !!errorsMin ? 'border-destructive' : ''}
             />
             {variant.errorLayout === 'inline' && errorMin}
           </div>
@@ -101,7 +101,7 @@ export function makeMinMaxAttribute<T>(
               placeholder="no max"
               onChange={handleChangeMax}
               value={maxDisplayValue}
-              className={!isValid && !!errorsMax ? 'border-red-500' : ''}
+              className={!isValid && !!errorsMax ? 'border-destructive' : ''}
             />
             {variant.errorLayout === 'inline' && errorMax}
           </div>

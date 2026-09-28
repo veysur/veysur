@@ -94,6 +94,24 @@ export class SurveyEntityHandler implements EntityHandlerInterface {
     return this.collector.collect(surveyId, context, options)
   }
 
+  /**
+   * .vsst has no response data (survey structure + embedded answer-option
+   * images only), so collect() is already cheap — no separate lightweight
+   * query is worth writing; just run it and sum the image sizes it found.
+   */
+  async estimateExportSize(
+    entityId: string,
+    context: EntityExportContext,
+    options?: ExportOptions,
+  ): Promise<number> {
+    const { embeddedFileEntries } = await this.collector.collect(
+      entityId,
+      context,
+      options,
+    )
+    return embeddedFileEntries.reduce((sum, entry) => sum + (entry.size ?? 0), 0)
+  }
+
   async prepareExportData(
     data: unknown,
     formatHandler: FormatHandlerInterface,
@@ -155,7 +173,7 @@ export class SurveyEntityHandler implements EntityHandlerInterface {
       })
       for (const entry of embeddedFileEntries) {
         files.push({
-          filename: entry.zipPath,
+          filename: entry.archiveEntryPath,
           size: entry.size,
           stream: this.collector.makeBinaryFileStream(entry),
         })

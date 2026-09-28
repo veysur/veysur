@@ -39,7 +39,7 @@ export const DeleteResponseDialog: React.FC<DeleteResponseDialogProps> = ({
           <AlertDialogAction
             onClick={onConfirm}
             disabled={isDeleting}
-            className="bg-destructive text-white hover:bg-destructive/90"
+            variant="destructive"
           >
             {isDeleting ? 'Deleting...' : 'Delete'}
           </AlertDialogAction>

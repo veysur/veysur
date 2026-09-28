@@ -8,16 +8,16 @@ import {
 import { Survey } from 'veysur-common'
 
 import { SurveyAnswersSummary, ResponseFileSummary } from 'component/SurveyResponse'
+import { useFileDownload } from 'appAdmin/component/SurveyResponse/hook'
 
 interface AnswersSectionProps {
   snapshotData: {
     survey?: Pick<Survey, 'elements' | 'language'>
   }
   answers: Record<string, unknown>
-  /** Participant-uploaded files for this response's fileUpload answers,
-   * each with a resolved download URL - fetched by the caller (admin-only
-   * endpoint) and passed down as plain data so this shared tree never
-   * imports appAdmin's file API directly. */
+  /** Participant-uploaded files for this response's fileUpload answers -
+   * fetched by the caller (admin-only endpoint) and passed down as plain
+   * data so this shared tree never imports appAdmin's file API directly. */
   files?: ResponseFileSummary[]
 }
 
@@ -27,6 +27,7 @@ export const AnswersSection: React.FC<AnswersSectionProps> = ({
   files,
 }) => {
   const lang = snapshotData?.survey?.language?.default || 'en'
+  const downloadFile = useFileDownload()
 
   return (
     <AccordionItem value="answers" className="border rounded-lg">
@@ -40,6 +41,7 @@ export const AnswersSection: React.FC<AnswersSectionProps> = ({
             answers={answers}
             lang={lang}
             files={files}
+            onDownloadFile={downloadFile}
           />
         ) : (
           <div className="text-center text-muted-foreground py-4">
