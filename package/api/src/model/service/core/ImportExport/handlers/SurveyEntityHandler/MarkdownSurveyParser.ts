@@ -5,6 +5,7 @@ import {
   CONTENT_TYPE_YOUTUBE,
   QUESTION_TYPE_CHECKBOX,
   QUESTION_TYPE_DROPDOWN,
+  getPointScaleCount,
   parseYoutubeUrl,
   CodeGenerator,
   SECTION_CODE_PREFIX,
@@ -94,6 +95,7 @@ const HEADING_PATTERN = /^(#{1,3})\s+(.*)$/
 const LANG_START_PATTERN = /^::lang\[([\w-]+)\]$/
 const ATTRIBUTE_BULLET_PATTERN = /^- (\w+): (.*)$/
 const OPTION_BULLET_PATTERN = /^- \[ \] (\S+) · (.*)$/
+const POINT_LABEL_BULLET_PATTERN = /^- (\d+) · (.*)$/
 const AUTOLINK_PATTERN = /^<(.*)>$/
 const DETAIL_PATTERN = /^\*(.*)\*$/
 const THANK_YOU_LINK_PATTERN = /^\[(.*)\]\((.*)\)$/
@@ -105,6 +107,8 @@ function isBoundaryLine(line: string | undefined): boolean {
   if (line === '::end') return true
   if (line === '---') return true
   if (line === 'Options:') return true
+  if (line === 'Labels:') return true
+  if (POINT_LABEL_BULLET_PATTERN.test(line)) return true
   if (ATTRIBUTE_BULLET_PATTERN.test(line)) return true
   if (OPTION_BULLET_PATTERN.test(line)) return true
   if (DETAIL_PATTERN.test(line)) return true
@@ -423,6 +427,8 @@ function parseOptions(
   cursor: LineCursor,
   defaultLang: string,
   languageOptions: string[],
+  bulletPattern: RegExp = OPTION_BULLET_PATTERN,
+  bulletExample: (code: string) => string = (code) => `- [ ] ${code} · ...`,
 ): Array<{ _id: string; code: string; label: Record<string, string> }> {
   const options: Array<{
     _id: string
@@ -433,7 +439,7 @@ function parseOptions(
   while (true) {
     const line = cursor.peek()
     if (line === undefined) break
-    const match = OPTION_BULLET_PATTERN.exec(line)
+    const match = bulletPattern.exec(line)
     if (!match) break
     cursor.next()
     const [, code, defaultLabel] = match
@@ -445,11 +451,11 @@ function parseOptions(
       () => {
         const optLine = cursor.next()
         const optMatch =
-          optLine !== undefined ? OPTION_BULLET_PATTERN.exec(optLine) : null
+          optLine !== undefined ? bulletPattern.exec(optLine) : null
         if (!optMatch || optMatch[1] !== code) {
           reject(
             cursor.lineNumber,
-            `::lang block option must repeat '- [ ] ${code} · ...'`,
+            `::lang block option must repeat '${bulletExample(code)}'`,
           )
         }
         return optMatch[2]
@@ -459,6 +465,43 @@ function parseOptions(
   }
 
   return options
+}
+
+/**
+ * Expands a `Labels:` block (`- <point> · <text>`) into the full P1..Pn
+ * answer-option list a point-scale question stores, leaving unlabelled
+ * points with an empty label.
+ */
+function parsePointLabels(
+  cursor: LineCursor,
+  count: number,
+  defaultLang: string,
+  languageOptions: string[],
+): Array<{ _id: string; code: string; label: Record<string, string> }> {
+  const startLine = cursor.lineNumber
+  const entries = parseOptions(
+    cursor,
+    defaultLang,
+    languageOptions,
+    POINT_LABEL_BULLET_PATTERN,
+    (code) => `- ${code} · ...`,
+  )
+  const byPoint = new Map<number, Record<string, string>>()
+  for (const entry of entries) {
+    const point = Number(entry.code)
+    if (point < 1 || point > count) {
+      reject(startLine, `Label point ${entry.code} is outside 1-${count}`)
+    }
+    if (byPoint.has(point)) {
+      reject(startLine, `Label point ${entry.code} is listed more than once`)
+    }
+    byPoint.set(point, entry.label)
+  }
+  return Array.from({ length: count }, (_, i) => ({
+    _id: genUniqueId(),
+    code: `P${i + 1}`,
+    label: byPoint.get(i + 1) ?? {},
+  }))
 }
 
 function parseElementBlock(
@@ -568,6 +611,17 @@ function parseElementBlock(
     if (cursor.peek() === 'Options:') {
       cursor.next()
       answerOptions = parseOptions(cursor, defaultLang, languageOptions)
+    }
+  } else if (getPointScaleCount(type) !== undefined) {
+    cursor.skipBlankLines()
+    if (cursor.peek() === 'Labels:') {
+      cursor.next()
+      answerOptions = parsePointLabels(
+        cursor,
+        getPointScaleCount(type),
+        defaultLang,
+        languageOptions,
+      )
     }
   } else {
     cursor.skipBlankLines()

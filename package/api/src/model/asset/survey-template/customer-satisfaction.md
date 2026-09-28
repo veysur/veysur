@@ -22,10 +22,18 @@ How would you rate your overall experience?
 ### Q002 · point5
 How satisfied are you with the quality of our product or service?
 
+Labels:
+- 1 · Very dissatisfied
+- 5 · Very satisfied
+
 ---
 
 ### Q003 · point5
 How satisfied are you with the help you received from our team?
+
+Labels:
+- 1 · Very dissatisfied
+- 5 · Very satisfied
 
 ---
 

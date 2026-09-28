@@ -15,7 +15,11 @@ language:
 ## Symptoms
 
 ### Q001 · point10
-How severe have your symptoms been over the past week? (1 is very mild, 10 is very severe)
+How severe have your symptoms been over the past week?
+
+Labels:
+- 1 · Very mild
+- 10 · Very severe
 
 ---
 
@@ -51,20 +55,36 @@ Options:
 ### Q004 · point5
 I have been able to carry out my usual daily activities.
 
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
+
 ---
 
 ### Q005 · point5
 I have been able to walk and move around without difficulty.
+
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
 
 ---
 
 ### Q006 · point5
 My symptoms have affected my mood and emotional wellbeing.
 
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
+
 ---
 
 ### Q007 · point10
-How would you rate your overall quality of life this week? (1 is very poor, 10 is excellent)
+How would you rate your overall quality of life this week?
+
+Labels:
+- 1 · Very poor
+- 10 · Excellent
 
 ## Comments
 

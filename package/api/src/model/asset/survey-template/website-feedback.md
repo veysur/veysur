@@ -37,10 +37,18 @@ Did you find what you were looking for?
 ### Q003 · point5
 How easy was it to find your way around the site?
 
+Labels:
+- 1 · Very difficult
+- 5 · Very easy
+
 ---
 
 ### Q004 · point5
 How would you rate the look and feel of the site?
+
+Labels:
+- 1 · Very poor
+- 5 · Excellent
 
 ## Improvements
 

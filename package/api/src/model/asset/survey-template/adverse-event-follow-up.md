@@ -78,6 +78,10 @@ Options:
 ### Q007 · point5
 How well are you tolerating your treatment overall?
 
+Labels:
+- 1 · Very poorly
+- 5 · Very well
+
 ---
 
 ### Q008 · text

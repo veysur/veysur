@@ -24,7 +24,8 @@ language:
 
 All three keys are required: `SurveyTemplateLoader` throws on a template without them. Include a welcome
 blockquote and a `## Thank you` section so a template-created survey has the same welcome, group and
-thank-you sections as a blank one. `SurveyTemplateLoader.test.ts` parses and validates every shipped template.
+thank-you sections as a blank one. Every `point5` and `point10` question must label at least its first and last point
+(`Labels:` block), which `SurveyTemplateLoader.test.ts` enforces. `SurveyTemplateLoader.test.ts` parses and validates every shipped template.
 
 ## API
 

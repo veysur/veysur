@@ -50,10 +50,18 @@ Options:
 ### Q004 · point5
 My condition is better controlled than before I started this treatment.
 
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
+
 ---
 
 ### Q005 · point5
 I can fit this treatment into my daily routine.
+
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
 
 ---
 

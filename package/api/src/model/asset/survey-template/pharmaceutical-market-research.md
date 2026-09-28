@@ -55,10 +55,18 @@ Options:
 ### Q004 · point5
 There is a need for new treatment options for this condition.
 
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
+
 ---
 
 ### Q005 · point10
-How likely would you be to prescribe a new treatment with proven benefits over current options? (1 is very unlikely, 10 is very likely)
+How likely would you be to prescribe a new treatment with proven benefits over current options?
+
+Labels:
+- 1 · Very unlikely
+- 10 · Very likely
 
 ---
 

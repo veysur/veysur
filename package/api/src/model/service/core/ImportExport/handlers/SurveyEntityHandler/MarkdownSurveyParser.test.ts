@@ -490,6 +490,30 @@ ${body}`
     expect(() => parseMarkdownSurvey(markdown)).toThrow(/not applicable/)
   })
 
+  test('expands a Labels block into P1..Pn answer options', () => {
+    const bundle = parseMarkdownSurvey(
+      wrap(`### Q001 · point5\nRate\n\nLabels:\n- 1 · Low\n- 5 · High\n`),
+    )
+    const question = bundle.elements[0] as unknown as {
+      answerOptions: Array<{ code: string; label: Record<string, string> }>
+    }
+    expect(question.answerOptions.map((o) => o.code)).toEqual([
+      'P1',
+      'P2',
+      'P3',
+      'P4',
+      'P5',
+    ])
+    expect(question.answerOptions[0].label).toEqual({ en: 'Low' })
+    expect(question.answerOptions[2].label).toEqual({})
+    expect(question.answerOptions[4].label).toEqual({ en: 'High' })
+  })
+
+  test('rejects a Labels point outside the scale', () => {
+    const markdown = wrap(`### Q001 · point5\nRate\n\nLabels:\n- 6 · High\n`)
+    expect(() => parseMarkdownSurvey(markdown)).toThrow(/outside 1-5/)
+  })
+
   test('rejects an unrecognised question type', () => {
     const markdown = wrap(`### Q001 · matrixText\nSomething\n`)
     expect(() => parseMarkdownSurvey(markdown)).toThrow(/Unsupported type/)

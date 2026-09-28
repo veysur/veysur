@@ -10,6 +10,7 @@ import {
   isSurveyContent,
   isEqual,
   attributesMetadata,
+  getPointScaleCount,
   CONTENT_TYPE_YOUTUBE,
 } from 'veysur-common'
 
@@ -281,6 +282,39 @@ function buildQuestionBlock(
     }
   }
 
+  if (getPointScaleCount(question.type) !== undefined) {
+    const labelLines = buildPointLabelLines(
+      question,
+      defaultLang,
+      languageOptions,
+    )
+    if (labelLines.length > 0) {
+      lines.push('')
+      lines.push('Labels:')
+      lines.push(...labelLines)
+    }
+  }
+
+  return lines
+}
+
+function buildPointLabelLines(
+  question: SurveyQuestion,
+  defaultLang: string,
+  languageOptions: string[],
+): string[] {
+  const lines: string[] = []
+  ;(question.answerOptions ?? []).forEach((option, index) => {
+    const hasLabel = Object.values(option.label ?? {}).some(
+      (text) => typeof text === 'string' && text !== '',
+    )
+    if (!hasLabel) return
+    lines.push(
+      ...renderL10nField(option.label, defaultLang, languageOptions, (text) => [
+        `- ${index + 1} · ${text}`,
+      ]),
+    )
+  })
   return lines
 }
 

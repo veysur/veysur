@@ -22,15 +22,27 @@ How would you rate the event overall?
 ### Q002 · point5
 How relevant was the content to you?
 
+Labels:
+- 1 · Not at all relevant
+- 5 · Extremely relevant
+
 ---
 
 ### Q003 · point5
 How would you rate the venue and facilities?
 
+Labels:
+- 1 · Very poor
+- 5 · Excellent
+
 ---
 
 ### Q004 · point5
 How well was the event organised?
+
+Labels:
+- 1 · Very poorly
+- 5 · Very well
 
 ## Looking ahead
 

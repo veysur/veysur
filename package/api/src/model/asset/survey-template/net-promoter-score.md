@@ -15,7 +15,11 @@ language:
 ## Recommendation
 
 ### Q001 · point10
-How likely are you to recommend us to a friend or colleague? 1 means not at all likely and 10 means extremely likely.
+How likely are you to recommend us to a friend or colleague?
+
+Labels:
+- 1 · Not at all likely
+- 10 · Extremely likely
 
 ---
 

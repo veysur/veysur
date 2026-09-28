@@ -44,15 +44,27 @@ How many months passed between your first symptoms and a confirmed diagnosis?
 ### Q004 · point5
 I felt my symptoms were taken seriously.
 
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
+
 ## Diagnosis and treatment
 
 ### Q005 · point5
 My diagnosis was explained in a way I could understand.
 
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
+
 ---
 
 ### Q006 · point5
 I was involved in decisions about my treatment.
+
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
 
 ---
 

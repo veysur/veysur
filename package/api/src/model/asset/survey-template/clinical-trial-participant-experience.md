@@ -17,25 +17,45 @@ language:
 ### Q001 · point5
 I understood what taking part in the study would involve before I joined.
 
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
+
 ---
 
 ### Q002 · point5
 The study team explained each procedure clearly.
+
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
 
 ---
 
 ### Q003 · point5
 The study team responded quickly when I had questions or concerns.
 
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
+
 ## Study burden
 
 ### Q004 · point5
 The number of study visits has been manageable for me.
 
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
+
 ---
 
 ### Q005 · point5
 The time each visit takes has been reasonable.
+
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
 
 ---
 
@@ -55,7 +75,11 @@ Options:
 ## Staying in the study
 
 ### Q007 · point10
-How likely are you to complete the study? (1 is very unlikely, 10 is certain)
+How likely are you to complete the study?
+
+Labels:
+- 1 · Very unlikely
+- 10 · Certain
 
 ---
 

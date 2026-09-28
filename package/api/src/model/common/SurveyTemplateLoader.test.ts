@@ -2,7 +2,11 @@ import * as fs from 'fs'
 import * as os from 'os'
 import * as path from 'path'
 
-import { SurveyImportValidator } from 'veysur-common'
+import {
+  SurveyImportValidator,
+  getPointScaleCount,
+  isSurveyQuestion,
+} from 'veysur-common'
 
 import { SurveyTemplateLoader } from './SurveyTemplateLoader'
 
@@ -38,6 +42,27 @@ describe('SurveyTemplateLoader (shipped templates)', () => {
       )
       expect(errors).toEqual([])
       expect(valid).toBe(true)
+    },
+  )
+
+  test.each(loader.list().map((t) => [t.id] as const))(
+    '%s labels the first and last point of every point5/point10 question',
+    (id) => {
+      const bundle = parseMarkdownSurvey(loader.getMarkdown(id))
+      for (const element of bundle.elements) {
+        if (!isSurveyQuestion(element)) continue
+        const count = getPointScaleCount(element.type)
+        if (count === undefined || element.type === 'starRating') continue
+        const labelAt = (index: number) =>
+          Object.values(element.answerOptions[index]?.label ?? {}).some(
+            (text) => text !== '',
+          )
+        expect([element.code, labelAt(0), labelAt(count - 1)]).toEqual([
+          element.code,
+          true,
+          true,
+        ])
+      }
     },
   )
 

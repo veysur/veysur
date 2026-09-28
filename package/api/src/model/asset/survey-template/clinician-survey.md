@@ -62,6 +62,10 @@ Options:
 ### Q005 · point5
 Current treatment options meet the needs of most of my patients.
 
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
+
 ---
 
 ### Q006 · text
@@ -73,6 +77,10 @@ What are the main unmet needs you see in your patients?
 
 ### Q007 · point5
 Clinical guidelines for this condition are clear and easy to apply.
+
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
 
 ---
 

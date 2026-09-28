@@ -17,25 +17,45 @@ language:
 ### Q001 · point5
 I find my work meaningful.
 
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
+
 ---
 
 ### Q002 · point5
 I have the tools and information I need to do my job well.
+
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
 
 ---
 
 ### Q003 · point5
 My workload is manageable.
 
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
+
 ## Your team
 
 ### Q004 · point5
 I feel supported by my manager.
 
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
+
 ---
 
 ### Q005 · point5
 People in my team treat each other with respect.
+
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
 
 ---
 

@@ -54,6 +54,10 @@ Options:
 ### Q004 · point5
 Prior authorisation is an effective way to manage use of high-cost treatments.
 
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
+
 ---
 
 ### Q005 · dropdown
@@ -71,6 +75,10 @@ Options:
 
 ### Q006 · point5
 Outcomes-based pricing agreements are attractive to my organisation.
+
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
 
 ---
 

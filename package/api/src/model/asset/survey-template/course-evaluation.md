@@ -22,25 +22,45 @@ How would you rate the course overall?
 ### Q002 · point5
 The course content was clear and well organised.
 
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
+
 ---
 
 ### Q003 · point5
 The course materials were useful.
+
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
 
 ---
 
 ### Q004 · point5
 The pace of the course suited me.
 
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
+
 ## The instructor
 
 ### Q005 · point5
 The instructor explained topics clearly.
 
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
+
 ---
 
 ### Q006 · point5
 The instructor answered questions helpfully.
+
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
 
 ## Your learning
 

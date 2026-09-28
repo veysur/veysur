@@ -30,20 +30,36 @@ Options:
 ### Q002 · point5
 The device was easy to set up.
 
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
+
 ---
 
 ### Q003 · point5
 The instructions were clear.
+
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
 
 ---
 
 ### Q004 · point5
 The device is comfortable and practical to use.
 
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
+
 ## Performance
 
 ### Q005 · point5
 The results were accurate and consistent.
+
+Labels:
+- 1 · Strongly disagree
+- 5 · Strongly agree
 
 ---
 
@@ -66,7 +82,11 @@ How would you rate the device overall?
 ---
 
 ### Q009 · point10
-How likely are you to recommend it to a colleague or another patient? (1 is not at all likely, 10 is extremely likely)
+How likely are you to recommend it to a colleague or another patient?
+
+Labels:
+- 1 · Not at all likely
+- 10 · Extremely likely
 
 ## Thank you
 

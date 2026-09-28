@@ -132,9 +132,10 @@ attribute registry.
 
 - `checkbox`, `dropdown`: one or more `SurveyAnswerOption` (`code`, `label: L10n`).
   `image` is out of scope for v1 (belongs to `imageSelect`, itself deferred).
-- `yesNo`, `starRating`, `point5`, `point10`, `date`, `time`, `dateTime`, `text`,
-  `number`: no answer options in v1 (their answer sets are implicit in the type, or
-  free-form).
+- `starRating`, `point5`, `point10`: optional per-point labels (`Labels:`, §3.4), stored
+  as `P1..Pn` answer options.
+- `yesNo`, `date`, `time`, `dateTime`, `text`, `number`: no answer options in v1 (their
+  answer sets are implicit in the type, or free-form).
 - **Subquestions** (`SurveySubquestion`: `code`, `type`, `text`, `detail`,
   `attributes`) belong to matrix/multi-part composite questions only: out of scope
   for v1 entirely, not just their attributes.
@@ -338,6 +339,11 @@ Options:
   displays as a clean option list, and reads immediately as "these are the choices"
   without inventing new syntax. Always unchecked on export; the importer ignores the
   checked state.
+- **Labels** (`starRating`/`point5`/`point10` only): an optional literal `Labels:` line
+  followed by `- <point> · <label>` per labelled point, where `<point>` is the 1-based
+  point number. Unlisted points stay unlabelled; the importer expands the block into the
+  full `P1..Pn` answer-option list the model stores. A point outside the scale or listed
+  twice is rejected. The exporter emits the block only when at least one point has a label.
 - A horizontal rule (`---`) separates consecutive question blocks within a group,
   purely for human readability; the importer treats it as insignificant whitespace
   (see §4): block boundaries are determined by `###` headings, not by `---` — this
