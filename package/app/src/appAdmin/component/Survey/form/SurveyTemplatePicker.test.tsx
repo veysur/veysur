@@ -30,14 +30,36 @@ const renderPicker = (value = 'blank') => {
   return onChange
 }
 
+const expand = () => {
+  fireEvent.click(screen.getByTestId('survey-template-toggle'))
+}
+
 describe('SurveyTemplatePicker', () => {
-  it('shows every template and the blank option by default', () => {
+  it('hides the template options until expanded', () => {
     renderPicker()
+    expect(screen.getByTestId('survey-template-toggle')).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    )
+    expect(screen.queryAllByRole('radio')).toHaveLength(0)
+    expand()
+    expect(screen.getAllByRole('radio')).toHaveLength(3)
+  })
+
+  it('starts expanded when a template is already selected', () => {
+    renderPicker('nps')
+    expect(screen.getAllByRole('radio')).toHaveLength(3)
+  })
+
+  it('shows every template and the blank option once expanded', () => {
+    renderPicker()
+    expand()
     expect(screen.getAllByRole('radio')).toHaveLength(3)
   })
 
   it('narrows by category tab', () => {
     renderPicker()
+    expand()
     fireEvent.mouseDown(screen.getByRole('tab', { name: 'Events' }))
     expect(screen.queryByRole('radio', { name: /net promoter/i })).toBeNull()
     expect(screen.getByRole('radio', { name: /event feedback/i })).toBeVisible()
@@ -46,6 +68,7 @@ describe('SurveyTemplatePicker', () => {
 
   it('filters by search text and shows an empty state', () => {
     renderPicker()
+    expand()
     const search = screen.getByPlaceholderText('Search templates (optional)...')
     fireEvent.change(search, { target: { value: 'promoter' } })
     expect(screen.getAllByRole('radio')).toHaveLength(2)
