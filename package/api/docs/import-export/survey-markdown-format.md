@@ -2,9 +2,8 @@
 
 # Survey Markdown Format: v1 Specification
 
-Status: specified, not yet implemented. Implementation of `MarkdownFormatHandler`, the
-exporter, the importer, and their tests is tracked as a separate future piece of work (see
-§7-§8).
+Status: implemented (`MarkdownFormatHandler`, `MarkdownSurveyExporter`, `MarkdownSurveyParser`,
+`MarkdownImportResolver`, `MarkdownImportPersister`).
 
 ## 1. Purpose and scope
 

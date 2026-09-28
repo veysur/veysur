@@ -15,7 +15,7 @@ export const PageSurveyNew: React.FC = () => {
       <PageHeader
         icon={FilePlus}
         title="New Survey"
-        description="Start building your survey by providing a name."
+        description="Start building your survey by providing a name, from scratch or from a template."
         maxWidth="max-w-none"
         showBack={false}
         inlineNav={

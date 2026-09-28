@@ -3,6 +3,13 @@ import { PropsOf } from 'mzen-schema'
 
 import { Api, ErrorRest } from 'model'
 
+export type SurveyTemplateSummary = {
+  id: string
+  name: string
+  description: string
+  questionCount: number
+}
+
 export class SurveyApi extends Api {
   async getAll(
     page: number = 1,
@@ -56,11 +63,22 @@ export class SurveyApi extends Api {
     }
   }
 
-  async create(survey: Partial<SurveyData>) {
+  async create(survey: Partial<SurveyData>, templateId?: string) {
     try {
       return await this.getClient().post<PropsOf<Survey>>('/survey', {
         survey,
+        templateId,
       })
+    } catch (error) {
+      throw ErrorRest.fromRequestError(error as Error)
+    }
+  }
+
+  async getTemplates(): Promise<SurveyTemplateSummary[]> {
+    try {
+      return await this.getClient().get<SurveyTemplateSummary[]>(
+        '/survey/template/list',
+      )
     } catch (error) {
       throw ErrorRest.fromRequestError(error as Error)
     }

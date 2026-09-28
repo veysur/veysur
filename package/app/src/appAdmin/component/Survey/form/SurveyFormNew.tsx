@@ -19,6 +19,10 @@ import { ErrorRest } from 'model/api'
 
 import { useSurveyCreate } from '../hook'
 import { SurveySchemaNew } from '../model'
+import {
+  SURVEY_TEMPLATE_BLANK,
+  SurveyTemplatePicker,
+} from './SurveyTemplatePicker'
 
 const schema = new SurveySchemaNew()
 
@@ -27,6 +31,7 @@ export const SurveyFormNew: React.FC = () => {
   const [formState, setFormState] = useState({
     name: '',
   })
+  const [templateId, setTemplateId] = useState(SURVEY_TEMPLATE_BLANK)
   const [errors, setErrors] = useState<{
     [key: string]: string[] | undefined
   }>({})
@@ -57,7 +62,10 @@ export const SurveyFormNew: React.FC = () => {
     const { isValid, errors } = await schema.validate(formState)
     if (isValid) {
       try {
-        const survey = await surveyCreate({ name: data.name })
+        const survey = await surveyCreate(
+          { name: data.name },
+          templateId === SURVEY_TEMPLATE_BLANK ? undefined : templateId,
+        )
         setSurvey(survey)
       } catch (error) {
         if (error instanceof ErrorRest) {
@@ -108,6 +116,7 @@ export const SurveyFormNew: React.FC = () => {
               <FieldError className="mt-1">{errors.name.join(', ')}</FieldError>
             )}
           </div>
+          <SurveyTemplatePicker value={templateId} onChange={setTemplateId} />
         </CardContent>
         <CardFooter className="flex justify-end">
           <Button type="submit" disabled={formIsLoading}>

@@ -96,9 +96,15 @@ export { FileResolution }
  * `data` param is `unknown`, so no format is otherwise available at those
  * call sites).
  */
+export type MarkdownParsedSurvey = ImportSurveyEntity & {
+  name: string
+  title: Record<string, string>
+  language: { default: string; options: string[] }
+}
+
 export type MarkdownParsedBundle = {
   sourceFormat: 'markdown'
-  survey: ImportSurveyEntity
+  survey: MarkdownParsedSurvey
   sections: ImportSectionEntity[]
   elements: ImportElementEntity[]
 }

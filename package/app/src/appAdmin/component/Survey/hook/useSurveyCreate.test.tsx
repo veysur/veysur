@@ -43,7 +43,7 @@ describe('useSurveyCreate', () => {
     await result.current.surveyCreate({ name: 'New survey' })
 
     await waitFor(() => {
-      expect(mockCreate).toHaveBeenCalledWith({ name: 'New survey' })
+      expect(mockCreate).toHaveBeenCalledWith({ name: 'New survey' }, undefined)
     })
 
     expect(invalidateQueriesSpy).toHaveBeenCalledWith({

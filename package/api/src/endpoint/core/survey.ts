@@ -12,6 +12,18 @@ export const surveyConfig = {
       data: {
         projectId: { src: 'header', srcPath: 'X-Project-Id', required: true },
         survey: { src: 'body', required: true },
+        templateId: { src: 'body', required: false },
+      },
+      acl: {
+        rules: [{ allow: true, role: 'projectAdmin' }],
+      },
+    },
+    getSurveyTemplateList: {
+      path: '/template/list',
+      method: 'listTemplates',
+      verbs: ['get'],
+      data: {
+        projectId: { src: 'header', srcPath: 'X-Project-Id', required: true },
       },
       acl: {
         rules: [{ allow: true, role: 'projectAdmin' }],

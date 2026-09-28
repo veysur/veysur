@@ -1,5 +1,6 @@
 export const KEY_STATE_SURVEY_EDITING = 'surveyEditing'
 export const KEY_STATE_SURVEY_LIST = 'surveyList'
+export const KEY_STATE_SURVEY_TEMPLATE_LIST = 'surveyTemplateList'
 export const KEY_STATE_SURVEY_FOCUS = 'surveyFocus'
 export const KEY_STATE_SURVEY_PARTICIPANT_LIST = 'surveyParticipantList'
 export const KEY_STATE_SURVEY_PARTICIPANT_GET = 'surveyParticipantGet'

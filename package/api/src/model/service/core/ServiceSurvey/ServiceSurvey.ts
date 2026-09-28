@@ -1,4 +1,8 @@
-import { Service, ServerErrorNotFound } from 'mzen-server'
+import {
+  Service,
+  ServerErrorBadRequest,
+  ServerErrorNotFound,
+} from 'mzen-server'
 import { Patcher, Survey } from 'veysur-common'
 import { escapeRegex, buildDateRangeQuery, contextForProject } from 'common'
 
@@ -18,6 +22,10 @@ import {
   RepoSurveySnapshot,
   ServiceProject,
 } from 'model'
+import { SurveyTemplateLoader } from 'model/common'
+import { MarkdownImportPersister } from '../ImportExport/handlers/SurveyEntityHandler/MarkdownImportPersister'
+import { MarkdownImportResolver } from '../ImportExport/handlers/SurveyEntityHandler/MarkdownImportResolver'
+import { parseMarkdownSurvey } from '../ImportExport/handlers/SurveyEntityHandler/MarkdownSurveyParser'
 import { ServiceFileDeletion } from '../ServiceFile/ServiceFileDeletion'
 import { ServiceSettingSurvey } from '../ServiceSettingSurvey'
 import { ServiceSurveyLanguage } from '../ServiceSurveyLanguage'
@@ -30,7 +38,77 @@ export class ServiceSurvey extends Service {
     })
   }
 
-  async create({ survey, projectId, aclContext }) {
+  listTemplates() {
+    const loader = SurveyTemplateLoader.getInstance()
+    return loader.list().map((template) => {
+      const { elements } = parseMarkdownSurvey(loader.getMarkdown(template.id))
+      return {
+        ...template,
+        questionCount: elements.filter((e) => e.kind !== 'content').length,
+      }
+    })
+  }
+
+  private async createFromTemplate({
+    survey,
+    templateId,
+    projectId,
+    aclContext,
+  }) {
+    const markdown = SurveyTemplateLoader.getInstance().getMarkdown(templateId)
+    if (!markdown) {
+      throw new ServerErrorBadRequest({
+        message: `Unknown survey template '${templateId}'`,
+      })
+    }
+
+    const context = contextForProject(projectId)
+    const repo = this.getRepo<RepoSurvey>('survey')
+
+    const bundle = parseMarkdownSurvey(markdown)
+    const surveyName: string = survey.name?.trim()
+    if (surveyName) {
+      bundle.survey.name = surveyName
+      bundle.survey.title = {
+        ...bundle.survey.title,
+        [bundle.survey.language.default]: surveyName,
+      }
+    }
+
+    const resolved = await new MarkdownImportResolver(repo).resolve(bundle, {
+      projectId,
+      aclContext,
+    })
+    if (!resolved.valid) {
+      throw new ServerErrorBadRequest({
+        message: `Survey template '${templateId}' failed validation`,
+      })
+    }
+    const { entityId } = await new MarkdownImportPersister(repo).persist(
+      resolved.data,
+      { projectId, aclContext },
+    )
+
+    await this.modelManager.services.eventLog.log({
+      projectId,
+      action: 'survey.created',
+      userId: aclContext.jwt._id,
+      metadata: { surveyId: entityId, templateId },
+    })
+
+    return repo.findOne({ _id: entityId }, { context })
+  }
+
+  async create({ survey, projectId, aclContext, templateId = undefined }) {
+    if (templateId) {
+      return this.createFromTemplate({
+        survey,
+        templateId,
+        projectId,
+        aclContext,
+      })
+    }
+
     const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSurvey>('survey')
 

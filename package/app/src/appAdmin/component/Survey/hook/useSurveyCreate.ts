@@ -10,19 +10,26 @@ export function useSurveyCreate() {
   const project = useProjectDomain()
 
   const mutation = useInvalidatingMutation({
-    mutationFn: async (data: Partial<SurveyData>) => {
+    mutationFn: async ({
+      data,
+      templateId,
+    }: {
+      data: Partial<SurveyData>
+      templateId?: string
+    }) => {
       if (!project?._id) {
         throw new Error('Project not found')
       }
 
-      const surveyData = await getSurveyApi().create(data)
+      const surveyData = await getSurveyApi().create(data, templateId)
       return new Survey(surveyData)
     },
     invalidateKeys: [[KEY_STATE_SURVEY_LIST]],
   })
 
   return {
-    surveyCreate: mutation.mutateAsync,
+    surveyCreate: (data: Partial<SurveyData>, templateId?: string) =>
+      mutation.mutateAsync({ data, templateId }),
     isLoading: mutation.isPending,
     error: mutation.error?.message ?? null,
   }
