@@ -268,7 +268,7 @@ const QuestionViewComponent: React.FC<QuestionProps> = ({
         <div className="flex gap-1">
           {/* Left: question text + detail */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center font-semibold text-foreground gap-1 mb-1">
+            <div className="flex items-start font-semibold text-foreground gap-1 mb-1">
               {question.condition && (
                 <Tooltip>
                   <TooltipTrigger asChild>
