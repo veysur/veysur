@@ -31,5 +31,5 @@ thank-you sections as a blank one. Every `point5` and `point10` question must la
 
 - `GET /survey/template/list` returns `[{ id, name, description, category, questionCount }]`.
 - `POST /survey` accepts an optional body field `templateId` beside `survey`. With it,
-  `ServiceSurvey.create` runs the markdown import path (parse, resolve, persist) and uses `survey.name`
+  `ServiceSurvey.create` delegates to `ServiceSurveyTemplate.createSurvey`, which runs the markdown import path (parse, resolve, persist) and uses `survey.name`
   as the survey name and default-language title. An unknown id is a 400.
