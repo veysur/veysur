@@ -28,6 +28,9 @@ const renderForm = () =>
     </MemoryRouter>,
   )
 
+const expandTemplates = () =>
+  fireEvent.click(screen.getByTestId('survey-template-toggle'))
+
 describe('SurveyFormNew', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -51,6 +54,7 @@ describe('SurveyFormNew', () => {
 
   it('sends the chosen template id', async () => {
     renderForm()
+    expandTemplates()
     fireEvent.change(screen.getByLabelText(/^name/i), {
       target: { name: 'name', value: 'My survey' },
     })
@@ -67,6 +71,7 @@ describe('SurveyFormNew', () => {
 
   it('shows each template name and description', () => {
     renderForm()
+    expandTemplates()
     expect(screen.getByText('Net Promoter Score')).toBeInTheDocument()
     expect(screen.getByText(/Ask the standard question/)).toBeInTheDocument()
   })
