@@ -1,4 +1,4 @@
-import MzenId from '@datacapy/id'
+import DatacapyId from '@datacapy/id'
 import { DataSourceContext } from '@datacapy/om'
 import {
   SurveyImportIdTranslator,
@@ -171,7 +171,7 @@ export class VsstImportResolver {
     for (const entry of (bundle.embeddedFileEntries ?? []).filter(
       (e) => e.imageVariant === 'edited',
     )) {
-      const newImageSetId = entry.hash ? entry.hash.substring(0, 16) : MzenId()
+      const newImageSetId = entry.hash ? entry.hash.substring(0, 16) : DatacapyId()
       imageSetIdMap[entry.imageSetId] = newImageSetId
 
       const existing = await this.repoFile.findOne(
@@ -213,7 +213,7 @@ export class VsstImportResolver {
       fileResolutions.push({
         manifestEntry: entry,
         existingFileId: null,
-        newFileId: MzenId(),
+        newFileId: DatacapyId(),
         newFilePath,
         imageSetId: newImageSetId,
         imageVariant: 'edited',
@@ -241,7 +241,7 @@ export class VsstImportResolver {
       fileResolutions.push({
         manifestEntry: entry,
         existingFileId: null,
-        newFileId: MzenId(),
+        newFileId: DatacapyId(),
         newFilePath,
         imageSetId: resolvedSetId,
         imageVariant: entry.imageVariant,

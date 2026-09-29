@@ -1,4 +1,4 @@
-import MzenId from '@datacapy/id'
+import DatacapyId from '@datacapy/id'
 import { DataSourceContext } from '@datacapy/om'
 import {
   Survey,
@@ -310,7 +310,7 @@ export class VsspImportPersister {
         continue
       }
 
-      const newFileId = MzenId()
+      const newFileId = DatacapyId()
       const storedFilename = generateStoredFilename(
         entry.filename,
         entry.hash ?? newFileId,
@@ -439,12 +439,12 @@ export class VsspImportPersister {
     if (createSurvey) {
       const sectionIdMap: Record<string, string> = {}
       for (const sectionData of surveyDataForCreate.sections ?? []) {
-        sectionIdMap[sectionData._id] = MzenId()
+        sectionIdMap[sectionData._id] = DatacapyId()
       }
 
       const elementIdMap: Record<string, string> = {}
       for (const elementData of surveyDataForCreate.elements ?? []) {
-        elementIdMap[elementData._id] = MzenId()
+        elementIdMap[elementData._id] = DatacapyId()
       }
 
       const survey = new Survey({
@@ -508,7 +508,7 @@ export class VsspImportPersister {
       })
 
       const snapshotDataRecord = new SurveySnapshot({
-        _id: MzenId(),
+        _id: DatacapyId(),
         snapshotId: resolvedSnapshotId,
         survey: remappedSnapshotData.survey,
       })
@@ -526,7 +526,7 @@ export class VsspImportPersister {
             {}
 
           const langSnapshot = new SurveyLanguageSnapshot({
-            _id: MzenId(),
+            _id: DatacapyId(),
             snapshotId: resolvedSnapshotId,
             surveyId: resolvedSurveyId,
             languageCode: langData.languageCode,
@@ -550,7 +550,7 @@ export class VsspImportPersister {
       ) {
         const attrSnapshotRecord = new SurveyParticipantAttributeSnapshot({
           ...surveyParticipantAttributeSnapshot,
-          _id: MzenId(),
+          _id: DatacapyId(),
           snapshotId: resolvedSnapshotId,
           surveyId: resolvedSurveyId,
         })
@@ -566,7 +566,7 @@ export class VsspImportPersister {
           const attrLangRecord = new SurveyParticipantAttributeLanguageSnapshot(
             {
               ...attrLangData,
-              _id: MzenId(),
+              _id: DatacapyId(),
               snapshotId: resolvedSnapshotId,
               surveyId: resolvedSurveyId,
             },
@@ -653,7 +653,7 @@ export class VsspImportPersister {
           } else {
             const participant = new SurveyParticipant({
               ...response.participant,
-              _id: MzenId(),
+              _id: DatacapyId(),
               surveyId: resolvedSurveyId,
             })
             await this.repoSurveyParticipant.insertOne(participant, {
@@ -664,7 +664,7 @@ export class VsspImportPersister {
         } else {
           const participant = new SurveyParticipant({
             ...(response.participant ?? {}),
-            _id: MzenId(),
+            _id: DatacapyId(),
             surveyId: resolvedSurveyId,
           })
           await this.repoSurveyParticipant.insertOne(participant, {
@@ -682,7 +682,7 @@ export class VsspImportPersister {
           { context: dsContext },
         )
         if (existing) hadResponseIdCollision = true
-        const newId = existing ? MzenId() : responseData._id
+        const newId = existing ? DatacapyId() : responseData._id
 
         const newParticipantId = responseData.participantId
           ? (participantIdMap[responseData.participantId] ??

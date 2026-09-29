@@ -4,7 +4,7 @@ import {
   ServerErrorNotFound,
 } from '@datacapy/server'
 import { ALLOWED_FILE_MIME_TYPES, File } from 'veysur-common'
-import MzenId from '@datacapy/id'
+import DatacapyId from '@datacapy/id'
 
 import { RepoFile } from 'model'
 import { AclContext } from 'model/entity/AclContext'
@@ -221,7 +221,7 @@ export class ServiceFileUpload extends Service {
         fileId = existingFile._id
       } else {
         await this.assertStorageForNewFile(projectId, fileSize)
-        fileId = MzenId()
+        fileId = DatacapyId()
         const file = new File({
           _id: fileId,
           filename: `${imageVariant}.jpg`,
@@ -342,7 +342,7 @@ export class ServiceFileUpload extends Service {
 
     // No match — create new record
     await this.assertStorageForNewFile(projectId, fileSize)
-    const fileId = MzenId()
+    const fileId = DatacapyId()
     const storedFilename = generateStoredFilename(filename, fileHash)
     const filePath = generateFilePath(projectId, storedFilename, {
       surveyId: surveyId || null,

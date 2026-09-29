@@ -1,6 +1,6 @@
 # Data Store
 
-The application uses JSON on the client side. It would be good if we could just store this data rather than doing translation back and forth between the client side and the server side. Luckily this issue has come up in previous projects and the Mzen project was created with this in mind. It’s an Object Document Mapper (ODM) with support for MongoDB and MySQL.
+The application uses JSON on the client side. It would be good if we could just store this data rather than doing translation back and forth between the client side and the server side. Luckily this issue has come up in previous projects and the Datacapy project was created with this in mind. It’s an Object Document Mapper (ODM) with support for MongoDB and MySQL.
 
 ## MySQL
 

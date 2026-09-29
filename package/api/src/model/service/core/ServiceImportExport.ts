@@ -5,7 +5,7 @@ import {
   ServerErrorBadRequest,
   ServerErrorNotFound,
 } from '@datacapy/server'
-import MzenId from '@datacapy/id'
+import DatacapyId from '@datacapy/id'
 import { File } from 'veysur-common'
 
 import { RepoFile, RepoSurvey } from 'model'
@@ -350,7 +350,7 @@ export class ServiceImportExport extends Service {
 
     const context = contextForProject(projectId)
     const repoFile = this.getRepo<RepoFile>('file')
-    const fileId = MzenId()
+    const fileId = DatacapyId()
     const storedFilename = filename
     const filePath = generateFilePath(projectId, storedFilename, {
       fileContext: 'import',

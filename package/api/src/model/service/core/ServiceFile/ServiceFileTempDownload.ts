@@ -4,7 +4,7 @@ import { Readable, Transform } from 'stream'
 
 import { Service, ServerErrorInternal } from '@datacapy/server'
 import { File } from 'veysur-common'
-import MzenId from '@datacapy/id'
+import DatacapyId from '@datacapy/id'
 
 import { RepoFile } from 'model'
 import { AclContext } from 'model/entity/AclContext'
@@ -95,7 +95,7 @@ export class ServiceFileTempDownload extends Service {
     })
     stream.pipe(tap)
 
-    const fileId = MzenId()
+    const fileId = DatacapyId()
     const storedFilename = generateStoredFilename(
       filename,
       randomBytes(8).toString('hex'),

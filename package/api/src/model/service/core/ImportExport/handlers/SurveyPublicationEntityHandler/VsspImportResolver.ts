@@ -1,4 +1,4 @@
-import MzenId from '@datacapy/id'
+import DatacapyId from '@datacapy/id'
 import { DataSourceContext } from '@datacapy/om'
 
 import { generateImageSetBasePath, contextForProject } from 'common'
@@ -119,12 +119,12 @@ export class VsspImportResolver {
     dsContext: DataSourceContext,
   ): Promise<{ resolvedSnapshotId: string; createSnapshot: boolean }> {
     if (createSurvey) {
-      return { resolvedSnapshotId: MzenId(), createSnapshot: true }
+      return { resolvedSnapshotId: DatacapyId(), createSnapshot: true }
     }
 
     const contentHash = data.snapshot?.contentHash
     if (!contentHash) {
-      return { resolvedSnapshotId: MzenId(), createSnapshot: true }
+      return { resolvedSnapshotId: DatacapyId(), createSnapshot: true }
     }
 
     const existingSnapshot = await this.repoSurveySnapshotPartial.findOne(
@@ -136,7 +136,7 @@ export class VsspImportResolver {
       return { resolvedSnapshotId: existingSnapshot._id, createSnapshot: false }
     }
 
-    return { resolvedSnapshotId: MzenId(), createSnapshot: true }
+    return { resolvedSnapshotId: DatacapyId(), createSnapshot: true }
   }
 
   private async resolvePublication(
@@ -145,7 +145,7 @@ export class VsspImportResolver {
     dsContext: DataSourceContext,
   ): Promise<{ resolvedPublicationId: string }> {
     if (createSurvey) {
-      return { resolvedPublicationId: MzenId() }
+      return { resolvedPublicationId: DatacapyId() }
     }
 
     const existingPublication = await this.repoSurveyPublication.findOne(
@@ -155,7 +155,7 @@ export class VsspImportResolver {
 
     return {
       resolvedPublicationId: existingPublication
-        ? MzenId()
+        ? DatacapyId()
         : data.publication._id,
     }
   }
@@ -182,7 +182,7 @@ export class VsspImportResolver {
     for (const entry of (data.embeddedFileEntries ?? []).filter(
       (e) => e.imageVariant === 'edited',
     )) {
-      const newImageSetId = entry.hash ? entry.hash.substring(0, 16) : MzenId()
+      const newImageSetId = entry.hash ? entry.hash.substring(0, 16) : DatacapyId()
       imageSetIdMap[entry.imageSetId] = newImageSetId
 
       const existing = await this.repoFile.findOne(
@@ -225,7 +225,7 @@ export class VsspImportResolver {
       fileResolutions.push({
         manifestEntry: entry,
         existingFileId: null,
-        newFileId: MzenId(),
+        newFileId: DatacapyId(),
         newFilePath,
         imageSetId: newImageSetId,
         imageVariant: 'edited',
@@ -253,7 +253,7 @@ export class VsspImportResolver {
       fileResolutions.push({
         manifestEntry: entry,
         existingFileId: null,
-        newFileId: MzenId(),
+        newFileId: DatacapyId(),
         newFilePath,
         imageSetId: resolvedSetId,
         imageVariant: entry.imageVariant,

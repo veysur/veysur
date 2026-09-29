@@ -1,6 +1,6 @@
 import { Readable } from 'stream'
 
-import MzenId from '@datacapy/id'
+import DatacapyId from '@datacapy/id'
 import {
   Survey,
   SurveySnapshot,
@@ -1022,7 +1022,7 @@ export class SurveyResponseEntityHandler implements EntityHandlerInterface {
       }
 
       const response = new SurveyResponse({
-        _id: MzenId(),
+        _id: DatacapyId(),
         surveyId,
         publicationId,
         snapshotId,

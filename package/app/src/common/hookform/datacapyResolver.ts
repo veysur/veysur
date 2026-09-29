@@ -1,7 +1,7 @@
 import { Schema, SchemaValidationResult, SchemaConfig } from '@datacapy/schema'
 import type { FieldErrors, FieldValues, Resolver } from 'react-hook-form'
 
-export interface MzenResolverOptions {
+export interface DatacapyResolverOptions {
   schemaConfig?: SchemaConfig
 }
 
@@ -89,7 +89,7 @@ function toFieldErrors<TFieldValues extends FieldValues = FieldValues>(errors: {
  */
 export function datacapyResolver<TFieldValues extends FieldValues = FieldValues>(
   schema: Schema,
-  options?: MzenResolverOptions,
+  options?: DatacapyResolverOptions,
 ): Resolver<TFieldValues> {
   return async (values) => {
     try {
