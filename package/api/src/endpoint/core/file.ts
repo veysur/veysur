@@ -102,7 +102,7 @@ export const fileConfig = {
 
     hardDeleteFiles: {
       service: 'fileDeletion',
-      path: '/hard/:olderThan?',
+      path: '/hard{/:olderThan}',
       method: 'hardDelete',
       verbs: ['delete'],
       data: {

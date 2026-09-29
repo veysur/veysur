@@ -42,18 +42,19 @@ export const initStorage = function (server: Server) {
   // Mount local file serving middleware (local mode only)
   const localMiddleware = createStorageMiddleware(storageConfig)
   if (localMiddleware) {
-    server.app.get('/storage/:bucket/*', localMiddleware)
+    server.app.get('/storage/:bucket/*key', localMiddleware)
   }
 
   // Mount upload endpoint — handles file body upload for both local and S3 modes.
   // Client PUTs raw file body to this endpoint with a signed token.
   // This must be registered on server.app BEFORE mzen-server mounts its router.
   server.app.put(
-    '/api/file/upload/:bucket/*',
+    '/api/file/upload/:bucket/*key',
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const bucket = req.params.bucket as string
-        const key = req.params[0] as string // Express wildcard
+        // Express 5 wildcard: path segments as an array
+        const key = (req.params.key as string[]).join('/')
         const token = req.query.token as string | undefined
 
         if (!token) {
