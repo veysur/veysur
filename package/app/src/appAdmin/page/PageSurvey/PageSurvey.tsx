@@ -92,6 +92,7 @@ export const PageSurvey: React.FC = () => {
       <PageHeader
         icon={FileText}
         title="Surveys"
+        showBack={false}
         description="Manage your surveys. Create new surveys, edit existing ones, and track their status."
         maxWidth="max-w-none"
         inlineNav={

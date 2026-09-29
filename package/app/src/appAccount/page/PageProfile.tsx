@@ -26,7 +26,7 @@ export const PageProfile: React.FC = () => {
 
   return (
     <AccountPageLayout fluid>
-      <PageHeader title="Profile Settings" backUrl="/" />
+      <PageHeader title="Profile Settings" showBack={false} />
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Basic Information Card */}
         <Card>

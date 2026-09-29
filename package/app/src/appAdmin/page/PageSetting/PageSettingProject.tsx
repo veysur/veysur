@@ -41,7 +41,7 @@ export const PageSettingProject: React.FC = () => {
       <PageHeader
         title="Project"
         description="Project-wide settings."
-        backUrl="/survey"
+        showBack={false}
       />
       <div className="max-w-2xl mx-auto">
         <ProjectTimezoneForm

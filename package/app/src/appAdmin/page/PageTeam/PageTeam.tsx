@@ -41,6 +41,7 @@ export const PageTeam: React.FC = () => {
       <PageHeader
         icon={Users}
         title="Team"
+        showBack={false}
         description="Team members and invitations."
         maxWidth="max-w-none"
         inlineNav={

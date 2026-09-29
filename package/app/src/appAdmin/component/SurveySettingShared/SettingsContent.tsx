@@ -64,6 +64,7 @@ export function SettingsContent<T>({
           label={currentCategory.label}
           description={currentSection.description}
           maxWidth="max-w-none"
+          showBack={false}
         />
       )}
 
