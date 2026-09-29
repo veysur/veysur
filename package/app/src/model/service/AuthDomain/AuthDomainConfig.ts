@@ -94,14 +94,20 @@ export class AuthDomainConfig implements AuthDomainConfigInterface {
   }
 
   /**
-   * Gets the full URL to the documentation site, optionally with a path appended
+   * Gets the full URL to the documentation site, optionally with a path appended.
+   * Precedence: a dedicated docs domain (cloud), else a path prefix on the current
+   * origin (`PUBLIC_DOCS_BASE`, e.g. `/docs` self-hosted), else a `docs.` subdomain
    */
   getDocsUrl = (path = ''): string => {
     const protocol = this.browserInterface.getProtocol()
-    const docsDomain =
-      process.env.PUBLIC_DOCS_DOMAIN ||
-      `docs.${process.env.PUBLIC_APP_DOMAIN || 'veysur.local'}`
-    return `${protocol}//${docsDomain}/${path}`
+    const docsDomain = process.env.PUBLIC_DOCS_DOMAIN
+    const docsBase = (process.env.PUBLIC_DOCS_BASE || '').replace(/\/+$/, '')
+    if (!docsDomain && docsBase) {
+      return `${protocol}//${this.browserInterface.getHost()}${docsBase}/${path}`
+    }
+    const host =
+      docsDomain || `docs.${process.env.PUBLIC_APP_DOMAIN || 'veysur.local'}`
+    return `${protocol}//${host}/${path}`
   }
 
   /**

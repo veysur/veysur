@@ -66,6 +66,7 @@ with `docker build --build-arg` only for a custom install.
 | `PUBLIC_PROJECT_SCOPE` | `single` | Admin resolves its one project without a per-project subdomain |
 | `PUBLIC_REST_API_BASE_PATH` | `/api` | API path on the single origin |
 | `PUBLIC_BASE_ACCOUNT` | `/account` | Account app path, also the "Manage Account" link target |
+| `PUBLIC_DOCS_BASE` | `/docs` | Path the docsite is served under on the app origin; the app's Docs link uses it when `PUBLIC_DOCS_DOMAIN` is unset. Also read by the docsite build |
 | `PUBLIC_AUTHENTICATION_DOMAIN` | empty | Empty means a single origin with no sign-in handoff |
 | `PUBLIC_ASSET_PREFIX` | empty | Asset URL prefix |
 | `PUBLIC_GA_TAG_ID_ACCOUNT` | empty | Analytics tag; empty disables it |

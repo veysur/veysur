@@ -166,6 +166,32 @@ describe('AuthDomain', () => {
     })
   })
 
+  describe('getDocsUrl', () => {
+    it('uses the docs domain when configured', () => {
+      process.env.PUBLIC_DOCS_DOMAIN = 'docs.veysur.test'
+      process.env.PUBLIC_DOCS_BASE = '/docs'
+      expect(AuthDomain.getDocsUrl('guides/x/')).toBe(
+        'https://docs.veysur.test/guides/x/',
+      )
+    })
+
+    it('uses a path prefix on the current origin when only a base is set', () => {
+      process.env.PUBLIC_DOCS_DOMAIN = ''
+      process.env.PUBLIC_DOCS_BASE = '/docs'
+      expect(AuthDomain.getDocsUrl()).toBe('https://example.com/docs/')
+      expect(AuthDomain.getDocsUrl('guides/x/')).toBe(
+        'https://example.com/docs/guides/x/',
+      )
+    })
+
+    it('falls back to the docs subdomain', () => {
+      process.env.PUBLIC_DOCS_DOMAIN = ''
+      process.env.PUBLIC_DOCS_BASE = ''
+      process.env.PUBLIC_APP_DOMAIN = 'veysur.test'
+      expect(AuthDomain.getDocsUrl()).toBe('https://docs.veysur.test/')
+    })
+  })
+
   describe('getPlatformUrl', () => {
     it('appends a path after the platform subdomain root', () => {
       process.env.PUBLIC_APP_DOMAIN = 'veysur.test'

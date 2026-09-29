@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config'
 import starlight from '@astrojs/starlight'
 import react from '@astrojs/react'
 import tailwindcss from '@tailwindcss/vite'
+import { remarkBaseLinks } from './remark-base-links.mjs'
 
 // Consent Mode default MUST be set synchronously, before any other tag or script can
 // touch consent — Google's docs explicitly warn against setting it asynchronously. It
@@ -21,7 +22,12 @@ window.gtag('consent', 'default', {
 });`
   : ''
 
+// Self-hosted serves the docsite under `/docs` on the app's origin; cloud serves it at a domain root.
+const base = process.env.PUBLIC_DOCS_BASE || '/'
+
 export default defineConfig({
+  base,
+  markdown: { remarkPlugins: [[remarkBaseLinks, { base }]] },
   redirects: {
     '/reference/survey-editor/elements': '/reference/survey-editor/survey-structure',
   },

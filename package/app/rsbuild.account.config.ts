@@ -71,6 +71,9 @@ export default defineConfig({
       'process.env.PUBLIC_DOCS_DOMAIN': JSON.stringify(
         process.env.PUBLIC_DOCS_DOMAIN || '',
       ),
+      'process.env.PUBLIC_DOCS_BASE': JSON.stringify(
+        process.env.PUBLIC_DOCS_BASE || '',
+      ),
       'process.env.APP_STRIPE_PUBLISH_KEY': JSON.stringify(
         process.env.APP_STRIPE_PUBLISH_KEY || '',
       ),
