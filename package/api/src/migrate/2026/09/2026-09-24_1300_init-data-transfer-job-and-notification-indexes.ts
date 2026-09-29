@@ -7,7 +7,7 @@ import { ModelManager } from '@datacapy/om'
  * `2026-08-18_1000_init-account-indexes.ts`'s `dbRepoNames` list, so their
  * declared indexes were never actually created - queries against them fall
  * back to a full-table `JSON_VALUE` scan (see
- * `external/datacapy/package/mzen-om/docs/mysql-indexes.md`). Same backfill
+ * `external/datacapy/package/om/docs/mysql-indexes.md`). Same backfill
  * pattern as `2026-09-17_1000_init-project-indexes.ts`.
  */
 export default class InitDataTransferJobAndNotificationIndexes

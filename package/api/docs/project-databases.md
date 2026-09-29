@@ -4,9 +4,9 @@
 
 This document covers VeySur's specific implementation of project databases. For detailed information about the dynamic datasource system:
 
-- **[Dynamic DataSource Basics](../../../external/datacapy/package/mzen-om/docs/dynamic-datasource.md)** - Core concepts, API, context creation, lookup interface
-- **[Multiple Dynamic DataSources](../../../external/datacapy/package/mzen-om/docs/dynamic-datasource-multiple.md)** - Using multiple datasources simultaneously
-- **[Advanced Infrastructure](../../../external/datacapy/package/mzen-om/docs/dynamic-datasource-advanced.md)** - BaseDataSourceLookup, DataSourceRegistry, caching strategies
+- **[Dynamic DataSource Basics](../../../external/datacapy/package/om/docs/dynamic-datasource.md)** - Core concepts, API, context creation, lookup interface
+- **[Multiple Dynamic DataSources](../../../external/datacapy/package/om/docs/dynamic-datasource-multiple.md)** - Using multiple datasources simultaneously
+- **[Advanced Infrastructure](../../../external/datacapy/package/om/docs/dynamic-datasource-advanced.md)** - BaseDataSourceLookup, DataSourceRegistry, caching strategies
 
 ## Overview
 
@@ -279,7 +279,7 @@ exporter metric) so future sizing decisions are based on observed peak
 concurrency rather than the theoretical worst case.
 
 **`maxSize` is not a hard ceiling.** `DataSourceRegistry.getOrCreate()`
-(`external/datacapy/package/mzen-om/src/data-source/registry.ts`) only evicts a
+(`external/datacapy/package/om/src/data-source/registry.ts`) only evicts a
 datasource to stay under `maxSize` if it can find an entry with
 `refCount === 0` (no active queries/leases). If every cached project
 datasource is busy when a new project needs a slot, eviction fails, a
@@ -317,7 +317,7 @@ All `package/api` services use `repo.transaction(context, fn)` — never call
 `transactionStart()`/`transactionCommit()`/`transactionRollback()` directly.
 Each transactional caller gets its own dedicated connection lease, so
 concurrent requests against the same project database cannot clobber each
-other's transactions. See the ["Transactions" section in Dynamic DataSource Basics](../../../external/datacapy/package/mzen-om/docs/dynamic-datasource.md)
+other's transactions. See the ["Transactions" section in Dynamic DataSource Basics](../../../external/datacapy/package/om/docs/dynamic-datasource.md)
 for the call pattern and the tx-scoped context requirement.
 
 ## Best Practices
@@ -349,6 +349,6 @@ await repo.find(query, { context })
 ## See Also
 
 For comprehensive information on dynamic datasources:
-- **[Dynamic DataSource API](../../../external/datacapy/package/mzen-om/docs/dynamic-datasource.md)** - Context creation, lookup interface, error handling
-- **[Advanced Infrastructure](../../../external/datacapy/package/mzen-om/docs/dynamic-datasource-advanced.md)** - BaseDataSourceLookup, caching, connection pooling details
-- **[Multiple DataSources](../../../external/datacapy/package/mzen-om/docs/dynamic-datasource-multiple.md)** - Multi-datasource patterns (if VeySur adds tenant-level isolation)
+- **[Dynamic DataSource API](../../../external/datacapy/package/om/docs/dynamic-datasource.md)** - Context creation, lookup interface, error handling
+- **[Advanced Infrastructure](../../../external/datacapy/package/om/docs/dynamic-datasource-advanced.md)** - BaseDataSourceLookup, caching, connection pooling details
+- **[Multiple DataSources](../../../external/datacapy/package/om/docs/dynamic-datasource-multiple.md)** - Multi-datasource patterns (if VeySur adds tenant-level isolation)

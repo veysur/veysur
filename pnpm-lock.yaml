@@ -65,7 +65,7 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
-  external/datacapy/package/mzen-id:
+  external/datacapy/package/id:
     devDependencies:
       '@types/jest':
         specifier: ^30.0.0
@@ -86,14 +86,14 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
 
-  external/datacapy/package/mzen-migrate:
+  external/datacapy/package/migrate:
     dependencies:
       '@datacapy/id':
         specifier: workspace:*
-        version: link:../mzen-id
+        version: link:../id
       '@datacapy/om':
         specifier: workspace:*
-        version: link:../mzen-om
+        version: link:../om
     devDependencies:
       '@types/jest':
         specifier: ^30.0.0
@@ -120,7 +120,7 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
 
-  external/datacapy/package/mzen-om:
+  external/datacapy/package/om:
     dependencies:
       clone:
         specifier: ^2.1.2
@@ -130,7 +130,7 @@ importers:
         version: 5.11.1
       '@datacapy/schema':
         specifier: workspace:*
-        version: link:../mzen-schema
+        version: link:../schema
     devDependencies:
       '@eslint/js':
         specifier: ^10.0.1
@@ -184,7 +184,7 @@ importers:
         specifier: ^8.71.0
         version: 8.71.0(eslint@10.11.0(jiti@2.7.0))(typescript@6.0.3)
 
-  external/datacapy/package/mzen-schema:
+  external/datacapy/package/schema:
     dependencies:
       bson-objectid:
         specifier: ^2.0.4
@@ -194,7 +194,7 @@ importers:
         version: 2.1.2
       '@datacapy/id':
         specifier: workspace:*
-        version: link:../mzen-id
+        version: link:../id
     devDependencies:
       '@types/jest':
         specifier: ^30.0.0
@@ -227,7 +227,7 @@ importers:
         specifier: ^8.71.0
         version: 8.71.0(eslint@10.11.0(jiti@2.7.0))(typescript@6.0.3)
 
-  external/datacapy/package/mzen-server:
+  external/datacapy/package/server:
     dependencies:
       bcryptjs:
         specifier: ^3.0.3
@@ -246,7 +246,7 @@ importers:
         version: 6.21.0(socks@2.8.10)
       '@datacapy/om':
         specifier: workspace:*
-        version: link:../mzen-om
+        version: link:../om
     devDependencies:
       '@eslint/js':
         specifier: ^10.0.1
@@ -407,19 +407,19 @@ importers:
         version: 0.6.4
       '@datacapy/id':
         specifier: workspace:*
-        version: link:../../external/datacapy/package/mzen-id
+        version: link:../../external/datacapy/package/id
       '@datacapy/migrate':
         specifier: workspace:*
-        version: link:../../external/datacapy/package/mzen-migrate
+        version: link:../../external/datacapy/package/migrate
       '@datacapy/om':
         specifier: workspace:*
-        version: link:../../external/datacapy/package/mzen-om
+        version: link:../../external/datacapy/package/om
       '@datacapy/schema':
         specifier: workspace:*
-        version: link:../../external/datacapy/package/mzen-schema
+        version: link:../../external/datacapy/package/schema
       '@datacapy/server':
         specifier: workspace:*
-        version: link:../../external/datacapy/package/mzen-server
+        version: link:../../external/datacapy/package/server
       node-dir:
         specifier: ^0.1.17
         version: 0.1.17
@@ -663,10 +663,10 @@ importers:
         version: 0.6.4
       '@datacapy/id':
         specifier: workspace:*
-        version: link:../../external/datacapy/package/mzen-id
+        version: link:../../external/datacapy/package/id
       '@datacapy/schema':
         specifier: workspace:*
-        version: link:../../external/datacapy/package/mzen-schema
+        version: link:../../external/datacapy/package/schema
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -832,10 +832,10 @@ importers:
         version: 0.6.4
       '@datacapy/id':
         specifier: workspace:*
-        version: link:../../external/datacapy/package/mzen-id
+        version: link:../../external/datacapy/package/id
       '@datacapy/schema':
         specifier: workspace:*
-        version: link:../../external/datacapy/package/mzen-schema
+        version: link:../../external/datacapy/package/schema
       sanitize-html:
         specifier: 2.13.0
         version: 2.13.0

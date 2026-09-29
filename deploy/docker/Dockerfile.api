@@ -25,11 +25,11 @@ COPY package/api/package.json ./package/api/
 COPY external/s3-adaptor/package.json ./external/s3-adaptor/
 
 # Copy datacapy package manifests
-COPY external/datacapy/package/mzen-id/package.json ./external/datacapy/package/mzen-id/
-COPY external/datacapy/package/mzen-om/package.json ./external/datacapy/package/mzen-om/
-COPY external/datacapy/package/mzen-migrate/package.json ./external/datacapy/package/mzen-migrate/
-COPY external/datacapy/package/mzen-schema/package.json ./external/datacapy/package/mzen-schema/
-COPY external/datacapy/package/mzen-server/package.json ./external/datacapy/package/mzen-server/
+COPY external/datacapy/package/id/package.json ./external/datacapy/package/id/
+COPY external/datacapy/package/om/package.json ./external/datacapy/package/om/
+COPY external/datacapy/package/migrate/package.json ./external/datacapy/package/migrate/
+COPY external/datacapy/package/schema/package.json ./external/datacapy/package/schema/
+COPY external/datacapy/package/server/package.json ./external/datacapy/package/server/
 
 # Install all dependencies (ignore scripts since we'll build in the builder stage)
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
@@ -55,27 +55,27 @@ COPY package/api ./package/api
 
 # Restore per-package node_modules from deps stage
 # (.dockerignore excludes local node_modules; these provide tsc and other build tools)
-COPY --from=deps /app/external/datacapy/package/mzen-id/node_modules ./external/datacapy/package/mzen-id/node_modules
-COPY --from=deps /app/external/datacapy/package/mzen-schema/node_modules ./external/datacapy/package/mzen-schema/node_modules
-COPY --from=deps /app/external/datacapy/package/mzen-om/node_modules ./external/datacapy/package/mzen-om/node_modules
-COPY --from=deps /app/external/datacapy/package/mzen-migrate/node_modules ./external/datacapy/package/mzen-migrate/node_modules
-COPY --from=deps /app/external/datacapy/package/mzen-server/node_modules ./external/datacapy/package/mzen-server/node_modules
+COPY --from=deps /app/external/datacapy/package/id/node_modules ./external/datacapy/package/id/node_modules
+COPY --from=deps /app/external/datacapy/package/schema/node_modules ./external/datacapy/package/schema/node_modules
+COPY --from=deps /app/external/datacapy/package/om/node_modules ./external/datacapy/package/om/node_modules
+COPY --from=deps /app/external/datacapy/package/migrate/node_modules ./external/datacapy/package/migrate/node_modules
+COPY --from=deps /app/external/datacapy/package/server/node_modules ./external/datacapy/package/server/node_modules
 COPY --from=deps /app/external/s3-adaptor/node_modules ./external/s3-adaptor/node_modules
 
 # Build datacapy packages first (in dependency order)
-WORKDIR /app/external/datacapy/package/mzen-id
+WORKDIR /app/external/datacapy/package/id
 RUN pnpm build
 
-WORKDIR /app/external/datacapy/package/mzen-schema
+WORKDIR /app/external/datacapy/package/schema
 RUN pnpm build
 
-WORKDIR /app/external/datacapy/package/mzen-om
+WORKDIR /app/external/datacapy/package/om
 RUN pnpm build
 
-WORKDIR /app/external/datacapy/package/mzen-migrate
+WORKDIR /app/external/datacapy/package/migrate
 RUN pnpm build
 
-WORKDIR /app/external/datacapy/package/mzen-server
+WORKDIR /app/external/datacapy/package/server
 RUN pnpm build
 
 # Build s3-adaptor

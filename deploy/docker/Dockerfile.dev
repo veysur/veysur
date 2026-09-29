@@ -18,11 +18,11 @@ COPY package/api/package.json ./package/api/
 COPY package/app/package.json ./package/app/
 COPY package/docsite/package.json ./package/docsite/
 COPY external/s3-adaptor/package.json ./external/s3-adaptor/
-COPY external/datacapy/package/mzen-id/package.json ./external/datacapy/package/mzen-id/
-COPY external/datacapy/package/mzen-migrate/package.json ./external/datacapy/package/mzen-migrate/
-COPY external/datacapy/package/mzen-om/package.json ./external/datacapy/package/mzen-om/
-COPY external/datacapy/package/mzen-schema/package.json ./external/datacapy/package/mzen-schema/
-COPY external/datacapy/package/mzen-server/package.json ./external/datacapy/package/mzen-server/
+COPY external/datacapy/package/id/package.json ./external/datacapy/package/id/
+COPY external/datacapy/package/migrate/package.json ./external/datacapy/package/migrate/
+COPY external/datacapy/package/om/package.json ./external/datacapy/package/om/
+COPY external/datacapy/package/schema/package.json ./external/datacapy/package/schema/
+COPY external/datacapy/package/server/package.json ./external/datacapy/package/server/
 
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile --ignore-scripts

@@ -105,7 +105,7 @@ Two subdirectories plus root-level files:
 
 **Import via barrel** (`from 'model/repo'`) — avoid direct file-path imports.
 
-**Indexes on Date-typed fields must set `typeHint`** (e.g. `{ typeHint: { createdAt: TYPE_HINT_TIMESTAMP } }`) — without it, @datacapy/om generates a plain `VARCHAR` column and range queries (`$lte`/`$gte`/etc.) silently compare dates lexicographically instead of chronologically. See `external/datacapy/package/mzen-om/docs/mysql-indexes.md`.
+**Indexes on Date-typed fields must set `typeHint`** (e.g. `{ typeHint: { createdAt: TYPE_HINT_TIMESTAMP } }`) — without it, @datacapy/om generates a plain `VARCHAR` column and range queries (`$lte`/`$gte`/etc.) silently compare dates lexicographically instead of chronologically. See `external/datacapy/package/om/docs/mysql-indexes.md`.
 
 **Any direct `repo.getDataSource(context)` call must be paired with `repo.releaseDataSource(context)` in a `finally` block.** This bypasses the normal CRUD methods (`find`/`insert`/`update`/etc.), which already pair acquire/release internally — needed when a migration patch runs raw SQL (e.g. `RENAME TABLE`) that has no repo method. Skipping the release leaks a `DataSourceRegistry` ref count that never reaches zero, so the registry can never close that dynamic (per-project) datasource — harmless in a one-shot migration job that exits right after, but a real leak in any longer-lived process. See `2026-09-09_1000_reshape-survey-section-element.ts` for the reference pattern.
 
