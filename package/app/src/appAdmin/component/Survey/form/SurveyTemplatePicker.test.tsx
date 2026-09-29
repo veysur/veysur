@@ -24,7 +24,7 @@ jest.mock('../hook', () => ({
   }),
 }))
 
-const renderPicker = (value = 'blank') => {
+const renderPicker = (value?: string) => {
   const onChange = jest.fn()
   render(<SurveyTemplatePicker value={value} onChange={onChange} />)
   return onChange
@@ -49,6 +49,12 @@ describe('SurveyTemplatePicker', () => {
   it('starts expanded when a template is already selected', () => {
     renderPicker('nps')
     expect(screen.getAllByRole('radio')).toHaveLength(3)
+  })
+
+  it('reports the blank option as an undefined template id', () => {
+    const onChange = renderPicker('nps')
+    fireEvent.click(screen.getByRole('radio', { name: /blank survey/i }))
+    expect(onChange).toHaveBeenCalledWith(undefined)
   })
 
   it('shows every template and the blank option once expanded', () => {

@@ -19,10 +19,7 @@ import { ErrorRest } from 'model/api'
 
 import { useSurveyCreate } from '../hook'
 import { SurveySchemaNew } from '../model'
-import {
-  SURVEY_TEMPLATE_BLANK,
-  SurveyTemplatePicker,
-} from './SurveyTemplatePicker'
+import { SurveyTemplatePicker } from './SurveyTemplatePicker'
 
 const schema = new SurveySchemaNew()
 
@@ -31,7 +28,7 @@ export const SurveyFormNew: React.FC = () => {
   const [formState, setFormState] = useState({
     name: '',
   })
-  const [templateId, setTemplateId] = useState(SURVEY_TEMPLATE_BLANK)
+  const [templateId, setTemplateId] = useState<string>()
   const [errors, setErrors] = useState<{
     [key: string]: string[] | undefined
   }>({})
@@ -51,7 +48,10 @@ export const SurveyFormNew: React.FC = () => {
     }))
   }
 
-  const handleTemplateChange = (id: string, templateName?: string) => {
+  const handleTemplateChange = (
+    id: string | undefined,
+    templateName?: string,
+  ) => {
     setTemplateId(id)
     if (templateName) {
       setFormState((prevState) =>
@@ -74,10 +74,7 @@ export const SurveyFormNew: React.FC = () => {
     const { isValid, errors } = await schema.validate(formState)
     if (isValid) {
       try {
-        const survey = await surveyCreate(
-          { name: data.name },
-          templateId === SURVEY_TEMPLATE_BLANK ? undefined : templateId,
-        )
+        const survey = await surveyCreate({ name: data.name }, templateId)
         setSurvey(survey)
       } catch (error) {
         if (error instanceof ErrorRest) {

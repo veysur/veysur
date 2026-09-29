@@ -17,11 +17,12 @@ import {
   surveyTemplateCategories,
 } from './filterSurveyTemplates'
 
-export const SURVEY_TEMPLATE_BLANK = 'blank'
+// Radix radio values must be strings; the blank survey is `undefined` everywhere else.
+const BLANK_RADIO_VALUE = '__blank__'
 
 type Props = {
-  value: string
-  onChange: (templateId: string, templateName?: string) => void
+  value: string | undefined
+  onChange: (templateId: string | undefined, templateName?: string) => void
 }
 
 type Option = { id: string; name: string; detail: string; category?: string }
@@ -30,7 +31,7 @@ export const SurveyTemplatePicker: React.FC<Props> = ({ value, onChange }) => {
   const { templates, isLoading } = useSurveyTemplateList()
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState(SURVEY_TEMPLATE_CATEGORY_ALL)
-  const [expanded, setExpanded] = useState(value !== SURVEY_TEMPLATE_BLANK)
+  const [expanded, setExpanded] = useState(value !== undefined)
 
   const categories = useMemo(
     () => surveyTemplateCategories(templates),
@@ -43,7 +44,7 @@ export const SurveyTemplatePicker: React.FC<Props> = ({ value, onChange }) => {
 
   const options: Option[] = [
     {
-      id: SURVEY_TEMPLATE_BLANK,
+      id: BLANK_RADIO_VALUE,
       name: 'Blank survey',
       detail: 'Start with an empty survey and add your own questions.',
     },
@@ -108,12 +109,14 @@ export const SurveyTemplatePicker: React.FC<Props> = ({ value, onChange }) => {
             )}
           </div>
           <RadioGroup
-            value={value}
+            value={value ?? BLANK_RADIO_VALUE}
             onValueChange={(id) =>
-              onChange(
-                id,
-                templates.find((template) => template.id === id)?.name,
-              )
+              id === BLANK_RADIO_VALUE
+                ? onChange(undefined)
+                : onChange(
+                    id,
+                    templates.find((template) => template.id === id)?.name,
+                  )
             }
             className="grid max-h-72 gap-2 overflow-y-auto pr-1 sm:grid-cols-2"
             data-testid="survey-template-picker"
@@ -126,7 +129,8 @@ export const SurveyTemplatePicker: React.FC<Props> = ({ value, onChange }) => {
                   htmlFor={inputId}
                   className={cn(
                     'flex cursor-pointer items-start gap-3 rounded-md border p-3 font-normal hover:bg-accent',
-                    value === option.id && 'border-primary bg-accent',
+                    (value ?? BLANK_RADIO_VALUE) === option.id &&
+                      'border-primary bg-accent',
                   )}
                 >
                   <RadioGroupItem
