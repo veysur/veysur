@@ -31,6 +31,8 @@ services:
         condition: service_healthy
       app-dev:
         condition: service_started
+      docsite-dev:
+        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/health"]
       interval: 10s
@@ -71,6 +73,7 @@ services:
       PUBLIC_REST_API_BASE_PATH: /api
       PUBLIC_AUTHENTICATION_DOMAIN: ""
       PUBLIC_BASE_ACCOUNT: /account
+      PUBLIC_DOCS_BASE: /docs
       PUBLIC_ASSET_PREFIX: ""
     volumes:
       - ../package/app/src:/app/package/app/src
@@ -100,6 +103,20 @@ services:
       - ../package/api/src:/app/package/api/src
       - ../package/common/src:/app/package/common/src
       - veysur-api-dist:/app/package/api/dist
+
+  # The admin guide, served under /docs by nginx.dev.conf. The anonymous
+  # node_modules volume keeps the dependencies installed in the image from
+  # being hidden by the source bind mount.
+  docsite-dev:
+    <<: *dev-image
+    entrypoint: ["pnpm", "exec", "astro", "dev", "--host", "0.0.0.0", "--port", "4321"]
+    working_dir: /app/package/docsite
+    environment:
+      NODE_ENV: development
+      PUBLIC_DOCS_BASE: /docs
+    volumes:
+      - ../package/docsite:/app/package/docsite
+      - /app/package/docsite/node_modules
 
   fake-smtp:
     image: haravich/fake-smtp-server:latest

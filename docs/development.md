@@ -16,6 +16,7 @@ pnpm dev:admin-account --email you@example.com   # another terminal: first accou
 
 Open <http://localhost:8080> (not port 80). Outgoing mail is caught by MailCatcher (the `fake-smtp` service)
 at <http://localhost:1080>; set `VEYSUR_MAIL_UI_PORT` to move it.
+The admin guide is served live at <http://localhost:8080/docs/> by the `docsite-dev` service.
 
 ## How the dev stack works
 
