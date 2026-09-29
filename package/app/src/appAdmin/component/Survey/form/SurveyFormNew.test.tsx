@@ -52,6 +52,16 @@ describe('SurveyFormNew', () => {
     )
   })
 
+  it('shows a name error and does not create when the name is empty', async () => {
+    renderForm()
+    fireEvent.click(screen.getByRole('button', { name: /create survey/i }))
+
+    await waitFor(() =>
+      expect(document.querySelector('.border-destructive')).not.toBeNull(),
+    )
+    expect(mockSurveyCreate).not.toHaveBeenCalled()
+  })
+
   it('sends the chosen template id', async () => {
     renderForm()
     expandTemplates()

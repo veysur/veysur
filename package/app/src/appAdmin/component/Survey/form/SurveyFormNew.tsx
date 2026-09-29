@@ -23,42 +23,41 @@ import { SurveyTemplatePicker } from './SurveyTemplatePicker'
 
 const schema = new SurveySchemaNew()
 
+type FieldErrors = { [key: string]: string[] | undefined }
+
+const flattenValidationErrors = (errors: object): FieldErrors => {
+  const flat: FieldErrors = {}
+  for (const [path, pathErrors] of Object.entries(errors)) {
+    if (Array.isArray(pathErrors)) flat[path] = pathErrors
+  }
+  return flat
+}
+
 export const SurveyFormNew: React.FC = () => {
   const [survey, setSurvey] = useState<Survey>()
-  const [formState, setFormState] = useState({
-    name: '',
-  })
-  const [templateId, setTemplateId] = useState<string>()
-  const [errors, setErrors] = useState<{
-    [key: string]: string[] | undefined
-  }>({})
+  const [formState, setFormState] = useState<{
+    name: string
+    templateId: string | undefined
+  }>({ name: '', templateId: undefined })
+  const [errors, setErrors] = useState<FieldErrors>({})
   const { surveyCreate, isLoading: formIsLoading } = useSurveyCreate()
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const target = event.target
-    const value =
-      target?.type && target?.type === 'checkbox'
-        ? target.checked
-        : target.value
-    const inputName = target.name
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name: inputName, value } = event.target
     setErrors({ ...errors, [inputName]: undefined })
-    setFormState((prevState) => ({
-      ...prevState,
-      [inputName]: value,
-    }))
+    setFormState((prevState) => ({ ...prevState, name: value }))
   }
 
   const handleTemplateChange = (
-    id: string | undefined,
+    templateId: string | undefined,
     templateName?: string,
   ) => {
-    setTemplateId(id)
+    setFormState((prevState) => ({
+      templateId,
+      name:
+        templateName && !prevState.name.trim() ? templateName : prevState.name,
+    }))
     if (templateName) {
-      setFormState((prevState) =>
-        prevState.name.trim()
-          ? prevState
-          : { ...prevState, name: templateName },
-      )
       setErrors((prevErrors) => ({ ...prevErrors, name: undefined }))
     }
   }
@@ -68,30 +67,23 @@ export const SurveyFormNew: React.FC = () => {
     event.stopPropagation()
     if (formIsLoading) return
     setErrors({})
-    const data = {
-      name: formState.name,
-    }
-    const { isValid, errors } = await schema.validate(formState)
+    const { isValid, errors } = await schema.validate({ name: formState.name })
     if (isValid) {
       try {
-        const survey = await surveyCreate({ name: data.name }, templateId)
+        const survey = await surveyCreate(
+          { name: formState.name },
+          formState.templateId,
+        )
         setSurvey(survey)
       } catch (error) {
         if (error instanceof ErrorRest) {
-          setErrors({ ...errors, form: [error.message || error.userMessage] })
+          setErrors({ form: [error.message || error.userMessage] })
         } else {
           setErrors({ form: ['An unexpected error occurred'] })
         }
       }
     } else if (errors) {
-      const flatErrors: { [key: string]: string[] | undefined } = {}
-      for (const path in errors) {
-        const pathErrors = errors[path]
-        if (Array.isArray(pathErrors)) {
-          flatErrors[path] = pathErrors
-        }
-      }
-      setErrors(flatErrors)
+      setErrors(flattenValidationErrors(errors))
     }
     return false
   }
@@ -122,7 +114,7 @@ export const SurveyFormNew: React.FC = () => {
               name="name"
               placeholder="New survey name"
               value={formState.name}
-              onChange={handleInputChange}
+              onChange={handleNameChange}
               className={errors?.name ? 'border-destructive' : ''}
             />
             {errors?.name && (
@@ -131,7 +123,7 @@ export const SurveyFormNew: React.FC = () => {
           </div>
           <div className="mt-6 border-t pt-4">
             <SurveyTemplatePicker
-              value={templateId}
+              value={formState.templateId}
               onChange={handleTemplateChange}
             />
           </div>
