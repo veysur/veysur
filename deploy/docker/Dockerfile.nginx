@@ -17,21 +17,21 @@ COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY package/common/package.json ./package/common/
 COPY package/theme/package.json ./package/theme/
 COPY package/app/package.json ./package/app/
-COPY external/mzen/package/mzen-id/package.json ./external/mzen/package/mzen-id/
-COPY external/mzen/package/mzen-schema/package.json ./external/mzen/package/mzen-schema/
+COPY external/datacapy/package/mzen-id/package.json ./external/datacapy/package/mzen-id/
+COPY external/datacapy/package/mzen-schema/package.json ./external/datacapy/package/mzen-schema/
 
 RUN pnpm install --frozen-lockfile --ignore-scripts
 
-COPY external/mzen/package/mzen-id ./external/mzen/package/mzen-id
-COPY external/mzen/package/mzen-schema ./external/mzen/package/mzen-schema
+COPY external/datacapy/package/mzen-id ./external/datacapy/package/mzen-id
+COPY external/datacapy/package/mzen-schema ./external/datacapy/package/mzen-schema
 COPY package/common ./package/common
 COPY package/theme ./package/theme
 COPY package/app ./package/app
 
-WORKDIR /app/external/mzen/package/mzen-id
+WORKDIR /app/external/datacapy/package/mzen-id
 RUN pnpm build
 
-WORKDIR /app/external/mzen/package/mzen-schema
+WORKDIR /app/external/datacapy/package/mzen-schema
 RUN pnpm build
 
 WORKDIR /app/package/common

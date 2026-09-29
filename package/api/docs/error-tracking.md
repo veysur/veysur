@@ -15,7 +15,7 @@ When `BUGSINK_DSN` is empty, `Sentry.init` runs with `enabled: false` — no net
 ## Error capture points
 
 - **`unhandledRejection`** handler in `server.ts` — calls `Sentry.captureException` for unhandled promise rejections.
-- **mzen-server request errors** — framework-level HTTP errors are handled by mzen-server internally; errors that propagate past all handlers trigger the `unhandledRejection` path.
+- **@datacapy/server request errors** — framework-level HTTP errors are handled by @datacapy/server internally; errors that propagate past all handlers trigger the `unhandledRejection` path.
 
 To add explicit capture in a service method:
 

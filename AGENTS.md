@@ -117,7 +117,7 @@ Versioned via [Changesets](https://github.com/changesets/changesets); `veysur-ap
 one `vX.Y.Z` tag (`fixed` grouping: self-hosters deploy/upgrade them as one unit through
 `deploy/`). See [docs/versioning.md](./docs/versioning.md) for the full model, the
 day-to-day `pnpm changeset` flow, the `./scripts/release.sh` release runbook (including how
-it coordinates with `mzen`/`s3-adaptor` releases), and onboarding a new package.
+it coordinates with `datacapy`/`s3-adaptor` releases), and onboarding a new package.
 - Manual, maintainer-triggered flow for now: no CI release automation yet.
 
 ## Documentation

@@ -18,7 +18,7 @@ The Survey component has been refactored into multiple focused files for better 
 
 - **`useSurveyState.ts`** - State management (language, countdown, answers)
 - **`useSurveyNavigation.ts`** - Navigation logic and state
-- **`useSurveyValidation.ts`** - Validation logic using mzen-schema
+- **`useSurveyValidation.ts`** - Validation logic using @datacapy/schema
 
 ### Utilities
 
@@ -163,7 +163,7 @@ All multiple choice components store arrays of `SurveyAnswerOption.code` values 
 
 ## Validation System
 
-The Survey component uses **mzen-schema** (exported as `Schema` from veysur-common) for comprehensive validation:
+The Survey component uses **@datacapy/schema** (exported as `Schema` from veysur-common) for comprehensive validation:
 
 ### Schema Integration
 
@@ -219,7 +219,7 @@ type ValidationErrors = {
 - **Real-time Validation**: Validates individual questions as users type/select
 - **Navigation Validation**: Validates required questions before allowing navigation to next page/question
 - **Submit-time Validation**: Validates entire answer set before submission
-- **Required Field Validation**: Uses mzen-schema's `notEmpty` validator
+- **Required Field Validation**: Uses @datacapy/schema's `notEmpty` validator
 - **Type-Aware Validation**:
   - **Arrays** for multiple choice questions (selected option codes)
   - **Objects** for questions with subquestions (nested data)

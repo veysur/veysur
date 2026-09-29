@@ -1,4 +1,4 @@
-import { Service, ServerErrorNotFound, ServerErrorInternal } from 'mzen-server'
+import { Service, ServerErrorNotFound, ServerErrorInternal } from '@datacapy/server'
 import {
   Survey,
   SurveyCompare,

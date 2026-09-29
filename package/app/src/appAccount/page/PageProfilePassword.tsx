@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 
-import { mzenResolver } from 'common/hookform/mzenResolver'
+import { datacapyResolver } from 'common/hookform/datacapyResolver'
 import { Button } from 'component/shadcn/button'
 import { Input } from 'component/shadcn/input'
 import { Label } from 'component/shadcn/label'
@@ -27,7 +27,7 @@ export const PageProfilePassword: React.FC = () => {
   const { updatePassword, isLoading, error } = useUserProfilePassword()
 
   const form = useForm<UserProfilePasswordFormData>({
-    resolver: mzenResolver(schemaUserProfilePassword),
+    resolver: datacapyResolver(schemaUserProfilePassword),
     defaultValues: {
       currentPassword: '',
       newPassword: '',

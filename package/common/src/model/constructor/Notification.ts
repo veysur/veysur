@@ -1,4 +1,4 @@
-import { genUniqueId } from 'mzen-id'
+import { genUniqueId } from '@datacapy/id'
 
 import { DataTransferJob } from './DataTransferJob'
 
@@ -6,7 +6,7 @@ import { DataTransferJob } from './DataTransferJob'
  * Persisted notification row, related to (not replacing) the entity that
  * produced it. Today only DataTransferJob produces notifications
  * (dataTransferJobId), so `type` is a single-member union - extend it and
- * add a matching nullable FK field when a second producer appears. mzen-om
+ * add a matching nullable FK field when a second producer appears. @datacapy/om
  * relations bind to one repo each, so there is no single polymorphic
  * relatedEntityId field: each related-entity-type gets its own FK + its own
  * `belongsToOne` relation on RepoNotification.

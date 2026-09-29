@@ -1,4 +1,4 @@
-import { Schema } from 'mzen-schema'
+import { Schema } from '@datacapy/schema'
 
 export class SchemaJwtParticipant extends Schema {
   constructor() {

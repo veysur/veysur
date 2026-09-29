@@ -1,4 +1,4 @@
-import type { Schema, SchemaPaths } from 'mzen-schema'
+import type { Schema, SchemaPaths } from '@datacapy/schema'
 import { useCallback, useRef } from 'react'
 
 import { useSurveyEditorStore } from '../hook/useSurveyEditorStore'

@@ -1,5 +1,5 @@
 import { UserClient } from 'veysur-common'
-import { Repo, TYPE_HINT_TIMESTAMP } from 'mzen-server'
+import { Repo, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
 
 export class RepoUserClient extends Repo<UserClient> {
   constructor() {

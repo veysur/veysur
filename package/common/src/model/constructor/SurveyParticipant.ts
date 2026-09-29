@@ -1,5 +1,5 @@
-import { genUniqueId } from 'mzen-id'
-import { PropsOf } from 'mzen-schema'
+import { genUniqueId } from '@datacapy/id'
+import { PropsOf } from '@datacapy/schema'
 
 import { CompletionStatus } from './SurveyParticipant/completionStatus'
 

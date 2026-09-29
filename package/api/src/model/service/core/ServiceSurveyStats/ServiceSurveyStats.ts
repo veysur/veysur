@@ -1,4 +1,4 @@
-import { Service, ServerErrorNotFound } from 'mzen-server'
+import { Service, ServerErrorNotFound } from '@datacapy/server'
 import {
   QUESTION_TYPE_YES_NO,
   QUESTION_TYPE_STAR_RATING,

@@ -1,4 +1,4 @@
-import { PropsOf } from 'mzen-schema'
+import { PropsOf } from '@datacapy/schema'
 
 import { EmailTemplate } from './EmailTemplate'
 

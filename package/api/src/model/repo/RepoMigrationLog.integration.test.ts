@@ -1,8 +1,8 @@
 import { RepoMigrationLog } from './RepoMigrationLog'
-import { DataSourceMysql } from 'mzen-server'
+import { DataSourceMysql } from '@datacapy/server'
 import { SchemaMigrationLog } from '../schema'
 import { MigrationLogEntry } from '../constructor'
-import { MigrationResult } from 'mzen-migrate'
+import { MigrationResult } from '@datacapy/migrate'
 
 /**
  * Integration test against the real MySQL test datasource (NODE_ENV=test).

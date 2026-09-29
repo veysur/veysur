@@ -3,8 +3,8 @@ import {
   ServerErrorNotFound,
   ServerErrorForbidden,
   ServerErrorBadRequest,
-} from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
+} from '@datacapy/server'
+import { DataSourceContext } from '@datacapy/om'
 import momentTimezone from 'moment-timezone'
 import {
   Survey,

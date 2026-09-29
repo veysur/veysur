@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { QRCodeSVG } from 'qrcode.react'
-import { Schema, sb } from 'mzen-schema'
+import { Schema, sb } from '@datacapy/schema'
 import { useForm, useWatch } from 'react-hook-form'
 
-import { mzenResolver } from 'common/hookform/mzenResolver'
+import { datacapyResolver } from 'common/hookform/datacapyResolver'
 import { Button } from 'component/shadcn/button'
 import { Input } from 'component/shadcn/input'
 import { Label } from 'component/shadcn/label'
@@ -73,12 +73,12 @@ export const PageProfileSecurity: React.FC = () => {
   const isTwoFactorEnabled = auth?.user?.twoFactorMeta?.enabled === true
 
   const confirmForm = useForm<ConfirmFormData>({
-    resolver: mzenResolver(confirmSchema),
+    resolver: datacapyResolver(confirmSchema),
     defaultValues: { code: '' },
   })
 
   const disableForm = useForm<DisableTwoFactorFormData>({
-    resolver: mzenResolver(schemaDisableTwoFactor),
+    resolver: datacapyResolver(schemaDisableTwoFactor),
     defaultValues: { password: '' },
   })
 

@@ -1,4 +1,4 @@
-import { Service } from 'mzen-server'
+import { Service } from '@datacapy/server'
 
 export class ServiceVersion extends Service {
   constructor() {

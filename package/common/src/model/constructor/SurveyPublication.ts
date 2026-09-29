@@ -1,4 +1,4 @@
-import { genUniqueId } from 'mzen-id'
+import { genUniqueId } from '@datacapy/id'
 
 export class SurveyPublication {
   _id: string

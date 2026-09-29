@@ -1,4 +1,4 @@
-import { Service, ServerErrorNotFound } from 'mzen-server'
+import { Service, ServerErrorNotFound } from '@datacapy/server'
 import { Notification, DataTransferJob } from 'veysur-common'
 import momentTimezone from 'moment-timezone'
 

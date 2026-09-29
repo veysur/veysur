@@ -1,4 +1,4 @@
-import { ServerAclRoleAssessor } from 'mzen-server'
+import { ServerAclRoleAssessor } from '@datacapy/server'
 
 export class ServerAclRoleAssessorProjectOwner extends ServerAclRoleAssessor {
   constructor() {

@@ -8,7 +8,7 @@ jest.mock('@sentry/node', () => ({
   withScope: (cb: (scope: { setFingerprint: jest.Mock }) => void) =>
     cb({ setFingerprint: jest.fn() }),
 }))
-jest.mock('mzen-id', () => ({
+jest.mock('@datacapy/id', () => ({
   genUniqueId: jest.fn(() => 'test-token-123'),
 }))
 

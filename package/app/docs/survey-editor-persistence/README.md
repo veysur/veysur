@@ -6,7 +6,7 @@ The survey editor persistence system is built on the **[Generalized Patchable St
 
 The system enables real-time collaborative editing with optimistic updates and batched API persistence. It provides a robust solution for managing survey modifications across multiple routes while preventing data loss and minimizing API calls.
 
-The implementation uses the generic `usePatchableState` hook with survey-specific adapters (`useSurveyPatchableState`). An immutable PatchBuffer collects changes, validates them with mzen-schema, and persists them in 2-second batches. Changes made on any route (editor, settings, participants, etc.) are shared across the entire survey editing experience.
+The implementation uses the generic `usePatchableState` hook with survey-specific adapters (`useSurveyPatchableState`). An immutable PatchBuffer collects changes, validates them with @datacapy/schema, and persists them in 2-second batches. Changes made on any route (editor, settings, participants, etc.) are shared across the entire survey editing experience.
 
 **Note:** For the general pattern and architecture, see [generalised-patchable-state.md](../generalised-patchable-state.md). This document focuses on survey-specific implementation details.
 
@@ -67,7 +67,7 @@ flowchart TD
 
 1. User makes a change (e.g., updates question text)
 2. Operation function applies optimistic update to local state
-3. Change is validated using mzen-schema (300ms debounce)
+3. Change is validated using @datacapy/schema (300ms debounce)
 4. Valid change is added to PatchBuffer
 5. Every 2 seconds, batched patches are sent to API
 6. On success: buffer is cleared

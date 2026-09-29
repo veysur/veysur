@@ -1,7 +1,7 @@
 import fs from 'fs/promises'
 import path from 'path'
-import { Server } from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
+import { Server } from '@datacapy/server'
+import { DataSourceContext } from '@datacapy/om'
 import i18next from 'i18next'
 import { RepoSurveyParticipant } from 'model'
 

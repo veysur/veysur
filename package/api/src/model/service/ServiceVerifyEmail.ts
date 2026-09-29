@@ -2,7 +2,7 @@ import {
   Service,
   ServerErrorUnauthorized,
   ServerErrorBadRequest,
-} from 'mzen-server'
+} from '@datacapy/server'
 import { User, StringRandom } from 'veysur-common'
 
 import { RepoUser, ServiceUser, ServiceEmail } from 'model'

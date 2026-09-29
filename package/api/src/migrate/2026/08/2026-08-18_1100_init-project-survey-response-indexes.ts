@@ -1,6 +1,6 @@
 // cspell:ignore unindexed
-import { DatabasePatchInterface } from 'mzen-migrate'
-import { ModelManager, DataSourceContext } from 'mzen-om'
+import { DatabasePatchInterface } from '@datacapy/migrate'
+import { ModelManager, DataSourceContext } from '@datacapy/om'
 
 export default class InitProjectSurveyResponseIndexes implements DatabasePatchInterface {
   version = '2026-08-18_1100'

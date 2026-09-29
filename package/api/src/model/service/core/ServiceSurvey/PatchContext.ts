@@ -1,5 +1,5 @@
-import { Repo, ServerErrorBadRequest } from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
+import { Repo, ServerErrorBadRequest } from '@datacapy/server'
+import { DataSourceContext } from '@datacapy/om'
 import {
   Patch,
   PatchId,

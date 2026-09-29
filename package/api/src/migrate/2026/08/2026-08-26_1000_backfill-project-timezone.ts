@@ -1,10 +1,10 @@
-import { DatabasePatchInterface } from 'mzen-migrate'
-import { ModelManager } from 'mzen-om'
+import { DatabasePatchInterface } from '@datacapy/migrate'
+import { ModelManager } from '@datacapy/om'
 
 /**
  * Backfill the timezone field onto Project documents created before it was
  * added to SchemaProject. New rows get the schema default ('UTC') on
- * insert, but mzen-om/MySQL do not retroactively apply schema defaults to
+ * insert, but @datacapy/om/MySQL do not retroactively apply schema defaults to
  * already-persisted rows, so existing projects are backfilled explicitly.
  */
 export default class BackfillProjectTimezone implements DatabasePatchInterface {

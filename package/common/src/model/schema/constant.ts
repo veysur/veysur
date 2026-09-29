@@ -6,7 +6,7 @@ export const SCHEMA_LENGTH_MAX_INPUT = 255
 // generic input cap while still bounded.
 export const SCHEMA_LENGTH_MAX_ELEMENT_TEXT = 5000
 // Internal ids are genUniqueId()/randomSessionId() output: base62, <=17 chars.
-// Matches mzen-om's CHAR(17) generated-column sizing (JDOC_ID_SIZE) for *Id
+// Matches @datacapy/om's CHAR(17) generated-column sizing (JDOC_ID_SIZE) for *Id
 // fields, so validation fails a bad id before the INSERT does.
 export const SCHEMA_LENGTH_MAX_INTERNAL_ID = 17
 

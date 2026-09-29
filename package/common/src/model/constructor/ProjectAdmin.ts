@@ -1,5 +1,5 @@
 import { Project } from 'model/constructor'
-import { PropsOf } from 'mzen-schema'
+import { PropsOf } from '@datacapy/schema'
 
 type ProjectAdminUser = {
   _id?: string

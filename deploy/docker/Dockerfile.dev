@@ -18,24 +18,24 @@ COPY package/api/package.json ./package/api/
 COPY package/app/package.json ./package/app/
 COPY package/docsite/package.json ./package/docsite/
 COPY external/s3-adaptor/package.json ./external/s3-adaptor/
-COPY external/mzen/package/mzen-id/package.json ./external/mzen/package/mzen-id/
-COPY external/mzen/package/mzen-migrate/package.json ./external/mzen/package/mzen-migrate/
-COPY external/mzen/package/mzen-om/package.json ./external/mzen/package/mzen-om/
-COPY external/mzen/package/mzen-schema/package.json ./external/mzen/package/mzen-schema/
-COPY external/mzen/package/mzen-server/package.json ./external/mzen/package/mzen-server/
+COPY external/datacapy/package/mzen-id/package.json ./external/datacapy/package/mzen-id/
+COPY external/datacapy/package/mzen-migrate/package.json ./external/datacapy/package/mzen-migrate/
+COPY external/datacapy/package/mzen-om/package.json ./external/datacapy/package/mzen-om/
+COPY external/datacapy/package/mzen-schema/package.json ./external/datacapy/package/mzen-schema/
+COPY external/datacapy/package/mzen-server/package.json ./external/datacapy/package/mzen-server/
 
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile --ignore-scripts
 
-COPY external/mzen ./external/mzen
+COPY external/datacapy ./external/datacapy
 COPY external/s3-adaptor ./external/s3-adaptor
 COPY package/common ./package/common
 COPY package/theme ./package/theme
 COPY package/api ./package/api
 COPY package/app ./package/app
 
-RUN for pkg in mzen-id mzen-schema mzen-om mzen-migrate mzen-server; do \
-      pnpm --dir external/mzen/package/$pkg build || exit 1; \
+RUN for pkg in @datacapy/id @datacapy/schema @datacapy/om @datacapy/migrate @datacapy/server; do \
+      pnpm --dir external/datacapy/package/$pkg build || exit 1; \
     done && \
     pnpm --dir external/s3-adaptor build && \
     pnpm --dir package/common build

@@ -1,4 +1,4 @@
-import { Schema, sb } from 'mzen-schema'
+import { Schema, sb } from '@datacapy/schema'
 
 import {
   ALL_CHART_TYPES,

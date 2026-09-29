@@ -1,4 +1,4 @@
-import { ServerErrorBadRequest } from 'mzen-server'
+import { ServerErrorBadRequest } from '@datacapy/server'
 
 /**
  * Base type for items that can be registered

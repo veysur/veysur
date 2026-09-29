@@ -1,4 +1,4 @@
-import { DataSourceContext } from 'mzen-om'
+import { DataSourceContext } from '@datacapy/om'
 import { RepoSurveyParticipant } from 'model/repo'
 import { EmailVerifyToken } from './EmailVerifyToken'
 

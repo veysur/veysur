@@ -1,10 +1,10 @@
-import { Schema, sb } from 'mzen-schema'
+import { Schema, sb } from '@datacapy/schema'
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 import { CheckCircle, Mail, Loader2 } from 'lucide-react'
 
-import { mzenResolver } from 'common/hookform/mzenResolver'
+import { datacapyResolver } from 'common/hookform/datacapyResolver'
 import { useAuth } from 'hook/useAuth'
 import { Button } from 'component/shadcn/button'
 import { Card, CardContent } from 'component/shadcn/card'
@@ -83,7 +83,7 @@ export const PageVerifyEmail: React.FC = () => {
   const tokenFromUrl = urlParams.get('token')
 
   const form = useForm<TokenFormData>({
-    resolver: mzenResolver(tokenSchema),
+    resolver: datacapyResolver(tokenSchema),
     defaultValues: {
       token: '',
     },

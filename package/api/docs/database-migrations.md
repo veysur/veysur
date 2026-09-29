@@ -2,7 +2,7 @@
 
 ## Overview
 
-VeySur uses [mzen-migrate](../../../external/mzen/package/mzen-migrate/README.md) for controlled database schema changes and data seeding. This guide covers writing migrations in the API package.
+VeySur uses [@datacapy/migrate](../../../external/datacapy/package/mzen-migrate/README.md) for controlled database schema changes and data seeding. This guide covers writing migrations in the API package.
 
 `./scripts/deploy.sh` runs pending migrations for you, through the one-shot `migrate` service. To run them by hand, from `deploy/`:
 
@@ -24,8 +24,8 @@ touch package/api/migrate/2026/02/2026-02-05_1430_add-feature.ts
 ### 2. Implement Migration
 
 ```typescript
-import { DatabasePatchInterface } from 'mzen-migrate'
-import { ModelManager } from 'mzen-om'
+import { DatabasePatchInterface } from '@datacapy/migrate'
+import { ModelManager } from '@datacapy/om'
 
 /**
  * Add new feature to database
@@ -303,7 +303,7 @@ built) — it's queryable by `runId`, `status`, and `dataSourceName`.
 
 ## Related Documentation
 
-- **[mzen-migrate Package](../../../external/mzen/package/mzen-migrate/README.md)** - Generic migration system documentation
-- **[mzen-migrate Architecture](../../../external/mzen/package/mzen-migrate/docs/architecture/index.md)** - Technical implementation details
-- **[mzen-migrate Best Practices](../../../external/mzen/package/mzen-migrate/docs/best-practices/index.md)** - Guidelines for writing migrations
+- **[@datacapy/migrate Package](../../../external/datacapy/package/mzen-migrate/README.md)** - Generic migration system documentation
+- **[@datacapy/migrate Architecture](../../../external/datacapy/package/mzen-migrate/docs/architecture/index.md)** - Technical implementation details
+- **[@datacapy/migrate Best Practices](../../../external/datacapy/package/mzen-migrate/docs/best-practices/index.md)** - Guidelines for writing migrations
 - **[Project Databases](./project-databases.md)** - Per-project database implementation

@@ -1,4 +1,4 @@
-import { SchemaSpec } from 'mzen-schema'
+import { SchemaSpec } from '@datacapy/schema'
 
 import {
   AttributeMeta,

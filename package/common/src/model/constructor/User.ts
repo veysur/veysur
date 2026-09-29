@@ -1,8 +1,8 @@
-import { genUniqueId } from 'mzen-id'
+import { genUniqueId } from '@datacapy/id'
 
 import { UserClient, Project, ProjectAdmin } from 'model/constructor'
 import { MetaHistoryVerifiable, VerifyToken } from 'model/type'
-import { PropsOf } from 'mzen-schema'
+import { PropsOf } from '@datacapy/schema'
 
 export class User {
   _id: string

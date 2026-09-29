@@ -4,7 +4,7 @@ set -euo pipefail
 # Cuts a release from pending changesets. veysur-app/api/common/theme/docsite
 # are a `fixed` changeset group, so they always bump to the same version
 # together; this also syncs the root package.json version to match and tags
-# the whole repo vX.Y.Z (not per-package tags, unlike mzen/s3-adaptor).
+# the whole repo vX.Y.Z (not per-package tags, unlike datacapy/s3-adaptor).
 #
 # Mechanical steps only: version bump, commit, tag, push. GitHub release
 # creation is left as a manual step (printed at the end) since changelog

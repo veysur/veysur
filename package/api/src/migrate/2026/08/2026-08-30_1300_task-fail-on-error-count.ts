@@ -1,5 +1,5 @@
-import { DatabasePatchInterface } from 'mzen-migrate'
-import { ModelManager } from 'mzen-om'
+import { DatabasePatchInterface } from '@datacapy/migrate'
+import { ModelManager } from '@datacapy/om'
 
 /**
  * `Task.failOnErrorCount` replaces the hardcoded `MAIL_PIPELINE_TASK_NAMES` list

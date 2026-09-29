@@ -1,4 +1,4 @@
-import { Schema } from 'mzen-schema'
+import { Schema } from '@datacapy/schema'
 import { Patch } from 'veysur-common'
 import { useCallback, useRef, useEffect } from 'react'
 

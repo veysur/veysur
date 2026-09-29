@@ -1,4 +1,4 @@
-import { DataSourceRedis } from 'mzen-om'
+import { DataSourceRedis } from '@datacapy/om'
 
 export interface RateLimiterOptions {
   limit: number

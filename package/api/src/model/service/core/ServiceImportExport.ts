@@ -4,8 +4,8 @@ import {
   Service,
   ServerErrorBadRequest,
   ServerErrorNotFound,
-} from 'mzen-server'
-import MzenId from 'mzen-id'
+} from '@datacapy/server'
+import MzenId from '@datacapy/id'
 import { File } from 'veysur-common'
 
 import { RepoFile, RepoSurvey } from 'model'

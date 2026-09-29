@@ -1,5 +1,5 @@
 import { SurveyParticipantAttribute } from 'veysur-common'
-import { Repo } from 'mzen-server'
+import { Repo } from '@datacapy/server'
 
 export class RepoSurveyParticipantAttribute extends Repo<SurveyParticipantAttribute> {
   constructor() {

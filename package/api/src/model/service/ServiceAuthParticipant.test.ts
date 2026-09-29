@@ -1,5 +1,5 @@
 // cspell:ignore Bonjour
-import { ServerErrorForbidden, ServerErrorBadRequest } from 'mzen-server'
+import { ServerErrorForbidden, ServerErrorBadRequest } from '@datacapy/server'
 import { ServiceAuthParticipant } from './ServiceAuthParticipant'
 
 const SURVEY_ID = 'survey-1'

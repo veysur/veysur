@@ -1,5 +1,5 @@
 import { SCHEMA_LENGTH_MAX_INPUT } from 'veysur-common'
-import { Schema } from 'mzen-schema'
+import { Schema } from '@datacapy/schema'
 
 export class SurveySchemaNew extends Schema {
   constructor() {

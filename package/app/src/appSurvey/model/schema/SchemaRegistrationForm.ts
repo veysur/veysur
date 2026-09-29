@@ -1,4 +1,4 @@
-import { Schema, sb, BuilderBase } from 'mzen-schema'
+import { Schema, sb, BuilderBase } from '@datacapy/schema'
 
 import { ParticipantAttributeDefinition } from 'appSurvey/api/SurveyParticipantAttributeSnapshotApi'
 

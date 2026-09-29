@@ -1,10 +1,10 @@
-import { PropsOf } from 'mzen-schema'
+import { PropsOf } from '@datacapy/schema'
 import {
   Service,
   ServerErrorNotFound,
   ServerErrorBadRequest,
-} from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
+} from '@datacapy/server'
+import { DataSourceContext } from '@datacapy/om'
 import {
   SurveyParticipant,
   CompletionStatus,

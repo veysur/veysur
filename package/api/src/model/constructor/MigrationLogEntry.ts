@@ -13,7 +13,7 @@ export interface MigrationLogPatchResult {
 /**
  * MigrationLogEntry Constructor
  * Tracks the progress of migrating a single database (account or project) within a
- * batch migration run. Distinct from mzen-migrate's own migrationMeta table, which
+ * batch migration run. Distinct from @datacapy/migrate's own migrationMeta table, which
  * lives inside each target database and is the canonical record of applied patches —
  * this is a run/job ledger spanning multiple databases in one CLI invocation.
  */

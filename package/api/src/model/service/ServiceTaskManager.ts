@@ -1,4 +1,4 @@
-import { Service } from 'mzen-server'
+import { Service } from '@datacapy/server'
 import { Task } from 'veysur-common'
 
 import { RepoTask, RepoTaskExecution, RepoTaskLock } from 'model/repo'

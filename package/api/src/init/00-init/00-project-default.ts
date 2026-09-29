@@ -1,4 +1,4 @@
-import { Server } from 'mzen-server'
+import { Server } from '@datacapy/server'
 import { DEFAULT_PROJECT_ID } from 'veysur-common'
 
 import { isSelfHosted } from 'config/edition'

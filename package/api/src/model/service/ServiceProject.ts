@@ -1,4 +1,4 @@
-import { Service, ServerErrorNotFound } from 'mzen-server'
+import { Service, ServerErrorNotFound } from '@datacapy/server'
 import { DEFAULT_PROJECT_ID, Project, User } from 'veysur-common'
 
 import { attachProjectOwn } from 'model/common'

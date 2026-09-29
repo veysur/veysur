@@ -1,5 +1,5 @@
 import { StringRandom } from 'veysur-common'
-import { DataSourceContext } from 'mzen-om'
+import { DataSourceContext } from '@datacapy/om'
 import { RepoSurveyParticipant } from 'model/repo'
 
 /**

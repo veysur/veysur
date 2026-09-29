@@ -1,4 +1,4 @@
-import { DataSourceContext } from 'mzen-om'
+import { DataSourceContext } from '@datacapy/om'
 import { CompletionStatusFilter } from 'veysur-common'
 
 import { escapeRegex, buildDateRangeQuery } from 'common'

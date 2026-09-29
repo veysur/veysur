@@ -3,10 +3,10 @@ import { useForm } from 'react-hook-form'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { PASSWORD_MIN_LENGTH, validatePassword } from 'veysur-common'
-import { Schema, sb } from 'mzen-schema'
+import { Schema, sb } from '@datacapy/schema'
 
 import { useAuth } from 'hook'
-import { mzenResolver } from 'common/hookform/mzenResolver'
+import { datacapyResolver } from 'common/hookform/datacapyResolver'
 import { Button } from 'component/shadcn/button'
 import {
   Card,
@@ -116,7 +116,7 @@ export const PageTeamInviteAccept: React.FC = () => {
   })
 
   const form = useForm<CreateAccountFormData>({
-    resolver: mzenResolver(createAccountSchema),
+    resolver: datacapyResolver(createAccountSchema),
     defaultValues: {
       nameFirst: '',
       nameLast: '',

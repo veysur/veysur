@@ -1,4 +1,4 @@
-import { Schema, sb } from 'mzen-schema'
+import { Schema, sb } from '@datacapy/schema'
 
 // Base field shape shared with the extension package veysur-common-cloud's
 // own SchemaProject, which spreads this before adding its own multi-project

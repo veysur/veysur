@@ -3,7 +3,7 @@ import { PassThrough, Readable } from 'stream'
 import { pipeline } from 'stream/promises'
 import zlib from 'zlib'
 import tarStream from 'tar-stream'
-import { ServerErrorBadRequest } from 'mzen-server'
+import { ServerErrorBadRequest } from '@datacapy/server'
 import { randomBytes } from 'crypto'
 
 import { createStorageAdaptor } from 'common'

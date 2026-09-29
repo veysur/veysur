@@ -1,5 +1,5 @@
 import { RepoTask } from './RepoTask'
-import { DataSourceMysql } from 'mzen-server'
+import { DataSourceMysql } from '@datacapy/server'
 import { SchemaTask } from 'veysur-common/model/schema'
 import { Task } from 'veysur-common'
 
@@ -7,7 +7,7 @@ import { Task } from 'veysur-common'
  * Integration test against the real MySQL test datasource (NODE_ENV=test).
  *
  * This is a regression test for a bug where the `enabled` index's `backedOffUntil` field had
- * no `typeHint`, so mzen-om's MySQL adapter generated the `gen_backedOffUntil` column as
+ * no `typeHint`, so @datacapy/om's MySQL adapter generated the `gen_backedOffUntil` column as
  * VARCHAR (via JSON_VALUE, no STR_TO_DATE cast) instead of a proper temporal type. A
  * VARCHAR-typed column compares lexicographically, not chronologically - the JSON-serialised
  * stored value uses a `T` separator ("2026-07-29T09:00:00.000Z") while the bound query

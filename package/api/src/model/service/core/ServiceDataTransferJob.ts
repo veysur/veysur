@@ -1,4 +1,4 @@
-import { Service, ServerErrorNotFound, ServerErrorBadRequest } from 'mzen-server'
+import { Service, ServerErrorNotFound, ServerErrorBadRequest } from '@datacapy/server'
 import { DataTransferJob } from 'veysur-common'
 
 import { RepoDataTransferJob, RepoFile } from 'model'

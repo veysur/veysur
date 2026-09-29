@@ -1,4 +1,4 @@
-import { sb } from 'mzen-schema'
+import { sb } from '@datacapy/schema'
 
 import { SchemaSettingSurvey } from './SchemaSettingSurvey'
 import { SCHEMA_LENGTH_MAX_INPUT } from './constant'

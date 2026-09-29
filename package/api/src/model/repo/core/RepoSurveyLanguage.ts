@@ -1,4 +1,4 @@
-import { Repo } from 'mzen-server'
+import { Repo } from '@datacapy/server'
 import { SurveyLanguage } from 'veysur-common'
 
 export class RepoSurveyLanguage extends Repo<SurveyLanguage> {

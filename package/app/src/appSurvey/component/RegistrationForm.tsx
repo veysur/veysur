@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import { CheckCircle2, Mail } from 'lucide-react'
 
-import { mzenResolver } from 'common/hookform/mzenResolver'
+import { datacapyResolver } from 'common/hookform/datacapyResolver'
 import { Alert, AlertDescription } from 'component/shadcn/alert'
 import { Button } from 'component/shadcn/button'
 import { Input } from 'component/shadcn/input'
@@ -49,7 +49,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
   )
 
   const form = useForm<RegistrationFormData>({
-    resolver: mzenResolver(schema),
+    resolver: datacapyResolver(schema),
     defaultValues: {
       nameFirst: '',
       nameLast: '',

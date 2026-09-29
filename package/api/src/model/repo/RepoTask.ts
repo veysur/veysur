@@ -1,4 +1,4 @@
-import { Repo, ServerErrorBadRequest, TYPE_HINT_TIMESTAMP } from 'mzen-server'
+import { Repo, ServerErrorBadRequest, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
 import { Task } from 'veysur-common'
 
 const MINUTE_MS = 60 * 1000

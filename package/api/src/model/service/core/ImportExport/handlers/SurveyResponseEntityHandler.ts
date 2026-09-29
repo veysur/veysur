@@ -1,6 +1,6 @@
 import { Readable } from 'stream'
 
-import MzenId from 'mzen-id'
+import MzenId from '@datacapy/id'
 import {
   Survey,
   SurveySnapshot,

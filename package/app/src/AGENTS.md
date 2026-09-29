@@ -291,7 +291,7 @@ export const SchemaEntityForm = new Schema(
 
 Naming: `Schema[EntityName][FormName]`, type: `[EntityName][FormName]FormData`. Export from `model/schema/index.ts`.
 
-Usage with react-hook-form: `resolver: mzenResolver(SchemaEntityForm)` from `common/hookform/mzenResolver`.
+Usage with react-hook-form: `resolver: datacapyResolver(SchemaEntityForm)` from `common/hookform/datacapyResolver`.
 
 Reference: `appAccount/model/schema/`
 

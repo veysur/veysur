@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/node'
-import Server from 'mzen-server'
+import Server from '@datacapy/server'
 import { Logger } from 'veysur-common'
 
 import configDefault from './config/default'

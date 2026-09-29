@@ -5,7 +5,7 @@ import {
   Patch,
   PatchBuffer,
 } from 'veysur-common'
-import { PropsOf } from 'mzen-schema'
+import { PropsOf } from '@datacapy/schema'
 
 import { useAuth } from 'appAdmin/hook'
 import { usePatchableState } from 'hook'

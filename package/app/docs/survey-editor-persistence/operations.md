@@ -67,7 +67,7 @@ export function createSurveyOperations({
 
 **validateAndBuffer**
 
-- Validates patches with mzen-schema
+- Validates patches with @datacapy/schema
 - Buffers valid patches for persistence
 - Tracks validation errors
 
@@ -111,7 +111,7 @@ Create a minimal patch object with only the changed fields.
 
 ### 3. Validate and Buffer
 
-Validate the patch with a mzen-schema, then buffer if valid.
+Validate the patch with a @datacapy/schema, then buffer if valid.
 
 ### 4. Return Updated State
 
@@ -191,7 +191,7 @@ validation: {
 ```
 
 - Validates only the changed language
-- Schema: mzen-schema defining text field rules
+- Schema: @datacapy/schema defining text field rules
 - Path: dot-notation path within the entity
 - Value: what to validate
 - Entity metadata: used for error tracking

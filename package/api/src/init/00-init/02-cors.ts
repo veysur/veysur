@@ -1,4 +1,4 @@
-import { Server } from 'mzen-server'
+import { Server } from '@datacapy/server'
 
 import { app as appConfig } from 'config/default'
 

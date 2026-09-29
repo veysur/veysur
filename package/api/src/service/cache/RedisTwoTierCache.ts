@@ -1,4 +1,4 @@
-import { DataSourceRedis } from 'mzen-om'
+import { DataSourceRedis } from '@datacapy/om'
 import type { LoggerLike } from 'veysur-common'
 
 export interface RedisTwoTierCacheOptions {

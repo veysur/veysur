@@ -229,7 +229,7 @@ Operations are created once (memoized) but need access to the latest survey data
 **Responsibilities:**
 
 - 300ms debounced validation (prevents spam during typing)
-- mzen-schema validation
+- @datacapy/schema validation
 - Field-level error tracking
 - Fail-open design (better UX)
 

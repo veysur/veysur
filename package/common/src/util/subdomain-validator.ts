@@ -116,7 +116,7 @@ export const SUBDOMAIN_REQUIREMENTS = [
 
 /**
  * Validates a subdomain prefix against format and business rules
- * Compat,ible with mzen-schema .validate() validator
+ * Compat,ible with @datacapy/schema .validate() validator
  *
  * This validates the PREFIX only (e.g., "myproject"), not the full subdomain
  *

@@ -1,6 +1,6 @@
 // cspell:ignore ETIMEDOUT ECONNREFUSED ECONNRESET EAI ENOTFOUND ECONNECTION ESOCKET
-import { Service, ServerErrorBadRequest } from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
+import { Service, ServerErrorBadRequest } from '@datacapy/server'
+import { DataSourceContext } from '@datacapy/om'
 import momentTimezone from 'moment-timezone'
 import * as nodemailer from 'nodemailer'
 import { HtmlToText } from 'model/common'

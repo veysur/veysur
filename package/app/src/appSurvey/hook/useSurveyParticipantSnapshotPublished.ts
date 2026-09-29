@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Survey, SettingSurvey } from 'veysur-common'
-import { PropsOf } from 'mzen-schema'
+import { PropsOf } from '@datacapy/schema'
 
 import { KEY_STATE_SURVEY_SNAPSHOT_PUBLISHED } from 'appSurvey/common'
 import { getSurveyParticipantSnapshotApi } from 'appSurvey/registry'

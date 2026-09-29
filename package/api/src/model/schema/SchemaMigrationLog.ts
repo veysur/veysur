@@ -1,4 +1,4 @@
-import { Schema } from 'mzen-server'
+import { Schema } from '@datacapy/server'
 
 export class SchemaMigrationLog extends Schema {
   constructor() {

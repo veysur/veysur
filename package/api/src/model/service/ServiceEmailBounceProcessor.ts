@@ -1,10 +1,10 @@
 // cspell:ignore VERP Verp Rcpt
 import tls from 'node:tls'
-import { Service } from 'mzen-server'
+import { Service } from '@datacapy/server'
 import { ImapFlow, FetchMessageObject } from 'imapflow'
 import { simpleParser } from 'mailparser'
-import { DataSourceContext } from 'mzen-om'
-import { genUniqueId } from 'mzen-id'
+import { DataSourceContext } from '@datacapy/om'
+import { genUniqueId } from '@datacapy/id'
 import { RepoEmailSuppression, RepoSurveyParticipant } from 'model/repo'
 import { captureWithFingerprint } from 'common'
 
@@ -314,7 +314,7 @@ export class ServiceEmailBounceProcessor extends Service {
   }
 
   // A bounce DSN can name a projectId whose project datasource no longer exists
-  // (e.g. the project was deleted). mzen-om throws "No datasource configuration
+  // (e.g. the project was deleted). @datacapy/om throws "No datasource configuration
   // found" — capture once under a stable fingerprint and carry on, rather than
   // aborting the whole mailbox pass. Returns true if the error was handled.
   private _handleOrphanedProjectError(err: unknown): boolean {

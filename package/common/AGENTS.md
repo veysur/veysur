@@ -43,7 +43,7 @@ Never import this from frontend (`package/app` or `package/website`).
 ```
 src/
 ├── model/constructor/   # ~20 domain model classes (Survey, SurveyParticipant, Project, etc.)
-├── model/schema/        # ~40 mzen-schema validation schemas
+├── model/schema/        # ~40 @datacapy/schema validation schemas
 ├── model/service/       # Patcher, PatchBuffer, SurveyValidation, SurveyResponseValidator
 ├── util/                # SurveyImportValidator, CodeGenerator, password/subdomain validators
 └── index.ts             # Main exports
@@ -51,9 +51,9 @@ src/
 
 When adding a `Date`-typed field to a schema/constructor, follow the timestamp naming convention in the root `AGENTS.md` (`At`/`From`/`To`/`Start`/`End`/`Until` suffixes, or the bare lowercase form when nested).
 
-## mzen Dependencies
+## datacapy Dependencies
 
-`mzen-schema`, `mzen-om`, and `mzen-id` are workspace submodules at `external/mzen/`. If you modify them, rebuild common afterwards: `pnpm build:common`.
+`@datacapy/schema`, `@datacapy/om`, and `@datacapy/id` are workspace submodules at `external/datacapy/`. If you modify them, rebuild common afterwards: `pnpm build:common`.
 
 ## Testing
 

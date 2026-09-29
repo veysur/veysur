@@ -1,10 +1,10 @@
-import { Schema, sb } from 'mzen-schema'
+import { Schema, sb } from '@datacapy/schema'
 import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { QRCodeSVG } from 'qrcode.react'
 
 import { cn } from 'common/cn'
-import { mzenResolver } from 'common/hookform/mzenResolver'
+import { datacapyResolver } from 'common/hookform/datacapyResolver'
 import { Button } from 'component/shadcn/button'
 import { Card } from 'component/shadcn/card'
 import { Checkbox } from 'component/shadcn/checkbox'
@@ -78,12 +78,12 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
   const [secretCopied, setSecretCopied] = useState(false)
 
   const form = useForm<LoginFormData>({
-    resolver: mzenResolver(loginSchema),
+    resolver: datacapyResolver(loginSchema),
     defaultValues: { email: '', password: '' },
   })
 
   const confirmForm = useForm<SetupConfirmFormData>({
-    resolver: mzenResolver(setupConfirmSchema),
+    resolver: datacapyResolver(setupConfirmSchema),
     defaultValues: { code: '' },
   })
 

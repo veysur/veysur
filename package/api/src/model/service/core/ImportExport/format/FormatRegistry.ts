@@ -1,4 +1,4 @@
-import { ServerErrorBadRequest } from 'mzen-server'
+import { ServerErrorBadRequest } from '@datacapy/server'
 
 import { Registry } from 'model/common/Registry'
 

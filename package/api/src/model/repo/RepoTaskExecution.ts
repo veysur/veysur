@@ -1,4 +1,4 @@
-import { Repo, ServerErrorBadRequest, TYPE_HINT_TIMESTAMP } from 'mzen-server'
+import { Repo, ServerErrorBadRequest, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
 import { TaskExecution } from 'veysur-common'
 
 const TaskExecutionStatus = {

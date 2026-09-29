@@ -1,4 +1,4 @@
-import { ServerErrorBadRequest } from 'mzen-server'
+import { ServerErrorBadRequest } from '@datacapy/server'
 import { ServiceUser } from './ServiceUser'
 import { asPrivate } from 'test-utils/asPrivate'
 import { buildMockServiceProject } from 'test-utils/buildMockServiceProject'

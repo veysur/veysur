@@ -73,15 +73,15 @@ equivalent type resolution for the subpath exports (see below) for that older re
 
 ## No barrel re-exports of external CJS packages
 
-`veysur-common/src/index.ts` does **not** re-export `mzen-schema`, `mzen-id`, or `moment-timezone`.
+`veysur-common/src/index.ts` does **not** re-export `@datacapy/schema`, `@datacapy/id`, or `moment-timezone`.
 
-These packages have CJS-only builds. When an ESM barrel does `export * from 'mzen-schema'`, the
-bundler cannot statically enumerate what `mzen-schema` exports (it's a CJS module), so it includes
+These packages have CJS-only builds. When an ESM barrel does `export * from '@datacapy/schema'`, the
+bundler cannot statically enumerate what `@datacapy/schema` exports (it's a CJS module), so it includes
 the entire package — even for bundles that use none of those symbols.
 
 By removing the re-exports:
 
-- `appSurvey` never pulls `mzen-schema`, `mzen-id`, or `moment-timezone` into its bundle
+- `appSurvey` never pulls `@datacapy/schema`, `@datacapy/id`, or `moment-timezone` into its bundle
 - `appAdmin` and `appAccount` import those packages directly and declare them as explicit
   dependencies in their own `package.json`
 

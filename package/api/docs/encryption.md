@@ -62,6 +62,6 @@ Store the passphrase you entered in `API_ENCRYPTION_PRIVATE_KEY_PASSWORD`.
 
 ## References
 
-- Implementation details: [`external/mzen/package/mzen-om/docs/encryption.md`](../../../external/mzen/package/mzen-om/docs/encryption.md)
+- Implementation details: [`external/datacapy/package/mzen-om/docs/encryption.md`](../../../external/datacapy/package/mzen-om/docs/encryption.md)
 - Configuration keys: [`docs/configuration.md`](../../../docs/configuration.md)
 - ModelManager wiring: [`src/model-manager.ts`](../src/model-manager.ts)

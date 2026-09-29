@@ -15,7 +15,7 @@ export const PASSWORD_REQUIREMENTS = [
 
 /**
  * Validates a password against all requirements
- * Compatible with mzen-schema .validate() validator
+ * Compatible with @datacapy/schema .validate() validator
  *
  * @param password - The password string to validate
  * @returns true if valid, error message string if invalid

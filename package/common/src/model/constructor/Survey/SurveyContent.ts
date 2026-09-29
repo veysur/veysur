@@ -1,5 +1,5 @@
 // cspell:ignore Youtube
-import { PropsOf } from 'mzen-schema'
+import { PropsOf } from '@datacapy/schema'
 
 import { L10n } from '../L10n'
 import { SurveyElementBase, SurveyElementBaseData } from './SurveyElementBase'

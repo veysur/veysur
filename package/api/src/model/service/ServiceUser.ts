@@ -3,7 +3,7 @@ import {
   ServerErrorBadRequest,
   ServerErrorForbidden,
   ServerErrorNotFound,
-} from 'mzen-server'
+} from '@datacapy/server'
 import momentTimezone from 'moment-timezone'
 import * as bcryptjs from 'bcryptjs'
 import {

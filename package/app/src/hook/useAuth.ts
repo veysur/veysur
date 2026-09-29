@@ -2,7 +2,7 @@ import momentTimezone from 'moment-timezone'
 import { useEffect } from 'react'
 import { useIsRestoring, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Project, ProjectAdmin } from 'veysur-common'
-import { PropsOf } from 'mzen-schema'
+import { PropsOf } from '@datacapy/schema'
 
 import {
   KEY_STATE_AUTH,

@@ -1,4 +1,4 @@
-import { Service, ServerErrorNotFound } from 'mzen-server'
+import { Service, ServerErrorNotFound } from '@datacapy/server'
 import {
   RepoSurveyParticipant,
   RepoSurvey,
@@ -154,7 +154,7 @@ export class ServiceSurveyParticipantEmail extends Service {
     )
 
     // inviteQueuedAt/reminderQueuedAt are new fields - participants created before this
-    // field existed have no such key in their stored document at all, and mzen-om's
+    // field existed have no such key in their stored document at all, and @datacapy/om's
     // `{ field: null }` query only matches an explicit null, not a missing key. Match
     // both cases so pre-existing participants remain eligible.
     const notQueuedFilter = (field: 'inviteQueuedAt' | 'reminderQueuedAt') => ({

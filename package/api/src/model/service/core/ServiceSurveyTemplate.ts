@@ -1,4 +1,4 @@
-import { Service, ServerErrorBadRequest } from 'mzen-server'
+import { Service, ServerErrorBadRequest } from '@datacapy/server'
 import { contextForProject } from 'common'
 
 import { RepoSurvey } from 'model'

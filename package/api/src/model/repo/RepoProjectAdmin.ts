@@ -1,4 +1,4 @@
-import { Repo, TYPE_HINT_TIMESTAMP } from 'mzen-server'
+import { Repo, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
 import { ProjectAdmin } from 'veysur-common/model/constructor'
 
 export class RepoProjectAdmin extends Repo<ProjectAdmin> {

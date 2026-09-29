@@ -1,5 +1,5 @@
 import { SurveyParticipant } from 'veysur-common/model/constructor'
-import { Repo, ServerErrorBadRequest, TYPE_HINT_TIMESTAMP } from 'mzen-server'
+import { Repo, ServerErrorBadRequest, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
 
 export class RepoSurveyParticipant extends Repo<SurveyParticipant> {
   constructor() {
@@ -18,7 +18,7 @@ export class RepoSurveyParticipant extends Repo<SurveyParticipant> {
             surveyId: 'surveyId',
           },
           // Must include every composite-key field (surveyId, participantId),
-          // not just the fields we want displayed - mzen-om matches related
+          // not just the fields we want displayed - @datacapy/om matches related
           // docs back to their source doc via these fields *after* this
           // projection is applied, so omitting one breaks the match silently
           // (no error, the relation just never populates).

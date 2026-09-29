@@ -2,9 +2,9 @@ import {
   Service,
   ServerErrorBadRequest,
   ServerErrorNotFound,
-} from 'mzen-server'
+} from '@datacapy/server'
 import { ALLOWED_FILE_MIME_TYPES, File } from 'veysur-common'
-import MzenId from 'mzen-id'
+import MzenId from '@datacapy/id'
 
 import { RepoFile } from 'model'
 import { AclContext } from 'model/entity/AclContext'

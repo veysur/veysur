@@ -1,5 +1,5 @@
 // cspell:ignore jdoc
-import { PropsOf } from 'mzen-schema'
+import { PropsOf } from '@datacapy/schema'
 
 import { L10n } from '../model/constructor/L10n'
 import {

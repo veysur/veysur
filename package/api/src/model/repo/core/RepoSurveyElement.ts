@@ -1,5 +1,5 @@
 import { SurveyElementBase } from 'veysur-common/model/constructor'
-import { Repo, TYPE_HINT_TIMESTAMP } from 'mzen-server'
+import { Repo, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
 
 // The `surveyElement` schema persists both element kinds; on read,
 // `SurveyElementCollection.fromArray` / `SchemaSurveyElement.constructCollection`

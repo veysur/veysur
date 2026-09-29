@@ -2,7 +2,7 @@ import {
   Service,
   ServerErrorNotFound,
   ServerErrorBadRequest,
-} from 'mzen-server'
+} from '@datacapy/server'
 import { DEFAULT_PROJECT_ID, File } from 'veysur-common'
 import momentTimezone from 'moment-timezone'
 

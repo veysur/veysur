@@ -1,4 +1,4 @@
-import { ServerAclRoleAssessor } from 'mzen-server'
+import { ServerAclRoleAssessor } from '@datacapy/server'
 import { modelManager } from 'model-manager'
 
 import { JWT_TYPE_PARTICIPANT } from 'acl/util/constant'

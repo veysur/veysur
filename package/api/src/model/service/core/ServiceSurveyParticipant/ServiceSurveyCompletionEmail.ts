@@ -1,4 +1,4 @@
-import { Service } from 'mzen-server'
+import { Service } from '@datacapy/server'
 import {
   Survey,
   SettingSurvey,

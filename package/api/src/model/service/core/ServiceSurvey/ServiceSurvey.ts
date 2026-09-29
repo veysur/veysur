@@ -1,4 +1,4 @@
-import { Service, ServerErrorNotFound } from 'mzen-server'
+import { Service, ServerErrorNotFound } from '@datacapy/server'
 import { Patcher, Survey } from 'veysur-common'
 import { escapeRegex, buildDateRangeQuery, contextForProject } from 'common'
 

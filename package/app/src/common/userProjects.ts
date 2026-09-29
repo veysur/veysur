@@ -1,5 +1,5 @@
 import { Project, ProjectAdmin } from 'veysur-common'
-import { PropsOf } from 'mzen-schema'
+import { PropsOf } from '@datacapy/schema'
 
 export function getOwnedProjects(
   projectOwn?: Array<PropsOf<Project>>,

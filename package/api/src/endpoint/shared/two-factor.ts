@@ -1,4 +1,4 @@
-import { ServerApiConfig } from 'mzen-server'
+import { ServerApiConfig } from '@datacapy/server'
 
 const aclAuthedAdmin = { rules: [{ allow: true, role: 'authedAdmin' }] }
 const aclPreAuth = { rules: [{ allow: true, role: 'preAuth' }] }

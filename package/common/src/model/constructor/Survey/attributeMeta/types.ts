@@ -1,5 +1,5 @@
 import { Survey, SurveyEntity } from '../../Survey'
-import { SchemaSpec } from 'mzen-schema'
+import { SchemaSpec } from '@datacapy/schema'
 
 /**
  * Survey entity type constants

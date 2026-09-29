@@ -1,4 +1,4 @@
-import { Repo, ServerErrorBadRequest, TYPE_HINT_TIMESTAMP } from 'mzen-server'
+import { Repo, ServerErrorBadRequest, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
 import { File } from 'veysur-common'
 
 const FILE_CONTEXT_SURVEY = 'survey'

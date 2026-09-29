@@ -1,4 +1,4 @@
-import { DataSourceContext } from 'mzen-om'
+import { DataSourceContext } from '@datacapy/om'
 import {
   Survey,
   SurveyLanguage,
@@ -12,7 +12,7 @@ import {
   CONTENT_TYPES,
   File,
 } from 'veysur-common'
-import { genUniqueId } from 'mzen-id'
+import { genUniqueId } from '@datacapy/id'
 
 import {
   createStorageAdaptor,

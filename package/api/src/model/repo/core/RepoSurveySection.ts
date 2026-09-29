@@ -1,5 +1,5 @@
 import { SurveySection } from 'veysur-common/model/constructor'
-import { Repo, TYPE_HINT_TIMESTAMP } from 'mzen-server'
+import { Repo, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
 
 export class RepoSurveySection extends Repo<SurveySection> {
   constructor() {

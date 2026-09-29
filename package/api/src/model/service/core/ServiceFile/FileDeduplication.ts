@@ -1,4 +1,4 @@
-import { DataSourceContext } from 'mzen-om'
+import { DataSourceContext } from '@datacapy/om'
 import { File } from 'veysur-common'
 import { RepoFile } from 'model'
 import { createStorageAdaptor, objectExists } from 'common'

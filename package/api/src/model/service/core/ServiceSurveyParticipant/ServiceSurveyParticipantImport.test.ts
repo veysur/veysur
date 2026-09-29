@@ -1,4 +1,4 @@
-import { DataSourceContext } from 'mzen-om'
+import { DataSourceContext } from '@datacapy/om'
 import {
   ServiceSurveyParticipantImport,
   ImportRow,

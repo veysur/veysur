@@ -1,5 +1,5 @@
-import { Service, ServerErrorNotFound } from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
+import { Service, ServerErrorNotFound } from '@datacapy/server'
+import { DataSourceContext } from '@datacapy/om'
 import { SurveyResponse, anonymisedTimestamp } from 'veysur-common'
 
 import { escapeRegex, buildDateRangeQuery, contextForProject } from 'common'

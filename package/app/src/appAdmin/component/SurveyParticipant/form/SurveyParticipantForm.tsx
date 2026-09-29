@@ -6,9 +6,9 @@ import {
   getLanguageName,
   sortLanguageCodesByName,
 } from 'veysur-common'
-import { PropsOf } from 'mzen-schema'
+import { PropsOf } from '@datacapy/schema'
 
-import { mzenResolver } from 'common/hookform/mzenResolver'
+import { datacapyResolver } from 'common/hookform/datacapyResolver'
 import { Alert, AlertDescription } from 'component/shadcn/alert'
 import { Button } from 'component/shadcn/button'
 import { Input } from 'component/shadcn/input'
@@ -63,7 +63,7 @@ export const SurveyParticipantForm: React.FC<Props> = ({
   )
 
   const form = useForm<ParticipantFormData>({
-    resolver: mzenResolver(schema),
+    resolver: datacapyResolver(schema),
     defaultValues: {
       nameFirst: '',
       nameLast: '',

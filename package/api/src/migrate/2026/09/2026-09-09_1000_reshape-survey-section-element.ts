@@ -1,6 +1,6 @@
 // cspell:ignore jdoc
-import { DatabasePatchInterface } from 'mzen-migrate'
-import { ModelManager, DataSourceContext } from 'mzen-om'
+import { DatabasePatchInterface } from '@datacapy/migrate'
+import { ModelManager, DataSourceContext } from '@datacapy/om'
 import {
   migrateLegacySurveyJson,
   migrateLegacySurveyLanguageData,

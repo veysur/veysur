@@ -1,4 +1,4 @@
-import { DataSourceContext } from 'mzen-om'
+import { DataSourceContext } from '@datacapy/om'
 
 import { PatchContext } from 'model/service/core/ServiceSurvey/PatchContext'
 import { ServiceSurveyLanguage } from 'model/service/core/ServiceSurveyLanguage'
@@ -11,7 +11,7 @@ import { ServiceSurveyLanguage } from 'model/service/core/ServiceSurveyLanguage'
  * need mocking — pass them through `repos` / `l10n`; missing survey-language
  * methods default to a resolved `jest.fn()`, and each repo gets a `name` +
  * `initSchema` + `schema` stub so `updateHandler` runs. The unavoidable
- * boundary casts (mzen-om's `DataSourceContext`, the partial repo mocks, the
+ * boundary casts (@datacapy/om's `DataSourceContext`, the partial repo mocks, the
  * partial `ServiceSurveyLanguage` mock) live here once instead of at each call
  * site.
  */

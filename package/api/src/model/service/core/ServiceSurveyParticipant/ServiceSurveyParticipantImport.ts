@@ -1,6 +1,6 @@
-import { PropsOf } from 'mzen-schema'
-import { Service, ServerErrorNotFound } from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
+import { PropsOf } from '@datacapy/schema'
+import { Service, ServerErrorNotFound } from '@datacapy/server'
+import { DataSourceContext } from '@datacapy/om'
 import {
   SurveyParticipant,
   Survey,
@@ -23,7 +23,7 @@ import { contextForProject } from 'common'
 
 /**
  * Response-like object this service writes an SSE progress stream to.
- * Framework-agnostic (mzen-server abstracts the underlying HTTP response),
+ * Framework-agnostic (@datacapy/server abstracts the underlying HTTP response),
  * so only the subset of the Express Response API actually used is declared.
  */
 interface StreamableResponse {

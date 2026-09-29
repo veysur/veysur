@@ -1,5 +1,5 @@
 import { buildMultiFieldSearchQuery } from 'common'
-import { DataSourceContext, QuerySelection } from 'mzen-om'
+import { DataSourceContext, QuerySelection } from '@datacapy/om'
 import { RepoSurveyParticipant } from 'model/repo/core/RepoSurveyParticipant'
 
 /**

@@ -1,5 +1,5 @@
-import { Service } from 'mzen-server'
-import { DataSourceRedis } from 'mzen-om'
+import { Service } from '@datacapy/server'
+import { DataSourceRedis } from '@datacapy/om'
 
 export class ServicePing extends Service {
   constructor() {

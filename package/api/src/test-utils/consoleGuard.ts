@@ -3,7 +3,7 @@ type ConsolePattern = string | RegExp
 const KNOWN_BENIGN_PATTERNS: ConsolePattern[] = [
   // core/ repos use the project datasource, which selects the database by projectId -
   // it is deliberately not a stored schema field on those repos, so any project-scoped
-  // filter that includes projectId (common, for defence-in-depth) trips mzen-om's
+  // filter that includes projectId (common, for defence-in-depth) trips @datacapy/om's
   // unknown-query-key warning. Expected on every core/ repo query filtered by projectId.
   'query key "projectId" is not a schema field',
 ]

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { SurveyEntity, isEqual } from 'veysur-common'
-import { Schema } from 'mzen-schema'
+import { Schema } from '@datacapy/schema'
 
 import { useSurveyEditorStore } from 'appAdmin/component/SurveyEditor'
 

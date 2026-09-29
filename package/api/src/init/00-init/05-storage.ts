@@ -1,4 +1,4 @@
-import { Server } from 'mzen-server'
+import { Server } from '@datacapy/server'
 import {
   createStorageAdaptor,
   createStorageMiddleware,
@@ -47,7 +47,7 @@ export const initStorage = function (server: Server) {
 
   // Mount upload endpoint — handles file body upload for both local and S3 modes.
   // Client PUTs raw file body to this endpoint with a signed token.
-  // This must be registered on server.app BEFORE mzen-server mounts its router.
+  // This must be registered on server.app BEFORE @datacapy/server mounts its router.
   server.app.put(
     '/api/file/upload/:bucket/*key',
     async (req: Request, res: Response, next: NextFunction) => {

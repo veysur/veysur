@@ -1,5 +1,5 @@
 import { Patch, Survey, SurveyData } from 'veysur-common'
-import { PropsOf } from 'mzen-schema'
+import { PropsOf } from '@datacapy/schema'
 
 import { Api, ErrorRest } from 'model'
 

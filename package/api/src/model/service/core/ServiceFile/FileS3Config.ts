@@ -8,7 +8,7 @@ import { StorageConfig } from 'common'
  * Build StorageConfig from service config
  *
  * Accepts `object` rather than `ServiceConfig` because callers pass
- * `this.config`, which mzen-om's `Service` base class types with its own
+ * `this.config`, which @datacapy/om's `Service` base class types with its own
  * loosely-typed `ServiceConfig` — structurally compatible at runtime but not
  * assignable to our stricter local type.
  */

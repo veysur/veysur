@@ -1,5 +1,5 @@
-import { ServerErrorNotFound } from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
+import { ServerErrorNotFound } from '@datacapy/server'
+import { DataSourceContext } from '@datacapy/om'
 import { StringRandom, Survey, SettingSurvey } from 'veysur-common'
 
 import { RepoSurveyParticipant, RepoSurvey, RepoSettingSurvey } from 'model'

@@ -1,5 +1,5 @@
 import { SurveyResponse } from 'veysur-common'
-import { PropsOf } from 'mzen-schema'
+import { PropsOf } from '@datacapy/schema'
 
 import { useProjectDomain } from 'appAdmin/hook'
 import { useInvalidatingMutation } from 'hook'

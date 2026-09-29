@@ -1,5 +1,5 @@
-import { Server } from 'mzen-server'
-import { DataSourceRedis } from 'mzen-om'
+import { Server } from '@datacapy/server'
+import { DataSourceRedis } from '@datacapy/om'
 
 import { authHandoffStore } from 'service/auth-handoff/AuthHandoffStore'
 

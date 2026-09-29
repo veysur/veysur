@@ -15,7 +15,7 @@ export function getNestedValue(obj: unknown, path: string): unknown {
 }
 
 /**
- * Builds an mzen-schema callback validator for a `max` field that checks it
+ * Builds an @datacapy/schema callback validator for a `max` field that checks it
  * against a sibling `min` field. AttributeCard wraps the attribute value
  * under a container keyed by the attribute's own `name`, so `options.root`
  * is that outer container rather than the value object itself - the

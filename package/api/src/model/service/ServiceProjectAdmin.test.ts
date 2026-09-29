@@ -1,4 +1,4 @@
-import { ServerErrorForbidden, ServerErrorNotFound } from 'mzen-server'
+import { ServerErrorForbidden, ServerErrorNotFound } from '@datacapy/server'
 import { ServiceProjectAdmin } from './ServiceProjectAdmin'
 import { AclContext } from 'model/entity'
 import { asPrivate } from 'test-utils/asPrivate'

@@ -1,4 +1,4 @@
-import { Collection } from 'mzen-schema'
+import { Collection } from '@datacapy/schema'
 
 export abstract class EntityCollection<
   T extends { _id: string | number },

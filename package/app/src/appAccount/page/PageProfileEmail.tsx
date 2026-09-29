@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 
-import { mzenResolver } from 'common/hookform/mzenResolver'
+import { datacapyResolver } from 'common/hookform/datacapyResolver'
 import { Button } from 'component/shadcn/button'
 import { Input } from 'component/shadcn/input'
 import { Label } from 'component/shadcn/label'
@@ -26,7 +26,7 @@ export const PageProfileEmail: React.FC = () => {
   const { updateEmail, isLoading, error } = useUserProfileEmail()
 
   const form = useForm<UserProfileEmailFormData>({
-    resolver: mzenResolver(schemaUserProfileEmail),
+    resolver: datacapyResolver(schemaUserProfileEmail),
     defaultValues: {
       email: '',
       currentPassword: '',

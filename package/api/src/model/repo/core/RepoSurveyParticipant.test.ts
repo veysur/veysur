@@ -1,4 +1,4 @@
-import { DataSourceMock } from 'mzen-om'
+import { DataSourceMock } from '@datacapy/om'
 import { SchemaSurveyParticipant } from 'veysur-common/model/schema'
 import { SurveyParticipant } from 'veysur-common/model/constructor'
 
@@ -55,7 +55,7 @@ describe('RepoSurveyParticipant surveyResponse relation', () => {
     repoSurveyParticipant.addConstructor(SurveyParticipant)
 
     // repoSurveyResponse has no schema wired (only repoSurveyParticipant's, per above), so
-    // mzen-om treats every filter key the populated relation query uses as unknown.
+    // @datacapy/om treats every filter key the populated relation query uses as unknown.
     const [participant] = await allowConsole(
       [
         'query key "surveyId" is not a schema field',
@@ -94,7 +94,7 @@ describe('RepoSurveyParticipant surveyResponse relation', () => {
     repoSurveyResponse.dataSource = dataSource
     repoSurveyParticipant.addRepos([repoSurveyResponse])
 
-    // No schema is wired for either repo in this test, so mzen-om treats every filter key
+    // No schema is wired for either repo in this test, so @datacapy/om treats every filter key
     // as unknown, including surveyId/participantId (real schema fields once addSchema is
     // called - see the previous test).
     const [participant] = await allowConsole(

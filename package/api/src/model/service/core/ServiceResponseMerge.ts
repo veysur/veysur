@@ -2,8 +2,8 @@ import {
   Service,
   ServerErrorNotFound,
   ServerErrorBadRequest,
-} from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
+} from '@datacapy/server'
+import { DataSourceContext } from '@datacapy/om'
 
 import {
   RepoSurveySnapshotPartial,

@@ -1,4 +1,4 @@
-import { Repo, ServerErrorBadRequest } from 'mzen-server'
+import { Repo, ServerErrorBadRequest } from '@datacapy/server'
 import { Patch, schemaManager } from 'veysur-common'
 
 import {

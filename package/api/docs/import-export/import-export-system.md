@@ -351,7 +351,7 @@ generic entity: `enqueueExport()`/`enqueueImport()` create one (`level: 'info'`)
 `ServiceNotification.create()`, and `processOne()` updates it to `level: 'success'`/`'error'`
 via `ServiceNotification.updateForDataTransferJob()` as the job settles. `Notification.type`
 discriminates the notification's source; each type gets its own nullable FK
-(`dataTransferJobId` today) with its own `belongsToOne` relation on `RepoNotification` - mzen-om
+(`dataTransferJobId` today) with its own `belongsToOne` relation on `RepoNotification` - @datacapy/om
 relations bind to a single repo each, so there is no single polymorphic `relatedEntityId`.
 
 The frontend notification bell/panel (`DataTransferNotificationBell`) polls

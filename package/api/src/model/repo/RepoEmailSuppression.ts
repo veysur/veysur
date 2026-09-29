@@ -1,4 +1,4 @@
-import { Repo, TYPE_HINT_TIMESTAMP } from 'mzen-server'
+import { Repo, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
 import { EmailSuppression } from 'veysur-common'
 
 export class RepoEmailSuppression extends Repo<EmailSuppression> {

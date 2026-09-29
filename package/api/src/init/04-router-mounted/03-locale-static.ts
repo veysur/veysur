@@ -2,7 +2,7 @@ import crypto from 'crypto'
 import fs from 'fs'
 import path from 'path'
 import type { Request, Response, NextFunction } from 'express'
-import { Server } from 'mzen-server'
+import { Server } from '@datacapy/server'
 
 const LOCALE_DIR = path.join(__dirname, '../../locale')
 

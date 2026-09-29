@@ -1,4 +1,4 @@
-import { Server } from 'mzen-server'
+import { Server } from '@datacapy/server'
 
 import { isSelfHosted } from 'config/edition'
 import { ServiceProject } from 'model/service/ServiceProject'

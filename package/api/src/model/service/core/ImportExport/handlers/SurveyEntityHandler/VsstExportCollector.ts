@@ -1,7 +1,7 @@
 import { Readable } from 'stream'
 
-import { DataSourceContext } from 'mzen-om'
-import { ServerErrorNotFound } from 'mzen-server'
+import { DataSourceContext } from '@datacapy/om'
+import { ServerErrorNotFound } from '@datacapy/server'
 import { Survey, SurveyLanguage } from 'veysur-common'
 
 import { createStorageAdaptor, contextForProject } from 'common'

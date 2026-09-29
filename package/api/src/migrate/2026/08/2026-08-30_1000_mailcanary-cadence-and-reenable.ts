@@ -1,5 +1,5 @@
-import { DatabasePatchInterface } from 'mzen-migrate'
-import { ModelManager } from 'mzen-om'
+import { DatabasePatchInterface } from '@datacapy/migrate'
+import { ModelManager } from '@datacapy/om'
 
 /**
  * T3.3: the mail deliverability canary was seeded at a 6-hour interval and could

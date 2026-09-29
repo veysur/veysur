@@ -1,7 +1,7 @@
 import { schemaManager } from '../schema-manager'
 
 /**
- * Regression: mzen-schema registers constructors by the class's `.name`, so the
+ * Regression: @datacapy/schema registers constructors by the class's `.name`, so the
  * `$construct` / `$constructCollection` strings in `SchemaSurveySection` /
  * `SchemaSurveyElement` must exactly match the class names
  * (`SurveySection` / `SurveySectionCollection` / `SurveyElementCollection`).

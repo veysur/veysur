@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from 'react'
 import { useAuthdQuery } from 'hook/useAuthdQuery'
 import { EmailTemplate, EmailTemplateCollection, Patch } from 'veysur-common'
-import { PropsOf } from 'mzen-schema'
+import { PropsOf } from '@datacapy/schema'
 
 import { useProjectDomain } from 'appAdmin/hook'
 import { Api } from 'model'

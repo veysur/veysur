@@ -1,4 +1,4 @@
-import { Server } from 'mzen-server'
+import { Server } from '@datacapy/server'
 
 export const initApiVersionHeader = function (server: Server) {
   server.app.use((_req, res, next) => {

@@ -1,6 +1,6 @@
-import { Repo, ServerErrorBadRequest, TYPE_HINT_TIMESTAMP } from 'mzen-server'
-import { genUniqueId } from 'mzen-id'
-import { MigrationResult } from 'mzen-migrate'
+import { Repo, ServerErrorBadRequest, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
+import { genUniqueId } from '@datacapy/id'
+import { MigrationResult } from '@datacapy/migrate'
 
 import { MigrationLogEntry, MigrationLogPatchResult } from '../constructor'
 
@@ -9,7 +9,7 @@ import { MigrationLogEntry, MigrationLogPatchResult } from '../constructor'
  *
  * Tracks the progress of a batch migration run (one CLI invocation) across every
  * target database it touches. This is a run/job ledger, not a per-database version
- * store — mzen-migrate's own migrationMeta table (inside each target database) remains
+ * store — @datacapy/migrate's own migrationMeta table (inside each target database) remains
  * the canonical record of which patches have been applied. migrationLog only answers
  * "what happened to this database in this run", so a later `--resume <runId>` can skip
  * already-successful databases and retry the rest, concurrently.

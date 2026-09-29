@@ -1,4 +1,4 @@
-import { SchemaManager } from 'mzen-schema'
+import { SchemaManager } from '@datacapy/schema'
 
 import * as constructorsCommon from './constructor'
 import * as schemasCommon from './schema'

@@ -36,7 +36,7 @@ import {
   useSurveyEditorStore,
 } from 'appAdmin/component/SurveyEditor'
 import { SurveyLanguageSelector } from 'appAdmin/component/SurveyEditor/SurveyLanguageSelector'
-import { genUniqueId } from 'mzen-id'
+import { genUniqueId } from '@datacapy/id'
 
 import {
   useSurveyParticipantAttributeList,

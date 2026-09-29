@@ -1,5 +1,5 @@
 import { SurveySnapshotPartial } from 'veysur-common'
-import { Repo, TYPE_HINT_TIMESTAMP } from 'mzen-server'
+import { Repo, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
 
 export class RepoSurveySnapshotPartial extends Repo<SurveySnapshotPartial> {
   constructor() {

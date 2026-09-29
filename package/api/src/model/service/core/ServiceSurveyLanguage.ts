@@ -1,4 +1,4 @@
-import { Service } from 'mzen-server'
+import { Service } from '@datacapy/server'
 import {
   Survey,
   SurveyLanguage,
@@ -7,7 +7,7 @@ import {
   SurveyAnswerOptionImageValue,
   mergeSurveyLanguageIntoSurvey,
 } from 'veysur-common'
-import { genUniqueId } from 'mzen-id'
+import { genUniqueId } from '@datacapy/id'
 
 import { RepoSurveyLanguage, RepoSurveyLanguageSnapshot } from 'model'
 import { contextForProject } from 'common'

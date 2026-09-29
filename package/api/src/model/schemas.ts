@@ -1,4 +1,4 @@
-import { Schema } from 'mzen-server'
+import { Schema } from '@datacapy/server'
 
 import * as schemasCommon from 'veysur-common/model/schema'
 

@@ -1,4 +1,4 @@
-import { Server } from 'mzen-server'
+import { Server } from '@datacapy/server'
 import { DEFAULT_PROJECT_ID } from 'veysur-common'
 import { initProjectDefault } from './00-project-default'
 

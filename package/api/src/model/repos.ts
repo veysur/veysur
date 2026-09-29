@@ -1,4 +1,4 @@
-import { Repo } from 'mzen-server'
+import { Repo } from '@datacapy/server'
 
 import { classArrayInstantiate } from './classArrayInstantiate'
 import * as repoMap from './repo'

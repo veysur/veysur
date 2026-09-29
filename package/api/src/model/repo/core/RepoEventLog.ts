@@ -1,4 +1,4 @@
-import { Repo } from 'mzen-server'
+import { Repo } from '@datacapy/server'
 
 export interface EventLog {
   _id?: string

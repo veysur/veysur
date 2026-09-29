@@ -3,7 +3,7 @@ import {
   ServerErrorUnauthorized,
   ServerErrorBadRequest,
   ServerErrorNotFound,
-} from 'mzen-server'
+} from '@datacapy/server'
 import { StringRandom, validatePassword } from 'veysur-common'
 import * as bcryptjs from 'bcryptjs'
 import { createHash, timingSafeEqual } from 'crypto'

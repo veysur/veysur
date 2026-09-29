@@ -1,8 +1,8 @@
-import { Service } from 'mzen-server'
+import { Service } from '@datacapy/server'
 import momentTimezone from 'moment-timezone'
 import * as crypto from 'crypto'
 import { User, UserAccessToken } from 'veysur-common'
-import { PropsOf } from 'mzen-schema'
+import { PropsOf } from '@datacapy/schema'
 
 import { Client, ConfigJwt, JwtAdmin, RepoUser, RepoUserClient } from 'model'
 import { lookupIp } from 'model/common'

@@ -1,7 +1,7 @@
 import tls from 'node:tls'
-import { Service } from 'mzen-server'
+import { Service } from '@datacapy/server'
 import { ImapFlow } from 'imapflow'
-import { genUniqueId } from 'mzen-id'
+import { genUniqueId } from '@datacapy/id'
 import { captureWithFingerprint } from 'common'
 import { ServiceEmail } from './ServiceEmail'
 

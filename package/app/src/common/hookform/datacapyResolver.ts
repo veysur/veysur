@@ -1,4 +1,4 @@
-import { Schema, SchemaValidationResult, SchemaConfig } from 'mzen-schema'
+import { Schema, SchemaValidationResult, SchemaConfig } from '@datacapy/schema'
 import type { FieldErrors, FieldValues, Resolver } from 'react-hook-form'
 
 export interface MzenResolverOptions {
@@ -6,9 +6,9 @@ export interface MzenResolverOptions {
 }
 
 /**
- * Converts mzen-schema path-based errors to react-hook-form field errors
+ * Converts @datacapy/schema path-based errors to react-hook-form field errors
  *
- * @param errors - mzen-schema errors: { "fieldName": ["error1", "error2"] }
+ * @param errors - @datacapy/schema errors: { "fieldName": ["error1", "error2"] }
  * @returns react-hook-form errors: { fieldName: { type, message } }
  */
 type NestedFieldErrors = {
@@ -59,15 +59,15 @@ function toFieldErrors<TFieldValues extends FieldValues = FieldValues>(errors: {
 }
 
 /**
- * Creates a react-hook-form resolver from a mzen-schema Schema instance
+ * Creates a react-hook-form resolver from a @datacapy/schema Schema instance
  *
- * @param schema - The mzen-schema Schema to use for validation
+ * @param schema - The @datacapy/schema Schema to use for validation
  * @returns A resolver function compatible with react-hook-form
  *
  * @example
  * ```typescript
- * import { Schema, sb } from 'mzen-schema'
- * import { mzenResolver } from 'common/hookform/mzenResolver'
+ * import { Schema, sb } from '@datacapy/schema'
+ * import { datacapyResolver } from 'common/hookform/datacapyResolver'
  *
  * type LoginFormData = {
  *   email: string
@@ -82,18 +82,18 @@ function toFieldErrors<TFieldValues extends FieldValues = FieldValues>(errors: {
  * )
  *
  * const form = useForm<LoginFormData>({
- *   resolver: mzenResolver(loginSchema),
+ *   resolver: datacapyResolver(loginSchema),
  *   defaultValues: { email: '', password: '' }
  * })
  * ```
  */
-export function mzenResolver<TFieldValues extends FieldValues = FieldValues>(
+export function datacapyResolver<TFieldValues extends FieldValues = FieldValues>(
   schema: Schema,
   options?: MzenResolverOptions,
 ): Resolver<TFieldValues> {
   return async (values) => {
     try {
-      // Run mzen-schema validation (async)
+      // Run @datacapy/schema validation (async)
       const result: SchemaValidationResult = await schema.validate(
         values,
         options?.schemaConfig,
@@ -123,7 +123,7 @@ export function mzenResolver<TFieldValues extends FieldValues = FieldValues>(
       }
     } catch (error) {
       // Handle unexpected errors during validation
-      console.error('mzen-schema validation error:', error)
+      console.error('@datacapy/schema validation error:', error)
 
       return {
         values: {} as Record<string, never>,

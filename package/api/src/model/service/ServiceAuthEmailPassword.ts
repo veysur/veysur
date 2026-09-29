@@ -1,4 +1,4 @@
-import { Service, ServerErrorUnauthorized } from 'mzen-server'
+import { Service, ServerErrorUnauthorized } from '@datacapy/server'
 import * as bcryptjs from 'bcryptjs'
 
 import { RepoUser, ServiceProject } from 'model'

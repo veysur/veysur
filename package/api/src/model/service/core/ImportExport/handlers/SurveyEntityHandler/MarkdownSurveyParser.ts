@@ -1,5 +1,5 @@
-import { genUniqueId } from 'mzen-id'
-import { ServerErrorBadRequest } from 'mzen-server'
+import { genUniqueId } from '@datacapy/id'
+import { ServerErrorBadRequest } from '@datacapy/server'
 import {
   CONTENT_TYPES,
   CONTENT_TYPE_YOUTUBE,

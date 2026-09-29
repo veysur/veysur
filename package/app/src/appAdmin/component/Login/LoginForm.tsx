@@ -1,9 +1,9 @@
-import { Schema, sb } from 'mzen-schema'
+import { Schema, sb } from '@datacapy/schema'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { cn } from 'common/cn'
-import { mzenResolver } from 'common/hookform/mzenResolver'
+import { datacapyResolver } from 'common/hookform/datacapyResolver'
 import { Button } from 'component/shadcn/button'
 import { Card } from 'component/shadcn/card'
 import { Input } from 'component/shadcn/input'
@@ -42,7 +42,7 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
   const [formError, setFormError] = useState<string | null>(null)
 
   const form = useForm<LoginFormData>({
-    resolver: mzenResolver(loginSchema),
+    resolver: datacapyResolver(loginSchema),
     defaultValues: {
       email: '',
       password: '',

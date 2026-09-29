@@ -1,4 +1,4 @@
-import { SchemaSpecValidateOptionsCallback } from 'mzen-schema'
+import { SchemaSpecValidateOptionsCallback } from '@datacapy/schema'
 
 import {
   SURVEY_ENTITY_TYPE_SECTION,

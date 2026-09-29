@@ -1,4 +1,4 @@
-import { SchemaValidationResult } from 'mzen-schema'
+import { SchemaValidationResult } from '@datacapy/schema'
 
 export const extractFieldErrors = (
   errors: SchemaValidationResult['errors'],

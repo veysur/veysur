@@ -5,12 +5,12 @@ packages:
   - package/theme
   - package/docsite
   # Include packages from git submodules in external/
-  - external/mzen/package/*
+  - external/datacapy/package/*
   - external/s3-adaptor
 
 overrides:
   # tsc-alias@1.9.5 mis-rewrites the relative `export ... from './repo'` in
-  # external/mzen/package/mzen-om/src/repo/index.ts to `require('./index.js')`
+  # external/datacapy/package/mzen-om/src/repo/index.ts to `require('./index.js')`
   # (self-import), causing infinite getter recursion (RangeError: Maximum call
   # stack size exceeded) at runtime. 1.9.1 (what another lockfile pinning the
   # same dependency happens to still pin) does not have this regression.

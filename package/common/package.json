@@ -58,8 +58,8 @@
     "jsep": "^1.4.0",
     "markdown-it": "^14.3.2",
     "moment-timezone": "^0.6.4",
-    "mzen-id": "workspace:*",
-    "mzen-schema": "workspace:*",
+    "@datacapy/id": "workspace:*",
+    "@datacapy/schema": "workspace:*",
     "sanitize-html": "2.13.0"
   },
   "devDependencies": {

@@ -1,4 +1,4 @@
-import { Schema, sb } from 'mzen-schema'
+import { Schema, sb } from '@datacapy/schema'
 
 import { SCHEMA_LENGTH_MAX_TEXT } from './constant'
 

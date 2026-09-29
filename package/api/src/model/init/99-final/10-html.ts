@@ -1,4 +1,4 @@
-import { ModelManager } from 'mzen-server'
+import { ModelManager } from '@datacapy/server'
 import * as path from 'path'
 import * as nodeDir from 'node-dir'
 import * as Handlebars from 'handlebars'

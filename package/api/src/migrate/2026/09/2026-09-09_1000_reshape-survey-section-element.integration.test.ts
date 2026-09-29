@@ -1,5 +1,5 @@
 // cspell:ignore jdoc Frage Gruppe
-import { DataSourceMysql } from 'mzen-server'
+import { DataSourceMysql } from '@datacapy/server'
 import { Survey } from 'veysur-common'
 
 import ReshapeSurveySectionElement from './2026-09-09_1000_reshape-survey-section-element'

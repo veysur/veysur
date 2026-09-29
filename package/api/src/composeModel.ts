@@ -4,8 +4,8 @@ import {
   Repo,
   Schema,
   ServerAclRoleAssessor,
-} from 'mzen-server'
-import { SchemaEncryptionServiceRsa } from 'mzen-om'
+} from '@datacapy/server'
+import { SchemaEncryptionServiceRsa } from '@datacapy/om'
 
 import configDefault, { encryption } from './config/default'
 import type { ModelConfig } from './config/types'
@@ -18,7 +18,7 @@ import * as coreConstructorMap from './model/constructor'
 import * as coreEndpointMap from './endpoint'
 import { roleAssessors as coreRoleAssessors } from './acl/role-assessor/index'
 import * as schemasCommon from 'veysur-common/model/schema'
-import { Collection } from 'mzen-schema'
+import { Collection } from '@datacapy/schema'
 
 import coreModelInitFinal from './model/init/99-final'
 import coreInit00 from './init/00-init'
@@ -126,7 +126,7 @@ export function composeModel(c: ModelComposition = {}): ComposedModel {
   })
 
   // An extension's composition may feed in barrels, which re-export the
-  // core barrel — dedupe by mzen name so a re-exported core class registered
+  // core barrel — dedupe by registered name so a re-exported core class registered
   // once as core is not registered again as an "extra".
   const dedupeByName = <T extends { getName?: () => string }>(
     items: T[],

@@ -505,9 +505,9 @@ sequenceDiagram
     end
 ```
 
-### mzen-schema Validation
+### @datacapy/schema Validation
 
-Each field has a mzen-schema Schema defining its validation rules:
+Each field has a @datacapy/schema Schema defining its validation rules:
 
 ```typescript
 // Example: Question text validation

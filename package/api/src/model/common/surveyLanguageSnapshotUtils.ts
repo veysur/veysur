@@ -1,4 +1,4 @@
-import { DataSourceContext } from 'mzen-om'
+import { DataSourceContext } from '@datacapy/om'
 import { mergeSurveyLanguageIntoSurvey, Survey } from 'veysur-common'
 import type { RepoSurveyLanguageSnapshot } from 'model'
 

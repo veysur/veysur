@@ -1,5 +1,5 @@
 import { Patch } from 'veysur-common'
-import { genUniqueId } from 'mzen-id'
+import { genUniqueId } from '@datacapy/id'
 import { PatchContext } from '../PatchContext'
 
 export async function handleEmailTemplateUpdate(

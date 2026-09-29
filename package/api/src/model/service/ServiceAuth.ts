@@ -1,4 +1,4 @@
-import { Service, ServerErrorNotFound } from 'mzen-server'
+import { Service, ServerErrorNotFound } from '@datacapy/server'
 import { UserClient } from 'veysur-common'
 
 import { Client, RepoUser, RepoUserClient, ServiceProject } from 'model'

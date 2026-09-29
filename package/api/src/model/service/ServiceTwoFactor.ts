@@ -3,7 +3,7 @@ import {
   ServerErrorBadRequest,
   ServerErrorForbidden,
   ServerErrorUnauthorized,
-} from 'mzen-server'
+} from '@datacapy/server'
 import * as bcryptjs from 'bcryptjs'
 import * as OTPAuth from 'otpauth'
 

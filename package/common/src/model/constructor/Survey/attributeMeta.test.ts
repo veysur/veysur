@@ -28,7 +28,7 @@ import {
   MATRIX_ORIENTATION_SUBQUESTIONS_ROWS,
 } from './attributeMeta'
 import { MATRIX_QUESTION_TYPES } from './Matrix'
-import Schema from 'mzen-schema'
+import Schema from '@datacapy/schema'
 
 describe('Attribute Metadata', () => {
   describe('Constants', () => {

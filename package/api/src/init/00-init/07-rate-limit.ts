@@ -1,5 +1,5 @@
-import { Server } from 'mzen-server'
-import { DataSourceRedis } from 'mzen-om'
+import { Server } from '@datacapy/server'
+import { DataSourceRedis } from '@datacapy/om'
 
 import { app as appConfig } from 'config/default'
 import { RateLimitRule } from 'config/types'

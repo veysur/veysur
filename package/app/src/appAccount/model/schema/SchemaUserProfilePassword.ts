@@ -1,5 +1,5 @@
 import { PASSWORD_MIN_LENGTH, validatePassword } from 'veysur-common'
-import { Schema, sb } from 'mzen-schema'
+import { Schema, sb } from '@datacapy/schema'
 
 export type UserProfilePasswordFormData = {
   currentPassword: string

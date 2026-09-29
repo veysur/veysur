@@ -1,6 +1,6 @@
 # Versioning and releases
 
-How `veysur` and its two submodule libraries (`mzen`, `s3-adaptor`) are versioned, and the
+How `veysur` and its two submodule libraries (`datacapy`, `s3-adaptor`) are versioned, and the
 step-by-step for cutting a release. The release artefact is a git tag plus a GitHub release
 either way; none of these packages are currently published to npm, though the library
 packages (everything except the workspace-root `package.json`s and `veysur-app`) carry no
@@ -15,7 +15,7 @@ changelog entry should say. `pnpm changeset` writes one interactively and drops 
 
 ```markdown
 ---
-'mzen-schema': patch
+'@datacapy/schema': patch
 ---
 
 Fix validator crashing on a null nested field
@@ -35,11 +35,11 @@ or changelogs by hand.
 | Repo | Versioning model | Tag format | Config |
 |---|---|---|---|
 | `veysur` (this repo) | `fixed` group: `veysur-app`, `veysur-api`, `veysur-common`, `veysur-theme`, `veysur-docsite` always bump together | `vX.Y.Z` | `.changeset/config.json` |
-| `external/mzen` | Independent per package (`mzen-id`, `mzen-migrate`, `mzen-om`, `mzen-schema`, `mzen-server`) | `<package-name>@X.Y.Z` | `external/mzen/.changeset/config.json` |
+| `external/datacapy` | Independent per package (`@datacapy/id`, `@datacapy/migrate`, `@datacapy/om`, `@datacapy/schema`, `@datacapy/server`) | `<package-name>@X.Y.Z` | `external/datacapy/.changeset/config.json` |
 | `external/s3-adaptor` | Single package | `s3-adaptor@X.Y.Z` | `external/s3-adaptor/.changeset/config.json` |
 
 All three use [Changesets](https://github.com/changesets/changesets). The workspace-root
-`package.json` in `veysur` and `mzen` (not a real consumable package, just orchestration
+`package.json` in `veysur` and `datacapy` (not a real consumable package, just orchestration
 scripts) and `veysur-app` (a bundled application, not a library) stay `private: true`; every
 other package here is consumed both via the pnpm `workspace:*` protocol internally and is
 publishable to npm in principle. Each `.changeset/config.json` sets `"privatePackages": {
@@ -66,14 +66,14 @@ Commit the generated `.changeset/*.md` file with the PR.
 ## Cutting a release
 
 Releases are cut in dependency order, since `veysur`'s `pnpm-lock.yaml` and submodule
-pointers need to reflect `mzen`/`s3-adaptor`'s latest tagged commit:
+pointers need to reflect `datacapy`/`s3-adaptor`'s latest tagged commit:
 
-1. **`external/mzen`** (if it has pending changesets): `cd external/mzen && ./scripts/release.sh`.
-   Bumps whichever `mzen-*` packages changed, commits, tags each
+1. **`external/datacapy`** (if it has pending changesets): `cd external/datacapy && ./scripts/release.sh`.
+   Bumps whichever `@datacapy/*` packages changed, commits, tags each
    `<package-name>@<version>`, pushes.
 2. **`external/s3-adaptor`** (if it has pending changesets): `cd external/s3-adaptor &&
    ./scripts/release.sh`. Bumps, commits, tags `s3-adaptor@<version>`, pushes.
-3. In `veysur`'s own root, `git add external/mzen external/s3-adaptor` to pick up the new
+3. In `veysur`'s own root, `git add external/datacapy external/s3-adaptor` to pick up the new
    submodule pointers if either was released, then `pnpm install` to refresh the lockfile.
 4. **`veysur`** (if it has pending changesets): `./scripts/release.sh`. Bumps all five
    packages together, syncs the root `package.json` version, commits, tags `vX.Y.Z`, pushes.
@@ -93,16 +93,16 @@ This is a manual, maintainer-triggered flow: there's no CI release automation ye
 
 ## Onboarding a new package
 
-Adding a package to any of these three repos (a new `mzen-*` library, or a 6th `veysur` core
+Adding a package to any of these three repos (a new `@datacapy/*` library, or a 6th `veysur` core
 package):
 
 1. Decide its versioning model: does it belong to `veysur`'s `fixed` group (ships and
    upgrades with the other five, e.g. another package self-hosters deploy directly), or does
-   it get independent semver like an `mzen-*` package (a standalone library other code
+   it get independent semver like an `@datacapy/*` package (a standalone library other code
    depends on, that can change on its own schedule)?
 2. If it's joining an existing `fixed` group, add its `name` to that repo's
    `.changeset/config.json` `fixed` array.
-3. If it's a new independent-semver repo (a new submodule, following the `mzen`/`s3-adaptor`
+3. If it's a new independent-semver repo (a new submodule, following the `datacapy`/`s3-adaptor`
    pattern): add `@changesets/cli` as a dev dependency, scaffold `.changeset/config.json`
    and `.changeset/README.md` (copy an existing one as a template). If the package is
    `private: true` (an application, not a library meant to be depended on), confirm
@@ -114,6 +114,6 @@ package):
 5. Add a `release` scope to `.cz-config.js` if `allowCustomScopes: false` there.
 6. Add a baseline `CHANGELOG.md` (`## 0.1.0` / current version, "Initial tracked release").
 7. Copy `scripts/release.sh` from a sibling repo with the matching versioning model
-   (`veysur`'s for a fixed group, `mzen`'s for independent-per-package, `s3-adaptor`'s for a
+   (`veysur`'s for a fixed group, `datacapy`'s for independent-per-package, `s3-adaptor`'s for a
    single package) and adjust the tag format if needed.
 8. Add it to the overview table above.

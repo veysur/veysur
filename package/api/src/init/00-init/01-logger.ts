@@ -1,6 +1,6 @@
 import util from 'util'
 import * as Sentry from '@sentry/node'
-import { Server } from 'mzen-server'
+import { Server } from '@datacapy/server'
 import { Logger, LoggerLike } from 'veysur-common'
 
 interface EndpointErrorLogDetails {
@@ -16,7 +16,7 @@ const isEndpointErrorLogDetails = (
 ): value is EndpointErrorLogDetails =>
   typeof value === 'object' && value !== null && 'handled' in value
 
-// mzen-server's ErrorHandler logs every endpoint error but never reports it to
+// @datacapy/server's ErrorHandler logs every endpoint error but never reports it to
 // Sentry/BugSink itself. `handled: false` marks errors with no matching
 // responseErrorConfig - i.e. unexpected errors that fell through to the
 // generic 500 response - these are the real bugs worth alerting on.

@@ -1,4 +1,4 @@
-import { Service, ServerErrorNotFound, ServerErrorForbidden } from 'mzen-server'
+import { Service, ServerErrorNotFound, ServerErrorForbidden } from '@datacapy/server'
 import { ProjectAdmin } from 'veysur-common'
 import { RepoProjectAdmin, RepoUser, Email } from 'model/repo'
 import { AclContext } from 'model/entity'

@@ -1,8 +1,8 @@
 import { Readable } from 'stream'
 import { extname } from 'path'
 
-import { DataSourceContext } from 'mzen-om'
-import { ServerErrorBadRequest, ServerErrorNotFound } from 'mzen-server'
+import { DataSourceContext } from '@datacapy/om'
+import { ServerErrorBadRequest, ServerErrorNotFound } from '@datacapy/server'
 import { SurveySnapshot, SurveyLanguageSnapshot } from 'veysur-common'
 
 import { createStorageAdaptor, contextForProject, responseFileBucket } from 'common'

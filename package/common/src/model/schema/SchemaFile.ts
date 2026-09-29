@@ -1,4 +1,4 @@
-import { Schema, sb } from 'mzen-schema'
+import { Schema, sb } from '@datacapy/schema'
 import {
   ALLOWED_FILE_MIME_TYPES,
   SCHEMA_LENGTH_MAX_INTERNAL_ID,

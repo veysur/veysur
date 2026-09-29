@@ -1,5 +1,5 @@
 import { strict as assert } from 'assert'
-import type { DataSourceRedis } from 'mzen-om'
+import type { DataSourceRedis } from '@datacapy/om'
 import { RedisTwoTierCache } from '../../../src/service/cache/RedisTwoTierCache'
 
 // ─── Minimal DataSourceRedis mock ─────────────────────────────────────────────

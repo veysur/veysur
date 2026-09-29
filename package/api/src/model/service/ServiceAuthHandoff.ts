@@ -1,4 +1,4 @@
-import { Service, ServerErrorNotFound } from 'mzen-server'
+import { Service, ServerErrorNotFound } from '@datacapy/server'
 
 import { Client, RepoUser, RepoUserClient, ServiceProject } from 'model'
 import { authHandoffStore } from 'service/auth-handoff/AuthHandoffStore'
@@ -30,7 +30,7 @@ export class ServiceAuthHandoff extends Service {
 
   /**
    * Builds the handoff payload entirely from the current, already-authenticated
-   * request context (the JWT/access-token client mzen-server's auth middleware
+   * request context (the JWT/access-token client @datacapy/server's auth middleware
    * already resolved) - never from client-supplied input - so this is safe to
    * expose at role authedAdmin without letting a caller mint a token for
    * someone else's session.

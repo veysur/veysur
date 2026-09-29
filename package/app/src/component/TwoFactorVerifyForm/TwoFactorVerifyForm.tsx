@@ -1,8 +1,8 @@
-import { Schema, sb } from 'mzen-schema'
+import { Schema, sb } from '@datacapy/schema'
 import { useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 
-import { mzenResolver } from 'common/hookform/mzenResolver'
+import { datacapyResolver } from 'common/hookform/datacapyResolver'
 import { Button } from 'component/shadcn/button'
 import { Alert, AlertDescription } from 'component/shadcn/alert'
 import { Spinner } from 'component/shadcn/spinner'
@@ -46,7 +46,7 @@ export const TwoFactorVerifyForm: React.FC<Props> = ({
   const [formError, setFormError] = useState<string | null>(null)
 
   const form = useForm<TwoFactorFormData>({
-    resolver: mzenResolver(twoFactorSchema),
+    resolver: datacapyResolver(twoFactorSchema),
     defaultValues: { code: '' },
   })
 

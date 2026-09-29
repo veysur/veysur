@@ -1,4 +1,4 @@
-import { Server } from 'mzen-server'
+import { Server } from '@datacapy/server'
 
 import { ServiceEventLog } from 'model/service/ServiceEventLog'
 

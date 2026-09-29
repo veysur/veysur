@@ -3,8 +3,8 @@ import {
   ServerErrorNotFound,
   ServerErrorInternal,
   ServerErrorBadRequest,
-} from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
+} from '@datacapy/server'
+import { DataSourceContext } from '@datacapy/om'
 
 import { parsePaginationParams, contextForProject } from 'common'
 import {

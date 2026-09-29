@@ -1,10 +1,10 @@
-import { Schema, sb } from 'mzen-schema'
+import { Schema, sb } from '@datacapy/schema'
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 import { CheckCircle, Mail, Loader2 } from 'lucide-react'
 
-import { mzenResolver } from 'common/hookform/mzenResolver'
+import { datacapyResolver } from 'common/hookform/datacapyResolver'
 import { Button } from 'component/shadcn/button'
 import { Card } from 'component/shadcn/card'
 import { Container } from 'component/shadcn/container'
@@ -129,14 +129,14 @@ export const PagePasswordReset: React.FC = () => {
   const tokenFromUrl = urlParams.get('token')
 
   const emailForm = useForm<EmailFormData>({
-    resolver: mzenResolver(emailSchema),
+    resolver: datacapyResolver(emailSchema),
     defaultValues: {
       email: '',
     },
   })
 
   const resetForm = useForm<ResetFormData>({
-    resolver: mzenResolver(resetSchema),
+    resolver: datacapyResolver(resetSchema),
     defaultValues: {
       token: '',
       password: '',

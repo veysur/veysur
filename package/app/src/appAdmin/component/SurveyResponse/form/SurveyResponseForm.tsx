@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { SurveyResponse } from 'veysur-common'
-import { PropsOf } from 'mzen-schema'
+import { PropsOf } from '@datacapy/schema'
 
 import { Alert, AlertDescription } from 'component/shadcn/alert'
 import { Button } from 'component/shadcn/button'

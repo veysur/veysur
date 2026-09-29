@@ -24,12 +24,12 @@ COPY package/common/package.json ./package/common/
 COPY package/api/package.json ./package/api/
 COPY external/s3-adaptor/package.json ./external/s3-adaptor/
 
-# Copy mzen package manifests
-COPY external/mzen/package/mzen-id/package.json ./external/mzen/package/mzen-id/
-COPY external/mzen/package/mzen-om/package.json ./external/mzen/package/mzen-om/
-COPY external/mzen/package/mzen-migrate/package.json ./external/mzen/package/mzen-migrate/
-COPY external/mzen/package/mzen-schema/package.json ./external/mzen/package/mzen-schema/
-COPY external/mzen/package/mzen-server/package.json ./external/mzen/package/mzen-server/
+# Copy datacapy package manifests
+COPY external/datacapy/package/mzen-id/package.json ./external/datacapy/package/mzen-id/
+COPY external/datacapy/package/mzen-om/package.json ./external/datacapy/package/mzen-om/
+COPY external/datacapy/package/mzen-migrate/package.json ./external/datacapy/package/mzen-migrate/
+COPY external/datacapy/package/mzen-schema/package.json ./external/datacapy/package/mzen-schema/
+COPY external/datacapy/package/mzen-server/package.json ./external/datacapy/package/mzen-server/
 
 # Install all dependencies (ignore scripts since we'll build in the builder stage)
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
@@ -48,34 +48,34 @@ COPY --from=deps /app/package ./package
 
 # Copy source code
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY external/mzen ./external/mzen
+COPY external/datacapy ./external/datacapy
 COPY external/s3-adaptor ./external/s3-adaptor
 COPY package/common ./package/common
 COPY package/api ./package/api
 
 # Restore per-package node_modules from deps stage
 # (.dockerignore excludes local node_modules; these provide tsc and other build tools)
-COPY --from=deps /app/external/mzen/package/mzen-id/node_modules ./external/mzen/package/mzen-id/node_modules
-COPY --from=deps /app/external/mzen/package/mzen-schema/node_modules ./external/mzen/package/mzen-schema/node_modules
-COPY --from=deps /app/external/mzen/package/mzen-om/node_modules ./external/mzen/package/mzen-om/node_modules
-COPY --from=deps /app/external/mzen/package/mzen-migrate/node_modules ./external/mzen/package/mzen-migrate/node_modules
-COPY --from=deps /app/external/mzen/package/mzen-server/node_modules ./external/mzen/package/mzen-server/node_modules
+COPY --from=deps /app/external/datacapy/package/mzen-id/node_modules ./external/datacapy/package/mzen-id/node_modules
+COPY --from=deps /app/external/datacapy/package/mzen-schema/node_modules ./external/datacapy/package/mzen-schema/node_modules
+COPY --from=deps /app/external/datacapy/package/mzen-om/node_modules ./external/datacapy/package/mzen-om/node_modules
+COPY --from=deps /app/external/datacapy/package/mzen-migrate/node_modules ./external/datacapy/package/mzen-migrate/node_modules
+COPY --from=deps /app/external/datacapy/package/mzen-server/node_modules ./external/datacapy/package/mzen-server/node_modules
 COPY --from=deps /app/external/s3-adaptor/node_modules ./external/s3-adaptor/node_modules
 
-# Build mzen packages first (in dependency order)
-WORKDIR /app/external/mzen/package/mzen-id
+# Build datacapy packages first (in dependency order)
+WORKDIR /app/external/datacapy/package/mzen-id
 RUN pnpm build
 
-WORKDIR /app/external/mzen/package/mzen-schema
+WORKDIR /app/external/datacapy/package/mzen-schema
 RUN pnpm build
 
-WORKDIR /app/external/mzen/package/mzen-om
+WORKDIR /app/external/datacapy/package/mzen-om
 RUN pnpm build
 
-WORKDIR /app/external/mzen/package/mzen-migrate
+WORKDIR /app/external/datacapy/package/mzen-migrate
 RUN pnpm build
 
-WORKDIR /app/external/mzen/package/mzen-server
+WORKDIR /app/external/datacapy/package/mzen-server
 RUN pnpm build
 
 # Build s3-adaptor
@@ -112,7 +112,7 @@ COPY --from=builder /root/.cache/node/corepack /home/nodejs/.cache/node/corepack
 COPY --from=builder --chown=nodejs:nodejs /app/package.json ./
 COPY --from=builder --chown=nodejs:nodejs /app/pnpm-workspace.yaml ./
 COPY --from=builder --chown=nodejs:nodejs /app/pnpm-lock.yaml ./
-COPY --from=builder --chown=nodejs:nodejs /app/external/mzen ./external/mzen
+COPY --from=builder --chown=nodejs:nodejs /app/external/datacapy ./external/datacapy
 COPY --from=builder --chown=nodejs:nodejs /app/external/s3-adaptor ./external/s3-adaptor
 COPY --from=builder --chown=nodejs:nodejs /app/package/common ./package/common
 COPY --from=builder --chown=nodejs:nodejs /app/package/api ./package/api

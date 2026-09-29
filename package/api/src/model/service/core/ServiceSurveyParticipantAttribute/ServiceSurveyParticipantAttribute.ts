@@ -2,7 +2,7 @@ import {
   Service,
   ServerErrorBadRequest,
   ServerErrorNotFound,
-} from 'mzen-server'
+} from '@datacapy/server'
 import {
   SurveyParticipantAttribute,
   SurveyParticipantAttributeDefinition,

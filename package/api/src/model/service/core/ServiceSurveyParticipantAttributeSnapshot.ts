@@ -1,5 +1,5 @@
-import { Service } from 'mzen-server'
-import { DataSourceContext } from 'mzen-om'
+import { Service } from '@datacapy/server'
+import { DataSourceContext } from '@datacapy/om'
 import { Survey, SettingSurvey } from 'veysur-common'
 
 import {

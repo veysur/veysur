@@ -4,7 +4,7 @@ import {
   Survey,
   SettingSurvey,
 } from 'veysur-common'
-import { PropsOf } from 'mzen-schema'
+import { PropsOf } from '@datacapy/schema'
 
 import { useProjectDomain } from 'appAdmin/hook'
 import { KEY_STATE_SURVEY_PARTICIPANT_LIST } from 'appAdmin/common'

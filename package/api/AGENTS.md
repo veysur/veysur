@@ -1,7 +1,7 @@
 # Agent Guidelines for VeySur REST API (repo/api/)
 
 ## Project Overview
-REST API server built with mzen-server framework and TypeScript. Provides backend services for the VeySur platform.
+REST API server built with @datacapy/server framework and TypeScript. Provides backend services for the VeySur platform.
 
 ## Build/Test Commands
 - `pnpm start` - Start server with ./script/start.sh
@@ -82,7 +82,7 @@ Non-model utilities shared across the server. Import via `'common'` or `'common/
 
 ### Endpoints (`src/endpoint/`) and URL prefixes
 
-Directory layout mirrors services (`core/`, `shared/`; `platform/` is reserved for an extension and is not part of this repo). Core and shared endpoints have no root `path`: mzen-server derives the URL from the service name automatically.
+Directory layout mirrors services (`core/`, `shared/`; `platform/` is reserved for an extension and is not part of this repo). Core and shared endpoints have no root `path`: @datacapy/server derives the URL from the service name automatically.
 
 ```typescript
 export const surveyConfig = {
@@ -91,7 +91,7 @@ export const surveyConfig = {
 }
 ```
 
-**Project-scoped endpoints**: for any endpoint operating on a single project's data, use `role: 'projectOwner'`/`'projectAdmin'` ACL rules — not a generic role plus a manual ownership check in the service. See `docs/mzen-acl.md`.
+**Project-scoped endpoints**: for any endpoint operating on a single project's data, use `role: 'projectOwner'`/`'projectAdmin'` ACL rules — not a generic role plus a manual ownership check in the service. See `docs/datacapy-acl.md`.
 
 ### Repos (`src/model/repo/`)
 
@@ -105,12 +105,12 @@ Two subdirectories plus root-level files:
 
 **Import via barrel** (`from 'model/repo'`) — avoid direct file-path imports.
 
-**Indexes on Date-typed fields must set `typeHint`** (e.g. `{ typeHint: { createdAt: TYPE_HINT_TIMESTAMP } }`) — without it, mzen-om generates a plain `VARCHAR` column and range queries (`$lte`/`$gte`/etc.) silently compare dates lexicographically instead of chronologically. See `external/mzen/package/mzen-om/docs/mysql-indexes.md`.
+**Indexes on Date-typed fields must set `typeHint`** (e.g. `{ typeHint: { createdAt: TYPE_HINT_TIMESTAMP } }`) — without it, @datacapy/om generates a plain `VARCHAR` column and range queries (`$lte`/`$gte`/etc.) silently compare dates lexicographically instead of chronologically. See `external/datacapy/package/mzen-om/docs/mysql-indexes.md`.
 
 **Any direct `repo.getDataSource(context)` call must be paired with `repo.releaseDataSource(context)` in a `finally` block.** This bypasses the normal CRUD methods (`find`/`insert`/`update`/etc.), which already pair acquire/release internally — needed when a migration patch runs raw SQL (e.g. `RENAME TABLE`) that has no repo method. Skipping the release leaks a `DataSourceRegistry` ref count that never reaches zero, so the registry can never close that dynamic (per-project) datasource — harmless in a one-shot migration job that exits right after, but a real leak in any longer-lived process. See `2026-09-09_1000_reshape-survey-section-element.ts` for the reference pattern.
 
 ## Key Dependencies
-- mzen-server framework for REST API (see Framework Details below)
+- @datacapy/server framework for REST API (see Framework Details below)
 - bcryptjs for password hashing
 - jsonwebtoken for authentication
 - nodemailer for email services
@@ -120,8 +120,8 @@ Two subdirectories plus root-level files:
 
 ## Framework Details
 
-### mzen (NodeJS Application Model)
-- **Repository**: https://github.com/kevin-foster-uk/mzen
+### Datacapy (NodeJS Application Model)
+- **Repository**: https://github.com/datacapy/datacapy
 - **Version**: 0.1.0
 - **Description**: NodeJS application model with ODM capabilities and schema-based data validation
 - **Architecture**:
@@ -143,8 +143,8 @@ Two subdirectories plus root-level files:
   - **Default Values**: Used during validation, insert, or update when fields are undefined/null
   - **Data Sources**: Currently supports MongoDB only
 
-### mzen-schema (Data Schema Library)
-- **Repository**: Part of mzen-project ecosystem
+### @datacapy/schema (Data Schema Library)
+- **Repository**: Part of the Datacapy ecosystem
 - **Version**: 0.1.0
 - **Description**: Standalone Javascript data schema definition and validation library
 - **Key Features**:
@@ -155,10 +155,10 @@ Two subdirectories plus root-level files:
   - Field labeling for validation error messages
   - Multiple validator instances per field with custom messages
 
-### mzen-server (REST API Server)
-- **Repository**: https://github.com/kevin-foster-uk/mzen-server
+### @datacapy/server (REST API Server)
+- **Repository**: https://github.com/datacapy/datacapy
 - **Version**: 0.1.0
-- **Description**: NodeJS REST API server wrapper for mzen domain model
+- **Description**: NodeJS REST API server wrapper for the Datacapy domain model
 - **Key Features**:
   - **ExpressJS Integration**: Built as wrapper around ExpressJS with middleware compatibility
   - **Auto-exposure**: Automatically exposes repositories and services as REST endpoints

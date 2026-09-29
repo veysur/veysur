@@ -3,7 +3,7 @@ import {
   ServerErrorBadRequest,
   ServerErrorForbidden,
   ServerErrorNotFound,
-} from 'mzen-server'
+} from '@datacapy/server'
 import {
   isSurveyQuestion,
   getFileUploadAnswerFileIds,

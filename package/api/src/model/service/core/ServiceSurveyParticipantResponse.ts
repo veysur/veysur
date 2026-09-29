@@ -2,7 +2,7 @@ import {
   Service,
   ServerErrorForbidden,
   ServerErrorBadRequest,
-} from 'mzen-server'
+} from '@datacapy/server'
 import {
   SurveyResponseValidator,
   SurveySnapshot,

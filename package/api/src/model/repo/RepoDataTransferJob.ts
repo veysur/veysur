@@ -1,6 +1,6 @@
 // cspell:ignore sargable
 import { DataTransferJob } from 'veysur-common'
-import { Repo, TYPE_HINT_TIMESTAMP } from 'mzen-server'
+import { Repo, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
 
 /**
  * Default (account) datasource, not project-scoped: processQueue() needs to

@@ -1,4 +1,4 @@
-import { SchemaSpec, sb } from 'mzen-schema'
+import { SchemaSpec, sb } from '@datacapy/schema'
 
 export const specVerifyStatus: SchemaSpec = {
   isVerified: sb.boolean().required().default(false),

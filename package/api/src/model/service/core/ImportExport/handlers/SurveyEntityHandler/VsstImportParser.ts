@@ -1,6 +1,6 @@
 import { Readable } from 'stream'
 
-import { ServerErrorBadRequest } from 'mzen-server'
+import { ServerErrorBadRequest } from '@datacapy/server'
 
 import { EntityEmbeddedFileManifestEntry } from '../../EntityHandlerInterface'
 import { FormatHandlerInterface } from '../../format/FormatHandlerInterface'

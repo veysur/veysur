@@ -21,7 +21,7 @@ module.exports = {
     { name: 'tooling' },
     { name: 'hooks' },
     { name: 'cspell' },
-    { name: 'mzen' },
+    { name: 'datacapy' },
     { name: 'contributing' },
     { name: 'release' },
   ],

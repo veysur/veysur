@@ -1,4 +1,4 @@
-import { Schema } from 'mzen-schema'
+import { Schema } from '@datacapy/schema'
 
 import {
   QUESTION_TYPE_YES_NO,

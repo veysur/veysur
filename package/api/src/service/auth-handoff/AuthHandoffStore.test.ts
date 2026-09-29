@@ -1,5 +1,5 @@
 import { strict as assert } from 'assert'
-import type { DataSourceRedis } from 'mzen-om'
+import type { DataSourceRedis } from '@datacapy/om'
 import { AuthHandoffStore } from './AuthHandoffStore'
 
 // ─── Minimal DataSourceRedis mock, simulating SET EX / GET+DEL via eval ───────

@@ -2,9 +2,9 @@ import { createHash } from 'crypto'
 import { randomBytes } from 'crypto'
 import { Readable, Transform } from 'stream'
 
-import { Service, ServerErrorInternal } from 'mzen-server'
+import { Service, ServerErrorInternal } from '@datacapy/server'
 import { File } from 'veysur-common'
-import MzenId from 'mzen-id'
+import MzenId from '@datacapy/id'
 
 import { RepoFile } from 'model'
 import { AclContext } from 'model/entity/AclContext'

@@ -1,4 +1,4 @@
-import { ServerApiConfig } from 'mzen-server'
+import { ServerApiConfig } from '@datacapy/server'
 
 export const authHandoffConfig: ServerApiConfig = {
   service: 'authHandoff',

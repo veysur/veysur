@@ -1,4 +1,4 @@
-import { PropsOf } from 'mzen-schema'
+import { PropsOf } from '@datacapy/schema'
 
 import { L10n, setL10nField } from '../L10n'
 import { SurveyElementBase, SurveyElementBaseData } from './SurveyElementBase'

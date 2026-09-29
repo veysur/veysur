@@ -1,4 +1,4 @@
-import { Schema, sb } from 'mzen-schema'
+import { Schema, sb } from '@datacapy/schema'
 
 import type { ModelConfig } from './config/types'
 
@@ -12,8 +12,8 @@ const addedSchemas: Schema[][] = []
 // real cross-package require() run during a unit test.
 jest.mock('model-manager', () => ({ modelManager: {}, composition: {} }))
 
-jest.mock('mzen-server', () => {
-  const actual = jest.requireActual('mzen-server')
+jest.mock('@datacapy/server', () => {
+  const actual = jest.requireActual('@datacapy/server')
   class FakeModelManager {
     config: unknown
     constructor(config: unknown) {
@@ -77,7 +77,7 @@ describe('composeModel', () => {
     })
   })
   it('registers extraSchemas after core schemas so an extension schema replaces a core one by name', () => {
-    // mzen-om's ModelManager.addSchema assigns `schemas[name] = schema`, so the
+    // @datacapy/om's ModelManager.addSchema assigns `schemas[name] = schema`, so the
     // last registration under a name wins. An extension that supplies its own
     // `user` schema therefore overrides core's without a dedicated seam.
     class ExtensionUserSchema extends Schema {

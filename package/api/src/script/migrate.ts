@@ -1,8 +1,8 @@
 #!/usr/bin/env tsx
 
 import * as path from 'path'
-import { MigrationManager, MigrationResult } from 'mzen-migrate'
-import { genUniqueId } from 'mzen-id'
+import { MigrationManager, MigrationResult } from '@datacapy/migrate'
+import { genUniqueId } from '@datacapy/id'
 
 import { composition, modelManager } from 'model-manager'
 import { RepoMigrationLog } from 'model/repo'

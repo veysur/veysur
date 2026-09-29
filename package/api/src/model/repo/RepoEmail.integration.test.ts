@@ -1,5 +1,5 @@
 import { RepoEmail } from './RepoEmail'
-import { DataSourceMysql } from 'mzen-server'
+import { DataSourceMysql } from '@datacapy/server'
 
 /**
  * Integration test against the real MySQL test datasource (NODE_ENV=test).
@@ -7,7 +7,7 @@ import { DataSourceMysql } from 'mzen-server'
  * Regression test for a bug in `save()`'s update branch: it called
  * `this.updateOne(email, { _id: email._id })`, but `Repo.updateOne(filter, update, options)`
  * takes filter first - so the whole `email` document was passed as the *filter* and
- * `{ _id: ... }` as the *update*, which mzen-om rejects ("Unsupported operator: _id",
+ * `{ _id: ... }` as the *update*, which @datacapy/om rejects ("Unsupported operator: _id",
  * since update documents must use $set/$inc/etc). This branch was never exercised by the
  * old synchronous send-only flow (every call went through the insert branch, since a
  * fresh `Email` object never had `_id` set) - it only started running once

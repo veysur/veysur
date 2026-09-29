@@ -1,5 +1,5 @@
-import MzenId from 'mzen-id'
-import { DataSourceContext } from 'mzen-om'
+import MzenId from '@datacapy/id'
+import { DataSourceContext } from '@datacapy/om'
 
 import { generateImageSetBasePath, contextForProject } from 'common'
 import {
