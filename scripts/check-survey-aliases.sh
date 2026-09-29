@@ -11,6 +11,7 @@
 #   - `SettingSurvey` `presentation.group*` / `format: 'group'` (unrelated setting)
 #   - the production data migration + its `migrateLegacySurvey*` helpers, whose
 #     whole job is to read the pre-phase-7 stored shape
+#   - the survey markdown spec (a document that ships as an asset, like docs/)
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -23,6 +24,7 @@ EXCLUDES=(
   ':(exclude)**/*.snap'
   ':(exclude)docs/**'
   ':(exclude)package/api/src/migrate/**'
+  ':(exclude)package/api/src/model/asset/survey-markdown-spec/**'
   ':(exclude)package/common/src/util/migrateLegacySurvey*'
 )
 

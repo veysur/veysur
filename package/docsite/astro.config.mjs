@@ -107,6 +107,7 @@ export default defineConfig({
             { label: 'Create a Multi-Language Survey', slug: 'guides/create-multi-language-survey' },
             { label: 'Create a Conditional Question', slug: 'guides/create-conditional-question' },
             { label: 'Use Expressions in Survey Text', slug: 'guides/use-text-expressions' },
+            { label: 'Generate a Survey with an LLM', slug: 'guides/generate-survey-with-llm' },
           ],
         },
       ],

@@ -1,0 +1,30 @@
+---
+title: Generate a Survey with an LLM
+description: How to use an LLM chat bot and the VeySur Markdown specification to draft a survey, then import it.
+---
+
+import SpecDownloadLink from '../../../components/SpecDownloadLink.astro'
+
+A large language model (LLM) chat bot can draft a survey as a Markdown file that VeySur imports directly. The [Markdown specification](/reference/import-export/#markdown-format) tells the chat bot exactly how to write that file.
+
+## Generate the survey
+
+1. Download the <SpecDownloadLink>VeySur Markdown specification</SpecDownloadLink>.
+2. Start a new conversation with a chat bot and attach the file, or paste its contents.
+3. Describe the survey, for example:
+
+   > Using the attached specification, write a customer satisfaction survey for a software product. Use groups, a star rating, a yes/no question and a final free-text question. Reply with the Markdown document only.
+
+4. Copy the reply into a plain-text file and save it with the `.md` extension.
+
+## Import the survey
+
+1. Open the **Surveys** list and click the **Import** (upload) icon.
+2. Select or drag in the `.md` file.
+3. Correct any errors reported, then import again.
+
+If the import reports errors, paste the error list back into the conversation and ask the chat bot to fix the document. No partial survey is imported, so the file is safe to retry.
+
+## Review before publishing
+
+The format supports simple question types and content elements only. Matrix, multi-part, ranking and image select questions, and conditions, are not available. Always check wording, answer options and question types in the survey editor before [publishing](/guides/publish-your-survey/).

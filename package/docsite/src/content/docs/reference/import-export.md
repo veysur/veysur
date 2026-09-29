@@ -12,6 +12,7 @@ VeySur supports importing and exporting survey data in several formats. This let
 | VeySur Survey Template | .vsst | Survey structure ([sections and elements](/reference/survey-editor/survey-structure/#terminology), including content elements such as rich-text sections and embedded video), answer options, language translations, custom participant attribute definitions, and email templates. Includes asset file attachments. Does not include publications, responses, or participant records. |
 | VeySur Survey Archive | .vssa | A complete backup of the survey, including language translations, custom participant attribute definitions, email templates, all publications and their language snapshots, and responses. |
 | VeySur Survey Publication | .vssp | A single publication, including its snapshot, language snapshots, responses, and asset file attachments. |
+| Survey Markdown | .md | Plain-text survey definition: title, welcome and thank-you text, languages, groups, simple questions with answer options, and content elements. Does not include publications, responses, participant records, or survey settings. |
 | CSV | .csv | Tabular data, used primarily for responses and participants. |
 
 ## What can be exported
@@ -19,6 +20,7 @@ VeySur supports importing and exporting survey data in several formats. This let
 | Entity | Available formats |
 |--------|------------------|
 | Survey (template only) | VSST |
+| Survey (structure only, plain text) | Markdown |
 | Survey (full, with publications) | VSSA |
 | Publication | VSSP |
 | Responses | CSV |
@@ -28,7 +30,7 @@ VeySur supports importing and exporting survey data in several formats. This let
 
 Export actions (indicated by the **download** icon) are available from the relevant section of the survey editor:
 
-- Survey export: available from the survey-level actions
+- Survey export: available from the survey-level actions, including **Export as Markdown**
 - Publication export: available from the Publications tab
 - Response export: available from the Responses tab toolbar
 - Participant export: available from the Participants tab toolbar
@@ -46,6 +48,12 @@ If the file contains errors or is incompatible with the current survey, an error
 
 Imported survey files are also validated for reserved entity codes. [Sections and elements](/reference/survey-editor/survey-structure/#terminology), answer options, and subquestions with a code of `OTHER`, `OTHER_TEXT`, or `ORDER` will cause the import to fail. Correct these codes in the file before re-importing.
 
+## Markdown format
+
+A Markdown survey (`.md`) is a single plain-text file that can be edited in any text editor and imported again. It suits quick edits, version control, and drafting surveys with an LLM chat bot. Only simple question types and content elements are supported; matrix, multi-part, ranking, and image select questions, and conditions, are not. Import it from the survey list like any other survey file.
+
+To have a chat bot write the file, follow [Generate a Survey with an LLM](/guides/generate-survey-with-llm/), which includes a download link for the full format specification.
+
 ## Background processing
 
 Larger exports and imports are processed in the background instead of completing immediately. When this happens, progress and the resulting download link appear in the **notifications** menu in the top navigation bar, and the export or import continues even if the current page is closed. A failed background job shows an error message in the notification instead of a download link.
@@ -54,7 +62,7 @@ Smaller exports and imports still complete immediately, with the file downloaded
 
 ## Format compatibility
 
-VSST, VSSA, and VSSP files are specific to VeySur and should only be used with VeySur imports. The current survey file format is version 2.0. Files produced by older versions of VeySur are rejected on import and cannot be re-imported. CSV files for responses and participants follow a fixed column layout; refer to an existing export to understand the expected column order when preparing a CSV for import.
+VSST, VSSA, and VSSP files are specific to VeySur and should only be used with VeySur imports. Markdown survey files are plain text and follow the published format specification. The current survey file format is version 2.0. Files produced by older versions of VeySur are rejected on import and cannot be re-imported. CSV files for responses and participants follow a fixed column layout; refer to an existing export to understand the expected column order when preparing a CSV for import.
 
 VSSP and VSSA exports stream responses in batches and impose no limit on response count.
 

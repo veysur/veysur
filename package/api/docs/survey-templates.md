@@ -1,7 +1,7 @@
 # Survey templates
 
 An admin can create a survey from a built-in template instead of starting blank. Templates are
-survey markdown documents (see [survey-markdown-format.md](./import-export/survey-markdown-format.md))
+survey markdown documents (see [survey-markdown-format.md](../src/model/asset/survey-markdown-spec/survey-markdown-format.md))
 shipped with the API in `src/model/asset/survey-template/<id>.md`. The id is the filename without `.md`.
 `copy-assets` copies the directory into `dist/`.
 
