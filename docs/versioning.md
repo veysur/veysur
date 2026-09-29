@@ -2,9 +2,9 @@
 
 How `veysur` and its two submodule libraries (`datacapy`, `s3-adaptor`) are versioned, and the
 step-by-step for cutting a release. The release artefact is a git tag plus a GitHub release
-either way; none of these packages are currently published to npm, though the library
-packages (everything except the workspace-root `package.json`s and `veysur-app`) carry no
-`private` field, so `npm publish` isn't blocked if that changes.
+either way. `datacapy` (`@datacapy/*`) and `s3-adaptor` are also published to npm with
+`scripts/publish.sh`. The `veysur-*` packages are not published: they ship as the Docker
+Compose release package.
 
 ## What is a changeset?
 
@@ -45,7 +45,8 @@ other package here is consumed both via the pnpm `workspace:*` protocol internal
 publishable to npm in principle. Each `.changeset/config.json` sets `"privatePackages": {
 "version": true, "tag": true }` so Changesets still manages the few packages that remain
 private, and `"access": "public"` since none of these package names are npm-scoped
-(`restricted` access only works for a scoped `@org/pkg` name).
+(`restricted` access only works for a scoped `@org/pkg` name). `datacapy`'s packages are scoped and
+`s3-adaptor` is not; both publish with `--access public`.
 
 `veysur`'s five packages version together because self-hosters deploy and upgrade them as
 one unit via `deploy/` (Docker Compose): they never pin `app` and `api` to different
@@ -70,9 +71,11 @@ pointers need to reflect `datacapy`/`s3-adaptor`'s latest tagged commit:
 
 1. **`external/datacapy`** (if it has pending changesets): `cd external/datacapy && ./scripts/release.sh`.
    Bumps whichever `@datacapy/*` packages changed, commits, tags each
-   `<package-name>@<version>`, pushes.
+   `<package-name>@<version>`, pushes. Then `./scripts/publish.sh --dry-run`, and
+   `./scripts/publish.sh` to publish the new versions to npm.
 2. **`external/s3-adaptor`** (if it has pending changesets): `cd external/s3-adaptor &&
-   ./scripts/release.sh`. Bumps, commits, tags `s3-adaptor@<version>`, pushes.
+   ./scripts/release.sh`. Bumps, commits, tags `s3-adaptor@<version>`, pushes. Then
+   `./scripts/publish.sh --dry-run` and `./scripts/publish.sh` to publish to npm.
 3. In `veysur`'s own root, `git add external/datacapy external/s3-adaptor` to pick up the new
    submodule pointers if either was released, then `pnpm install` to refresh the lockfile.
 4. **`veysur`** (if it has pending changesets): `./scripts/release.sh`. Bumps all five
@@ -115,5 +118,7 @@ package):
 6. Add a baseline `CHANGELOG.md` (`## 0.1.0` / current version, "Initial tracked release").
 7. Copy `scripts/release.sh` from a sibling repo with the matching versioning model
    (`veysur`'s for a fixed group, `datacapy`'s for independent-per-package, `s3-adaptor`'s for a
-   single package) and adjust the tag format if needed.
+   single package) and adjust the tag format if needed. If the package is published to npm,
+   copy the sibling's `scripts/publish.sh` too and add `files` and `publishConfig` to its
+   `package.json`.
 8. Add it to the overview table above.
