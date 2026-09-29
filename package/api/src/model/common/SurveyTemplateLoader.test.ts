@@ -84,7 +84,10 @@ describe('SurveyTemplateLoader (custom directory)', () => {
   })
 
   const write = (file: string, frontMatter: string) =>
-    fs.writeFileSync(path.join(dir, file), `---\n${frontMatter}\n---\n\n# T\n`)
+    fs.writeFileSync(
+      path.join(dir, file),
+      `---\nspec: v1\n${frontMatter}\nlanguage:\n  default: en\n  options: [en]\n---\n\n# T\n\n## Section\n\n### Q001 · text\nAsk?\n\n## Thank you\n`,
+    )
 
   test('lists templates sorted by name, unquoting front matter values', () => {
     write(
@@ -98,12 +101,19 @@ describe('SurveyTemplateLoader (custom directory)', () => {
     write('ignored.txt', 'templateName: X')
 
     expect(SurveyTemplateLoader.forDirectory(dir).list()).toEqual([
-      { id: 'b', name: 'Beta', description: 'Second one', category: 'Events' },
+      {
+        id: 'b',
+        name: 'Beta',
+        description: 'Second one',
+        category: 'Events',
+        questionCount: 1,
+      },
       {
         id: 'a',
         name: 'Zulu',
         description: 'First one',
         category: 'Human resources',
+        questionCount: 1,
       },
     ])
   })

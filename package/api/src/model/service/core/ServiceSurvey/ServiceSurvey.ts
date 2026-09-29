@@ -39,14 +39,7 @@ export class ServiceSurvey extends Service {
   }
 
   listTemplates() {
-    const loader = SurveyTemplateLoader.getInstance()
-    return loader.list().map((template) => {
-      const { elements } = parseMarkdownSurvey(loader.getMarkdown(template.id))
-      return {
-        ...template,
-        questionCount: elements.filter((e) => e.kind !== 'content').length,
-      }
-    })
+    return SurveyTemplateLoader.getInstance().list()
   }
 
   private async createFromTemplate({

@@ -1,11 +1,14 @@
 import * as fs from 'fs'
 import * as path from 'path'
 
+import { parseMarkdownSurvey } from '../service/core/ImportExport/handlers/SurveyEntityHandler/MarkdownSurveyParser'
+
 export type SurveyTemplateSummary = {
   id: string
   name: string
   description: string
   category: string
+  questionCount: number
 }
 
 type LoadedSurveyTemplate = SurveyTemplateSummary & { markdown: string }
@@ -44,11 +47,12 @@ export class SurveyTemplateLoader {
 
   list(): SurveyTemplateSummary[] {
     return [...this.load().values()].map(
-      ({ id, name, description, category }) => ({
+      ({ id, name, description, category, questionCount }) => ({
         id,
         name,
         description,
         category,
+        questionCount,
       }),
     )
   }
@@ -91,7 +95,10 @@ export class SurveyTemplateLoader {
     if (!category) {
       throw new Error(`Survey template '${id}' is missing 'templateCategory'`)
     }
-    return { id, name, description, category, markdown }
+    const questionCount = parseMarkdownSurvey(markdown).elements.filter(
+      (element) => element.kind !== 'content',
+    ).length
+    return { id, name, description, category, questionCount, markdown }
   }
 
   private readFrontMatter(markdown: string): Record<string, string> {
