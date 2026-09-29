@@ -2,13 +2,8 @@ import React, { useMemo, useState } from 'react'
 
 import { ChevronDown, ChevronRight } from 'lucide-react'
 
-import { SearchBar } from 'appAdmin/component/SearchBar'
-import { Badge } from 'component/shadcn/badge'
-import { Label } from 'component/shadcn/label'
-import { RadioGroup, RadioGroupItem } from 'component/shadcn/radio-group'
+import { RadioGroup } from 'component/shadcn/radio-group'
 import { Skeleton } from 'component/shadcn/skeleton'
-import { Tabs, TabsList, TabsTrigger } from 'component/shadcn/tabs'
-import { cn } from '@/common/cn'
 
 import { useSurveyTemplateList } from '../hook'
 import {
@@ -16,6 +11,11 @@ import {
   SURVEY_TEMPLATE_CATEGORY_ALL,
   surveyTemplateCategories,
 } from './filterSurveyTemplates'
+import { SurveyTemplateFilters } from './SurveyTemplateFilters'
+import {
+  SurveyTemplateOption,
+  SurveyTemplateOptionData,
+} from './SurveyTemplateOption'
 
 // Radix radio values must be strings; the blank survey is `undefined` everywhere else.
 const BLANK_RADIO_VALUE = '__blank__'
@@ -24,8 +24,6 @@ type Props = {
   value: string | undefined
   onChange: (templateId: string | undefined, templateName?: string) => void
 }
-
-type Option = { id: string; name: string; detail: string; category?: string }
 
 export const SurveyTemplatePicker: React.FC<Props> = ({ value, onChange }) => {
   const { templates, isLoading } = useSurveyTemplateList()
@@ -42,7 +40,7 @@ export const SurveyTemplatePicker: React.FC<Props> = ({ value, onChange }) => {
     [templates, search, category],
   )
 
-  const options: Option[] = [
+  const options: SurveyTemplateOptionData[] = [
     {
       id: BLANK_RADIO_VALUE,
       name: 'Blank survey',
@@ -81,33 +79,13 @@ export const SurveyTemplatePicker: React.FC<Props> = ({ value, onChange }) => {
             Choose a category or search to find a template, or keep the blank
             survey. You can change everything once the survey is created.
           </p>
-          <div
-            className="mb-3 flex flex-col gap-2"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') e.preventDefault()
-            }}
-          >
-            <SearchBar
-              searchQuery={search}
-              onSearchChange={setSearch}
-              placeholder="Search templates (optional)..."
-              className="w-full"
-            />
-            {categories.length > 0 && (
-              <Tabs value={category} onValueChange={setCategory}>
-                <TabsList className="h-auto flex-wrap justify-start">
-                  <TabsTrigger value={SURVEY_TEMPLATE_CATEGORY_ALL}>
-                    All
-                  </TabsTrigger>
-                  {categories.map((name) => (
-                    <TabsTrigger key={name} value={name}>
-                      {name}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </Tabs>
-            )}
-          </div>
+          <SurveyTemplateFilters
+            search={search}
+            onSearchChange={setSearch}
+            category={category}
+            onCategoryChange={setCategory}
+            categories={categories}
+          />
           <RadioGroup
             value={value ?? BLANK_RADIO_VALUE}
             onValueChange={(id) =>
@@ -121,38 +99,14 @@ export const SurveyTemplatePicker: React.FC<Props> = ({ value, onChange }) => {
             className="grid max-h-72 gap-2 overflow-y-auto pr-1 sm:grid-cols-2"
             data-testid="survey-template-picker"
           >
-            {options.map((option) => {
-              const inputId = `survey-template-${option.id}`
-              return (
-                <Label
-                  key={option.id}
-                  htmlFor={inputId}
-                  className={cn(
-                    'flex cursor-pointer items-start gap-3 rounded-md border p-3 font-normal hover:bg-accent',
-                    (value ?? BLANK_RADIO_VALUE) === option.id &&
-                      'border-primary bg-accent',
-                  )}
-                >
-                  <RadioGroupItem
-                    id={inputId}
-                    value={option.id}
-                    className="mt-1"
-                  />
-                  <span className="flex flex-col gap-1">
-                    <span className="flex items-center gap-2">
-                      <span className="font-medium">{option.name}</span>
-                      {option.category &&
-                        category === SURVEY_TEMPLATE_CATEGORY_ALL && (
-                          <Badge variant="secondary">{option.category}</Badge>
-                        )}
-                    </span>
-                    <span className="text-sm text-muted-foreground">
-                      {option.detail}
-                    </span>
-                  </span>
-                </Label>
-              )
-            })}
+            {options.map((option) => (
+              <SurveyTemplateOption
+                key={option.id}
+                option={option}
+                selected={(value ?? BLANK_RADIO_VALUE) === option.id}
+                showCategory={category === SURVEY_TEMPLATE_CATEGORY_ALL}
+              />
+            ))}
             {isLoading && <Skeleton className="h-20 w-full" />}
           </RadioGroup>
           {!isLoading &&
