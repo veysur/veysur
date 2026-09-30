@@ -10,11 +10,11 @@
   --tw-shadow-color: oklch(0.19 0.012 88 / 14%);
   /* Neutral ramp — warm-tinted (hue 88, matching --ink-hue in brand.css),
      never true grey. Replaces the previous chroma-0 greys. */
-  --background: oklch(0.965 0.006 88);
+  --background: oklch(0.975 0.005 88);
   --foreground: oklch(0.17 0.012 88);
   /* A brighter tint of --background, not pure white — a raised panel should
      still read as part of the same warm family, not jump to a stark neutral. */
-  --card: oklch(0.985 0.004 88);
+  --card: oklch(0.997 0.002 88);
   --card-foreground: oklch(0.17 0.012 88);
   /* Header/footer chrome is permanently ink-dark in both light and dark mode
      (the "bold" direction) — not an alias of --card. Consumers must render
