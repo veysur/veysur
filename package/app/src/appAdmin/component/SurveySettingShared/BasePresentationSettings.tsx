@@ -278,7 +278,7 @@ export function BasePresentationSettings<T>({ data, handlers }: Props<T>) {
         </Card>
 
         <Card>
-          <CardHeader className="bg-warning/10 border-b border-warning/25">
+          <CardHeader>
             <div className="flex items-center gap-2">
               <span>🧭</span>
               <span className="mb-0 font-semibold">Navigation & Actions</span>
