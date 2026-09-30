@@ -42,6 +42,7 @@ export const ParticipantPageHeader: React.FC<ParticipantPageHeaderProps> = ({
       title="Survey Participants"
       description="Manage survey participants. Add, import, or generate participants, and track their survey completion status."
       maxWidth="max-w-none"
+      showBack={false}
       inlineNav={
         <ButtonGroup>
           <Button variant="outline" size="sm" tooltip="Add" asChild>
