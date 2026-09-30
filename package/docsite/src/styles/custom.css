@@ -43,9 +43,9 @@
   --sl-color-accent: oklch(0.55 0.12 var(--brand-hue));
   --sl-color-accent-high: oklch(0.78 0.1 var(--brand-hue));
 
-  --sl-color-bg: oklch(0.19 0.01 88);
-  --sl-color-bg-nav: oklch(0.23 0.01 88);
-  --sl-color-bg-sidebar: oklch(0.23 0.01 88);
+  --sl-color-bg: oklch(0.165 0.006 88);
+  --sl-color-bg-nav: oklch(0.2 0.006 88);
+  --sl-color-bg-sidebar: oklch(0.2 0.006 88);
 
   --sl-color-text: oklch(0.94 0.006 88);
   --sl-color-text-accent: oklch(0.65 0.12 var(--brand-hue));

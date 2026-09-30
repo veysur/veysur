@@ -189,7 +189,7 @@ const QuestionGroupViewComponent: React.FC<QuestionGroupViewProps> = ({
         id={`${QUESTION_GROUP_ID_PREFIX}${group._id}`}
         className={cn(
           'relative group transition-colors rounded-md px-4 mb-1 border-l-4 border-transparent',
-          focused ? 'border-primary bg-primary/5' : 'hover:bg-muted dark:hover:bg-muted/25',
+          focused ? 'border-primary bg-editor-focus' : 'hover:bg-muted dark:hover:bg-muted/50',
         )}
       >
         <div

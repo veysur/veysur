@@ -7,6 +7,12 @@
   background-color: var(--editor-active-bg);
 }
 
+/* Survey element focus background. Dark mode composites primary over the
+   original (pre-darkening) card shade so the focused element keeps its look. */
+@utility bg-editor-focus {
+  background-color: var(--editor-focus-bg);
+}
+
 /* Neutral values below are tinted hue 88, matching veysur-theme's tokens.css
    (see brand.css's --ink-hue) — kept as concrete oklch values rather than
    var() references to veysur-theme, per this file's existing convention of
@@ -33,6 +39,8 @@
   --code-border: oklch(0.87 0.014 88);
   --scrollbar-thumb: oklch(0.8 0.012 88);
 
+  --editor-focus-bg: color-mix(in oklch, var(--primary) 5%, transparent);
+
   /* Survey editor active-element highlight — shared by focus/hover states across SurveyEditor components */
   --editor-active-bg: color-mix(
     in oklch,
@@ -47,16 +55,16 @@
   --chart-3: oklch(0.556 0.014 88);
   --chart-4: oklch(0.439 0.014 88);
   --chart-5: oklch(0.371 0.014 88);
-  --sidebar: oklch(0.21 0.01 88);
+  --sidebar: oklch(0.185 0.006 88);
   --sidebar-foreground: oklch(0.94 0.006 88);
   /* Mirrors the ink accent's inversion (see tokens.css --ink in .dark): a
      light chip reads as the highest-contrast "selected" state on a dark
      sidebar, rather than an unrelated green. */
   --sidebar-primary: oklch(0.94 0.006 88);
   --sidebar-primary-foreground: oklch(0.16 0.01 88);
-  --sidebar-accent: oklch(0.29 0.01 88);
+  --sidebar-accent: oklch(0.26 0.008 88);
   --sidebar-accent-foreground: oklch(0.9 0.006 88);
-  --sidebar-border: oklch(0.28 0.012 88);
+  --sidebar-border: oklch(0.255 0.008 88);
   --sidebar-ring: oklch(0.44 0.012 88);
   --scrollbar-thumb: oklch(0.32 0.01 88);
   --code: oklch(0.2 0.01 88);
@@ -66,6 +74,11 @@
   --code-selection: oklch(0.92 0.012 88);
   --code-border: oklch(1 0 0 / 10%);
 
+  --editor-focus-bg: color-mix(
+    in oklch,
+    var(--primary) 5%,
+    oklch(0.195 0.006 88)
+  );
   --editor-active-bg: color-mix(
     in oklch,
     var(--color-amber-400) 3%,
