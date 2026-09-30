@@ -30,7 +30,7 @@
      available in this session to verify a dark-nav override wouldn't clip
      contrast the way it did in app/website before that fix — see
      design-system/plan.md's Phase 3 follow-up. */
-  --sl-color-bg: oklch(0.965 0.006 88);
+  --sl-color-bg: oklch(0.975 0.005 88);
   --sl-color-bg-nav: oklch(0.93 0.01 88);
   --sl-color-bg-sidebar: oklch(0.93 0.01 88);
 
