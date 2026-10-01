@@ -59,11 +59,16 @@ VeySur suits surveys where you know, or want to control, who answers:
 **Self-hosted:** you need a Linux or other Unix-like server (e.g. macOS) with Docker (Compose 2.22 or
 later), 3 GB of RAM, 10 GB of free disk, a domain name pointing at it with ports 80 and 443 open, and
 an SMTP relay for password resets and invitations. On Windows, install under WSL (Windows Subsystem
-for Linux); we don't provide Windows-specific instructions beyond that. Install from a release package
-(`veysur-<version>-with-images.tar.gz` bundles the container images):
+for Linux); we don't provide Windows-specific instructions beyond that.
+
+Download the latest release package from the
+[GitHub releases page](https://github.com/veysur/veysur/releases/latest). `veysur-<version>.tar.gz`
+is small and pulls the container images from `ghcr.io/veysur` during install.
+`veysur-<version>-with-images.tar.gz` bundles the images, for servers without access to that registry.
+Then install:
 
 ```bash
-tar -xzf veysur-<version>-with-images.tar.gz && cd veysur
+tar -xzf veysur-<version>.tar.gz && cd veysur
 ./install.sh                                                  # asks a few questions and starts VeySur
 ./scripts/admin-account-bootstrap.sh --email you@example.com  # creates the first administrator
 ./scripts/veysur.sh mail-test you@example.com                 # checks that e-mail is sent
