@@ -6,9 +6,9 @@ set -euo pipefail
 # together; this also syncs the root package.json version to match and tags
 # the whole repo vX.Y.Z (not per-package tags, unlike datacapy/s3-adaptor).
 #
-# Mechanical steps only: version bump, commit, tag, push. GitHub release
-# creation is left as a manual step (printed at the end) since changelog
-# entries don't extract cleanly enough to automate reliably.
+# Steps: version bump, root changelog entry, commit, tag, push, then a GitHub
+# release whose notes are that changelog entry. Publishing the operator package
+# (images and tarballs) stays manual; the commands are printed at the end.
 
 cd "$(dirname "$0")/.."
 
@@ -54,10 +54,26 @@ git push --tags
 
 echo
 echo "Tagged and pushed: $TAG"
+
+# The release's notes are this version's root changelog entry, minus its heading.
+NOTES=$(mktemp)
+trap 'rm -f "$NOTES"' EXIT
+awk -v heading="## ${VERSION}" '
+  $0 == heading { found = 1; next }
+  found && /^## / { exit }
+  found { print }
+' CHANGELOG.md >"$NOTES"
+
+if command -v gh >/dev/null 2>&1; then
+  gh release create "$TAG" --title "$TAG" --notes-file "$NOTES"
+else
+  echo "gh not found: create the release yourself from the CHANGELOG.md entry for ${VERSION}." >&2
+fi
+
 echo
-echo "Next: cut a GitHub release from the root CHANGELOG.md entry, e.g.:"
-echo "  gh release create '$TAG' --title '$TAG' --notes-file <(sed -n '/^## ${VERSION}\$/,/^## /p' CHANGELOG.md | sed '\$d')"
-echo
-echo "Then publish the operator package (requires 'docker login ghcr.io' once):"
-echo "  deploy/scripts/release-package.sh $VERSION --build-images --push"
+echo "Next, publish the operator package (requires 'docker login ghcr.io' once):"
+echo "  deploy/scripts/release-package.sh $VERSION --push"
 echo "  gh release upload '$TAG' deploy/dist/veysur-$VERSION.tar.gz"
+echo "Optionally add the air-gapped bundle too:"
+echo "  deploy/scripts/release-package.sh $VERSION --images"
+echo "  gh release upload '$TAG' deploy/dist/veysur-$VERSION-with-images.tar.gz"
