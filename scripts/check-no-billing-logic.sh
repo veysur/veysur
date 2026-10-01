@@ -34,7 +34,7 @@ EXCLUDES=(
   ':(exclude)package/app/rsbuild.account.config.ts'
 )
 
-if git grep -nIiE "$PATTERN" -- . "${EXCLUDES[@]}"; then
+if git --no-pager grep -nIiE "$PATTERN" -- . "${EXCLUDES[@]}"; then
   echo
   echo "ERROR: billing vocabulary found in the self-hostable core (see above)."
   echo "Billing logic does not belong in core; keep it in the extension packages."

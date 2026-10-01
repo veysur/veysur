@@ -24,7 +24,7 @@ EXCLUDES=(
   ':(exclude)docs/**'
 )
 
-if git grep -nE "$PATTERN" -- 'package/common/src' 'package/api/src' 'package/app/src' "${EXCLUDES[@]}"; then
+if git --no-pager grep -nE "$PATTERN" -- 'package/common/src' 'package/api/src' 'package/app/src' "${EXCLUDES[@]}"; then
   echo
   echo "ERROR: inline structural assertion on a survey element/section found."
   echo "Narrow through isSurveyContent / isSurveyQuestion, or read section.kind directly."

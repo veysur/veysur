@@ -14,7 +14,7 @@ PATTERN='veysur-cloud|package/(k8s|infra)([^a-z-]|$)'
 
 # CLA/CONTRIBUTING's generic disclosure never names the repo, so nothing
 # needs excluding there.
-if git grep -ilE "$PATTERN" -- . ':(exclude)scripts/check-no-private-repo-refs.sh'; then
+if git --no-pager grep -ilE "$PATTERN" -- . ':(exclude)scripts/check-no-private-repo-refs.sh'; then
   echo
   echo "ERROR: private repo name found in a public-repo file (see above)."
   echo "Describe extensions generically instead of naming the private repo."

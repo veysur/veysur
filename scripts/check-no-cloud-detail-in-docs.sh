@@ -12,7 +12,7 @@ cd "$(dirname "$0")/.."
 
 PATTERN='platform/geo|appPlatform|appAccount/billing|ServicePayment|ServiceGeo|debug-mint-token|API_COMPOSITION_MODULE|BLOCKED_COUNTRIES|payment-project'
 
-if git grep -nIiE "$PATTERN" -- '*.md' '*.mdx' ':(exclude)external/**'; then
+if git --no-pager grep -nIiE "$PATTERN" -- '*.md' '*.mdx' ':(exclude)external/**'; then
   echo
   echo "ERROR: cloud implementation detail found in public documentation (see above)."
   echo "Describe extensions generically and keep the specifics in the private repo."

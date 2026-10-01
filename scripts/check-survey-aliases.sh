@@ -28,7 +28,7 @@ EXCLUDES=(
   ':(exclude)package/common/src/util/migrateLegacySurvey*'
 )
 
-if git grep -nE "$PATTERN" -- 'package/common/src' 'package/api/src' 'package/app/src' "${EXCLUDES[@]}"; then
+if git --no-pager grep -nE "$PATTERN" -- 'package/common/src' 'package/api/src' 'package/app/src' "${EXCLUDES[@]}"; then
   echo
   echo "ERROR: pre-phase-7 survey vocabulary found (see docs/decisions/2026/2026-09-08_survey-section-element-model.md)."
   exit 1
