@@ -1,5 +1,9 @@
 # veysur-common
 
+## 0.2.0
+
+No changes in this release.
+
 ## 0.1.0
 
 Initial tracked release. This is the first self-host release of VeySur; changelog tracking
