@@ -40,6 +40,10 @@ node -e "
   fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n')
 "
 
+# Changesets writes only the per-package changelogs; build the root entry (the canonical
+# release history, and the source of the GitHub release notes below) from them.
+node scripts/release-changelog.mjs "$VERSION"
+
 git add -A
 git commit -m "chore(release): v${VERSION}"
 git push
