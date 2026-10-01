@@ -32,6 +32,7 @@ done
 preflight
 require_env_file
 require_env_keys
+check_ports
 
 PREVIOUS=$(env_get VEYSUR_IMAGE_TAG)
 PREVIOUS=${PREVIOUS:-latest}

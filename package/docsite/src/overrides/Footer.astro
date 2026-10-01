@@ -8,6 +8,7 @@ import GoogleAnalytics from '../components/GoogleAnalytics'
 const gaTagId = import.meta.env.PUBLIC_GA_TAG_ID_DOCS ?? ''
 const websiteDomain = import.meta.env.PUBLIC_WEBSITE_DOMAIN || 'www.veysur.com'
 const websiteUrl = `https://${websiteDomain}`
+const buildInfo = import.meta.env.PUBLIC_BUILD_INFO
 ---
 
 <Default {...Astro.props}><slot /></Default>
@@ -17,6 +18,7 @@ const websiteUrl = `https://${websiteDomain}`
     href={websiteUrl}
     class="text-xs text-[var(--sl-color-gray-3)] hover:text-[var(--sl-color-text)] transition-colors"
   >← {websiteDomain}</a>
+  <span class="font-mono text-xs text-[var(--sl-color-gray-4)]">{buildInfo}</span>
 </div>
 <CookieConsentBanner client:only="react" />
 <GoogleAnalytics tagId={gaTagId} client:only="react" />

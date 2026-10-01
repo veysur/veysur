@@ -3,6 +3,7 @@ import { Mail } from 'lucide-react'
 
 import { Button } from 'component/shadcn/button'
 import { CookieSettingsButton } from 'component/CookieConsent'
+import { AppVersion } from 'component/AppVersion'
 
 const year = new Date().getFullYear()
 const appDomain = process.env.PUBLIC_APP_DOMAIN || 'veysur.com'
@@ -85,6 +86,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           <CookieSettingsButton />
           <p className="text-xs text-footer-foreground/60">
             &copy; {year} VeySur. All rights reserved.
+            <AppVersion className="ml-3 font-mono text-footer-foreground/40" />
           </p>
         </div>
       </div>

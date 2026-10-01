@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config'
 import starlight from '@astrojs/starlight'
 import react from '@astrojs/react'
 import tailwindcss from '@tailwindcss/vite'
+import { buildInfoText } from 'veysur-theme/buildInfo.mjs'
 import { remarkBaseLinks } from './remark-base-links.mjs'
 
 // Consent Mode default MUST be set synchronously, before any other tag or script can
@@ -59,6 +60,17 @@ export default defineConfig({
           ],
         },
         {
+          label: 'Self-hosting',
+          items: [
+            { label: 'Overview', slug: 'self-hosting/overview' },
+            { label: 'Requirements', slug: 'self-hosting/requirements' },
+            { label: 'Install', slug: 'self-hosting/install' },
+            { label: 'Upgrade', slug: 'self-hosting/upgrade' },
+            { label: 'Backup and Restore', slug: 'self-hosting/backup-and-restore' },
+            { label: 'Configuration', slug: 'self-hosting/configuration' },
+          ],
+        },
+        {
           label: 'Reference',
           items: [
             {
@@ -113,5 +125,12 @@ export default defineConfig({
       ],
     }),
   ],
-  vite: { plugins: [tailwindcss()] },
+  vite: {
+    plugins: [tailwindcss()],
+    define: {
+      'import.meta.env.PUBLIC_BUILD_INFO': JSON.stringify(
+        buildInfoText(new URL('./package.json', import.meta.url)),
+      ),
+    },
+  },
 })

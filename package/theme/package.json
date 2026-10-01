@@ -8,7 +8,8 @@
     "./palette.css": "./src/palette.css",
     "./brand.css": "./src/brand.css",
     "./base.css": "./src/base.css",
-    "./marketing.css": "./src/marketing.css"
+    "./marketing.css": "./src/marketing.css",
+    "./buildInfo.mjs": "./src/buildInfo.mjs"
   },
   "files": ["src"]
 }

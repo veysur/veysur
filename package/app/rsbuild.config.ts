@@ -4,6 +4,8 @@ import { resolve } from 'node:path'
 
 import { defineConfig } from '@rsbuild/core'
 import { pluginReact } from '@rsbuild/plugin-react'
+
+import { buildInfoDefine } from './rsbuild.buildInfo'
 import tailwindcssPostcss from '@tailwindcss/postcss'
 
 // This combined all-in-one dev/build config is only ever used as a local
@@ -58,6 +60,7 @@ export default defineConfig({
       ...(hasAppCloud ? { platform: appCloudPlatformEntry } : {}),
     },
     define: {
+      ...buildInfoDefine(),
       'process.env.npm_package_version': JSON.stringify(
         process.env.npm_package_version || '1.0.0',
       ),

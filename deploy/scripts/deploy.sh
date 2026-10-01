@@ -20,6 +20,7 @@ done
 preflight
 require_env_file
 require_env_keys
+check_ports
 
 if $DRY_RUN; then
   compose config | mask_secrets

@@ -96,6 +96,7 @@ services:
       dockerfile: deploy/docker/Dockerfile.nginx
       args:
         BUILD_VERSION: ${VEYSUR_IMAGE_TAG:-latest}
+        PUBLIC_CORE_SHA: ${VEYSUR_GIT_SHA:-}
     restart: unless-stopped
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro

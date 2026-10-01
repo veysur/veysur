@@ -4,6 +4,8 @@ This file provides guidance for creating and maintaining content in the `veysur-
 
 This documentation site is used to document VeySur project functionality. It must not be used to document account related functionality.
 
+The `self-hosting/` section documents deploying and maintaining the project software on an operator's own server. That is project functionality, not account functionality. Keep it to short task pages and link to `external/veysur/docs/` on GitHub for depth (absolute URLs).
+
 ## Content Categories
 
 Content files live under `src/content/docs/`. Place new files in the appropriate directory:

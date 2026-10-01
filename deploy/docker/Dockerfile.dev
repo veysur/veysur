@@ -34,7 +34,7 @@ COPY package/theme ./package/theme
 COPY package/api ./package/api
 COPY package/app ./package/app
 
-RUN for pkg in @datacapy/id @datacapy/schema @datacapy/om @datacapy/migrate @datacapy/server; do \
+RUN for pkg in id schema om migrate server; do \
       pnpm --dir external/datacapy/package/$pkg build || exit 1; \
     done && \
     pnpm --dir external/s3-adaptor build && \

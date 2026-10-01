@@ -49,8 +49,15 @@ It prints a generated password once and writes `API_PROJECT_OWNER_ID` to `.env`.
 with `./scripts/veysur.sh mail-test you@example.com`.
 
 Pre-flight refuses to continue below 3 GB RAM or 10 GB free disk (`VEYSUR_SKIP_PREFLIGHT=1` to override).
-Set `VEYSUR_HTTP_PORT` and `VEYSUR_HTTPS_PORT` in the environment of `config-generate.sh` if 80 or 443 are
-taken.
+`deploy.sh` and `update.sh` warn if a published port is already taken. They do not stop.
+
+### Behind a reverse proxy
+
+To run your own proxy on 80 and 443, set `VEYSUR_HTTP_PORT` (and `VEYSUR_HTTPS_PORT`) to free host ports in the
+environment of `config-generate.sh`, choose the plain HTTP option, and let the proxy terminate TLS and forward to
+`VEYSUR_HTTP_PORT`. Users must still reach the site on the standard ports at `https://<domain>`. Serving users
+directly on a non-standard port is not supported: links in emails do not include the port. Use
+development mode (`docs/development.md`) for local work on other ports.
 
 ## Install from source
 

@@ -81,6 +81,31 @@ preflight() {
   fi
 }
 
+# True when something accepts TCP connections on this host's port.
+port_in_use() {
+  (exec 3<>"/dev/tcp/127.0.0.1/$1") 2>/dev/null
+}
+
+# Warns, without failing, when a host port the stack publishes is already taken.
+# Skipped when the stack is already running, since it holds the ports itself.
+check_ports() {
+  local http https
+  [ -z "$(compose ps -q --status running caddy nginx 2>/dev/null)" ] || return 0
+  if [ "${VEYSUR_DEV:-0}" = 1 ]; then
+    http=${VEYSUR_HTTP_PORT:-$(env_get VEYSUR_HTTP_PORT)}
+    http=${http:-8080}
+    ! port_in_use "$http" || warn "port $http is already in use; set VEYSUR_HTTP_PORT in $ENV_FILE to a free port"
+    return 0
+  fi
+  http=${VEYSUR_HTTP_PORT:-$(env_get VEYSUR_HTTP_PORT)}
+  https=${VEYSUR_HTTPS_PORT:-$(env_get VEYSUR_HTTPS_PORT)}
+  http=${http:-80}
+  https=${https:-443}
+  ! port_in_use "$http" || warn "port $http is already in use; stop what is using it, or set VEYSUR_HTTP_PORT in $ENV_FILE (for example when a reverse proxy sits in front)"
+  ! port_in_use "$https" || warn "port $https is already in use; stop what is using it, or set VEYSUR_HTTPS_PORT in $ENV_FILE (for example when a reverse proxy sits in front)"
+  return 0
+}
+
 env_get() {
   [ -f "$ENV_FILE" ] || return 0
   sed -n "s/^$1=//p" "$ENV_FILE" | tail -n 1

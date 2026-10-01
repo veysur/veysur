@@ -1,6 +1,8 @@
 import { defineConfig } from '@rsbuild/core'
 import { pluginReact } from '@rsbuild/plugin-react'
 
+import { buildInfoDefine } from './rsbuild.buildInfo'
+
 // Consent Mode default MUST be set synchronously, before any other tag or script can
 // touch consent — Google's docs explicitly warn against setting it asynchronously. It
 // can't live inside the React GoogleAnalytics component: that component only mounts
@@ -29,6 +31,7 @@ export default defineConfig({
       account: './src/appAccount/index.tsx',
     },
     define: {
+      ...buildInfoDefine(),
       'process.env.npm_package_version': JSON.stringify(
         process.env.npm_package_version || '1.0.0',
       ),

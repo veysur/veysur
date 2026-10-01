@@ -1,12 +1,15 @@
 import { defineConfig } from '@rsbuild/core'
 import { pluginReact } from '@rsbuild/plugin-react'
 
+import { buildInfoDefine } from './rsbuild.buildInfo'
+
 export default defineConfig({
   source: {
     entry: {
       admin: './src/appAdmin/index.tsx',
     },
     define: {
+      ...buildInfoDefine(),
       'process.env.PUBLIC_EDITION': JSON.stringify(
         process.env.PUBLIC_EDITION || 'cloud',
       ),
