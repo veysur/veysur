@@ -18,7 +18,7 @@ const FRONT_MATTER_DELIMITER = '---'
 /**
  * Singleton loader for the built-in survey templates in
  * `model/asset/survey-template/<id>.md`. Each file is a survey markdown
- * document (see model/asset/survey-markdown-spec/survey-markdown-format.md) whose front
+ * document (see package/docsite/public/specs/survey-markdown-format.md) whose front
  * matter also carries a required `templateName` and `templateDescription`,
  * which the markdown parser ignores. The id is the filename without `.md`.
  */

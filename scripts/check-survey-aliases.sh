@@ -24,7 +24,7 @@ EXCLUDES=(
   ':(exclude)**/*.snap'
   ':(exclude)docs/**'
   ':(exclude)package/api/src/migrate/**'
-  ':(exclude)package/api/src/model/asset/survey-markdown-spec/**'
+  ':(exclude)package/docsite/public/specs/**'
   ':(exclude)package/common/src/util/migrateLegacySurvey*'
 )
 

@@ -89,3 +89,7 @@ pnpm dev:docsite                              # start local preview server
 pnpm build:docsite                            # production build
 pnpm --filter veysur-docsite typecheck        # type-check MDX and frontmatter
 ```
+
+## Downloadable Specs
+
+`public/specs/` holds raw files served verbatim, e.g. `survey-markdown-format.md`, which the "Generate a survey with an LLM" guide links to through `SpecDownloadLink.astro`. They are static assets, not pages, so the writing-style and length rules above do not apply. nginx must serve `.md` as `text/markdown`.

@@ -1,12 +1,8 @@
 ---
-// The docs site is served from a different origin from the API in the cloud deploy,
-// so link through the website domain, which proxies /api. Self-hosted serves the docs
-// under a base path on the app's own origin, where /api is same-origin.
-const websiteDomain = import.meta.env.PUBLIC_WEBSITE_DOMAIN || 'www.veysur.com'
-const selfHosted = (import.meta.env.BASE_URL ?? '/') !== '/'
-const href = selfHosted
-  ? '/api/survey-markdown-spec'
-  : `https://${websiteDomain}/api/survey-markdown-spec`
+// A static file in public/specs/, served by the same nginx as the docs, so the link is
+// same-origin in every deployment.
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+const href = `${base}/specs/survey-markdown-format.md`
 ---
 
 <a href={href} download="veysur-survey-markdown-spec.md"><slot /></a>
