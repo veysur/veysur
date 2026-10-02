@@ -1,5 +1,7 @@
 # veysur-theme
 
+Part of the [VeySur monorepo](https://github.com/veysur/veysur).
+
 Shared CSS design token package for the VeySur monorepo. Provides a single source of truth for shadcn/Tailwind colour tokens used by `package/app` and `package/website`.
 
 ## Usage
