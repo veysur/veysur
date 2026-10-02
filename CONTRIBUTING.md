@@ -35,7 +35,8 @@ ownership, just granting the licences above.
 
 1. Open an issue first for anything non-trivial, so the design can be
    discussed before you invest time in an implementation.
-2. Fork the repository and branch from `master`.
+2. Fork the repository and branch from `master`. Keep the branch short-lived; see
+   [trunk-based development](./docs/trunk-based-development.md).
 3. Keep pull requests focused: one logical change per PR.
 4. Add or update tests for the behaviour you're changing.
 5. Make sure the linter, type-checker, and test suite pass locally before

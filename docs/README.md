@@ -13,6 +13,7 @@ matches what you are doing.
 | [storage.md](./storage.md) | Choose local disk or S3 file storage and see how files are served |
 | [tls.md](./tls.md) | Choose and troubleshoot HTTPS |
 | [development.md](./development.md) | Run the live-reload dev loop, run tests, contribute |
+| [trunk-based-development.md](./trunk-based-development.md) | Understand the branching, merge and release workflow |
 | [timestamps.md](./timestamps.md) | See how timestamps are stored, transmitted, filtered and displayed |
 | [survey-publishing.md](./survey-publishing.md) | Understand how a survey is published and snapshotted |
 | [snapshot-hash-deduplication.md](./snapshot-hash-deduplication.md) | Understand how identical snapshots are reused |
