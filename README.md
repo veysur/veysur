@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="package/app/public/favicon.png" alt="VeySur logo" width="128" height="128">
+</p>
+
 # VeySur
 
 VeySur is a survey platform for building, publishing and analysing surveys, with control over who
