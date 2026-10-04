@@ -13,3 +13,4 @@ export const KEY_REGISTRY_PROFILE_DANGER_ZONE_EXTRA = 'profileDangerZoneExtra'
 export const KEY_REGISTRY_ACCOUNT_NAV_PROVIDER = 'accountNavProvider'
 export const KEY_REGISTRY_SINGLE_PROJECT_REDIRECT_RESOLVER =
   'singleProjectRedirectResolver'
+export const KEY_REGISTRY_SOCKET_CLIENT = 'socketClient'

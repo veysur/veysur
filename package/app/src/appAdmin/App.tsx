@@ -13,10 +13,12 @@ import { ThemeProvider } from 'component/ThemeProvider'
 import { Toaster } from 'component/shadcn/sonner'
 import { VersionUpdateBanner } from 'component/VersionUpdateBanner'
 import { AuthBroadcastProvider } from 'component/AuthBroadcastProvider'
+import { SocketProvider } from 'component/SocketProvider'
 
 import { SiteAccessGate } from 'component/SiteAccessGate'
 
 import { RouteLoading } from './component/RouteLoading'
+import { ADMIN_REALTIME_INVALIDATION } from './common/realtimeInvalidation'
 import { router } from './Router'
 import '../index.css'
 import './index.css'
@@ -31,6 +33,7 @@ export const App: React.FC = () => {
         <ThemeProvider>
           <SiteAccessGate>
             <AuthBroadcastProvider />
+            <SocketProvider invalidationMap={ADMIN_REALTIME_INVALIDATION} />
             <Suspense fallback={<RouteLoading />}>
               <RouterProvider router={router} />
             </Suspense>

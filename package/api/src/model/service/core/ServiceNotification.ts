@@ -1,5 +1,9 @@
 import { Service, ServerErrorNotFound } from '@datacapy/server'
-import { Notification, DataTransferJob } from 'veysur-common'
+import {
+  Notification,
+  DataTransferJob,
+  REALTIME_EVENT_NOTIFICATION_CHANGED,
+} from 'veysur-common'
 import momentTimezone from 'moment-timezone'
 
 import { RepoNotification, RepoFile } from 'model'
@@ -7,6 +11,7 @@ import { AclContext } from 'model/entity/AclContext'
 import { resolveDataTransferFileDownload } from 'model/common'
 import { parsePaginationParams } from 'common'
 
+import type { ServiceRealtime } from '../ServiceRealtime'
 import { ServiceDataTransferJob } from './ServiceDataTransferJob'
 import { StorageConfig, getStorageConfig } from './ServiceFile/FileS3Config'
 
@@ -30,6 +35,16 @@ export class ServiceNotification extends Service {
 
   private getRepoNotification(): RepoNotification {
     return this.getRepo<RepoNotification>('notification')
+  }
+
+  private async emitChanged(recipientUserId: string | undefined | null) {
+    if (!recipientUserId) {
+      return
+    }
+    await this.getService<ServiceRealtime>('realtime').emitToUser(
+      recipientUserId,
+      REALTIME_EVENT_NOTIFICATION_CHANGED,
+    )
   }
 
   private getStorageConfig(): StorageConfig {
@@ -64,6 +79,7 @@ export class ServiceNotification extends Service {
       status: 'unread',
     })
     await this.getRepoNotification().insertOne(notification)
+    await this.emitChanged(recipientUserId)
     return notification
   }
 
@@ -85,7 +101,8 @@ export class ServiceNotification extends Service {
     title: string
     message?: string | null
   }): Promise<void> {
-    await this.getRepoNotification().updateOne(
+    const repo = this.getRepoNotification()
+    await repo.updateOne(
       { dataTransferJobId },
       {
         $set: {
@@ -98,6 +115,8 @@ export class ServiceNotification extends Service {
         },
       },
     )
+    const notification = await repo.findOne({ dataTransferJobId })
+    await this.emitChanged(notification?.recipientUserId)
   }
 
   /**
@@ -281,6 +300,7 @@ export class ServiceNotification extends Service {
         { _id: notification._id },
         { $set: { status: 'read', readAt: new Date() } },
       )
+      await this.emitChanged(notification.recipientUserId)
     }
     return { success: true }
   }
@@ -308,6 +328,7 @@ export class ServiceNotification extends Service {
       { _id: notification._id },
       { $set: { status: 'dismissed', dismissedAt: new Date() } },
     )
+    await this.emitChanged(notification.recipientUserId)
     return { success: true }
   }
 

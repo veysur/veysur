@@ -195,6 +195,10 @@ Optional country blocking runs through a `geo` collaborator that an extension re
 
 Every path where a user sets/changes their own email — signup, survey participant registration, and account profile email change — rejects known disposable/temporary email domains via `ServiceEmailDomainCheck`, which is a no-op unless a deployment registers its own `emailDomainBlock` repo. See `docs/disposable-email-blocking.md`.
 
+## Realtime
+
+Server-to-client push (socket.io, Redis required when deployed) for hint events such as `notification.changed`; emit through `ServiceRealtime.emitToUser`. See `docs/realtime.md`.
+
 ## Pagination
 When implementing pagination in service methods:
 - Use `skip` (not `offset`) in repo.find() options - this maps to MongoDB's native skip

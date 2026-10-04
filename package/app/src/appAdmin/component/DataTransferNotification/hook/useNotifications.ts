@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef } from 'react'
-import type { Query } from '@tanstack/react-query'
 import { useAuthdQuery } from 'hook/useAuthdQuery'
 
 import { useProjectDomain } from 'appAdmin/hook'
@@ -11,18 +10,10 @@ import type {
   ListNotificationsResponse,
 } from '../model/api/NotificationApi'
 
-// The worker is only invoked once a minute by its k8s CronJob, so polling
-// faster than that just adds load without a chance of seeing a status
-// change any sooner.
-const POLL_INTERVAL_MS = 15 * 1000
-
-const isActive = (notification: NotificationListItem) =>
-  notification.dataTransferJobStatus === 'pending' ||
-  notification.dataTransferJobStatus === 'processing'
-
 /**
  * Data source for the DataTransferNotificationBell: the calling admin's own
- * notifications, polling while any related job is still in progress. A
+ * notifications. Updates arrive as realtime `notification.changed` hints
+ * (see SocketProvider and appAdmin/common/realtimeInvalidation.ts), not polling. A
  * notification's `level` moves 'info' -> 'success'/'error' server-side as
  * its related DataTransferJob settles (see ServiceDataTransferJob), so a
  * one-off toast fires the first time a given notification is observed at a
@@ -44,11 +35,6 @@ export function useNotifications() {
       return getNotificationApi().listNotifications()
     },
     enabled: !!project?._id,
-    refetchInterval: (query: Query<ListNotificationsResponse>) => {
-      const notifications = query.state.data?.notifications ?? []
-      const hasActive = notifications.some(isActive)
-      return hasActive ? POLL_INTERVAL_MS : false
-    },
   })
 
   const notifications = useMemo(

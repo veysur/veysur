@@ -1,4 +1,8 @@
-import { Notification, DataTransferJob } from 'veysur-common'
+import {
+  Notification,
+  DataTransferJob,
+  REALTIME_EVENT_NOTIFICATION_CHANGED,
+} from 'veysur-common'
 
 import { ServiceNotification } from './ServiceNotification'
 import { asPrivate } from 'test-utils/asPrivate'
@@ -29,6 +33,7 @@ describe('ServiceNotification', () => {
   }
   let mockRepoFile: { findOne: jest.Mock }
   let mockServiceDataTransferJob: { deleteSettledJob: jest.Mock }
+  let mockRealtime: { emitToUser: jest.Mock }
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -50,6 +55,8 @@ describe('ServiceNotification', () => {
     mockRepoFile = { findOne: jest.fn().mockResolvedValue(null) }
     mockServiceDataTransferJob = { deleteSettledJob: jest.fn().mockResolvedValue(undefined) }
 
+    mockRealtime = { emitToUser: jest.fn().mockResolvedValue(undefined) }
+
     jest.spyOn(service, 'getRepo').mockImplementation(((name: string) => {
       if (name === 'notification') return mockRepo
       if (name === 'file') return mockRepoFile
@@ -57,6 +64,7 @@ describe('ServiceNotification', () => {
     }) as typeof service.getRepo)
     jest.spyOn(service, 'getService').mockImplementation(((name: string) => {
       if (name === 'dataTransferJob') return mockServiceDataTransferJob
+      if (name === 'realtime') return mockRealtime
       return {}
     }) as typeof service.getService)
   })
@@ -76,6 +84,10 @@ describe('ServiceNotification', () => {
       expect(notification.status).toBe('unread')
       expect(notification.dataTransferJobId).toBe('job-1')
       expect(notification.level).toBe('info')
+      expect(mockRealtime.emitToUser).toHaveBeenCalledWith(
+        'user-1',
+        REALTIME_EVENT_NOTIFICATION_CHANGED,
+      )
     })
   })
 
@@ -101,6 +113,35 @@ describe('ServiceNotification', () => {
           },
         },
       )
+    })
+  })
+
+  describe('updateForDataTransferJob() realtime', () => {
+    test('emits to the notification recipient', async () => {
+      mockRepo.findOne.mockResolvedValue({ recipientUserId: 'user-9' })
+
+      await service.updateForDataTransferJob({
+        dataTransferJobId: 'job-1',
+        level: 'success',
+        title: 'Export',
+      })
+
+      expect(mockRealtime.emitToUser).toHaveBeenCalledWith(
+        'user-9',
+        REALTIME_EVENT_NOTIFICATION_CHANGED,
+      )
+    })
+
+    test('does not emit when the notification is gone', async () => {
+      mockRepo.findOne.mockResolvedValue(null)
+
+      await service.updateForDataTransferJob({
+        dataTransferJobId: 'job-1',
+        level: 'success',
+        title: 'Export',
+      })
+
+      expect(mockRealtime.emitToUser).not.toHaveBeenCalled()
     })
   })
 
@@ -251,6 +292,10 @@ describe('ServiceNotification', () => {
         expect.objectContaining({ $set: expect.objectContaining({ status: 'dismissed' }) }),
       )
       expect(mockServiceDataTransferJob.deleteSettledJob).not.toHaveBeenCalled()
+      expect(mockRealtime.emitToUser).toHaveBeenCalledWith(
+        'user-1',
+        REALTIME_EVENT_NOTIFICATION_CHANGED,
+      )
     })
 
     test('rejects a notification owned by a different user', async () => {

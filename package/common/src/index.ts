@@ -18,6 +18,7 @@ export * from './util/password-validator'
 export * from './util/subdomain-validator'
 export * from './util/emailLayoutStyle'
 export * from './constants'
+export * from './realtime'
 
 // Models added by an extension live in the extension package veysur-common-cloud,
 // not in this one.
