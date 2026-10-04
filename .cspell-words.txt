@@ -39,7 +39,6 @@ Favor
 firstname
 formspree
 gesmes
-getfeastin
 gocryptfs
 gtag
 haravich
@@ -55,7 +54,6 @@ inviteremindersent
 invitesent
 jsep
 journalctl
-kubeconfig
 kubelet
 kubeseal
 lastname
@@ -110,7 +108,6 @@ smtp
 smtpd
 smtp_tls_CAfile
 SNAT
-stagevs
 subdirs
 subquestion
 subquestions

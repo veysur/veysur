@@ -205,28 +205,6 @@ export class ServiceEmail extends Service {
   }
 
   async sendDirect(options) {
-    /*
-    var options = {
-      to: 'kevin.foster.uk@gmail.com',
-      to: {name: 'Kevin Foster', email: 'kevin.foster.uk@gmail.com'},
-      from: 'support@getfeastin.com',
-      from: {name: 'GetFeastin Support', email: 'support@getfeastin.com'},
-      subject: 'This is a test',
-      text: 'This is the text content',
-      html: 'HTML content here'
-    };
-    */
-
-    /*
-    var mailOptions = {
-        to: 'kevin.foster.uk@gmail.com', // receiver address,
-        from: '"Fred Foo 👻" <foo@blurdybloop.com>', // sender address
-        subject: 'Hello ✔', // Subject line
-        text: 'Hello world?', // plain text body
-        html: '<b>Hello world?</b>' // html body
-    };
-    */
-
     options = this.normalizeOptions(options)
 
     const toAddress = options.to.name
