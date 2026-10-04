@@ -29,8 +29,3 @@ semantic versioning.
 - Self-hosting with Docker Compose, including generated configuration, TLS, backup and restore.
 - File storage on local disk or an S3-compatible service (AWS S3, MinIO).
 - The admin guide docsite.
-
-### Not included
-
-Billing, subscriptions, platform administration and the Kubernetes deployment belong to the
-hosted service and are not part of this repository.
