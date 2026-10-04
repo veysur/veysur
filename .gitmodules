@@ -1,6 +1,6 @@
 [submodule "external/datacapy"]
 	path = external/datacapy
-	url = git@github.com:datacapy/datacapy.git
+	url = https://github.com/datacapy/datacapy.git
 [submodule "external/s3-adaptor"]
 	path = external/s3-adaptor
-	url = git@github.com:kevin-foster-uk/s3-adaptor.git
+	url = https://github.com/kevin-foster-uk/s3-adaptor.git
