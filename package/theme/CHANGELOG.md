@@ -1,12 +1,5 @@
 # veysur-theme
 
-## 0.2.0
+## 0.9.0
 
-No changes in this release.
-
-## 0.1.0
-
-Initial tracked release. This is the first self-host release of VeySur; changelog tracking
-starts here via [Changesets](https://github.com/changesets/changesets). `veysur-app`,
-`veysur-api`, `veysur-common`, `veysur-theme`, and `veysur-docsite` version together
-as a single `veysur` release — see `.changeset/README.md`.
+Initial public release. See the [root changelog](../../CHANGELOG.md) for details.

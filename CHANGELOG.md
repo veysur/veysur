@@ -5,20 +5,32 @@ released together under a single version number (see `.changeset/README.md`). Th
 the canonical release history; the identical entry is duplicated into each package's own
 `CHANGELOG.md` by [Changesets](https://github.com/changesets/changesets).
 
-## 0.2.0
+## 0.9.0
 
-### Minor Changes
+Initial public release of the self-hostable core of VeySur.
 
-- f63e2ab: Survey templates now carry a category (`templateCategory` front matter, returned as `category` by `GET /survey/template/list`). The "Start from" picker on the new survey form can be browsed by category and filtered with a search box.
-- 3424b04: Create a survey from a built-in template. The API ships a library of survey markdown templates (each with a name and description), lists them at `GET /survey/template/list`, and accepts an optional `templateId` on `POST /survey`. The new survey form has a "Start from" picker.
-- 7e123b2: Self-hosted installs can keep uploaded files in an S3-compatible service (AWS S3, MinIO). `config-generate.sh` asks for the endpoint, buckets and access key, generates the nginx storage include, and `backup.sh` and `restore.sh` handle installs whose files are not on the local volume. Local disk stays the default.
-- 0c3650a: Serve the survey Markdown format specification as a public download at `GET /survey-markdown-spec`, and document generating a survey with an LLM chat bot in the docsite.
+VeySur has been in development for more than a year and has run in production for the hosted
+service for a few months. This release is that same code base, published as source-available
+software you can run on your own server. The git history in this repository starts in
+September 2026 because it was seeded from a private repository; it does not show the earlier
+development.
 
-### Patch Changes
+The version is 0.9.0 rather than 1.0.0 on purpose. The software is in real use, but the
+public API, configuration format and upgrade path have not yet been exercised by outside
+self-hosters. 1.0.0 will mark the point where those are stable and breaking changes follow
+semantic versioning.
 
-- 7079c14: Move to Express 5 (via @datacapy/server). The optional `olderThan` segment of the hard file-delete route is now `/hard{/:olderThan}`, and the local storage routes use the named wildcard `/*key`. Request behaviour is unchanged.
+### What is included
 
-## 0.1.0
+- Survey editor with groups, questions, content elements and multi-language support.
+- Survey templates, browsable by category, and survey generation from Markdown (including with an LLM chat bot).
+- Publishing, participant management, response collection and anonymous surveys.
+- Import and export of surveys, publications and answers.
+- Self-hosting with Docker Compose, including generated configuration, TLS, backup and restore.
+- File storage on local disk or an S3-compatible service (AWS S3, MinIO).
+- The admin guide docsite.
 
-Initial tracked release: the first self-hostable release of VeySur. Versions before this
-point were not maintained.
+### Not included
+
+Billing, subscriptions, platform administration and the Kubernetes deployment belong to the
+hosted service and are not part of this repository.
