@@ -7,8 +7,8 @@ set -euo pipefail
 # the whole repo vX.Y.Z (not per-package tags, unlike datacapy/s3-adaptor).
 #
 # Steps: version bump, root changelog entry, commit, tag, push, then a GitHub
-# release whose notes are that changelog entry. Publishing the operator package
-# (images and tarballs) stays manual; the commands are printed at the end.
+# release whose notes are that changelog entry. The tag push then starts
+# .github/workflows/release.yml, which publishes the images and attaches the tarballs.
 
 cd "$(dirname "$0")/.."
 
@@ -71,9 +71,7 @@ else
 fi
 
 echo
-echo "Next, publish the operator package (requires 'docker login ghcr.io' once):"
-echo "  deploy/scripts/release-package.sh $VERSION --push"
-echo "  gh release upload '$TAG' deploy/dist/veysur-$VERSION.tar.gz"
-echo "Optionally add the air-gapped bundle too:"
-echo "  deploy/scripts/release-package.sh $VERSION --images"
-echo "  gh release upload '$TAG' deploy/dist/veysur-$VERSION-with-images.tar.gz"
+echo "The tag push starts the Release package workflow: it publishes the images to ghcr.io/veysur"
+echo "and attaches both tarballs to the release. Watch it with:"
+echo "  gh run watch -R veysur/veysur"
+echo "To re-run for this tag: gh workflow run release.yml -f version=$VERSION"

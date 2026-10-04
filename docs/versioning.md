@@ -83,16 +83,19 @@ pointers need to reflect `datacapy`/`s3-adaptor`'s latest tagged commit:
 
 Each `scripts/release.sh` prints a `gh release create` command as its last step. Run it
 (one per tag) to cut the actual GitHub release from that package's `CHANGELOG.md` entry.
-`veysur`'s `release.sh` also prints the follow-up commands to build, publish and attach the
-operator tarball — see [deployment.md](./deployment.md#build-a-release-package) for what they do.
+`veysur`'s `release.sh` creates its own release. Its tag push then starts
+`.github/workflows/release.yml`, which builds and pushes the `api`/`nginx` images to GHCR (also
+tagged `latest`) and attaches the thin and `-with-images` operator tarballs to the release. See
+[deployment.md](./deployment.md#build-a-release-package) for what the package script does.
+To re-run it for an existing tag: `gh workflow run release.yml -f version=X.Y.Z`.
 
-**One-time setup**: the first `--push` creates the `api`/`nginx` packages under `ghcr.io/veysur`
+**One-time setup**: the first workflow run creates the `api`/`nginx` packages under `ghcr.io/veysur`
 as private by default. Set them to public in GitHub's package settings (or link them to the
 `veysur` repo for inherited visibility), or self-hosters pulling without credentials get 401s.
 
 `scripts/release.sh` in each repo does the mechanical part only (version bump, commit, tag,
 push); it refuses to run with pending working-tree changes or with no changesets staged.
-This is a manual, maintainer-triggered flow: there's no CI release automation yet.
+`veysur` publishes its images and tarballs from CI; the `datacapy` and `s3-adaptor` releases remain manual, maintainer-triggered flows.
 
 ## Onboarding a new package
 

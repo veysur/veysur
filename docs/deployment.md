@@ -98,6 +98,8 @@ together. See [maintenance.md](./maintenance.md).
 
 ## Build a release package
 
+Releases do this in CI (`.github/workflows/release.yml`, run on each `vX.Y.Z` tag). To build one by hand:
+
 ```bash
 docker login ghcr.io
 ./scripts/release-package.sh 1.2.0 --build-images --push

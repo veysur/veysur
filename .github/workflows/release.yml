@@ -1,0 +1,68 @@
+# cspell:ignore clobber
+name: Release package
+
+# Publishes the container images to GHCR and attaches the operator tarballs to the GitHub
+# release. scripts/release.sh creates the tag and the release; this runs on that tag.
+# workflow_dispatch re-runs it for an existing tag, for example after a failed run.
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to publish, without the leading v (for example 0.9.0)
+        required: true
+
+permissions:
+  contents: write
+  packages: write
+
+concurrency:
+  group: release-${{ github.event.inputs.version || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RAW_VERSION: ${{ github.event.inputs.version || github.ref_name }}
+    steps:
+      - name: Resolve version
+        run: |
+          VERSION="${RAW_VERSION#v}"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "TAG=v$VERSION" >> "$GITHUB_ENV"
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ format('refs/tags/v{0}', github.event.inputs.version || github.ref_name) }}
+          submodules: recursive
+
+      - name: Log in to GHCR
+        run: echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      # Builds and pushes ghcr.io/veysur/api and nginx at the version, and writes the
+      # air-gapped veysur-<version>-with-images.tar.gz.
+      - name: Build and push images, bundle air-gapped package
+        run: deploy/scripts/release-package.sh "$VERSION" --build-images --push
+
+      # compose.yaml and the docs default to the latest tag.
+      - name: Tag images latest
+        run: |
+          for image in api nginx; do
+            docker tag "ghcr.io/veysur/$image:$VERSION" "ghcr.io/veysur/$image:latest"
+            docker push "ghcr.io/veysur/$image:latest"
+          done
+
+      # The thin package pulls its images from GHCR at install time.
+      - name: Build thin package
+        run: deploy/scripts/release-package.sh "$VERSION"
+
+      - name: Attach packages to the release
+        run: |
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --title "$TAG" --generate-notes
+          gh release upload "$TAG" --clobber \
+            "deploy/dist/veysur-$VERSION.tar.gz" \
+            "deploy/dist/veysur-$VERSION-with-images.tar.gz"
