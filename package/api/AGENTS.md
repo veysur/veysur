@@ -197,7 +197,7 @@ Every path where a user sets/changes their own email — signup, survey particip
 
 ## Realtime
 
-Server-to-client push (socket.io, Redis required when deployed) for hint events such as `notification.changed`; emit through `ServiceRealtime.emitToUser`. See `docs/realtime.md`.
+Server-to-client push (socket.io, Redis required when deployed) for hint events such as `notification.changed` (emit through `ServiceRealtime.emitToUser`) and `survey.changed`, which replaces polling in the survey editor (`ServiceSurvey.patch` calls `emitSurveyChanged` for the survey's room). See `docs/realtime.md`.
 
 ## Pagination
 When implementing pagination in service methods:

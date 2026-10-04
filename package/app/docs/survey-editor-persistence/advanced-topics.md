@@ -6,13 +6,17 @@ This document covers advanced features of the survey editor persistence system. 
 
 The most critical feature of the persistence system is preventing data loss during concurrent edits. This is handled by the generic `usePatchableState` hook and works automatically for all entities using the pattern. Without this, user changes could be overwritten by server refetches.
 
+### Multi-Editor Sync
+
+The survey editor does not poll. `useSurveyRealtimeSync` joins the survey's socket.io room and invalidates the `KEY_STATE_SURVEY_EDITING` query when `survey.changed` arrives from another client, and again after every reconnect. The saving client sends its `RealtimeClient.clientId` as `X-Client-Id`, so it skips its own event. The refetch goes through the same buffer-reapply path described below. See `package/api/docs/realtime.md`.
+
 ### The Problem
 
 Consider this scenario:
 
 1. User types "Hello" in a question field
 2. Change is buffered (not yet persisted)
-3. Server refetch happens (maybe another user changed something, or interval refetch)
+3. Server refetch happens (another editor changed something and the realtime `survey.changed` event triggered a refetch)
 4. Fresh data arrives **without** "Hello"
 5. User's change is lost ❌
 
