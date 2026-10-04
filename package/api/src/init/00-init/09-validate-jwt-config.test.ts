@@ -19,7 +19,7 @@ describe('assertJwtKeyIsConfigured', () => {
 
   it('does not throw for a real generated secret', () => {
     const generatedSecret =
-      'REDACTED-DEV-JWT-KEYREDACTED-DEV-JWT-KEY'
+      '30aeebff16b956b217f32d41b1f2cfc87cfb18d63f7caafbe123bc1270071254'
     expect(() => assertJwtKeyIsConfigured(generatedSecret)).not.toThrow()
   })
 })
