@@ -121,4 +121,5 @@ Source-available under the [Elastic License 2.0](./LICENSE). Free to use, self-h
 including running it as part of a service you provide to your own clients (survey design,
 fieldwork, hosting and administration, and so on). What's not permitted is giving third parties
 direct access to VeySur itself, for example reselling hosted VeySur logins or API access as your
-product. See [FAQ.md](./FAQ.md) and [TRADEMARKS.md](./TRADEMARKS.md).
+product. See [FAQ.md](./FAQ.md) and [TRADEMARKS.md](./TRADEMARKS.md). Third-party software is listed in
+[THIRD-PARTY-NOTICES.md](./THIRD-PARTY-NOTICES.md).

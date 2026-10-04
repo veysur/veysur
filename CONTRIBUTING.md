@@ -3,6 +3,8 @@
 Thanks for your interest in contributing. This repository is the canonical,
 source-available home of the VeySur survey product.
 
+Everyone taking part is expected to follow the [Code of Conduct](./CODE_OF_CONDUCT.md).
+
 ## Before your first pull request
 
 **All contributions require signing the [Contributor License Agreement](./CLA.md).**
