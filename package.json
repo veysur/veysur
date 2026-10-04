@@ -3,6 +3,7 @@
   "version": "0.9.0",
   "private": true,
   "description": "VeySur - self-hostable survey platform",
+  "license": "Elastic-2.0",
   "packageManager": "pnpm@10.33.0",
   "engines": {
     "node": ">=18.0.0",
@@ -30,6 +31,8 @@
     "test:api": "pnpm --filter veysur-api test",
     "test:common": "pnpm --filter veysur-common test",
     "lint": "pnpm -r lint && ./scripts/check-no-billing-logic.sh",
+    "license-check": "pnpm --filter veysur-api --filter veysur-app --filter veysur-common run license-checker",
+    "license-notices": "node scripts/license-notices.mjs",
     "format": "pnpm -r format",
     "typecheck": "pnpm -r typecheck",
     "clean": "pnpm -r clean && rm -rf node_modules && rm -rf package/*/dist package/*/build",

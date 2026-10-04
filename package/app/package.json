@@ -1,6 +1,7 @@
 {
   "name": "veysur-app",
   "version": "0.9.0",
+  "license": "Elastic-2.0",
   "private": true,
   "type": "module",
   "exports": {
@@ -36,7 +37,7 @@
     "test:watch": "jest --watch",
     "typecheck": "tsc --noEmit",
     "typecheck:selfhosted": "tsc --noEmit -p tsconfig.selfhosted.json",
-    "license-checker": "license-checker-rseidelsohn --production --onlyAllow \"MIT;ISC;BSD;BSD-2-Clause;BSD-3-Clause;Apache-2.0;0BSD;CC0-1.0;Unlicense;WTFPL;Python-2.0;BlueOak-1.0.0;(MIT OR EUPL-1.1+);(MIT AND ISC);(MIT AND Zlib);(MPL-2.0 OR Apache-2.0);(Apache-2.0 AND BSD-3-Clause);MIT*;UNLICENSED;UNKNOWN\""
+    "license-checker": "license-checker-rseidelsohn --production --excludePrivatePackages --onlyAllow \"Elastic-2.0;MIT;ISC;BSD;BSD-2-Clause;BSD-3-Clause;Apache-2.0;0BSD;CC0-1.0;Unlicense;WTFPL;Python-2.0;BlueOak-1.0.0;(MIT OR EUPL-1.1+);(MIT AND ISC);(MIT AND Zlib);(MPL-2.0 OR Apache-2.0);(Apache-2.0 AND BSD-3-Clause);MIT*\""
   },
   "dependencies": {
     "@codemirror/lang-html": "^6.4.12",
