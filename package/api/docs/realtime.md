@@ -12,8 +12,20 @@ truth, so a missed event is harmless. Today it replaces polling `/notification/l
 - Every server-to-client message is the `event` socket event carrying
   `{ type, payload? }` (`RealtimeEvent` in `veysur-common`). Type constants live beside it,
   e.g. `REALTIME_EVENT_NOTIFICATION_CHANGED`.
-- Rooms: `user:{userId}` (`realtimeUserRoom`). Project and survey rooms are reserved names,
-  not built.
+- Rooms: `user:{userId}` (`realtimeUserRoom`), joined automatically, and
+  `survey:{projectId}:{surveyId}` (`realtimeSurveyRoom`), joined on request (see below).
+  A project room is a reserved name, not built.
+
+## Survey rooms
+
+The survey editor sends `survey:join` / `survey:leave` with `{ projectId, surveyId }`
+(answered with `{ ok }`). Join is refused unless the token's `project` map contains
+`projectId`, the same check as the `projectAdmin` ACL role; the map is refreshed by
+`auth:refresh`. `ServiceSurvey.patch` calls `emitSurveyChanged` after applying patches, which
+sends `survey.changed` with `{ surveyId, originClientId }` to the room. `originClientId`
+comes from the `X-Client-Id` request header (the sender's `RealtimeClient.clientId`), so the
+client that saved skips its own echo. The editor refetches on the event and on every
+reconnect, and no longer polls.
 
 ## Auth
 

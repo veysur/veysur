@@ -8,16 +8,16 @@ import {
 import { useAuth, useProjectDomain } from 'appAdmin/hook'
 import { getSurveyApi } from 'appAdmin/component/Survey'
 import { usePatchableState } from 'hook'
+import { getSocketClient } from 'registry'
 import { useSurveyEditorStore } from './useSurveyEditorStore'
 
-import { useSurveyEditorRefetchInterval } from './useSurveyEditorRefetchInterval'
+import { useSurveyRealtimeSync } from './useSurveyRealtimeSync'
 import { preApiRequestAuthCheck } from './preApiRequestAuthCheck'
 
 type SurveyPatch = Patch
 
-// Matches REFETCH_INTERVAL_ACTIVE in useSurveyEditorRefetchInterval — data fetched
-// within this window is treated as fresh, avoiding a redundant network round trip
-// when re-entering the survey editor route tree.
+// Data fetched within this window is treated as fresh, avoiding a redundant
+// network round trip when re-entering the survey editor route tree.
 const STALE_TIME_MS = 20 * 1000
 
 type Props = {
@@ -44,12 +44,12 @@ export function useSurveyPatchableState({
   surveyId,
   onPatchBufferChange,
 }: Props) {
-  const { refetchInterval } = useSurveyEditorRefetchInterval()
   const queryClient = useQueryClient()
   const { auth } = useAuth()
   const project = useProjectDomain()
   const langFetch = useSurveyEditorStore((state) => state.langFetch)
   const langDefault = useSurveyEditorStore((state) => state.langDefault)
+  useSurveyRealtimeSync(project?._id, surveyId)
 
   return usePatchableState<Survey, SurveyPatch>({
     queryKey: [KEY_STATE_SURVEY_EDITING, surveyId, langFetch, langDefault],
@@ -82,12 +82,11 @@ export function useSurveyPatchableState({
       if (!project?._id || !surveyId) {
         return Promise.reject('Invalid project or survey ID')
       }
-      await getSurveyApi().patch(surveyId, patches)
+      await getSurveyApi().patch(surveyId, patches, getSocketClient().clientId)
     },
 
     // Configuration
     enabled: !!project?._id && !!surveyId,
-    refetchInterval,
     refetchOnMount: true,
     staleTime: STALE_TIME_MS,
     refetchOnWindowFocus: true,

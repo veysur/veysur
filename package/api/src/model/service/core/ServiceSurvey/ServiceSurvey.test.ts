@@ -162,3 +162,37 @@ describe('ServiceSurvey template delegation', () => {
     expect(templateService.createSurvey).toHaveBeenCalledWith(args)
   })
 })
+
+describe('ServiceSurvey.patch realtime', () => {
+  const aclContext = { jwt: { _id: 'user-1' } }
+  let service: ServiceSurvey
+  let realtime: { emitSurveyChanged: jest.Mock }
+
+  beforeEach(() => {
+    service = new ServiceSurvey()
+    realtime = { emitSurveyChanged: jest.fn().mockResolvedValue(undefined) }
+    jest
+      .spyOn(service, 'getRepo')
+      .mockImplementation((() => ({})) as typeof service.getRepo)
+    jest
+      .spyOn(service, 'getService')
+      .mockImplementation(((name: string) =>
+        name === 'realtime' ? realtime : {}) as typeof service.getService)
+  })
+
+  test('notifies the survey room after applying patches', async () => {
+    await service.patch({
+      surveyId: 's1',
+      projectId: 'p1',
+      patches: [],
+      originClientId: 'c1',
+      aclContext,
+      context: {},
+    })
+
+    expect(realtime.emitSurveyChanged).toHaveBeenCalledWith('p1', {
+      surveyId: 's1',
+      originClientId: 'c1',
+    })
+  })
+})

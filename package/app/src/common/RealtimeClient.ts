@@ -2,7 +2,10 @@ import { io, type Socket } from 'socket.io-client'
 import {
   REALTIME_EVENT_NAME,
   REALTIME_MESSAGE_AUTH_REFRESH,
+  REALTIME_MESSAGE_SURVEY_JOIN,
+  REALTIME_MESSAGE_SURVEY_LEAVE,
   type RealtimeEvent,
+  type RealtimeSurveyRoomRequest,
 } from 'veysur-common'
 
 type TokenProvider = () => Promise<string | undefined>
@@ -19,6 +22,10 @@ export class RealtimeClient {
   private retryTimer: ReturnType<typeof setTimeout> | null = null
   private readonly eventListeners = new Set<(event: RealtimeEvent) => void>()
   private readonly connectListeners = new Set<() => void>()
+  private readonly surveyRooms = new Map<string, RealtimeSurveyRoomRequest>()
+
+  /** Identifies this client in `survey.changed` payloads so it can skip its own echo. */
+  readonly clientId = Math.random().toString(36).slice(2)
 
   constructor(
     private readonly url: string,
@@ -38,7 +45,12 @@ export class RealtimeClient {
           .catch(() => callback({}))
       },
     })
-    socket.on('connect', () => this.connectListeners.forEach((l) => l()))
+    socket.on('connect', () => {
+      this.surveyRooms.forEach((room) =>
+        socket.emit(REALTIME_MESSAGE_SURVEY_JOIN, room),
+      )
+      this.connectListeners.forEach((l) => l())
+    })
     socket.on(REALTIME_EVENT_NAME, (event: RealtimeEvent) =>
       this.eventListeners.forEach((l) => l(event)),
     )
@@ -68,6 +80,25 @@ export class RealtimeClient {
   refreshAuth(token: string): void {
     if (this.socket?.connected) {
       this.socket.emit(REALTIME_MESSAGE_AUTH_REFRESH, { token })
+    }
+  }
+
+  /**
+   * Joins a survey's room, rejoining after every reconnect. Returns a function
+   * that leaves it. The server refuses projects the token does not administer.
+   */
+  joinSurveyRoom(projectId: string, surveyId: string): () => void {
+    const room = { projectId, surveyId }
+    const key = `${projectId}:${surveyId}`
+    this.surveyRooms.set(key, room)
+    if (this.socket?.connected) {
+      this.socket.emit(REALTIME_MESSAGE_SURVEY_JOIN, room)
+    }
+    return () => {
+      this.surveyRooms.delete(key)
+      if (this.socket?.connected) {
+        this.socket.emit(REALTIME_MESSAGE_SURVEY_LEAVE, room)
+      }
     }
   }
 

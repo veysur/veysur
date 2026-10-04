@@ -68,6 +68,11 @@ export const surveyConfig = {
         surveyId: { src: 'param', required: true },
         projectId: { src: 'header', srcPath: 'X-Project-Id', required: true },
         patches: { src: 'body', required: true },
+        originClientId: {
+          src: 'header',
+          srcPath: 'X-Client-Id',
+          required: false,
+        },
       },
       acl: {
         rules: [{ allow: true, role: 'projectAdmin' }],

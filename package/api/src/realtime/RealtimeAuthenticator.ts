@@ -5,6 +5,8 @@ export interface RealtimeIdentity {
   userId: string
   /** Token expiry, epoch milliseconds. */
   expiresAtMs: number
+  /** Projects the user administers, from the token's `project` map. */
+  projectIds: string[]
 }
 
 interface JwtConfig {
@@ -27,7 +29,12 @@ export class RealtimeAuthenticator {
     if (typeof token !== 'string' || !Jwt.regex.test(token)) {
       return null
     }
-    let raw: { _id?: string; type?: string; exp?: number } | null
+    let raw: {
+      _id?: string
+      type?: string
+      exp?: number
+      project?: Record<string, unknown>
+    } | null
     try {
       raw = await Jwt.verify(token, this.jwtConfig)
     } catch {
@@ -40,6 +47,10 @@ export class RealtimeAuthenticator {
     if (!isValid) {
       return null
     }
-    return { userId: raw._id, expiresAtMs: raw.exp * 1000 }
+    return {
+      userId: raw._id,
+      expiresAtMs: raw.exp * 1000,
+      projectIds: Object.keys(raw.project ?? {}),
+    }
   }
 }

@@ -81,4 +81,17 @@ describe('ServiceRealtime', () => {
     await expect(service.emitToUser('u1', 't')).resolves.toBeUndefined()
     expect(privates.modelManager.logger.error).toHaveBeenCalled()
   })
+
+  it('emits survey.changed to the project-scoped survey room', async () => {
+    await service.emitSurveyChanged('p1', {
+      surveyId: 's1',
+      originClientId: 'c1',
+    })
+
+    expect(to).toHaveBeenCalledWith('survey:p1:s1')
+    expect(emit).toHaveBeenCalledWith(REALTIME_EVENT_NAME, {
+      type: 'survey.changed',
+      payload: { surveyId: 's1', originClientId: 'c1' },
+    })
+  })
 })

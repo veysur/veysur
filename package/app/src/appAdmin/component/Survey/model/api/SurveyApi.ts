@@ -1,4 +1,9 @@
-import { Patch, Survey, SurveyData } from 'veysur-common'
+import {
+  Patch,
+  REALTIME_CLIENT_ID_HEADER,
+  Survey,
+  SurveyData,
+} from 'veysur-common'
 import { PropsOf } from '@datacapy/schema'
 
 import { Api, ErrorRest } from 'model'
@@ -53,11 +58,12 @@ export class SurveyApi extends Api {
     }
   }
 
-  async patch(surveyId: string, patches: Patch[]) {
+  async patch(surveyId: string, patches: Patch[], clientId?: string) {
     try {
       return await this.getClient().patch<PropsOf<Survey>>(
         `/survey/${surveyId}`,
         { patches },
+        clientId ? { headers: { [REALTIME_CLIENT_ID_HEADER]: clientId } } : {},
       )
     } catch (error) {
       throw ErrorRest.fromRequestError(error as Error)

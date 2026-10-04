@@ -1,5 +1,12 @@
 import type { Server as SocketServer, Socket } from 'socket.io'
-import { REALTIME_MESSAGE_AUTH_REFRESH, realtimeUserRoom } from 'veysur-common'
+import {
+  REALTIME_MESSAGE_AUTH_REFRESH,
+  REALTIME_MESSAGE_SURVEY_JOIN,
+  REALTIME_MESSAGE_SURVEY_LEAVE,
+  realtimeSurveyRoom,
+  realtimeUserRoom,
+  type RealtimeSurveyRoomRequest,
+} from 'veysur-common'
 
 import { RealtimeAuthenticator } from './RealtimeAuthenticator'
 
@@ -38,6 +45,7 @@ export class RealtimeGateway {
         return
       }
       socket.data.userId = identity.userId
+      socket.data.projectIds = identity.projectIds
       this.scheduleExpiry(socket, identity.expiresAtMs)
       next()
     })
@@ -59,11 +67,43 @@ export class RealtimeGateway {
         .then((ok) => ack?.({ ok }))
         .catch(() => ack?.({ ok: false }))
     })
+    socket.on(REALTIME_MESSAGE_SURVEY_JOIN, (data: unknown, ack?: Ack) => {
+      const ok = this.joinSurveyRoom(socket, data)
+      ack?.({ ok })
+    })
+    socket.on(REALTIME_MESSAGE_SURVEY_LEAVE, (data: unknown, ack?: Ack) => {
+      const request = this.parseSurveyRoomRequest(data)
+      if (request) {
+        socket.leave(realtimeSurveyRoom(request.projectId, request.surveyId))
+      }
+      ack?.({ ok: !!request })
+    })
     for (const [type, handler] of this.handlers) {
       socket.on(type, (data: unknown) => {
         Promise.resolve(handler(socket, data)).catch(() => undefined)
       })
     }
+  }
+
+  private joinSurveyRoom(socket: Socket, data: unknown): boolean {
+    const request = this.parseSurveyRoomRequest(data)
+    const projectIds: string[] = socket.data.projectIds ?? []
+    if (!request || !projectIds.includes(request.projectId)) {
+      return false
+    }
+    socket.join(realtimeSurveyRoom(request.projectId, request.surveyId))
+    return true
+  }
+
+  private parseSurveyRoomRequest(
+    data: unknown,
+  ): RealtimeSurveyRoomRequest | null {
+    const { projectId, surveyId } = (data ?? {}) as Partial<
+      Record<keyof RealtimeSurveyRoomRequest, unknown>
+    >
+    return typeof projectId === 'string' && typeof surveyId === 'string'
+      ? { projectId, surveyId }
+      : null
   }
 
   private async refreshAuth(socket: Socket, data: unknown): Promise<boolean> {
@@ -72,6 +112,7 @@ export class RealtimeGateway {
     if (!identity || identity.userId !== socket.data.userId) {
       return false
     }
+    socket.data.projectIds = identity.projectIds
     this.scheduleExpiry(socket, identity.expiresAtMs)
     return true
   }

@@ -18,6 +18,7 @@ import {
   RepoSurveySnapshot,
   ServiceProject,
 } from 'model'
+import type { ServiceRealtime } from '../../ServiceRealtime'
 import { ServiceFileDeletion } from '../ServiceFile/ServiceFileDeletion'
 import { ServiceSettingSurvey } from '../ServiceSettingSurvey'
 import { ServiceSurveyLanguage } from '../ServiceSurveyLanguage'
@@ -226,7 +227,14 @@ export class ServiceSurvey extends Service {
     return { surveys, surveyCount }
   }
 
-  async patch({ surveyId, projectId, patches, aclContext, context }) {
+  async patch({
+    surveyId,
+    projectId,
+    patches,
+    originClientId = undefined,
+    aclContext,
+    context,
+  }) {
     context = context ?? contextForProject(projectId)
     const repos = {
       repoSurvey: this.getRepo<RepoSurvey>('survey'),
@@ -296,6 +304,11 @@ export class ServiceSurvey extends Service {
         )
       }
     }
+
+    await this.getService<ServiceRealtime>('realtime').emitSurveyChanged(
+      projectId,
+      { surveyId, originClientId },
+    )
 
     return true
   }

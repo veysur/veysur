@@ -3,7 +3,11 @@ import * as http from 'http'
 import type { AddressInfo } from 'net'
 import type { Server as SocketServer } from 'socket.io'
 import type { Socket as ClientSocket } from 'socket.io-client'
-import { REALTIME_EVENT_NAME, realtimeUserRoom } from 'veysur-common'
+import {
+  REALTIME_EVENT_NAME,
+  realtimeSurveyRoom,
+  realtimeUserRoom,
+} from 'veysur-common'
 
 import { Jwt } from 'acl/util/Jwt'
 import { RealtimeAuthenticator } from './RealtimeAuthenticator'
@@ -155,5 +159,75 @@ describe('RealtimeGateway', () => {
     await new Promise((resolve) => setTimeout(resolve, 50))
 
     expect(handler).toHaveBeenCalledWith(expect.anything(), { a: 1 })
+  })
+
+  describe('survey rooms', () => {
+    const join = (client: ClientSocket, projectId = 'p1') =>
+      client.emitWithAck('survey:join', { projectId, surveyId: 's1' })
+
+    const connected = async (project: Record<string, unknown>) => {
+      const client = open(await buildToken({ project }))
+      await new Promise<void>((resolve) => client.on('connect', resolve))
+      return client
+    }
+
+    it('joins a survey room for an administered project and receives its events', async () => {
+      const client = await connected({ p1: 'admin' })
+      const received = new Promise((resolve) =>
+        client.on(REALTIME_EVENT_NAME, resolve),
+      )
+
+      expect(await join(client)).toEqual({ ok: true })
+      io.to(realtimeSurveyRoom('p1', 's1')).emit(REALTIME_EVENT_NAME, {
+        type: 'survey.changed',
+      })
+
+      await expect(received).resolves.toEqual({ type: 'survey.changed' })
+    })
+
+    it('joins when the client sends no ack callback', async () => {
+      const client = await connected({ p1: 'admin' })
+      const received = new Promise((resolve) =>
+        client.on(REALTIME_EVENT_NAME, resolve),
+      )
+
+      client.emit('survey:join', { projectId: 'p1', surveyId: 's1' })
+      await new Promise((resolve) => setTimeout(resolve, 50))
+      io.to(realtimeSurveyRoom('p1', 's1')).emit(REALTIME_EVENT_NAME, {
+        type: 'survey.changed',
+      })
+
+      await expect(received).resolves.toEqual({ type: 'survey.changed' })
+    })
+
+    it('refuses a project the token does not administer', async () => {
+      const client = await connected({ p1: 'admin' })
+
+      expect(await join(client, 'p2')).toEqual({ ok: false })
+    })
+
+    it('refuses a malformed request', async () => {
+      const client = await connected({ p1: 'admin' })
+
+      expect(await client.emitWithAck('survey:join', { surveyId: 1 })).toEqual({
+        ok: false,
+      })
+    })
+
+    it('stops delivering after leaving the room', async () => {
+      const client = await connected({ p1: 'admin' })
+      const onEvent = jest.fn()
+      client.on(REALTIME_EVENT_NAME, onEvent)
+      await join(client)
+
+      await client.emitWithAck('survey:leave', {
+        projectId: 'p1',
+        surveyId: 's1',
+      })
+      io.to(realtimeSurveyRoom('p1', 's1')).emit(REALTIME_EVENT_NAME, {})
+      await new Promise((resolve) => setTimeout(resolve, 50))
+
+      expect(onEvent).not.toHaveBeenCalled()
+    })
   })
 })

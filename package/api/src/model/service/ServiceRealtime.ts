@@ -4,7 +4,10 @@ import { Emitter } from '@socket.io/redis-emitter'
 import type { Server as SocketServer } from 'socket.io'
 import {
   REALTIME_EVENT_NAME,
+  realtimeSurveyRoom,
   realtimeUserRoom,
+  REALTIME_EVENT_SURVEY_CHANGED,
+  type RealtimeSurveyChangedPayload,
   type RealtimeEvent,
 } from 'veysur-common'
 
@@ -32,9 +35,23 @@ export class ServiceRealtime extends Service {
     type: string,
     payload?: unknown,
   ): Promise<void> {
+    this.emitToRoom(realtimeUserRoom(userId), type, payload)
+  }
+
+  async emitSurveyChanged(
+    projectId: string,
+    payload: RealtimeSurveyChangedPayload,
+  ): Promise<void> {
+    this.emitToRoom(
+      realtimeSurveyRoom(projectId, payload.surveyId),
+      REALTIME_EVENT_SURVEY_CHANGED,
+      payload,
+    )
+  }
+
+  private emitToRoom(room: string, type: string, payload?: unknown): void {
     try {
       const event: RealtimeEvent = { type, payload }
-      const room = realtimeUserRoom(userId)
       const emitter = this.getEmitter()
       if (emitter) {
         emitter.to(room).emit(REALTIME_EVENT_NAME, event)
