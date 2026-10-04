@@ -48,8 +48,8 @@ fi
 
 if $PUSH; then
   info "Pushing images to $IMAGE_REPO"
-  docker push "$IMAGE_REPO/api:$VERSION" >/dev/null
-  docker push "$IMAGE_REPO/nginx:$VERSION" >/dev/null
+  docker push "$IMAGE_REPO/api:$VERSION"
+  docker push "$IMAGE_REPO/nginx:$VERSION"
 fi
 
 info "Staging files"
