@@ -21,6 +21,10 @@ The script keeps existing values as defaults, so it can be re-run safely. Apply 
 | Storage | Uploaded files in a local volume or in S3 buckets |
 | Email | The SMTP relay used for resets and invitations |
 
+## Telemetry
+
+VeySur sends no usage data to VeySur Limited. Error reporting (`BUGSINK_DSN`) and Google Analytics are off unless the operator sets a destination. Any reports then go only to that destination.
+
 ## Detailed reference
 
 The repository documentation covers each area in depth:
