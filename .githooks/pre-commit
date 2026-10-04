@@ -28,6 +28,15 @@ if echo "$STAGED_FILES" | grep -qE '^package/(common|api|app)/'; then
     done
 fi
 
+# Secret guard: run on every commit, any file may contain a credential
+if ! bash scripts/check-no-secrets.sh; then
+    echo ""
+    echo "Secret guard failed. Remove the secret before committing."
+    echo "To bypass: git commit --no-verify"
+    echo ""
+    exit 1
+fi
+
 # Private-repo-name leak guard — run on every commit, any file may leak it
 if ! bash scripts/check-no-private-repo-refs.sh; then
     echo ""

@@ -45,6 +45,11 @@ ownership, just granting the licences above.
    opening the PR. The package-level `AGENTS.md` files have the exact
    commands.
 
+Commits are scanned for secrets by [gitleaks](https://github.com/gitleaks/gitleaks)
+(`scripts/check-no-secrets.sh`, run by the pre-commit hook and again in CI). It uses a local
+`gitleaks` binary or Docker. Never commit real credentials; use placeholders. For a false
+positive, add an entry to `.gitleaks.toml` rather than bypassing the hook.
+
 ## Reporting bugs
 
 Open an issue with: what you expected, what happened instead, and the

@@ -1,0 +1,24 @@
+# cspell:disable
+# gitleaks configuration, used by scripts/check-no-secrets.sh and the CI secret-scan job.
+title = "veysur gitleaks config"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Example env files and lockfiles hold placeholders or hashes, not secrets"
+paths = [
+  '''pnpm-lock\.yaml$''',
+  '''(^|/)config-dev\.env\.example$''',
+  '''(^|/)\.env\.example$''',
+  '''(^|/)dist/''',
+]
+
+[[allowlists]]
+description = "Public values: Public publishable test key and empty or named S3 settings"
+regexTarget = "line"
+regexes = [
+  '''pk_test_[A-Za-z0-9]+''',
+  '''API_S3_ENDPOINT=\s*$''',
+  '''API_S3_PUBLIC_BUCKET\s*\|\|''',
+]
