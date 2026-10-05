@@ -54,7 +54,9 @@ VeySur suits surveys where you know, or want to control, who answers:
 
 - Add team members to a project to manage surveys together.
 - Self-host with Docker Compose, with uploaded files kept locally or in S3-compatible storage.
-- Sensitive fields are encrypted with keys that you hold.
+- Sensitive fields, currently two-factor secrets, are encrypted with keys that you hold.
+- Encryption at rest of the database and uploaded files is a feature of the hosted service only. On a
+  self-hosted server, use full-disk or volume encryption.
 
 ## Get started
 

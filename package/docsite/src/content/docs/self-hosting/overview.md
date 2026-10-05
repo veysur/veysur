@@ -20,7 +20,11 @@ VeySur runs as a Docker Compose stack of these services:
 
 ## Scope
 
-A self-hosted installation holds a single project. It has no billing, subscriptions or multi-tenancy. The survey editor, participant management, publications and responses work as described in the rest of this guide.
+A self-hosted installation holds a single project. It has no billing or subscriptions. The survey editor, participant management, publications and responses work as described in the rest of this guide.
+
+## Encryption
+
+Encryption at rest of the database and uploaded files is a feature of the hosted service only. The self-hosted edition encrypts only specific sensitive fields, currently two-factor secrets, with keys that the operator holds. To protect the rest of the data at rest, use full-disk or volume encryption on the server.
 
 Only the latest release receives security fixes. Upgrade each release in turn.
 
