@@ -32,6 +32,38 @@ describe('SchemaFile', () => {
     }
   })
 
+  it('accepts the parts of a project settings import as import options', async () => {
+    const result = await schema.validate({
+      ...baseObject(),
+      import: {
+        entityType: 'project',
+        format: 'vsps',
+        options: { apply: ['settings', 'templates'] },
+        status: 'pending',
+      },
+    })
+    expect(result.errors).toEqual({})
+    expect(result.isValid).toBe(true)
+  })
+
+  it('accepts per-part outcomes in an import result', async () => {
+    const result = await schema.validate({
+      ...baseObject(),
+      import: {
+        entityType: 'project',
+        format: 'vsps',
+        status: 'completed',
+        result: {
+          success: true,
+          entityId: 'project-1',
+          details: [{ part: 'settings', status: 'applied' }],
+        },
+      },
+    })
+    expect(result.errors).toEqual({})
+    expect(result.isValid).toBe(true)
+  })
+
   it('rejects a browser-executable mimeType, e.g. text/html', async () => {
     const result = await schema.validate({
       ...baseObject(),

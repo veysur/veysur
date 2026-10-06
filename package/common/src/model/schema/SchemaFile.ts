@@ -76,6 +76,8 @@ export class SchemaFile extends Schema {
                   surveyId: sb.string().nullable(),
                   publicationId: sb.string().nullable(),
                   snapshotId: sb.string().nullable(),
+                  // parts of a project settings (.vsps) import to apply
+                  apply: sb.array().of(sb.string()).nullable(),
                 })
                 .nullable(),
               status: sb
@@ -97,6 +99,7 @@ export class SchemaFile extends Schema {
                   repairs: sb.array().nullable(),
                   discards: sb.array().nullable(),
                   warnings: sb.array().nullable(),
+                  details: sb.array().nullable(),
                   error: sb.string(),
                 })
                 .nullable(),
