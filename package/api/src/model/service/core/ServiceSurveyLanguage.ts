@@ -320,13 +320,12 @@ function buildNestedDataPatch(
   ) {
     throw new ServerErrorBadRequest(`Invalid field path "${fieldPath}"`)
   }
-  const result: JsonRecord = {}
-  let current = result
-  for (let i = 0; i < parts.length - 1; i++) {
-    current[parts[i]] = {}
-    current = current[parts[i]] as JsonRecord
+  // Computed keys in an object literal define own properties, so nothing is
+  // assigned through a property chain that could reach Object.prototype.
+  let result: unknown = value
+  for (let i = parts.length - 1; i >= 0; i--) {
+    result = { [parts[i]]: result }
   }
-  current[parts[parts.length - 1]] = value
   return result as SurveyLanguageData
 }
 
