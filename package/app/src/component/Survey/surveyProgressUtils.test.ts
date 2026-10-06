@@ -4,7 +4,7 @@ import type { QuestionWithGroup } from './SurveyTypes'
 describe('isQuestionAnswered', () => {
   test.each([
     ['undefined', undefined, false],
-    ['null', null, false],
+    ['null (explicit "No answer")', null, true],
     ['empty string', '', false],
     ['whitespace-only string', '   ', false],
     ['non-empty string', 'yes', true],
@@ -65,6 +65,17 @@ describe('createProgressUtils', () => {
 
     expect(getAnsweredCount()).toBe(3)
     expect(getProgressPercentage()).toBe(30)
+  })
+
+  test('an explicit "No answer" (null) counts towards progress', () => {
+    const visibleQuestions = [makeQuestion('Q1'), makeQuestion('Q2')]
+    const { getAnsweredCount, getProgressPercentage } = createProgressUtils(
+      visibleQuestions,
+      { Q1: null, Q2: undefined },
+    )
+
+    expect(getAnsweredCount()).toBe(1)
+    expect(getProgressPercentage()).toBe(50)
   })
 
   test('all answered -> 100%', () => {
