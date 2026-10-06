@@ -5,6 +5,7 @@ import {
   ServerErrorNotFound,
 } from '@datacapy/server'
 import momentTimezone from 'moment-timezone'
+import { randomInt } from 'crypto'
 import * as bcryptjs from 'bcryptjs'
 import {
   StringRandom,
@@ -500,11 +501,13 @@ export class ServiceUser extends Service {
   private generatePassword(): string {
     const base = StringRandom.genAlphaNumeric(10)
     const digit = StringRandom.genNumeric(1)
-    const special = '!@#$%^&*'[Math.floor(Math.random() * 8)]
-    return (base + digit + special)
-      .split('')
-      .sort(() => Math.random() - 0.5)
-      .join('')
+    const special = '!@#$%^&*'[randomInt(8)]
+    const chars = (base + digit + special).split('')
+    for (let i = chars.length - 1; i > 0; i--) {
+      const j = randomInt(i + 1)
+      ;[chars[i], chars[j]] = [chars[j], chars[i]]
+    }
+    return chars.join('')
   }
 
   /**

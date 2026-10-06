@@ -16,7 +16,15 @@ interface MultiPartPointScaleHeaderProps {
   errors?: string[]
 }
 
-const stripHtml = (html: string): string => html.replace(/<[^>]*>/g, '').trim()
+const stripHtml = (html: string): string => {
+  let previous: string
+  let result = html
+  do {
+    previous = result
+    result = result.replace(/<[^>]*>/g, '')
+  } while (result !== previous)
+  return result.trim()
+}
 
 /**
  * A single point-label column header in the point-scale Multi-Part grid —

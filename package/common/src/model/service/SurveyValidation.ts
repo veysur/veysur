@@ -22,7 +22,7 @@ import { validateTextExpressions } from './SurveyExpression'
 
 // Any HTML-tag-shaped substring - used to hard-reject markup in 'plain' format,
 // where no HTML/markdown interpretation is permitted at all.
-const HTML_TAG_PATTERN = /<[a-z][\s\S]*>/i
+const HTML_TAG_PATTERN = /<[a-z][^>]*>/i
 
 export interface SurveyValidationResult {
   isValid: boolean

@@ -38,7 +38,7 @@ const rows = [...entries.entries()]
   .sort(([a], [b]) => a.localeCompare(b))
   .map(([id, info]) => {
     const licences = [info.licenses].flat().join(', ')
-    const cell = (s) => String(s ?? '').replace(/\|/g, '\\|')
+    const cell = (s) => String(s ?? '').replace(/[\\|]/g, '\\$&')
     return `| ${cell(id)} | ${cell(licences)} | ${cell(info.repository)} | ${cell(copyrightOf(info.licenseFile))} |`
   })
 

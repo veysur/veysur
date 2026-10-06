@@ -6,15 +6,19 @@ import {
 } from '@datacapy/server'
 import { StringRandom, validatePassword } from 'veysur-common'
 import * as bcryptjs from 'bcryptjs'
-import { createHash, timingSafeEqual } from 'crypto'
+import { createHmac, randomBytes, timingSafeEqual } from 'crypto'
 
 // Constant-time regardless of input length - timingSafeEqual itself throws
 // on mismatched buffer lengths, so hash both sides to a fixed length first
 // rather than comparing the raw (variable-length, attacker-influenced)
-// reset-token guess directly.
+// reset-token guess directly. A per-process random-key HMAC (not a bare hash)
+// is used purely as a fixed-length digest; nothing is stored or compared
+// across processes.
+const COMPARE_KEY = randomBytes(32)
+
 function timingSafeStringEqual(a: string, b: string): boolean {
-  const hashA = createHash('sha256').update(a).digest()
-  const hashB = createHash('sha256').update(b).digest()
+  const hashA = createHmac('sha256', COMPARE_KEY).update(a).digest()
+  const hashB = createHmac('sha256', COMPARE_KEY).update(b).digest()
   return timingSafeEqual(hashA, hashB)
 }
 

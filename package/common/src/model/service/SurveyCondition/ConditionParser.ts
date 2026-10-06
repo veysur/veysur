@@ -87,14 +87,32 @@ const JS_KEYWORDS = new Set([
 ])
 
 export class ConditionParser {
-  private static readonly STRING_LITERAL_PATTERN =
-    /(["'`])(?:(?!\1)[^\\]|\\.)*\1/g
-
   /**
    * Removes string literals from condition to avoid matching variables inside quotes
    */
   private static removeStringLiterals(condition: string): string {
-    return condition.replace(this.STRING_LITERAL_PATTERN, '')
+    let result = ''
+    let i = 0
+    while (i < condition.length) {
+      const quote = condition[i]
+      if (quote !== '"' && quote !== "'" && quote !== '`') {
+        result += quote
+        i++
+        continue
+      }
+      let end = i + 1
+      while (end < condition.length && condition[end] !== quote) {
+        end += condition[end] === '\\' ? 2 : 1
+      }
+      if (end >= condition.length) {
+        // Unterminated literal: leave the quote in place, as the old pattern did
+        result += quote
+        i++
+      } else {
+        i = end + 1
+      }
+    }
+    return result
   }
 
   /**
@@ -131,7 +149,7 @@ export class ConditionParser {
       seen.add(fullMatch)
       variables.push(built.variable)
       processedCondition = processedCondition.replace(
-        new RegExp(fullMatch.replace(/\./g, '\\.'), 'g'),
+        new RegExp(fullMatch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
         '___',
       )
     }

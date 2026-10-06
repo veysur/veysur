@@ -105,6 +105,7 @@ export function verifyUploadToken(
   secret: string,
   token: string,
 ): UploadTokenPayload {
+  if (typeof token !== 'string') throw new Error('Invalid token')
   const dotIndex = token.lastIndexOf('.')
   if (dotIndex === -1) throw new Error('Invalid token')
 

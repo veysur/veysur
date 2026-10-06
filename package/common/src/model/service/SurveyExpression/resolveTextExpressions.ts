@@ -26,7 +26,7 @@ export interface ResolveTextExpressionsOptions {
 
 // Non-greedy: allows arbitrary expression content (`{{answers.Q001 + 1}}`),
 // not just the dotted-path-only tokens `resolveTemplate`'s piping supports.
-const TOKEN_PATTERN = /\{\{\s*(.+?)\s*\}\}/g
+const TOKEN_PATTERN = /\{\{(.+?)\}\}/g
 
 /**
  * Regex source for a `{{expression}}` token, shared so other token-detection
@@ -84,7 +84,8 @@ export function resolveTextExpressions(
 
   const escape = options.escape ?? 'html'
 
-  return html.replace(TOKEN_PATTERN, (match, expression: string) => {
+  return html.replace(TOKEN_PATTERN, (match, rawExpression: string) => {
+    const expression = rawExpression.trim()
     const { value, error } = evaluateJsExpression(expression, context)
     if (error || value === undefined || value === null) {
       return match
@@ -153,7 +154,7 @@ export function validateTextExpressions(
 
   const errors: TextExpressionValidationError[] = []
   for (const match of html.matchAll(TOKEN_PATTERN)) {
-    const expression = match[1]
+    const expression = match[1].trim()
     const message = firstExpressionError(expression, errorCtx)
     if (message) errors.push({ expression, message })
   }
