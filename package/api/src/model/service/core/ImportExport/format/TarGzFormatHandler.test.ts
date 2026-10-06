@@ -73,6 +73,23 @@ describe('TarGzFormatHandler.parse', () => {
     expect(reader.getBinaryS3Key('files/one.bin')).toMatch(/^import-temp\//)
   })
 
+  it('records a malformed JSON entry instead of failing the parse', async () => {
+    const handler = new VsstFormatHandler(storageConfig)
+    const input = new PassThrough()
+
+    const parsePromise = handler.parse(input)
+    emitEntry('good.json', Buffer.from(JSON.stringify({ a: 1 })))
+    emitEntry('bad.json', Buffer.from('{not json'))
+    await Promise.resolve()
+    input.end()
+
+    const reader = await parsePromise
+
+    expect(reader.getJson('good.json')).toEqual({ a: 1 })
+    expect(reader.getJson('bad.json')).toBeNull()
+    expect(reader.getMalformedJsonEntries()).toEqual(['bad.json'])
+  })
+
   it('rejects an archive with more entries than the entry-count limit', async () => {
     const handler = new VsstFormatHandler(storageConfig)
     const input = new PassThrough()

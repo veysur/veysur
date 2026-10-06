@@ -59,7 +59,7 @@ This allows adding new entity types or formats independently without modifying c
   survey-template.vsst (tar+gz)
   ├── survey.json               { version: '2.0', survey, sections, elements }
   ├── surveyLanguages/
-  │   └── {languageCode}.json  { languageCode, text }
+  │   └── {languageCode}.json  { languageCode, data }
   ├── participantAttributes/
   │   └── {name}.json          { name, required, example, languages } — survey-tier participant attribute definitions
   ├── templates/
@@ -71,6 +71,19 @@ This allows adding new entity types or formats independently without modifying c
           ├── edited.jpg
           └── thumb.jpg
   ```
+
+- **ProjectEntityHandler** — Project-wide settings import/export (.vsps tar+gz, entity id is the project id). Always synchronous. Import applies only the parts named in `options.apply` (`timezone`, `settings`, `templates`; all by default) through the `project`, `settingSurvey` and `emailTemplate` services, so an extension's overrides and plan guards apply. Validation is shared with the app via `ProjectSettingsImportValidator` in `veysur-common`.
+
+  ```
+  project-settings.vsps (tar+gz)
+  ├── project.json             { version: '1.0', timezone }
+  ├── settings/
+  │   └── survey.json          project survey defaults; no _id, timestamps, schedule or stats
+  └── templates/
+      └── {type}-{lang}.json   { type, lang, subject, body } — project-tier email templates only
+  ```
+
+  Import result carries per-part outcomes in `details` (`{ part, status: 'applied' | 'failed', message? }`). Parts are independent: one failing (for example a plan limit on settings) does not stop the others, and the import fails only when every attempted part fails.
 
 - **SurveyFullEntityHandler** — Combined survey + all publications import/export (.vssa flat tar+gz). Exports all data into a flat native hierarchy with structural deduplication — images stored once in `files/`, snapshot data stored once per unique snapshot in `snapshotData/`. On import, restores the survey first then synthesizes a `VsspParsedBundle` per publication using the shared `parsedData` and per-snapshot data, then resolves and persists each publication linked to the newly created survey.
 

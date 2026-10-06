@@ -175,6 +175,7 @@ export interface EntityHandlerInterface {
     entityId: string
     hasIdTranslations?: boolean
     warnings?: unknown[]
+    details?: unknown
   }>
 
   /**

@@ -138,7 +138,9 @@ export abstract class TarGzFormatHandler {
                 JSON.parse(Buffer.concat(chunks).toString('utf8')),
               )
             } catch {
-              // skip malformed JSON entries
+              // skipped here; formats that need to fail on it read
+              // reader.getMalformedJsonEntries()
+              reader.setMalformedJson(name)
             }
             next()
           })

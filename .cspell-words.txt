@@ -135,6 +135,7 @@ verdaccio
 VERP
 veysur
 vhdx
+vsps
 vssa
 vssp
 vsst

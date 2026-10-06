@@ -2,9 +2,14 @@ import { Api, ErrorRest } from 'model'
 
 export type ExportOptions = Record<string, string | boolean | undefined>
 
+export type ImportOptions = Record<
+  string,
+  string | boolean | string[] | undefined
+>
+
 export type GenerateImportUrlRequest = {
   format: string
-  options?: Record<string, string | boolean | undefined>
+  options?: ImportOptions
   fileHash?: string
 }
 
@@ -37,6 +42,12 @@ export type ImportValidationError = {
   name?: string
 }
 
+export type ImportPartOutcome = {
+  part: string
+  status: 'applied' | 'failed'
+  message?: string
+}
+
 export type ProcessImportResponse = {
   success: boolean
   entityId: string
@@ -45,6 +56,7 @@ export type ProcessImportResponse = {
   repairs?: Array<{ type: string; entity: string; id: string; reason: string }>
   discards?: Array<{ type: string; entity: string; id: string; reason: string }>
   warnings?: Array<{ message: string }>
+  details?: ImportPartOutcome[]
 }
 
 export type ExportEntityResponse = {

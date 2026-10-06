@@ -25,12 +25,17 @@ import { JsonFormatHandler } from './ImportExport/format/JsonFormatHandler'
 import { MarkdownFormatHandler } from './ImportExport/format/MarkdownFormatHandler'
 import { VsspFormatHandler } from './ImportExport/format/VsspFormatHandler'
 import { VssaFormatHandler } from './ImportExport/format/VssaFormatHandler'
+import { VspsFormatHandler } from './ImportExport/format/VspsFormatHandler'
 import { CsvFormatHandler } from './ImportExport/format/CsvFormatHandler'
 import { SurveyEntityHandler } from './ImportExport/handlers/SurveyEntityHandler'
 import { SurveyResponseEntityHandler } from './ImportExport/handlers/SurveyResponseEntityHandler'
 import { SurveyPublicationEntityHandler } from './ImportExport/handlers/SurveyPublicationEntityHandler'
 import { SurveyFullEntityHandler } from './ImportExport/handlers/SurveyFullEntityHandler'
+import { ProjectEntityHandler } from './ImportExport/handlers/ProjectEntityHandler'
 import { ExportOptions } from './ImportExport/EntityHandlerInterface'
+import { ServiceProject } from '../ServiceProject'
+import { ServiceEmailTemplate } from './ServiceEmailTemplate'
+import { ServiceSettingSurvey } from './ServiceSettingSurvey'
 import { getStorageConfig } from './ServiceFile/FileS3Config'
 import { ServiceFileTempDownload } from './ServiceFile/ServiceFileTempDownload'
 import { ServiceDataTransferJob } from './ServiceDataTransferJob'
@@ -44,6 +49,7 @@ interface ImportResult {
   repairs?: unknown[]
   discards?: unknown[]
   warnings?: unknown[]
+  details?: unknown
 }
 
 /**
@@ -72,6 +78,7 @@ export class ServiceImportExport extends Service {
     this.formatRegistry.register(new MarkdownFormatHandler())
     this.formatRegistry.register(new VsspFormatHandler(storageConfig))
     this.formatRegistry.register(new VssaFormatHandler(storageConfig))
+    this.formatRegistry.register(new VspsFormatHandler(storageConfig))
     this.formatRegistry.register(new CsvFormatHandler())
 
     const surveyHandler = new SurveyEntityHandler(
@@ -131,6 +138,17 @@ export class ServiceImportExport extends Service {
       this.getRepo('emailTemplate'),
     )
     this.entityHandlerRegistry.register(surveyFullHandler)
+
+    this.entityHandlerRegistry.register(
+      new ProjectEntityHandler({
+        getProjectService: () => this.getService<ServiceProject>('project'),
+        getSettingSurveyService: () =>
+          this.getService<ServiceSettingSurvey>('settingSurvey'),
+        getEmailTemplateService: () =>
+          this.getService<ServiceEmailTemplate>('emailTemplate'),
+        getSettingsSchema: () => this.modelManager.getSchema('settingSurvey'),
+      }),
+    )
   }
 
   private getStorageConfig() {
@@ -633,6 +651,7 @@ export class ServiceImportExport extends Service {
           repairs: validation.repairs,
           discards: validation.discards,
           warnings: combinedWarnings.length > 0 ? combinedWarnings : undefined,
+          details: result.details,
         }
       } finally {
         const cleanup = (parsedData as { cleanup?: () => Promise<void> })

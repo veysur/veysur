@@ -8,9 +8,10 @@ The Veysur import/export system provides a generic, extensible architecture for 
 
 ### Export Flow
 
-`.vsst` (template-only, no embedded response files) compiles synchronously within the
-request. `.vssp`/`.vssa` (can bundle every embedded answer-option/response file for a
-publication or a whole survey) are **async-eligible**, see
+`.vsst` and `.vsps` compile synchronously within the request, unless a `.vsst`'s embedded
+answer-option images exceed 1 MB. `.vssp`/`.vssa` (can bundle every embedded
+answer-option/response file for a publication or a whole survey) are usually
+**async-eligible**, see
 [import-export-system.md](./import-export-system.md#async-eligibility-the-data-transfer-job-pipeline).
 
 ```

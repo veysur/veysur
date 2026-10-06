@@ -8,6 +8,7 @@ import { AdminPageLayout } from 'appAdmin/component/Layout'
 import { useAuth, useProjectDomain } from 'appAdmin/hook'
 import { useProjectTimezoneUpdate } from 'appAdmin/hook/useProjectTimezoneUpdate'
 import { ProjectTimezoneForm } from 'appAdmin/component/ProjectSetting/ProjectTimezoneForm'
+import { ProjectSettingsTransfer } from 'appAdmin/component/ProjectSetting/ProjectSettingsTransfer'
 
 export const PageSettingProject: React.FC = () => {
   usePageTitle('Settings - Project', { suffix: 'Veysur Admin' })
@@ -43,13 +44,14 @@ export const PageSettingProject: React.FC = () => {
         description="Project-wide settings."
         showBack={false}
       />
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto space-y-4">
         <ProjectTimezoneForm
           timezone={project.timezone}
           onSubmit={handleSubmit}
           isLoading={isSaving}
           error={saveError}
         />
+        <ProjectSettingsTransfer isOwner={isOwner} />
       </div>
     </AdminPageLayout>
   )

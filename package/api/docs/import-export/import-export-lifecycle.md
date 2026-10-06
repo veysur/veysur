@@ -162,7 +162,7 @@ Import files may contain IDs that collide with existing entities. The system aut
 
 Uses `SurveyImportIdTranslator` — checks survey/section/element IDs for collisions and generates new IDs where needed. Translation map included in response: `hasIdTranslations: true`.
 
-See: `/package/api/src/model/service/SurveyExportImport/SurveyImportIdTranslator.ts`
+See: `/package/common/src/util/SurveyImportIdTranslator.ts`
 
 ### Survey publication (.vssp) imports
 

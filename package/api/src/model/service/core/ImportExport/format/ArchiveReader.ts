@@ -11,6 +11,7 @@ import { S3Adaptor } from 's3-adaptor'
 export class ArchiveReader {
   private jsonEntries = new Map<string, unknown>()
   private binaryS3Keys = new Map<string, string>() // archiveEntryPath → temp S3 key
+  private malformedJsonEntries: string[] = []
 
   constructor(
     private readonly adaptor: S3Adaptor,
@@ -35,6 +36,14 @@ export class ArchiveReader {
       : null
   }
 
+  setMalformedJson(name: string): void {
+    this.malformedJsonEntries.push(name)
+  }
+
+  getMalformedJsonEntries(): string[] {
+    return [...this.malformedJsonEntries]
+  }
+
   deleteJson(name: string): void {
     this.jsonEntries.delete(name)
   }
@@ -55,5 +64,6 @@ export class ArchiveReader {
     }
     this.jsonEntries.clear()
     this.binaryS3Keys.clear()
+    this.malformedJsonEntries = []
   }
 }

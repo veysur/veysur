@@ -4,7 +4,11 @@ import { useInvalidatingMutation, InvalidateKeys } from 'hook'
 import { calculateFileHash } from 'common/uploadFile'
 
 import { getImportExportApi } from '../registry'
-import { ProcessImportResponse, ImportValidationError } from '../model'
+import {
+  ProcessImportResponse,
+  ImportValidationError,
+  ImportOptions,
+} from '../model'
 import { useResolveImportResult } from './useResolveImportResult'
 
 export type ImportFlowProgress = { stage: 'uploading' | 'processing' }
@@ -31,7 +35,7 @@ export function useImportFlow<TVariables extends ImportFlowVariables>({
 }: {
   entityType: string
   format: string
-  buildOptions: (variables: TVariables) => Record<string, string | boolean | undefined>
+  buildOptions: (variables: TVariables) => ImportOptions
   invalidateKeys?: InvalidateKeys<ProcessImportResponse | undefined, TVariables>
 }) {
   const project = useProjectDomain()
