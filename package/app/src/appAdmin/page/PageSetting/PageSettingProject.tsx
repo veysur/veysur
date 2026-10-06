@@ -24,12 +24,14 @@ export const PageSettingProject: React.FC = () => {
     error: saveError,
   } = useProjectTimezoneUpdate(project?._id ?? '')
 
-  if (!isOwner) {
-    return <Navigate to="/survey" replace />
-  }
-
+  // useProjectDomain resolves the project in an effect after auth loads, so
+  // on a cold load it is empty at first; redirecting then would bounce an owner.
   if (!project) {
     return null
+  }
+
+  if (!isOwner) {
+    return <Navigate to="/survey" replace />
   }
 
   const handleSubmit = async (timezone: string) => {
