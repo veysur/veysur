@@ -289,11 +289,11 @@ function resolveMinimalSetPath(
   return { path: setPath, value: setValue }
 }
 
-const UNSAFE_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
-
 function deepMerge(target: JsonRecord, source: JsonRecord): JsonRecord {
   for (const [key, val] of Object.entries(source)) {
-    if (UNSAFE_KEYS.has(key)) continue
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+      continue
+    }
     if (isPlainObject(val) && isPlainObject(target[key])) {
       deepMerge(target[key], val)
     } else {
@@ -312,7 +312,12 @@ function buildNestedDataPatch(
   value: unknown,
 ): SurveyLanguageData {
   const parts = fieldPath.split('.')
-  if (parts.some((part) => UNSAFE_KEYS.has(part))) {
+  if (
+    parts.some(
+      (part) =>
+        part === '__proto__' || part === 'constructor' || part === 'prototype',
+    )
+  ) {
     throw new ServerErrorBadRequest(`Invalid field path "${fieldPath}"`)
   }
   const result: JsonRecord = {}

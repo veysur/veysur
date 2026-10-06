@@ -1,7 +1,7 @@
 import { Extension } from '@tiptap/core'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
-import { createExpressionTokenPattern } from 'veysur-common'
+import { findExpressionTokens } from 'veysur-common'
 
 // Mirrors `component/shadcn/badge.tsx`'s "secondary" variant, but
 // `rounded-full` for a true pill shape (Badge itself uses `rounded-md`) and
@@ -34,15 +34,12 @@ export const ExpressionPillExtension = Extension.create({
             state.doc.descendants((node, pos) => {
               if (!node.isText || !node.text) return
 
-              const pattern = createExpressionTokenPattern()
-              let match: RegExpExecArray | null = pattern.exec(node.text)
-              while (match !== null) {
-                const from = pos + match.index
-                const to = from + match[0].length
+              for (const { start, end } of findExpressionTokens(node.text)) {
                 decorations.push(
-                  Decoration.inline(from, to, { class: PILL_CLASS }),
+                  Decoration.inline(pos + start, pos + end, {
+                    class: PILL_CLASS,
+                  }),
                 )
-                match = pattern.exec(node.text)
               }
             })
 

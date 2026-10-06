@@ -24,23 +24,41 @@ export interface ResolveTextExpressionsOptions {
   escape?: 'html' | 'markdown' | 'none'
 }
 
-// Non-greedy: allows arbitrary expression content (`{{answers.Q001 + 1}}`),
-// not just the dotted-path-only tokens `resolveTemplate`'s piping supports.
-const TOKEN_PATTERN = /\{\{(.+?)\}\}/g
+export interface ExpressionToken {
+  /** Index of the opening `{{` */
+  start: number
+  /** Index just past the closing `}}` */
+  end: number
+  /** The trimmed expression between the braces */
+  expression: string
+}
 
 /**
- * Regex source for a `{{expression}}` token, shared so other token-detection
- * consumers (e.g. the admin-only expression-pill preview in `package/app`)
- * never drift out of sync with what `resolveTextExpressions`/
- * `validateTextExpressions` actually treat as a token. Exposed as a source
- * string plus a factory rather than the regex instance itself, since a `g`
- * -flagged `RegExp` is stateful (`lastIndex`) and must not be shared as a
- * single mutable instance across independent callers.
+ * Finds every `{{expression}}` token in `text`. Allows arbitrary expression
+ * content (`{{answers.Q001 + 1}}`), not just the dotted-path-only tokens
+ * `resolveTemplate`'s piping supports. A linear scan rather than a regex, so
+ * unterminated `{{` runs in author-controlled text cannot backtrack. Shared
+ * so other token-detection consumers (e.g. the admin-only expression-pill
+ * preview in `package/app`) never drift from what `resolveTextExpressions`/
+ * `validateTextExpressions` treat as a token.
  */
-export const EXPRESSION_TOKEN_SOURCE = TOKEN_PATTERN.source
-
-export function createExpressionTokenPattern(): RegExp {
-  return new RegExp(EXPRESSION_TOKEN_SOURCE, 'g')
+export function findExpressionTokens(text: string): ExpressionToken[] {
+  const tokens: ExpressionToken[] = []
+  let from = 0
+  while (from < text.length) {
+    const start = text.indexOf('{{', from)
+    if (start === -1) break
+    const close = text.indexOf('}}', start + 3)
+    if (close === -1) break
+    const inner = text.slice(start + 2, close)
+    if (/[\n\r\u2028\u2029]/.test(inner)) {
+      from = start + 1
+      continue
+    }
+    tokens.push({ start, end: close + 2, expression: inner.trim() })
+    from = close + 2
+  }
+  return tokens
 }
 
 export function escapeHtml(value: string): string {
@@ -84,17 +102,22 @@ export function resolveTextExpressions(
 
   const escape = options.escape ?? 'html'
 
-  return html.replace(TOKEN_PATTERN, (match, rawExpression: string) => {
-    const expression = rawExpression.trim()
+  let result = ''
+  let cursor = 0
+  for (const { start, end, expression } of findExpressionTokens(html)) {
+    result += html.slice(cursor, start)
+    cursor = end
     const { value, error } = evaluateJsExpression(expression, context)
     if (error || value === undefined || value === null) {
-      return match
+      result += html.slice(start, end)
+      continue
     }
     const str = String(value)
-    if (escape === 'markdown') return escapeMarkdown(str)
-    if (escape === 'html') return escapeHtml(str)
-    return str
-  })
+    if (escape === 'markdown') result += escapeMarkdown(str)
+    else if (escape === 'html') result += escapeHtml(str)
+    else result += str
+  }
+  return result + html.slice(cursor)
 }
 
 export interface TextExpressionValidationError {
@@ -153,8 +176,7 @@ export function validateTextExpressions(
   }
 
   const errors: TextExpressionValidationError[] = []
-  for (const match of html.matchAll(TOKEN_PATTERN)) {
-    const expression = match[1].trim()
+  for (const { expression } of findExpressionTokens(html)) {
     const message = firstExpressionError(expression, errorCtx)
     if (message) errors.push({ expression, message })
   }

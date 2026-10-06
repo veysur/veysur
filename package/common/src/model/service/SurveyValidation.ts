@@ -22,7 +22,14 @@ import { validateTextExpressions } from './SurveyExpression'
 
 // Any HTML-tag-shaped substring - used to hard-reject markup in 'plain' format,
 // where no HTML/markdown interpretation is permitted at all.
-const HTML_TAG_PATTERN = /<[a-z][^>]*>/i
+const HTML_TAG_START_PATTERN = /<[a-z]/i
+
+// Linear scan: a tag start followed by any later `>`. A single `<[a-z][^>]*>`
+// regex backtracks quadratically on repeated `<a` with no closing `>`.
+const containsHtmlTag = (raw: string): boolean => {
+  const tagStart = raw.search(HTML_TAG_START_PATTERN)
+  return tagStart !== -1 && raw.indexOf('>', tagStart + 2) !== -1
+}
 
 export interface SurveyValidationResult {
   isValid: boolean
@@ -372,7 +379,7 @@ export class SurveyValidation {
 
         let isValid: boolean
         if (format === 'plain') {
-          isValid = !HTML_TAG_PATTERN.test(raw)
+          isValid = !containsHtmlTag(raw)
         } else if (format === 'html') {
           isValid =
             sanitizeContent(raw, { scriptTagsAllowed }) ===
