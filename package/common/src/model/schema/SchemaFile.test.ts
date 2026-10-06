@@ -46,6 +46,21 @@ describe('SchemaFile', () => {
     expect(result.isValid).toBe(true)
   })
 
+  it('leaves the apply option null when it is not given', async () => {
+    const object = {
+      ...baseObject(),
+      import: {
+        entityType: 'project',
+        format: 'vsps',
+        options: { force: false },
+        status: 'pending',
+      },
+    }
+    const result = await schema.validate(object)
+    expect(result.isValid).toBe(true)
+    expect((object.import.options as Record<string, unknown>).apply).toBeNull()
+  })
+
   it('accepts per-part outcomes in an import result', async () => {
     const result = await schema.validate({
       ...baseObject(),

@@ -280,6 +280,18 @@ describe('ProjectEntityHandler', () => {
       expect(result.valid).toBe(false)
     })
 
+    it('treats a null selection like no selection', async () => {
+      const result = await validate(
+        new ProjectEntityHandlerFixture(),
+        bundle(),
+        OWNER_ID,
+        null,
+      )
+      expect(result.valid).toBe(true)
+      expect(result.data?.timezone).toBe('Asia/Tokyo')
+      expect(result.data?.templates).toEqual([inviteTemplate])
+    })
+
     it('applies only the selected parts', async () => {
       const result = await validate(
         new ProjectEntityHandlerFixture(),

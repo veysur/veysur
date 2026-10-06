@@ -77,7 +77,7 @@ export class SchemaFile extends Schema {
                   publicationId: sb.string().nullable(),
                   snapshotId: sb.string().nullable(),
                   // parts of a project settings (.vsps) import to apply
-                  apply: sb.array().of(sb.string()).nullable(),
+                  apply: sb.array().of(sb.string()).nullable().default(null),
                 })
                 .nullable(),
               status: sb

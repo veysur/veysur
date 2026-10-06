@@ -1,9 +1,6 @@
 import { useAuth } from 'hook/useAuth'
 
-import {
-  KEY_STATE_PROJECT_DOMAIN,
-  KEY_STATE_SURVEY_EMAIL_TEMPLATES,
-} from 'appAdmin/common/keyState'
+import { KEY_STATE_SURVEY_EMAIL_TEMPLATES } from 'appAdmin/common/keyState'
 import {
   KEY_STATE_SETTING_SURVEY,
   KEY_STATE_SETTING_SURVEY_EDITING,
@@ -29,7 +26,6 @@ export function useImportProjectSettings() {
       [KEY_STATE_SETTING_SURVEY],
       [KEY_STATE_SETTING_SURVEY_EDITING],
       [KEY_STATE_SURVEY_EMAIL_TEMPLATES],
-      [KEY_STATE_PROJECT_DOMAIN],
     ],
   })
 
@@ -37,8 +33,9 @@ export function useImportProjectSettings() {
     params: ImportProjectSettingsParams,
   ): Promise<ProcessImportResponse | undefined> => {
     const result = await flow.mutateAsync(params)
-    // The project timezone is read from auth.user.projectOwn, not a query,
-    // so an applied timezone only shows up after a forced auth refresh.
+    // The project timezone is read from auth.user.projectOwn, so an applied
+    // timezone only shows up after a forced auth refresh. Invalidating
+    // projectDomain instead would blank the project and bounce the page.
     if (
       result?.details?.some(
         (outcome) =>

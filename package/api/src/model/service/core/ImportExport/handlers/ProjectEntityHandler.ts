@@ -168,9 +168,9 @@ export class ProjectEntityHandler implements EntityHandlerInterface {
     return 'vsps'
   }
 
-  /** undefined: no selection (everything); null: invalid selection. */
+  /** undefined: no selection (everything); null: invalid selection. A stored File record yields null for an absent option. */
   private parseApply(apply: unknown): ProjectImportPart[] | undefined | null {
-    if (apply === undefined) return undefined
+    if (apply === undefined || apply === null) return undefined
     if (
       !Array.isArray(apply) ||
       !apply.every((part): part is ProjectImportPart =>
