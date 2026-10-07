@@ -42,6 +42,7 @@ describe('ReshapeSurveySectionElement (MySQL integration)', () => {
   const modelManager = {
     getRepo: (name: string) => ({
       getDataSource: async () => dataSource,
+      releaseDataSource: () => undefined,
       createIndexes: async () => {
         indexed.push(name)
       },
