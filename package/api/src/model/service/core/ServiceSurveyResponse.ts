@@ -2,7 +2,7 @@ import { Service, ServerErrorNotFound } from '@datacapy/server'
 import { DataSourceContext } from '@datacapy/om'
 import { SurveyResponse, anonymisedTimestamp } from 'veysur-common'
 
-import { escapeRegex, buildDateRangeQuery, contextForProject } from 'common'
+import { buildDateRangeQuery, contextForProject } from 'common'
 import {
   findMatchingParticipants,
   buildResponseSearchQuery,
@@ -181,7 +181,6 @@ export class ServiceSurveyResponse extends Service {
 
     // Search functionality
     if (search) {
-      const escapedSearch = escapeRegex(search)
       const repoParticipant =
         this.getRepo<RepoSurveyParticipant>('surveyParticipant')
 
@@ -195,7 +194,7 @@ export class ServiceSurveyResponse extends Service {
 
       // Build response search query
       orConditions.push({
-        $or: buildResponseSearchQuery(escapedSearch, participantIds),
+        $or: buildResponseSearchQuery(search, participantIds),
       })
     }
 

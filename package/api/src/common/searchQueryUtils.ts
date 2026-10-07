@@ -1,5 +1,3 @@
-import { escapeRegex } from './escapeRegex'
-
 /**
  * Builds a query matching every whitespace-separated token in `search` against
  * at least one of `fields` (AND across tokens, OR across fields per token).
@@ -16,7 +14,7 @@ export function buildMultiFieldSearchQuery(
   return {
     $and: tokens.map((token) => ({
       $or: fields.map((field) => ({
-        [field]: { $regex: escapeRegex(token), $options: 'i' },
+        [field]: { $regex: token, $options: 'i' },
       })),
     })),
   }

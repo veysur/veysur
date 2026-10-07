@@ -45,11 +45,11 @@ export async function findMatchingParticipants({
  * Builds response search query conditions for filtering by response ID and participant
  */
 export function buildResponseSearchQuery(
-  escapedSearch: string,
+  search: string,
   participantIds: string[],
 ): QuerySelection[] {
   const conditions: QuerySelection[] = [
-    { _id: { $regex: escapedSearch, $options: 'i' } }, // Response ID
+    { _id: { $regex: search, $options: 'i' } }, // Response ID
   ]
 
   if (participantIds.length > 0) {

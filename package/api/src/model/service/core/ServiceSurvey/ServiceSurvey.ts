@@ -1,6 +1,6 @@
 import { Service, ServerErrorNotFound } from '@datacapy/server'
 import { Patcher, Survey } from 'veysur-common'
-import { escapeRegex, buildDateRangeQuery, contextForProject } from 'common'
+import { buildDateRangeQuery, contextForProject } from 'common'
 
 import {
   RepoSurvey,
@@ -192,8 +192,7 @@ export class ServiceSurvey extends Service {
 
     const query: Record<string, unknown> = {}
     if (search) {
-      const escapedSearch = escapeRegex(search)
-      query.name = { $regex: escapedSearch, $options: 'i' }
+      query.name = { $regex: search, $options: 'i' }
     }
 
     let timezone: string | undefined

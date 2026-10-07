@@ -77,8 +77,8 @@ Non-model utilities shared across the server. Import via `'common'` or `'common/
 - `pagination` — parse/validate page+perPage query params
 - `csvStream` — stream data as CSV to Express response
 - `s3Client` — file storage abstraction (S3 / local filesystem)
-- `escapeRegex` — escape user input for use in MongoDB regex queries
 - `dateFilterUtils` — build MongoDB date range query conditions
+- Search queries: a string `$regex` operand is a literal substring match (regex syntax and `%`/`_` are matched literally), so pass user search text straight in with no escaping. Pass a `RegExp` object only for a deliberate pattern.
 
 ### Endpoints (`src/endpoint/`) and URL prefixes
 

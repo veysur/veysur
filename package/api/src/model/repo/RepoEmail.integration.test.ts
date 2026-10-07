@@ -110,4 +110,34 @@ describe('RepoEmail (MySQL integration)', () => {
     expect(loaded?.status).toBe('pending')
     if (loaded?._id) testEmailIds.push(loaded._id)
   })
+  it('treats a string $regex operand as a literal substring, not a pattern or LIKE wildcards', async () => {
+    const suffix = Date.now().toString(36)
+    const subjects = ['axb', 'a_b', '1000', '100%', 'a.b']
+    for (const [i, subject] of subjects.entries()) {
+      const id = `rx${suffix}${i}`
+      testEmailIds.push(id)
+      await repo.insertOne({
+        _id: id,
+        service: 'queued',
+        type: 'invite',
+        to: `rx${i}@example.com`,
+        from: 'support@veysur.local',
+        subject,
+        status: 'pending',
+      })
+    }
+
+    const match = async (search: string) =>
+      (
+        await repo.find({
+          _id: { $regex: suffix },
+          subject: { $regex: search, $options: 'i' },
+        })
+      ).map((email) => email.subject)
+
+    expect(await match('a_b')).toEqual(['a_b'])
+    expect(await match('100%')).toEqual(['100%'])
+    expect(await match('a.b')).toEqual(['a.b'])
+    expect(await match('(')).toEqual([])
+  })
 })

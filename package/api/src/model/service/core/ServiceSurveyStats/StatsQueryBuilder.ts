@@ -1,7 +1,7 @@
 import { DataSourceContext } from '@datacapy/om'
 import { CompletionStatusFilter } from 'veysur-common'
 
-import { escapeRegex, buildDateRangeQuery } from 'common'
+import { buildDateRangeQuery } from 'common'
 import type { RepoSurveyParticipant } from 'model'
 import {
   findMatchingParticipants,
@@ -83,7 +83,6 @@ export class StatsQueryBuilder {
 
     // Search functionality - filter responses by participant data
     if (search) {
-      const escapedSearch = escapeRegex(search)
 
       // Find participants matching search criteria
       const participantIds = await findMatchingParticipants({
@@ -95,7 +94,7 @@ export class StatsQueryBuilder {
 
       // Build response search query
       orConditions.push({
-        $or: buildResponseSearchQuery(escapedSearch, participantIds),
+        $or: buildResponseSearchQuery(search, participantIds),
       })
     }
 

@@ -46,12 +46,12 @@ describe('buildMultiFieldSearchQuery', () => {
     expect(query.$and).toHaveLength(2)
   })
 
-  it('escapes regex special characters in each token', () => {
+  it('passes regex special characters through unescaped, since a string $regex is literal', () => {
     const query = buildMultiFieldSearchQuery('a.b (c)', ['email']) as {
       $and: Array<{ $or: Array<{ email: { $regex: string } }> }>
     }
 
-    expect(query.$and[0].$or[0].email.$regex).toBe('a\\.b')
-    expect(query.$and[1].$or[0].email.$regex).toBe('\\(c\\)')
+    expect(query.$and[0].$or[0].email.$regex).toBe('a.b')
+    expect(query.$and[1].$or[0].email.$regex).toBe('(c)')
   })
 })
