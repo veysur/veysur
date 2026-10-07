@@ -18,7 +18,7 @@ export const FieldError: React.FC<FieldErrorProps> = ({
   return (
     <div
       className={cn(
-        'flex items-start gap-1.5 rounded-md bg-destructive/10 dark:bg-[var(--field-error-bg)] px-2.5 py-1.5 text-sm font-medium text-destructive',
+        'flex w-max items-start gap-1.5 rounded-md bg-destructive/8 dark:bg-[var(--field-error-bg)] px-2.5 py-1.5 text-sm font-medium text-destructive',
         className,
       )}
     >

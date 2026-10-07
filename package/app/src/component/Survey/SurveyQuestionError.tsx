@@ -17,7 +17,7 @@ export const SurveyQuestionError: React.FC<Props> = ({ errors, className }) => {
 
   return (
     <FieldError
-      className={cn('mt-3', className)}
+      className={cn('mt-6', className)}
       errors={errors.map((error) => t(error.key, error.params))}
     />
   )

@@ -97,7 +97,7 @@
      so it reads as a dim tint of the page rather than a bright block of red. */
   --field-error-bg: color-mix(
     in oklch,
-    var(--color-red-950) 16%,
+    var(--color-red-950) 26%,
     var(--background)
   );
 

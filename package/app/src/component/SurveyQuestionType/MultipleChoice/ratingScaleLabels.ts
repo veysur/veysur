@@ -23,7 +23,7 @@ export const POINT_SCALE_LAYOUT: Record<
   string,
   { columnWidth: string; gapClassName: string }
 > = {
-  [QUESTION_TYPE_STAR_RATING]: { columnWidth: '4.5rem', gapClassName: 'gap-1' },
-  [QUESTION_TYPE_POINT_5]: { columnWidth: '4.5rem', gapClassName: 'gap-2' },
-  [QUESTION_TYPE_POINT_10]: { columnWidth: '3.5rem', gapClassName: 'gap-2' },
+  [QUESTION_TYPE_STAR_RATING]: { columnWidth: '2.5rem', gapClassName: 'gap-1' },
+  [QUESTION_TYPE_POINT_5]: { columnWidth: '2.5rem', gapClassName: 'gap-2' },
+  [QUESTION_TYPE_POINT_10]: { columnWidth: '2rem', gapClassName: 'gap-2' },
 }

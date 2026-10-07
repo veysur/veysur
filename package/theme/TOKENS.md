@@ -274,7 +274,7 @@ A checklist for follow-up cleanup tasks. None of these are addressed by this doc
   `hsl(var(--sidebar-accent))` moved to plain `var(...)`.
 - ~~`--field-error-bg` is defined only in `.dark`~~ — not actually a bug: its
   only consumer (`FieldError.tsx`) only ever reads it inside a `dark:` variant
-  (`dark:bg-[var(--field-error-bg)]`); light mode uses `bg-destructive/10`
+  (`dark:bg-[var(--field-error-bg)]`); light mode uses `bg-destructive/8`
   directly and never touches the var.
 - ~~Around seven delete-confirm dialogs hand-roll `className="bg-destructive
   text-white hover:bg-destructive/90"`~~ — fixed. `AlertDialogAction` now

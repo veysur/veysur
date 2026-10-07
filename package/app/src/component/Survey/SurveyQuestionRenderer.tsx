@@ -158,7 +158,7 @@ export const SurveyQuestionRenderer: React.FC<Props> = ({
         </div>
       )}
       {showNoAnswer && (
-        <div className="flex items-center space-x-2 mt-3">
+        <div className="flex items-center space-x-2 mt-6">
           <Checkbox
             id={`no-answer-${question.code}`}
             checked={answers[question.code] === null}

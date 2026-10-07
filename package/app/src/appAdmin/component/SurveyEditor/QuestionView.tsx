@@ -424,7 +424,7 @@ const QuestionViewComponent: React.FC<QuestionProps> = ({
           )}
         </div>
         {showNoAnswer && (
-          <div className="flex items-center gap-2 mt-5">
+          <div className="flex items-center gap-2 mt-6">
             <Checkbox
               id={`no-answer-editor-${question._id}`}
               disabled
@@ -432,7 +432,7 @@ const QuestionViewComponent: React.FC<QuestionProps> = ({
             />
             <Label
               htmlFor={`no-answer-editor-${question._id}`}
-              className="cursor-not-allowed opacity-50 m-0"
+              className="cursor-not-allowed opacity-50 my-0"
             >
               No answer
             </Label>
