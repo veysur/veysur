@@ -94,6 +94,8 @@ export interface SurveyInterface
     captcha?: boolean | null
     captchaReg?: boolean | null
     captchaResume?: boolean | null
+    embed?: boolean | null
+    embedDomains?: string[] | null
   }
   dataPolicy?: {
     show?: boolean | null
@@ -182,6 +184,8 @@ export interface SurveyInterface
     captcha: boolean
     captchaReg: boolean
     captchaResume: boolean
+    embed: boolean
+    embedDomains: string[]
   }
   getDataPolicy(defaults: SettingSurvey): {
     show: boolean

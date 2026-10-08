@@ -63,6 +63,10 @@ export class ServiceSettingSurvey extends Service {
 
     await patcher.applyAll(patches)
 
+    await this.modelManager.services.surveyEmbedArtefact.refreshProject({
+      projectId,
+    })
+
     return true
   }
 

@@ -32,6 +32,8 @@ describe('PublishPrepMethods', () => {
         captcha: false,
         captchaReg: false,
         captchaResume: false,
+        embed: false,
+        embedDomains: [],
       },
     })
   })
@@ -67,6 +69,21 @@ describe('PublishPrepMethods', () => {
       expect(accessSettings.captcha).toBe(false)
       expect(accessSettings.captchaReg).toBe(false)
       expect(accessSettings.captchaResume).toBe(false)
+      expect(accessSettings.embed).toBe(false)
+      expect(accessSettings.embedDomains).toEqual([])
+    })
+
+    test('survey embed settings override the defaults', () => {
+      const embedded = new Survey({
+        _id: '3',
+        title: { en: 'Test Survey' },
+        createdById: '1',
+        access: { embed: true, embedDomains: ['example.com'] },
+      })
+      const accessSettings = embedded.publishPrep(defaults).access
+
+      expect(accessSettings.embed).toBe(true)
+      expect(accessSettings.embedDomains).toEqual(['example.com'])
     })
 
     test('preserves existing survey settings when they are not null', () => {

@@ -50,6 +50,11 @@ type Props = {
     value: string | null,
   ) => void
   handleLanguageOptionsChange: (selectedLanguages: string[]) => void
+  handleStringListChange: (
+    section: string,
+    field: string,
+    value: string[] | null,
+  ) => void
   emailTemplateProps?: EmailTemplateProps
   header?: React.ReactNode
 }
@@ -63,6 +68,7 @@ export const SettingSurvey: React.FC<Props> = ({
   handleNumberChange,
   handleL10nChange,
   handleLanguageOptionsChange,
+  handleStringListChange,
   emailTemplateProps,
   header,
 }) => {
@@ -73,6 +79,7 @@ export const SettingSurvey: React.FC<Props> = ({
     handleNumberChange,
     handleL10nChange,
     handleLanguageOptionsChange,
+    handleStringListChange,
   }
 
   return (

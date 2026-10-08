@@ -322,6 +322,15 @@ in a deployed stack.
 docker compose exec -T -e API_TASK=notification -e API_ACTION=cleanupOld api node dist/run.js
 ```
 
+**Embed file repair**: rewrites missing embed files and stale pointers for live, embed-enabled surveys
+(`ServiceSurveyEmbedArtefact.repairAll()` - see [embedded-surveys.md](embedded-surveys.md)), including surveys
+published before embedding existed. Seeded by migration `2026-10-07_1000`, it runs daily in a deployed stack and
+sets `failOnErrorCount`, so a run that repairs nothing but reports failures counts as failed.
+
+```bash
+docker compose exec -T -e API_TASK=surveyEmbedArtefact -e API_ACTION=repairAll api node dist/run.js
+```
+
 ## Key Files
 
 - [ServiceTaskManager.ts](../src/model/service/ServiceTaskManager.ts) — Main orchestration service

@@ -56,6 +56,7 @@ export default defineConfig({
     entry: {
       admin: './src/appAdmin/index.tsx',
       survey: './src/appSurvey/index.tsx',
+      embed: './src/appSurvey/embed/index.tsx',
       account: './src/appAccount/index.tsx',
       ...(hasAppCloud ? { platform: appCloudPlatformEntry } : {}),
     },
@@ -206,6 +207,12 @@ export default defineConfig({
           title: 'VeySur',
         }
       }
+      if (entryName === 'embed') {
+        config.filename = 'embed/index.html'
+        config.templateParameters = {
+          title: 'VeySur',
+        }
+      }
       if (entryName === 'account') {
         config.filename = 'account/index.html'
         config.templateParameters = {
@@ -238,6 +245,11 @@ export default defineConfig({
         {
           from: /^\/survey\/(?!static\/).*/,
           to: '/survey/index.html',
+        },
+        // Embedded survey shell (framed by other websites)
+        {
+          from: /^\/embed\/(?!static\/).*/,
+          to: '/embed/index.html',
         },
         // Account app (accessed via project.veysur.local/account/* OR account.veysur.local/*)
         {

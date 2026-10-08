@@ -154,11 +154,24 @@ export const createSettingsHandlers = (operations: SettingOperations) => {
     operations.updateLanguageOptions?.(selectedLanguages)
   }
 
+  const handleStringListChange = (
+    section: string,
+    field: string,
+    value: string[] | null,
+  ) => {
+    switch (section) {
+      case 'access':
+        operations.updateAccessProperty?.(field, value)
+        break
+    }
+  }
+
   return {
     handleBooleanChange,
     handleStringChange,
     handleNumberChange,
     handleL10nChange,
     handleLanguageOptionsChange,
+    handleStringListChange,
   }
 }

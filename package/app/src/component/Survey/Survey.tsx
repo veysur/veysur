@@ -64,6 +64,9 @@ type Props = {
   settingSurvey?: SettingSurvey
   survey?: SurveyEntity
   authToken?: string
+  // The host authenticates inside onSaveResponse on the first answer (embeds), so
+  // user actions must call it before a token exists
+  authDeferred?: boolean
   initAnswers?: SurveyAnswers
   initSeeds?: Record<string, number>
   initLanguage?: string
@@ -84,6 +87,7 @@ export const Survey: React.FC<Props> = ({
   settingSurvey,
   survey,
   authToken,
+  authDeferred = false,
   initAnswers = {},
   initSeeds = {},
   initLanguage,
@@ -570,7 +574,7 @@ export const Survey: React.FC<Props> = ({
   ) : null
 
   const saveResponseIfParticipant = async (completed?: boolean) => {
-    if (onSaveResponse && authToken) {
+    if (onSaveResponse && (authToken || authDeferred)) {
       try {
         setSaveError(null)
         await onSaveResponse(answers, completed, randomSeeds, langCurrent)

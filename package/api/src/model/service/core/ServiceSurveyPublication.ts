@@ -451,6 +451,11 @@ export class ServicePublication extends Service {
       },
     })
 
+    await this.modelManager.services.surveyEmbedArtefact.refresh({
+      surveyId,
+      projectId,
+    })
+
     return { publication, snapshot, snapshotData, wasReused, contentHash }
   }
 
@@ -506,6 +511,11 @@ export class ServicePublication extends Service {
       metadata: { surveyId, snapshotId, publicationId: publication._id },
     })
 
+    await this.modelManager.services.surveyEmbedArtefact.refresh({
+      surveyId,
+      projectId,
+    })
+
     return { publication, snapshot }
   }
 
@@ -534,6 +544,11 @@ export class ServicePublication extends Service {
       projectId,
       action: 'survey.unpublished',
       metadata: { surveyId },
+    })
+
+    await this.modelManager.services.surveyEmbedArtefact.refresh({
+      surveyId,
+      projectId,
     })
   }
 
@@ -805,6 +820,7 @@ export class ServicePublication extends Service {
     )
 
     let activePublication: SurveyPublication | null = null
+    const orphanedSnapshotIds: string[] = []
 
     await repoPublication.transaction(context, async (context) => {
       // Verify all publications exist and belong to the project
@@ -868,6 +884,7 @@ export class ServicePublication extends Service {
         )
 
         if (remainingPublications === 0) {
+          orphanedSnapshotIds.push(snapshotId)
           // Snapshot is orphaned - delete it and its data
           await repoSurveySnapshot.deleteMany({ snapshotId }, { context })
           await repoSurveyLanguageSnapshot.deleteMany(
@@ -899,6 +916,17 @@ export class ServicePublication extends Service {
         action: 'survey.unpublished',
         metadata: { surveyId },
       })
+    }
+
+    const embedArtefact = this.modelManager.services.surveyEmbedArtefact
+    if (orphanedSnapshotIds.length > 0) {
+      await embedArtefact.removeSnapshots({
+        surveyId,
+        projectId,
+        snapshotIds: orphanedSnapshotIds,
+      })
+    } else if (activePublication) {
+      await embedArtefact.refresh({ surveyId, projectId })
     }
   }
 

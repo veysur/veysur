@@ -1,0 +1,6 @@
+/* The iframe viewport is the only "screen", so a full-height root or container
+   would keep the content from ever shrinking below the iframe's current height. */
+#root,
+[data-testid='survey-embed-container'] .min-h-screen {
+  min-height: 0;
+}

@@ -77,6 +77,8 @@ export interface SurveyData {
     captcha?: boolean | null
     captchaReg?: boolean | null
     captchaResume?: boolean | null
+    embed?: boolean | null
+    embedDomains?: string[] | null
   }
   dataPolicy?: {
     show?: boolean | null
@@ -209,6 +211,8 @@ export class SurveyBase {
     captcha?: boolean | null
     captchaReg?: boolean | null
     captchaResume?: boolean | null
+    embed?: boolean | null
+    embedDomains?: string[] | null
   } = {
     anonymous: null,
     open: null,
@@ -221,6 +225,8 @@ export class SurveyBase {
     captcha: null,
     captchaReg: null,
     captchaResume: null,
+    embed: null,
+    embedDomains: null,
   }
   dataPolicy?: {
     show?: boolean | null

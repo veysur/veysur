@@ -42,6 +42,7 @@ VeySur suits surveys where you know, or want to control, who answers:
 - Custom participant attributes for personalised surveys.
 - Anonymous surveys that record no participant identity, IP address or real timestamps.
 - Merge responses from an earlier publication into a newer one.
+- Embed an open survey in another website with a script tag, optionally limited to chosen websites.
 
 ### Collect and analyse
 

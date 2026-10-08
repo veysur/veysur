@@ -20,6 +20,7 @@ export class AuthParticipantApi extends Api {
     surveyId: string,
     token?: string,
     emailVerifyToken?: string,
+    embedOrigin?: string,
   ): Promise<AuthParticipantResponse> {
     try {
       const data = {
@@ -29,6 +30,9 @@ export class AuthParticipantApi extends Api {
       return await this.getClient().post<AuthParticipantResponse>(
         `/auth-participant/${surveyId}`,
         data,
+        embedOrigin
+          ? { headers: { 'X-Embed-Origin': embedOrigin } }
+          : undefined,
       )
     } catch (error) {
       throw ErrorRest.fromRequestError(error as Error)

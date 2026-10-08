@@ -199,6 +199,10 @@ Every path where a user sets/changes their own email — signup, survey particip
 
 Server-to-client push (socket.io, Redis required when deployed) for hint events such as `notification.changed` (emit through `ServiceRealtime.emitToUser`) and `survey.changed`, which replaces polling in the survey editor (`ServiceSurvey.patch` calls `emitSurveyChanged` for the survey's room). See `docs/realtime.md`.
 
+## Embedded Surveys
+
+Publishing writes static, cacheable files so an embedded survey makes no API call until its first answer (`ServiceSurveyEmbedArtefact`). Anything that changes what those files contain must call `refresh`/`refreshProject`, and removing a snapshot or survey must remove its files. See `docs/embedded-surveys.md`.
+
 ## Pagination
 When implementing pagination in service methods:
 - Use `skip` (not `offset`) in repo.find() options - this maps to MongoDB's native skip

@@ -94,6 +94,8 @@ export interface SettingSurveyData {
     captcha: boolean
     captchaReg: boolean
     captchaResume: boolean
+    embed: boolean
+    embedDomains: string[]
   }
   dataPolicy: {
     show: boolean
@@ -213,6 +215,8 @@ export class SettingSurveyBase {
     captcha: boolean
     captchaReg: boolean
     captchaResume: boolean
+    embed: boolean
+    embedDomains: string[]
   } = {
     anonymous: false,
     open: false,
@@ -225,6 +229,8 @@ export class SettingSurveyBase {
     captcha: false,
     captchaReg: false,
     captchaResume: false,
+    embed: false,
+    embedDomains: [],
   }
   dataPolicy: {
     show: boolean

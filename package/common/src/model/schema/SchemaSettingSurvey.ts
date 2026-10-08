@@ -126,6 +126,13 @@ export class SchemaSettingSurvey extends Schema {
             captchaReg: sb.boolean().default(null),
             // Captcha for survey resumption
             captchaResume: sb.boolean().default(null),
+            // Allow the survey to be embedded in other websites
+            // - open surveys only, see docs/decisions/2026/2026-10-07_embedded-surveys.md
+            embed: sb.boolean().default(null),
+            // Websites (hostnames) allowed to submit responses from an embed
+            // - an empty list allows any website
+            // - null on a survey inherits the project default
+            embedDomains: sb.array().of(sb.string()).default(null),
           },
           schedule: {
             start: sb.date().default(null),

@@ -142,7 +142,7 @@ export class ServiceSurveyParticipantSnapshot extends Service {
    * project no longer qualifies for branding removal (see isNoBrandAvailable),
    * even though the setting itself is still stored as true.
    */
-  private async getGatedSettingSurvey(
+  async getGatedSettingSurvey(
     projectId: string,
     context: DataSourceContext,
   ) {
@@ -181,6 +181,10 @@ export class ServiceSurveyParticipantSnapshot extends Service {
       ...survey,
       presentation: { ...survey.presentation, noBrand: false },
     }
+  }
+
+  async isNoBrandAllowed(projectId: string): Promise<boolean> {
+    return this.isNoBrandAvailable(projectId)
   }
 
   /**

@@ -59,6 +59,10 @@ environment of `config-generate.sh`, choose the plain HTTP option, and let the p
 directly on a non-standard port is not supported: links in emails do not include the port. Use
 development mode (`docs/development.md`) for local work on other ports.
 
+The proxy must pass `/embed/` through unchanged. The survey embed pages are framed by other websites, so nginx
+sends `frame-ancestors *` for that path only. A proxy that adds `X-Frame-Options` or its own
+`Content-Security-Policy` to `/embed/` stops embedded surveys from displaying.
+
 ## Install from source
 
 No tarball, no registry pull — clone the repository and build the two images locally:
@@ -92,6 +96,10 @@ behind are in [maintenance.md](./maintenance.md#upgrade).
 
 `veysur.sh` also offers `restart`, `stop` and `mail-test`. Anything else is plain `docker compose`. Data lives in
 named volumes and survives `stop`; `docker compose down -v` deletes it.
+
+Embedded surveys are served by the bundled nginx: `/embed/loader.js` and the `/embed/` shell, plus static files in the
+public bucket. The scheduled `surveyEmbedArtefact` task repairs missing files; see
+[embedded-surveys.md](../package/api/docs/embedded-surveys.md).
 
 Back up with `./scripts/backup.sh`, restore with `./scripts/restore.sh`, and move to another server with the two
 together. See [maintenance.md](./maintenance.md).

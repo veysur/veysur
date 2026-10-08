@@ -3,6 +3,7 @@ import { Card, CardHeader, CardContent, CardTitle } from 'component/shadcn/card'
 import { useFeatureGate } from 'appAdmin/hook'
 
 import { DefaultableButtonSwitch } from './DefaultableButtonSwitch'
+import { DefaultableDomainsInput } from './DefaultableDomainsInput'
 import { SettingsDataAdapter, SettingsHandlers } from './SettingSurveyAdapter'
 
 type Props<T> = {
@@ -80,6 +81,22 @@ export function BaseAccessSettings<T>({ data, handlers, layout }: Props<T>) {
         hasDefaults={hasDefaults}
         defaultValue={data.getDefault?.('access', 'publicReg')}
         helpText="Allow registration for closed survey / require registration for open surveys."
+        className="mb-3"
+      />
+
+      <DefaultableDomainsInput
+        label="Allowed Websites for Embedding"
+        currentValue={data.access?.embedDomains}
+        defaultValue={data.getDefault?.<string[]>('access', 'embedDomains')}
+        hasDefaults={hasDefaults}
+        onChange={(value) =>
+          handlers.handleStringListChange?.('access', 'embedDomains', value)
+        }
+        helpText={
+          hasDefaults
+            ? 'One website per line; a website also covers its subdomains. The project default applies unless overridden; an empty override allows any website. Applies to embedded surveys after they are published.'
+            : 'One website per line; a website also covers its subdomains. Leave empty to allow any website. Applies to embedded surveys after they are published.'
+        }
         className="mb-0"
       />
     </>

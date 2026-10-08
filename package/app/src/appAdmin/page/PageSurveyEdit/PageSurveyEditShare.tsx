@@ -35,6 +35,9 @@ import {
   usePublished,
   SurveyEditorPublish,
 } from 'appAdmin/component/SurveyEditorPublish'
+import { SurveyEmbedCard } from 'appAdmin/component/SurveyEmbed/SurveyEmbedCard'
+import { useSettingSurvey } from 'appAdmin/component/SettingSurvey'
+import { useProjectDomain } from 'appAdmin/hook'
 import { usePageTitle } from 'hook'
 
 const SOCIAL_SHARE_POPUP_FEATURES = 'width=600,height=400'
@@ -113,6 +116,9 @@ const SOCIAL_NETWORKS: SocialNetwork[] = [
 
 export const PageSurveyEditShare: React.FC = () => {
   const survey = useSurveyEditorStore((state) => state.survey)
+  const operations = useSurveyEditorStore((state) => state.operations)
+  const { settingSurvey } = useSettingSurvey()
+  const project = useProjectDomain()
   const { isPublished } = usePublished({ surveyId: survey?._id })
   const [copied, setCopied] = useState(false)
 
@@ -256,6 +262,19 @@ export const PageSurveyEditShare: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {survey && settingSurvey && project?._id && (
+              <SurveyEmbedCard
+                survey={survey}
+                settingSurvey={settingSurvey}
+                projectId={project._id}
+                language={hasMultipleLanguages ? selectedLanguage : undefined}
+                isPublished={isPublished}
+                onEmbedChange={(embed) =>
+                  operations?.updateSurveyAccessSetting('embed', embed)
+                }
+              />
+            )}
 
             <Card>
               <CardHeader>

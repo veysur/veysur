@@ -93,6 +93,8 @@ export function GetterMethods<T extends Constructor<SurveyBase>>(Base: T) {
         captchaReg: this.access?.captchaReg ?? defaults.access.captchaReg,
         captchaResume:
           this.access?.captchaResume ?? defaults.access.captchaResume,
+        embed: this.access?.embed ?? defaults.access.embed,
+        embedDomains: this.access?.embedDomains ?? defaults.access.embedDomains,
       }
     }
 

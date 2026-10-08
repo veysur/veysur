@@ -94,6 +94,13 @@ Administrators can unpublish a survey, making it inaccessible to participants wh
 3. **Survey becomes inaccessible** - Participants cannot view or respond
 4. **Audit trail preserved** - The publish/unpublish history is maintained
 
+### Embed files
+
+A published survey with `access.embed` on also has static embed files in the public bucket. Publishing,
+republishing and unpublishing rewrite them after the publish commits, and a failed write never fails the publish.
+Deleting a snapshot or survey removes its files. See
+[embedded-surveys.md](../package/api/docs/embedded-surveys.md).
+
 ## Automatic Snapshot Comparison
 
 ### When Comparison Runs
@@ -543,6 +550,7 @@ The separation between snapshots (content) and Publications (availability) allow
 ## See Also
 
 - [Snapshot Hash Deduplication](./snapshot-hash-deduplication.md) - Content hash-based snapshot reuse system
+- [Embedded surveys](../package/api/docs/embedded-surveys.md) - Static files written at publish for embedding
 - [Survey Comparison](../package/common/docs/survey-comparison.md) - Detailed comparison logic documentation
 - [SurveyCompare Service](../package/common/src/model/service/SurveyCompare/index.ts) - Backend comparison logic
 - [SurveyEditorPublish Component](../package/app/src/appAdmin/component/SurveyEditorPublish/) - Frontend implementation

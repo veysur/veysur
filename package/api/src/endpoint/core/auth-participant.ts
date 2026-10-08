@@ -15,6 +15,7 @@ export const authParticipantConfig: ServerApiConfig = {
         projectId: { src: 'header', srcPath: 'X-Project-Id', required: true },
         token: { src: 'body' },
         emailVerifyToken: { src: 'body' },
+        embedOrigin: { src: 'header', srcPath: 'X-Embed-Origin' },
         jwtConfig: {
           src: 'config',
           srcPath: 'model.app.jwt',

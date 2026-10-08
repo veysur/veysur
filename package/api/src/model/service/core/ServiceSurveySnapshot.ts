@@ -1,4 +1,8 @@
-import { Service, ServerErrorNotFound, ServerErrorInternal } from '@datacapy/server'
+import {
+  Service,
+  ServerErrorNotFound,
+  ServerErrorInternal,
+} from '@datacapy/server'
 import {
   Survey,
   SurveyCompare,
@@ -227,6 +231,12 @@ export class ServiceSurveySnapshot extends Service {
         }
       }
     }
+
+    await this.modelManager.services.surveyEmbedArtefact.removeSnapshots({
+      surveyId,
+      projectId,
+      snapshotIds,
+    })
 
     return { success: true, deletedCount: snapshotIds.length }
   }

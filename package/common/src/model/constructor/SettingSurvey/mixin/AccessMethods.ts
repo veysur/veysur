@@ -13,6 +13,8 @@ const defaultAccess = {
   captcha: false,
   captchaReg: false,
   captchaResume: false,
+  embed: false,
+  embedDomains: [],
 }
 
 export function AccessMethods<T extends Constructor<SettingSurveyMixinBase>>(

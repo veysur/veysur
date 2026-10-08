@@ -55,6 +55,16 @@ Rules: always follow pattern order; use explicit action suffixes (`/edit`, `/vie
 
 An extension may add further sub-apps and API endpoints. Those trees are not part of this repo.
 
+### Embedded survey shell
+
+`src/appSurvey/embed/` is a separate rsbuild entry (`embed` in `rsbuild.config.ts`, output `embed/index.html`)
+that other websites show in an iframe. `public/embed/loader.js` is the script customers paste; it injects the
+iframe at `/embed/<projectId>/<surveyId>`. The shell reads the static files written at publish and makes no API
+call until the first answer, when it requests the participant JWT and reports its ancestor origin in
+`X-Embed-Origin` (`embedAncestorOrigin.ts`, which sends `unknown` rather than omit the header). The admin side is
+`appAdmin/component/SurveyEmbed/` (Share tab card and snippet builder). Keep the shell free of `useAuth()` and
+other eager API calls. Design and API behaviour: `package/api/docs/embedded-surveys.md`.
+
 ### Import boundary (lint-enforced)
 
 Shared code (`src/component/**`, `src/hook/**`, `src/common/**`, `src/registry/**`) **may

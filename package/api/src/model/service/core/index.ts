@@ -1,6 +1,7 @@
 export * from './ServiceDataTransferJob'
 export * from './ServiceEmailTemplate'
 export * from './ServiceNotification'
+export * from './ServiceSurveyEmbedArtefact'
 export * from './ServiceSurveyLanguage'
 export * from './ServiceFile/ServiceFile'
 export * from './ServiceFile/ServiceFileUpload'

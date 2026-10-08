@@ -89,6 +89,8 @@ export interface SettingSurveyMixinBase {
     captcha?: boolean | null
     captchaReg?: boolean | null
     captchaResume?: boolean | null
+    embed?: boolean | null
+    embedDomains?: string[] | null
   }
   dataPolicy?: Record<string, unknown>
   legalNotice?: Record<string, unknown>

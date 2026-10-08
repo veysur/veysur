@@ -10,6 +10,7 @@ import {
   Survey,
   SurveyParticipant,
   buildTemplateContext,
+  isEmbedOriginAllowed,
   resolveTemplate,
 } from 'veysur-common'
 
@@ -44,6 +45,7 @@ const ERROR_SNAPSHOT_NOT_FOUND = 'ERROR_SNAPSHOT_NOT_FOUND'
 const ERROR_REG_NOT_OPEN = 'ERROR_REG_NOT_OPEN'
 const ERROR_COUNTRY_BLOCKED = 'ERROR_COUNTRY_BLOCKED'
 const ERROR_DISPOSABLE_EMAIL_DOMAIN = 'ERROR_DISPOSABLE_EMAIL_DOMAIN'
+const ERROR_EMBED_NOT_ALLOWED = 'ERROR_EMBED_NOT_ALLOWED'
 
 export class ServiceAuthParticipant extends Service {
   constructor() {
@@ -57,6 +59,7 @@ export class ServiceAuthParticipant extends Service {
     projectId,
     token,
     emailVerifyToken = undefined,
+    embedOrigin = undefined,
     jwtConfig,
   }) {
     const context = DataSourceContext.fromDataSources({
@@ -100,6 +103,20 @@ export class ServiceAuthParticipant extends Service {
     }
 
     const survey = snapshot.surveyPartial
+
+    // Reported by the embed iframe from its own ancestor origin; used only for
+    // this check and never stored, so anonymous surveys stay untraceable.
+    if (
+      embedOrigin &&
+      (!survey.access.embed ||
+        !isEmbedOriginAllowed(embedOrigin, survey.access.embedDomains))
+    ) {
+      throw new ServerErrorForbidden({
+        ref: ERROR_EMBED_NOT_ALLOWED,
+        key: 'error.embedNotAllowed',
+        userMessage: 'This survey cannot be embedded on this website',
+      })
+    }
 
     if (
       survey.schedule.start !== null &&

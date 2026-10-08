@@ -52,6 +52,7 @@ export const PageSettingSurvey: React.FC = () => {
     handleNumberChange,
     handleL10nChange,
     handleLanguageOptionsChange,
+    handleStringListChange,
   } = createSettingsHandlers({
     updateLanguageProperty: (field, value) =>
       operations?.updateSettingSurveyLanguageProperty(field, value),
@@ -155,6 +156,7 @@ export const PageSettingSurvey: React.FC = () => {
             handleNumberChange={handleNumberChange}
             handleL10nChange={handleL10nChange}
             handleLanguageOptionsChange={handleLanguageOptionsChange}
+            handleStringListChange={handleStringListChange}
             emailTemplateProps={{
               emailTemplates,
               systemTemplates,

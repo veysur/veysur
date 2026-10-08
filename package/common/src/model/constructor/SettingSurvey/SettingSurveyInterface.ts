@@ -66,6 +66,8 @@ export interface SettingSurveyProperties {
     captcha: boolean
     captchaReg: boolean
     captchaResume: boolean
+    embed: boolean
+    embedDomains: string[]
   }
   dataPolicy: {
     show: boolean

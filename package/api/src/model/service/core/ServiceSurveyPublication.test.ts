@@ -39,6 +39,8 @@ const makeSettingSurvey = () =>
       captcha: false,
       captchaReg: false,
       captchaResume: false,
+      embed: false,
+      embedDomains: [],
     },
     presentation: {
       format: 'group',
@@ -131,6 +133,7 @@ describe('ServicePublication.publish — snapshot settings resolution', () => {
   let snapshotInsertCapture: { survey: Survey } | null
   let survey: Survey
   let settingSurvey: SettingSurvey
+  let mockEmbedRefresh: jest.Mock
 
   const mockDataSource: {
     transactionStart: jest.Mock
@@ -228,6 +231,7 @@ describe('ServicePublication.publish — snapshot settings resolution', () => {
       findByContentHash: jest.fn().mockResolvedValue(null),
     }
     const mockEventLog = { log: jest.fn().mockResolvedValue(undefined) }
+    mockEmbedRefresh = jest.fn().mockResolvedValue(undefined)
 
     jest.spyOn(service, 'getService').mockImplementation(((name: string) => {
       const map: Record<string, unknown> = {
@@ -238,7 +242,12 @@ describe('ServicePublication.publish — snapshot settings resolution', () => {
     }) as typeof service.getService)
 
     Object.defineProperty(service, 'modelManager', {
-      value: { services: { eventLog: mockEventLog } },
+      value: {
+        services: {
+          eventLog: mockEventLog,
+          surveyEmbedArtefact: { refresh: mockEmbedRefresh },
+        },
+      },
       writable: true,
     })
   })
@@ -280,6 +289,15 @@ describe('ServicePublication.publish — snapshot settings resolution', () => {
     // Null data settings → resolved from project defaults
     expect(storedSurvey.data.ip).toBe(false)
     expect(storedSurvey.data.timestamp).toBe(false)
+  })
+
+  test('writes the embed artefact after publishing', async () => {
+    await service.publish(publishArgs)
+
+    expect(mockEmbedRefresh).toHaveBeenCalledWith({
+      surveyId: publishArgs.surveyId,
+      projectId: publishArgs.projectId,
+    })
   })
 
   test('stored snapshot survey has no null settings', async () => {
@@ -350,6 +368,8 @@ describe('ServicePublication.publish — snapshot settings resolution', () => {
 
 describe('ServicePublication.deleteMany', () => {
   let service: ServicePublication
+  let mockEmbedRefresh: jest.Mock
+  let mockEmbedRemoveSnapshots: jest.Mock
   let mockEventLog: { log: jest.Mock }
   let repoPublication: {
     find: jest.Mock
@@ -430,13 +450,23 @@ describe('ServicePublication.deleteMany', () => {
     }) as typeof service.getRepo)
 
     mockEventLog = { log: jest.fn().mockResolvedValue(undefined) }
+    mockEmbedRefresh = jest.fn().mockResolvedValue(undefined)
+    mockEmbedRemoveSnapshots = jest.fn().mockResolvedValue(undefined)
     jest.spyOn(service, 'getService').mockImplementation(((name: string) => {
       const map: Record<string, unknown> = { eventLog: mockEventLog }
       return map[name] ?? {}
     }) as typeof service.getService)
 
     Object.defineProperty(service, 'modelManager', {
-      value: { services: { eventLog: mockEventLog } },
+      value: {
+        services: {
+          eventLog: mockEventLog,
+          surveyEmbedArtefact: {
+            refresh: mockEmbedRefresh,
+            removeSnapshots: mockEmbedRemoveSnapshots,
+          },
+        },
+      },
       writable: true,
     })
   })
@@ -490,6 +520,47 @@ describe('ServicePublication.deleteMany', () => {
     expect(mockEventLog.log).toHaveBeenCalledWith(
       expect.objectContaining({ action: 'survey.unpublished' }),
     )
+  })
+
+  test('refreshes the embed pointer when the active publication is deleted but its snapshot is still referenced', async () => {
+    repoPublication.find.mockResolvedValue([
+      makePublication({ stoppedAt: null }),
+    ])
+
+    await service.deleteMany(deleteArgs(['publication-1']))
+
+    expect(mockEmbedRefresh).toHaveBeenCalledWith({
+      surveyId: 'survey-1',
+      projectId: 'project-1',
+    })
+    expect(mockEmbedRemoveSnapshots).not.toHaveBeenCalled()
+  })
+
+  test('removes the embed artefacts of snapshots that become orphaned', async () => {
+    repoPublication.count.mockResolvedValue(0)
+    repoPublication.find.mockResolvedValue([
+      makePublication({ stoppedAt: new Date() }),
+    ])
+
+    await service.deleteMany(deleteArgs(['publication-1']))
+
+    expect(mockEmbedRemoveSnapshots).toHaveBeenCalledWith({
+      surveyId: 'survey-1',
+      projectId: 'project-1',
+      snapshotIds: [expect.any(String)],
+    })
+    expect(mockEmbedRefresh).not.toHaveBeenCalled()
+  })
+
+  test('leaves the embed files alone when a stopped publication is deleted and its snapshot is still referenced', async () => {
+    repoPublication.find.mockResolvedValue([
+      makePublication({ stoppedAt: new Date() }),
+    ])
+
+    await service.deleteMany(deleteArgs(['publication-1']))
+
+    expect(mockEmbedRefresh).not.toHaveBeenCalled()
+    expect(mockEmbedRemoveSnapshots).not.toHaveBeenCalled()
   })
 
   test('does not log survey.unpublished when the transaction rolls back', async () => {

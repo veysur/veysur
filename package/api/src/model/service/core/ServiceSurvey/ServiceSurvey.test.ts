@@ -196,3 +196,42 @@ describe('ServiceSurvey.patch realtime', () => {
     })
   })
 })
+
+describe('ServiceSurvey.delete embed artefacts', () => {
+  test('removes the survey embed files after deleting it', async () => {
+    const service = new ServiceSurvey()
+    const repo = {
+      findOne: jest.fn().mockResolvedValue({ _id: 's1' }),
+      deleteOne: jest.fn().mockResolvedValue(undefined),
+      deleteMany: jest.fn().mockResolvedValue(undefined),
+      transaction: jest.fn(
+        (context: unknown, fn: (c: unknown, tx: unknown) => unknown) =>
+          fn(context, {}),
+      ),
+    }
+    const removeSurvey = jest.fn().mockResolvedValue(undefined)
+    const eventLog = { log: jest.fn().mockResolvedValue(undefined) }
+    jest
+      .spyOn(service, 'getRepo')
+      .mockImplementation((() => repo) as typeof service.getRepo)
+    jest.spyOn(service, 'getService').mockImplementation((() => ({
+      bulkDeleteForSurvey: jest.fn().mockResolvedValue(undefined),
+    })) as typeof service.getService)
+    Object.defineProperty(service, 'modelManager', {
+      value: { services: { eventLog, surveyEmbedArtefact: { removeSurvey } } },
+      writable: true,
+    })
+
+    await service.delete({
+      surveyId: 's1',
+      projectId: 'p1',
+      aclConditions: {},
+      aclContext: { jwt: { _id: 'u1' } },
+    })
+
+    expect(removeSurvey).toHaveBeenCalledWith({
+      surveyId: 's1',
+      projectId: 'p1',
+    })
+  })
+})

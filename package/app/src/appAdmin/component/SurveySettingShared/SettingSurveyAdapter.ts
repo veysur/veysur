@@ -50,6 +50,8 @@ export interface SettingsDataAdapter<T> {
     captcha?: boolean | null
     captchaReg?: boolean | null
     captchaResume?: boolean | null
+    embed?: boolean | null
+    embedDomains?: string[] | null
   }
   schedule?: {
     start?: Date | null
@@ -221,4 +223,10 @@ export type SettingsHandlers = {
     language?: string,
   ) => void
   handleLanguageOptionsChange?: (selectedLanguages: string[]) => void
+  // null = inherit the project default
+  handleStringListChange?: (
+    section: string,
+    field: string,
+    value: string[] | null,
+  ) => void
 }

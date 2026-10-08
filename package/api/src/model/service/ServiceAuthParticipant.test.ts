@@ -118,11 +118,16 @@ const mockSuppressionQuery = (
   )
 }
 
-const authArgs = (token?: string, emailVerifyToken?: string) => ({
+const authArgs = (
+  token?: string,
+  emailVerifyToken?: string,
+  embedOrigin?: string,
+) => ({
   surveyId: SURVEY_ID,
   projectId: PROJECT_ID,
   token,
   emailVerifyToken,
+  embedOrigin,
   jwtConfig: {},
 })
 
@@ -841,6 +846,55 @@ describe('ServiceAuthParticipant.register — email verification & sent-status w
       {
         $set: { reminderSentAt: expect.any(Date), updatedAt: expect.any(Date) },
       },
+      expect.anything(),
+    )
+  })
+})
+
+describe('ServiceAuthParticipant.auth — embed origin', () => {
+  const makeEmbedService = (embed: boolean, embedDomains: string[]) => {
+    const made = makeService(true, false)
+    made.repoSurveySnapshot.findOne.mockResolvedValue({
+      _id: SNAPSHOT_ID,
+      surveyPartial: {
+        access: { open: true, publicReg: false, embed, embedDomains },
+        schedule: { start: null, end: null },
+      },
+    })
+    return made.service
+  }
+
+  test('no embed origin (normal survey page) is unaffected by embed settings', async () => {
+    const service = makeEmbedService(false, [])
+    await expect(service.auth(authArgs())).resolves.toMatchObject({
+      jwt: 'signed-token',
+    })
+  })
+
+  test('embed origin on a survey with embedding disabled is rejected', async () => {
+    const service = makeEmbedService(false, [])
+    await expect(
+      service.auth(authArgs(undefined, undefined, 'https://host.example')),
+    ).rejects.toMatchObject({
+      constructor: ServerErrorForbidden,
+      ref: 'ERROR_EMBED_NOT_ALLOWED',
+    })
+  })
+
+  test('embed origin outside the allowed domains is rejected', async () => {
+    const service = makeEmbedService(true, ['allowed.example'])
+    await expect(
+      service.auth(authArgs(undefined, undefined, 'https://other.example')),
+    ).rejects.toMatchObject({ ref: 'ERROR_EMBED_NOT_ALLOWED' })
+  })
+
+  test('embed origin on an allowed domain gets an anonymous-compatible JWT', async () => {
+    const service = makeEmbedService(true, ['allowed.example'])
+    await service.auth(
+      authArgs(undefined, undefined, 'https://www.allowed.example'),
+    )
+    expect(service.createJsonWebToken).toHaveBeenCalledWith(
+      expect.objectContaining({ participantId: null }),
       expect.anything(),
     )
   })

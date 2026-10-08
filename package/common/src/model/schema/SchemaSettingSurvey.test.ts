@@ -1,3 +1,5 @@
+import { Schema } from '@datacapy/schema'
+
 import {
   ALL_CHART_TYPES,
   ALL_CHART_VALUE_MODES,
@@ -22,5 +24,24 @@ describe('SchemaSettingSurvey stats whitelist', () => {
 
   test('valueMode is not required (no .required validator)', () => {
     expect(questionSpec.valueMode.$validate?.required).toBeUndefined()
+  })
+})
+
+describe('SchemaSettingSurvey access.embedDomains', () => {
+  const schema = new Schema({
+    embedDomains: new SchemaSettingSurvey().spec.access.embedDomains,
+  })
+  const filter = async (embedDomains?: string[] | null) => {
+    const data: { embedDomains?: string[] | null } = { embedDomains }
+    await schema.applyFilters(data)
+    return data.embedDomains
+  }
+
+  test('keeps an empty list so a survey can override a restrictive default', async () => {
+    expect(await filter([])).toEqual([])
+  })
+
+  test('keeps null as inherit', async () => {
+    expect(await filter(null)).toBeNull()
   })
 })
