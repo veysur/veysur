@@ -54,6 +54,23 @@ describe('ServiceSurveyParticipantAttributeSnapshot', () => {
     expect(result.attributes).toEqual([])
   })
 
+  test.each(['en-GB', 'xx', ['en'] as unknown as string])(
+    'falls back to the default language for an unsupported lang (%p)',
+    async (lang) => {
+      mockRepoSurvey.findOne.mockResolvedValue({
+        _id: 's1',
+        language: { default: 'fr', options: ['fr', 'en'] },
+      })
+
+      await service.get({ surveyId: 's1', projectId: 'p1', lang })
+
+      expect(mockRepoAttributeLanguage.find).toHaveBeenCalledWith(
+        { surveyId: 's1', languageCode: { $in: ['fr'] } },
+        expect.anything(),
+      )
+    },
+  )
+
   test('excludes internal attributes', async () => {
     mockRepoAttribute.findOne.mockResolvedValue({
       _id: 'doc1',

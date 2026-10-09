@@ -97,9 +97,8 @@ export class ServiceSurveyParticipantAttributeSnapshot extends Service {
       }
     }
 
-    const langCodes = Array.from(
-      new Set([lang, langDefault].filter(Boolean)),
-    ) as string[]
+    const resolvedLang = this.resolveLang(lang, langDefault, langOptions)
+    const langCodes = Array.from(new Set([resolvedLang, langDefault]))
     const attrLangSnapshotDocs = await repoAttrLangSnapshot.find(
       { snapshotId: publication.snapshotId, languageCode: { $in: langCodes } },
       { context },
@@ -119,7 +118,6 @@ export class ServiceSurveyParticipantAttributeSnapshot extends Service {
 
     return {
       attributes: definitions.map((def) => {
-        const resolvedLang = lang ?? langDefault
         const data =
           languagesByCode.get(resolvedLang)?.[def.name] ??
           languagesByCode.get(langDefault)?.[def.name] ??
@@ -136,6 +134,19 @@ export class ServiceSurveyParticipantAttributeSnapshot extends Service {
       languageDefault: langDefault,
       languageOptions: langOptions,
     }
+  }
+
+  // `lang` is an unvalidated public query param; anything that is not one of the
+  // survey's languages (wrong type, too long, unknown) would fail the repo's
+  // languageCode validation, so fall back to the default instead.
+  private resolveLang(
+    lang: unknown,
+    langDefault: string,
+    langOptions: string[],
+  ): string {
+    return typeof lang === 'string' && langOptions.includes(lang)
+      ? lang
+      : langDefault
   }
 
   private async getLiveAttributes({
@@ -181,13 +192,15 @@ export class ServiceSurveyParticipantAttributeSnapshot extends Service {
     const langDefault = languageConfig.default
     const langOptions = languageConfig.options
 
+    const resolvedLang = this.resolveLang(lang, langDefault, langOptions)
+
     const [doc, languageDocs] = await Promise.all([
       repoAttribute.findOne({ surveyId }, { context }),
       repoAttributeLanguage.find(
         {
           surveyId,
           languageCode: {
-            $in: Array.from(new Set([lang, langDefault].filter(Boolean))),
+            $in: Array.from(new Set([resolvedLang, langDefault])),
           },
         },
         { context },
@@ -206,7 +219,6 @@ export class ServiceSurveyParticipantAttributeSnapshot extends Service {
 
     return {
       attributes: definitions.map((def) => {
-        const resolvedLang = lang ?? langDefault
         const data =
           languagesByCode.get(resolvedLang)?.[def.name] ??
           languagesByCode.get(langDefault)?.[def.name] ??
