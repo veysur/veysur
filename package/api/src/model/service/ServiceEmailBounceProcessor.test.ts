@@ -818,6 +818,22 @@ describe('ServiceEmailBounceProcessor', () => {
       expect(mockSuppression.insertOne).toHaveBeenCalled()
     })
 
+    test('treats a dropped project database as an orphaned project', async () => {
+      const msg = makeMsg('bounces+proj123-surv456@mail.veysur.com')
+      simpleParser.mockResolvedValue(
+        makeDsnParsed('5.1.1', 'recipient@example.com'),
+      )
+      const droppedError = new Error("Unknown database 'veysurProject_proj123'")
+      mockParticipant.findOne.mockRejectedValue(droppedError)
+      mockParticipant.updateOne.mockRejectedValue(droppedError)
+
+      const handled = await withPrivates(service)._processDsn(msg)
+
+      expect(handled).toBe(true)
+      expect(Sentry.captureException).toHaveBeenCalledWith(droppedError)
+      expect(mockSuppression.insertOne).toHaveBeenCalled()
+    })
+
     test('_updateParticipant swallows the orphaned-project error instead of throwing', async () => {
       const orphanError = new Error(
         'No datasource configuration found for datasource "project" with key: proj123',

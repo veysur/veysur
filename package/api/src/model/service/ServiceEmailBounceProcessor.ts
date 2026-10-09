@@ -315,12 +315,14 @@ export class ServiceEmailBounceProcessor extends Service {
 
   // A bounce DSN can name a projectId whose project datasource no longer exists
   // (e.g. the project was deleted). @datacapy/om throws "No datasource configuration
-  // found" — capture once under a stable fingerprint and carry on, rather than
-  // aborting the whole mailbox pass. Returns true if the error was handled.
+  // found", or MySQL throws "Unknown database" once the project database is dropped.
+  // Capture once under a stable fingerprint and carry on, rather than leaving the
+  // message unseen to fail every run. Returns true if the error was handled.
   private _handleOrphanedProjectError(err: unknown): boolean {
     if (
       err instanceof Error &&
-      err.message.includes('No datasource configuration found')
+      (err.message.includes('No datasource configuration found') ||
+        err.message.includes('Unknown database'))
     ) {
       captureWithFingerprint(['bounce-dsn-orphaned-project'], err)
       return true
