@@ -2,7 +2,7 @@ import tls from 'node:tls'
 import { Service } from '@datacapy/server'
 import { ImapFlow } from 'imapflow'
 import { genUniqueId } from '@datacapy/id'
-import { captureWithFingerprint } from 'common'
+import { captureWithFingerprint, errorMessage } from 'common'
 import { ServiceEmail } from './ServiceEmail'
 
 export interface MailCanaryResult {
@@ -118,14 +118,17 @@ export class ServiceMailCanary extends Service {
     })
 
     const deadline = Date.now() + timeoutSeconds * 1000
+    let stage = 'connect'
 
     try {
       await client.connect()
 
       while (Date.now() < deadline) {
+        stage = 'mailbox lock'
         const lock = await client.getMailboxLock('INBOX', {
           acquireTimeout: 30_000,
         })
+        stage = 'fetch'
         let matchedUid: number | null = null
 
         try {
@@ -144,6 +147,7 @@ export class ServiceMailCanary extends Service {
         }
 
         if (matchedUid !== null) {
+          stage = 'delete'
           await client.messageDelete(matchedUid, { uid: true })
           return true
         }
@@ -159,6 +163,13 @@ export class ServiceMailCanary extends Service {
       }
 
       return false
+    } catch (error) {
+      // ImapFlow reports socket/greeting/connection timeouts as a bare "Timeout"
+      const code = (error as { code?: string }).code
+      throw new Error(
+        `[MailCanary] IMAP ${stage} failed against ${host}:${port}: ${errorMessage(error)}${code ? ` (${code})` : ''}`,
+        { cause: error },
+      )
     } finally {
       await client.logout().catch(() => {})
     }

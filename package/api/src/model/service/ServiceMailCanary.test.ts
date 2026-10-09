@@ -162,5 +162,26 @@ describe('ServiceMailCanary', () => {
 
       expect(Sentry.captureException).not.toHaveBeenCalled()
     })
+
+    test('names the failing IMAP stage, host and error code when the library throws a bare Timeout', async () => {
+      const timeoutError = Object.assign(new Error('Timeout'), {
+        code: 'ETIMEDOUT',
+      })
+      const mockImapClient = {
+        connect: jest.fn().mockResolvedValue(undefined),
+        getMailboxLock: jest.fn().mockRejectedValue(timeoutError),
+        fetch: jest.fn(),
+        messageDelete: jest.fn(),
+        logout: jest.fn().mockResolvedValue(undefined),
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { ImapFlow } = require('imapflow') as { ImapFlow: jest.Mock }
+      ImapFlow.mockImplementation(() => mockImapClient)
+
+      await expect(service.run()).rejects.toThrow(
+        'IMAP mailbox lock failed against mail.veysur.com:993: Timeout (ETIMEDOUT)',
+      )
+    })
   })
 })
