@@ -57,6 +57,7 @@ export class SchemaUser extends Schema {
             .private()
             .construct('Collection')
             .ofSchema('userClient'),
+          maxClients: sb.number().default(null).privateValue(),
           role: sb
             .string()
             .inArray([USER_ROLE_CUSTOMER, USER_ROLE_PLATFORM_ADMIN])

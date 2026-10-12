@@ -22,6 +22,7 @@ export class User {
     enabledAt: Date | null
     prompt: { dismissed: boolean }
   }
+  maxClients?: number | null
   role: string
   createdAt: Date
   updatedAt: Date

@@ -428,6 +428,64 @@ export class ServiceImportExport extends Service {
   }
 
   /**
+   * Import an archive already in hand (a seed or fixture) without the File
+   * record and storage round trip the upload flow needs. Server-internal only:
+   * it is not exposed through an endpoint.
+   */
+  async importFromStream({
+    entityType,
+    format,
+    stream,
+    projectId,
+    aclContext,
+  }: {
+    entityType: string
+    format: string
+    stream: Readable
+    projectId: string
+    aclContext: AclContext
+  }): Promise<ImportResult> {
+    const entityHandler = this.entityHandlerRegistry.get(entityType)
+    const formatHandler = this.formatRegistry.getByFormat(format)
+
+    const parsedData = await entityHandler.parseImportData(
+      stream,
+      formatHandler,
+      {},
+    )
+    try {
+      const validation = await entityHandler.validateImport(parsedData, {
+        projectId,
+        aclContext,
+        force: false,
+      })
+      if (!validation.valid) {
+        throw new ServerErrorBadRequest({
+          message: 'Import validation failed',
+          errors: validation.errors,
+        })
+      }
+      const result = await entityHandler.persistImport(
+        validation.data || parsedData,
+        { projectId, aclContext, translations: validation.repairs },
+      )
+      return {
+        success: true,
+        entityId: result.entityId,
+        entityType,
+        hasIdTranslations:
+          result.hasIdTranslations || validation.hasIdTranslations || false,
+        details: result.details,
+      }
+    } finally {
+      const cleanup = (parsedData as { cleanup?: () => Promise<void> })?.cleanup
+      if (typeof cleanup === 'function') {
+        await cleanup()
+      }
+    }
+  }
+
+  /**
    * Entry point for an uploaded import file. When the uploaded file's size
    * exceeds ASYNC_TRANSFER_SIZE_THRESHOLD_BYTES, mark it 'queued' and
    * enqueue a ServiceDataTransferJob instead of parsing inline; the caller

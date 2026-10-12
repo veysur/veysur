@@ -254,6 +254,53 @@ describe('ServiceAuthDirect', () => {
       expect(deleteArg.userId).toBe('user_1')
     })
 
+    test('prunes to the per-user maxClients, clamped to the ceiling', async () => {
+      const now = Date.now()
+      const buildClients = (count: number) =>
+        Array.from({ length: count }, (_, i) => ({
+          _id: `client_${i}`,
+          createdAt: new Date(now - i * 1000),
+          accessToken: [],
+        }))
+      const login = (user: Record<string, unknown>) =>
+        service.loginDirect(
+          user as unknown as User,
+          { _id: 'client_0', ip: '1.2.3.4' } as unknown as Client,
+          {} as ConfigJwt,
+          false,
+        )
+      const verified = {
+        emailMeta: { verify: { status: { isVerified: true } } },
+      }
+
+      mockRepoUserClient.deleteMany.mockClear()
+      await login({
+        _id: 'user_1',
+        client: buildClients(7),
+        maxClients: 20,
+        ...verified,
+      })
+      expect(mockRepoUserClient.deleteMany).not.toHaveBeenCalled()
+
+      await login({
+        _id: 'user_1',
+        client: buildClients(150),
+        maxClients: 1000,
+        ...verified,
+      })
+      const deleteArg = mockRepoUserClient.deleteMany.mock.calls[0][0]
+      expect(deleteArg.createdAt.$lte).toEqual(new Date(now - 99 * 1000))
+
+      mockRepoUserClient.deleteMany.mockClear()
+      await login({
+        _id: 'user_1',
+        client: buildClients(3),
+        maxClients: 0,
+        ...verified,
+      })
+      expect(mockRepoUserClient.deleteMany).toHaveBeenCalled()
+    })
+
     test('filters private user fields before returning', async () => {
       const user = {
         _id: 'user_1',

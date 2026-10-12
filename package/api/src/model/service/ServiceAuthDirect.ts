@@ -11,6 +11,7 @@ import { Jwt } from 'acl/util/Jwt'
 
 const EXPIRE_OLD_TOKEN_SECONDS = 60
 const MAX_CLIENTS = 5
+const MAX_CLIENTS_CEILING = 100
 const MAX_TOKENS_PER_CLIENT = 2
 
 export class ServiceAuthDirect extends Service {
@@ -187,7 +188,11 @@ export class ServiceAuthDirect extends Service {
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       )
-    const deleteClients = sortedClients?.slice(MAX_CLIENTS - 1) || []
+    const maxClients = Math.min(
+      Math.max(Math.floor(user.maxClients ?? MAX_CLIENTS), 1),
+      MAX_CLIENTS_CEILING,
+    )
+    const deleteClients = sortedClients?.slice(maxClients - 1) || []
     if (deleteClients.length) {
       await repoUserClient.deleteMany({
         userId: user._id,
