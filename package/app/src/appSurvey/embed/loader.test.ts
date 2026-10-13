@@ -60,6 +60,40 @@ describe('embed loader', () => {
     )
   })
 
+  test('is light by default and dark when asked', () => {
+    const light = runLoader({ 'data-survey': 'p1/s1' })
+    const dark = runLoader({ 'data-survey': 'p1/s1', 'data-theme': 'dark' })
+
+    expect((light.nextElementSibling as HTMLIFrameElement).src).toBe(
+      `${ORIGIN}/embed/p1/s1`,
+    )
+    expect((dark.nextElementSibling as HTMLIFrameElement).src).toBe(
+      `${ORIGIN}/embed/p1/s1?theme=dark`,
+    )
+  })
+
+  test('setTheme posts the new theme to the iframe, once per change', () => {
+    const script = runLoader({ 'data-survey': 'p1/s1' })
+    const iframe = script.nextElementSibling as HTMLIFrameElement
+    const postMessage = jest.fn()
+    Object.defineProperty(iframe, 'contentWindow', {
+      value: { postMessage },
+      configurable: true,
+    })
+
+    const embed = (window as unknown as {
+      VeySurEmbed: { setTheme: (theme: string) => void }
+    }).VeySurEmbed
+    embed.setTheme('dark')
+    embed.setTheme('dark')
+
+    expect(postMessage).toHaveBeenCalledTimes(1)
+    expect(postMessage).toHaveBeenCalledWith(
+      { type: 'veysur:embed:theme', theme: 'dark' },
+      ORIGIN,
+    )
+  })
+
   test.each(['', 'p1', 'p1/s1/extra', '../etc/passwd', 'p1/s1"onload="x'])(
     'inserts nothing for the survey attribute %p',
     (value) => {

@@ -11,6 +11,12 @@ trade-offs: `docs/decisions/2026/2026-10-07_embedded-surveys.md` in the VeySur m
 3. On the first answer it calls `POST /auth-participant/:surveyId` with `X-Embed-Origin` (the embedding site),
    then saves responses as normal.
 
+The shell ignores the shared `veysur-theme` cookie and is light unless the host asks otherwise. The loader's
+`data-theme` attribute (`light`, `dark`, `auto`) sets the initial theme through `?theme=`, and
+`window.VeySurEmbed.setTheme()` changes it live by posting `veysur:embed:theme` to the iframe, which only
+accepts the message from its parent window. The loader keeps one `VeySurEmbed` global, so with several
+embeds on a page the last loader wins.
+
 ## Files written (`ServiceSurveyEmbedArtefact`)
 
 Public bucket, under `project-<id>/survey/<surveyId>/embed/`:

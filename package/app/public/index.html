@@ -15,6 +15,13 @@
         const match = document.cookie.match(/(?:^|;\s*)veysur-theme=([^;]+)/);
         let theme = match ? match[1] : null;
 
+        // The embedded survey shell is shown inside other websites, so it ignores the
+        // shared theme cookie. The host page picks the theme with ?theme= (set by the
+        // loader's data-theme attribute); without one it is light.
+        if (window.location.pathname.indexOf('/embed/') === 0) {
+          theme = new URLSearchParams(window.location.search).get('theme');
+        }
+
         // If no stored value or old 'system' value, default to light
         if (!theme || theme === 'system') {
           theme = 'light';

@@ -18,6 +18,7 @@ import { getEmbedAncestorOrigin } from './embedAncestorOrigin'
 import { embedScheduleState } from './embedScheduleState'
 import { parseEmbedPath } from './embedPaths'
 import { useEmbedResize } from './useEmbedResize'
+import { useEmbedTheme } from './useEmbedTheme'
 import { useEmbedResponseSaver } from './useEmbedResponseSaver'
 import { useSurveyEmbed } from './useSurveyEmbed'
 
@@ -140,6 +141,7 @@ const EmbedSurvey: React.FC<{
 }
 
 export const EmbedApp: React.FC = () => {
+  useEmbedTheme()
   const target = parseEmbedPath(window.location.pathname)
   const lang = new URLSearchParams(window.location.search).get('lang')
 
