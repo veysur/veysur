@@ -13,10 +13,10 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@astrojs/react": "^4.4.2",
-    "@astrojs/starlight": "~0.38.5",
+    "@astrojs/react": "^7.0.0",
+    "@astrojs/starlight": "~0.42.6",
     "@tailwindcss/vite": "^4.3.3",
-    "astro": "^6.4.8",
+    "astro": "^7.3.5",
     "lucide-react": "^1.48.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",

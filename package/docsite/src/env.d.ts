@@ -9,3 +9,11 @@ declare module 'virtual:starlight/user-images' {
     light?: ImageMetadata
   }
 }
+
+// Same unreachable `virtual-internal.d.ts` as above; only the logo options are read.
+declare module 'virtual:starlight/user-config' {
+  const config: {
+    logo?: { alt: string; replacesTitle?: boolean; src?: string }
+  }
+  export default config
+}
