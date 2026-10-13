@@ -204,11 +204,11 @@ export class SurveyEntityHandler implements EntityHandlerInterface {
   async parseImportData(
     input: Readable,
     formatHandler: FormatHandlerInterface,
-    context?: { importFileId?: string },
+    context?: { importFileId?: string; surveyId?: string },
   ): Promise<VsstParsedBundle | MarkdownParsedBundle> {
     if (formatHandler.format === 'markdown') {
       const markdownText = (await formatHandler.parse(input, context)) as string
-      return parseMarkdownSurvey(markdownText)
+      return parseMarkdownSurvey(markdownText, { surveyId: context?.surveyId })
     }
     return this.parser.parse(input, formatHandler, context)
   }

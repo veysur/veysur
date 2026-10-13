@@ -4,22 +4,30 @@ import {
   SurveyQuestion,
   SurveyContent,
   CONTENT_TYPES,
+  extractSurveyLanguageFromSurvey,
 } from 'veysur-common'
 
 import { contextForProject } from 'common'
-import { RepoSurvey, RepoSurveyElement, RepoSurveySection } from 'model'
+import {
+  RepoSurvey,
+  RepoSurveyElement,
+  RepoSurveyLanguage,
+  RepoSurveySection,
+} from 'model'
 import { AclContext } from 'model/entity/AclContext'
 
 import { entityStamp } from '../util/entityStamp'
 import { MarkdownResolvedContext } from './types'
 
 /**
- * Thin counterpart to VsstImportPersister for markdown v1 imports: only
- * constructs and persists Survey/SurveySection/SurveyQuestion/SurveyContent
- * inside one transaction — no file uploads, no SurveyLanguage records
- * (markdown v1's L10n fields live directly on the entities, not in the
- * separate SurveyLanguage side-collection — see survey-markdown-format.md
- * implementation plan Part 2), no participant attributes, no email templates.
+ * Thin counterpart to VsstImportPersister for markdown v1 imports: persists
+ * Survey/SurveySection/SurveyQuestion/SurveyContent plus one SurveyLanguage
+ * record per language, inside one transaction — no file uploads, no
+ * participant attributes, no email templates.
+ *
+ * The language records are required, not optional: publishing snapshots them,
+ * and a snapshot with none has no language to serve, so an embedded survey
+ * reports itself unavailable.
  */
 export class MarkdownImportPersister {
   constructor(private repoSurvey: RepoSurvey) {}
@@ -37,6 +45,8 @@ export class MarkdownImportPersister {
       this.repoSurvey.getRepo<RepoSurveySection>('surveySection')
     const repoElement =
       this.repoSurvey.getRepo<RepoSurveyElement>('surveyElement')
+    const repoLanguage =
+      this.repoSurvey.getRepo<RepoSurveyLanguage>('surveyLanguage')
 
     let survey: Survey
 
@@ -70,6 +80,22 @@ export class MarkdownImportPersister {
               input as ConstructorParameters<typeof SurveyQuestion>[0],
             )
         await repoElement.insertOne(element, { context: dsContext })
+      }
+
+      const populated = new Survey({
+        ...data.survey,
+        sections: data.sections,
+        elements: data.elements,
+      } as ConstructorParameters<typeof Survey>[0])
+      const languageCodes = new Set<string>([
+        survey.language.default,
+        ...(survey.language.options ?? []),
+      ])
+      for (const languageCode of languageCodes) {
+        await repoLanguage.insertOne(
+          extractSurveyLanguageFromSurvey(populated, survey._id, languageCode),
+          { context: dsContext },
+        )
       }
     })
 

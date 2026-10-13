@@ -431,6 +431,10 @@ export class ServiceImportExport extends Service {
    * Import an archive already in hand (a seed or fixture) without the File
    * record and storage round trip the upload flow needs. Server-internal only:
    * it is not exposed through an endpoint.
+   *
+   * `surveyId` presets the id of an imported markdown survey. If that id is
+   * already in use the import falls back to a new one (id translation), so a
+   * caller that needs the preset id must check for it first.
    */
   async importFromStream({
     entityType,
@@ -438,12 +442,14 @@ export class ServiceImportExport extends Service {
     stream,
     projectId,
     aclContext,
+    surveyId,
   }: {
     entityType: string
     format: string
     stream: Readable
     projectId: string
     aclContext: AclContext
+    surveyId?: string
   }): Promise<ImportResult> {
     const entityHandler = this.entityHandlerRegistry.get(entityType)
     const formatHandler = this.formatRegistry.getByFormat(format)
@@ -451,7 +457,7 @@ export class ServiceImportExport extends Service {
     const parsedData = await entityHandler.parseImportData(
       stream,
       formatHandler,
-      {},
+      { surveyId },
     )
     try {
       const validation = await entityHandler.validateImport(parsedData, {

@@ -776,11 +776,14 @@ function parseThankYouSection(
   }
 }
 
-export function parseMarkdownSurvey(text: string): MarkdownParsedBundle {
+export function parseMarkdownSurvey(
+  text: string,
+  options: { surveyId?: string } = {},
+): MarkdownParsedBundle {
   const { defaultLang, languageOptions, bodyLines, bodyLineOffset } =
     parseFrontMatter(text)
   const cursor = new LineCursor(bodyLines, bodyLineOffset)
-  const surveyId = genUniqueId()
+  const surveyId = options.surveyId ?? genUniqueId()
 
   cursor.skipBlankLines()
   const titleHeading = expectHeading(cursor, 1, 'survey title')

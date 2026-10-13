@@ -26,11 +26,13 @@ describe('SurveyEntityHandler — markdown format round trip', () => {
   }
   let insertedSections: unknown[]
   let insertedElements: unknown[]
+  let insertedLanguages: unknown[]
   let handler: SurveyEntityHandler
 
   beforeEach(() => {
     insertedSections = []
     insertedElements = []
+    insertedLanguages = []
 
     const mockDataSource = {
       transactionStart: jest.fn(),
@@ -52,10 +54,19 @@ describe('SurveyEntityHandler — markdown format round trip', () => {
       }),
     }
 
+    const mockRepoLanguage = {
+      insertOne: jest.fn(async (language: unknown) => {
+        insertedLanguages.push(language)
+      }),
+    }
+    const reposByName: Record<string, unknown> = {
+      surveySection: mockRepoSection,
+      surveyElement: mockRepoElement,
+      surveyLanguage: mockRepoLanguage,
+    }
+
     mockRepoSurvey = {
-      getRepo: jest.fn((name: string) =>
-        name === 'surveySection' ? mockRepoSection : mockRepoElement,
-      ),
+      getRepo: jest.fn((name: string) => reposByName[name]),
       getDataSource: jest.fn().mockResolvedValue(mockDataSource),
       releaseDataSource: jest.fn(),
       create: jest.fn().mockResolvedValue(undefined),
@@ -131,6 +142,17 @@ describe('SurveyEntityHandler — markdown format round trip', () => {
     expect(typeof result.entityId).toBe('string')
     expect(insertedSections).toHaveLength(1)
     expect(insertedElements).toHaveLength(3)
+
+    // Publishing snapshots these; with none, the survey has no language to serve.
+    expect(insertedLanguages).toHaveLength(1)
+    const persistedLanguage = insertedLanguages[0] as {
+      surveyId: string
+      languageCode: string
+      data: { title?: string; sections?: Record<string, { name?: string }> }
+    }
+    expect(persistedLanguage.surveyId).toBe(result.entityId)
+    expect(persistedLanguage.languageCode).toBe('en')
+    expect(persistedLanguage.data.title).toBe('Customer Satisfaction Survey')
 
     const persistedSection = insertedSections[0] as { name: L10n; kind: string }
     expect(persistedSection.kind).toBe('group')

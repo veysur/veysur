@@ -580,3 +580,41 @@ language:
     })
   })
 })
+
+describe('parseMarkdownSurvey — preset survey id', () => {
+  const markdown = [
+    '---',
+    'spec: v1',
+    'language:',
+    '  default: en',
+    '  options: [en]',
+    '---',
+    '',
+    '# Preset id',
+    '',
+    '## General',
+    '',
+    '### Q001 · yesNo',
+    'Do you like it?',
+    '',
+  ].join('\n')
+
+  test('uses the given id for the survey and its children', () => {
+    const bundle = parseMarkdownSurvey(markdown, { surveyId: 'presetSurvey1' })
+
+    expect(bundle.survey._id).toBe('presetSurvey1')
+    expect(bundle.sections.every((s) => s.surveyId === 'presetSurvey1')).toBe(
+      true,
+    )
+    expect(bundle.elements.every((e) => e.surveyId === 'presetSurvey1')).toBe(
+      true,
+    )
+  })
+
+  test('generates an id when none is given', () => {
+    const bundle = parseMarkdownSurvey(markdown)
+
+    expect(bundle.survey._id).toBeTruthy()
+    expect(bundle.survey._id).not.toBe('presetSurvey1')
+  })
+})

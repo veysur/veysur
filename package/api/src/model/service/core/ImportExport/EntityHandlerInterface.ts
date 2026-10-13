@@ -137,7 +137,7 @@ export interface EntityHandlerInterface {
   parseImportData(
     input: Readable,
     formatHandler: FormatHandlerInterface,
-    context?: { importFileId?: string },
+    context?: { importFileId?: string; surveyId?: string },
   ): Promise<unknown>
 
   /**
