@@ -14,6 +14,15 @@ export interface LoginExtraContentProps {
 
 export type LoginExtraContent = ComponentType<LoginExtraContentProps>
 
+/**
+ * Initial values for the login form, or null to leave it empty. Called once
+ * when the form mounts; see `registry/getLoginDefaults.ts`.
+ */
+export type LoginDefaultsResolver = () => {
+  email: string
+  password: string
+} | null
+
 export type ProfileDangerZoneExtra = ComponentType
 
 /**

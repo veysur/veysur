@@ -18,7 +18,7 @@ import { TwoFactorVerifyForm } from 'component/TwoFactorVerifyForm'
 import { useAuth } from 'hook'
 import { ErrorRest } from 'model/api'
 import { AuthDomain } from 'model'
-import { getApiAuth } from 'registry'
+import { getApiAuth, getLoginDefaults } from 'registry'
 
 type LoginFormData = {
   email: string
@@ -79,7 +79,7 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
 
   const form = useForm<LoginFormData>({
     resolver: datacapyResolver(loginSchema),
-    defaultValues: { email: '', password: '' },
+    defaultValues: getLoginDefaults()() ?? { email: '', password: '' },
   })
 
   const confirmForm = useForm<SetupConfirmFormData>({
