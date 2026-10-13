@@ -33,7 +33,6 @@ export const SUBDOMAIN_RESERVED_WORDS = [
   'data',
   'database',
   'db',
-  'demo',
   'dev',
   'developer',
   'developers',
