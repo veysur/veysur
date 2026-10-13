@@ -61,7 +61,7 @@
     "moment-timezone": "^0.6.4",
     "@datacapy/id": "workspace:*",
     "@datacapy/schema": "workspace:*",
-    "sanitize-html": "2.13.0"
+    "sanitize-html": "2.17.7"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
