@@ -21,11 +21,10 @@ export const useSurveyTableColumns = (): ColumnDefinition<Survey>[] => {
       {
         key: 'sections',
         title: '# Sections',
-        // Every survey has exactly one welcome and one thank-you section
-        // (fixed singletons, never deletable) alongside its groups, so
-        // subtracting them out of sectionIds is exact without needing to
-        // populate/filter the full sections collection for a list row.
-        render: (survey) => survey.sectionIds.length - 2,
+        // The list query doesn't populate sections, so this is the number of
+        // section ids, which includes the welcome and thank-you sections when
+        // a survey has them. A survey imported from markdown may have neither.
+        render: (survey) => survey.sectionIds.length,
       },
       {
         key: 'elements',
