@@ -37,6 +37,7 @@ import { SurveyWelcomeItemView } from './SurveyWelcomeItemView'
 import { SurveyThankYouItemView } from './SurveyThankYouItemView'
 import { useDragAndDrop } from './hook'
 import { toGroupDndId } from './hook/dndId'
+import { DragRemeasure } from './DragRemeasure'
 
 // handleDragOver reorders `arrangement` on every pointer move, which re-renders the
 // virtualized group/question lists mid-drag. dnd-kit's default WhileDragging strategy
@@ -44,7 +45,8 @@ import { toGroupDndId } from './hook/dndId'
 // those Virtuoso-triggered layout changes and dnd-kit's own remeasurement feed back into
 // each other within a single commit and exceed React's 50-nested-update budget (error
 // #185) — reproducible only while dragging, never via the non-drag move actions.
-// Measuring once at drag start removes the continuous remeasurement side of that loop.
+// Measuring once at drag start removes the continuous remeasurement side of that loop;
+// DragRemeasure re-measures explicitly, and only, when a cross-group move changes the layout.
 const MEASURING_CONFIG = {
   droppable: { strategy: MeasuringStrategy.BeforeDragging },
 }
@@ -293,6 +295,7 @@ export const SurveyStructurePanel: React.FC = () => {
           onDragEnd={handleDragEndWrapper}
           onDragCancel={handleDragCancel}
         >
+          <DragRemeasure arrangement={arrangement} />
           <ListGroup>
             <SurveyTitleItemView survey={survey} />
             <SurveyWelcomeItemView survey={survey} />
@@ -322,7 +325,9 @@ export const SurveyStructurePanel: React.FC = () => {
           </ListGroup>
 
           <DragOverlay dropAnimation={{ duration: 200 }}>
-            {getDragOverlayContent()}
+            <div className="opacity-40 shadow-md">
+              {getDragOverlayContent()}
+            </div>
           </DragOverlay>
         </DndContext>
       </div>

@@ -63,6 +63,7 @@ export const QuestionItemView: React.FC<QuestionItemViewProps> = React.memo(
       <SortableItem
         id={toQuestionDndId(question._id)}
         data={{ type: entityType, groupId: questionGroup._id }}
+        isDragOverlay={isDragOverlay}
       >
         <ListGroupItem
           className={cn(

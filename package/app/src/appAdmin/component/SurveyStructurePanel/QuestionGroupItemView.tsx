@@ -65,6 +65,7 @@ export const QuestionGroupItemView: React.FC<QuestionGroupItemViewProps> =
         <SortableItem
           id={toGroupDndId(questionGroup._id)}
           data={{ type: SURVEY_ENTITY_TYPE_SECTION }}
+          isDragOverlay={isDragOverlay}
         >
           <ListGroupItem
             className={cn(

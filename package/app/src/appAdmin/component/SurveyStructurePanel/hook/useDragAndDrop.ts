@@ -1,6 +1,11 @@
 import { useRef, useState } from 'react'
 import { arrayMove } from '@dnd-kit/sortable'
-import { DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core'
+import {
+  DragStartEvent,
+  DragOverEvent,
+  DragEndEvent,
+  Over,
+} from '@dnd-kit/core'
 import { Survey } from 'veysur-common'
 
 import {
@@ -52,6 +57,54 @@ const flattenQuestionOrder = (arrangement: DragArrangement): string[] =>
     (groupId) => arrangement.questionsByGroup[groupId] || [],
   )
 
+// Within one container the sortable strategy animates neighbours out of the way, so the
+// arrangement is only updated on drop. Re-arranging it live as well would apply the move
+// twice. Cross-container moves must update live (handled in handleDragOver).
+const applySameContainerMove = (
+  arrangement: DragArrangement,
+  activeDrag: ActiveDrag,
+  over: Over | null,
+): DragArrangement => {
+  if (!over) return arrangement
+  const overId = String(over.id)
+
+  if (activeDrag.type === SURVEY_ENTITY_TYPE_SECTION) {
+    const overGroupId = fromGroupDndId(overId)
+    if (!overGroupId || overGroupId === activeDrag.sectionId) return arrangement
+    const oldIndex = arrangement.groupOrder.indexOf(activeDrag.sectionId)
+    const newIndex = arrangement.groupOrder.indexOf(overGroupId)
+    if (oldIndex === -1 || newIndex === -1) return arrangement
+    return {
+      ...arrangement,
+      groupOrder: arrayMove(arrangement.groupOrder, oldIndex, newIndex),
+    }
+  }
+
+  const groupId = findQuestionGroup(arrangement, activeDrag.questionId)
+  if (!groupId) return arrangement
+  const list = arrangement.questionsByGroup[groupId]
+  const oldIndex = list.indexOf(activeDrag.questionId)
+
+  let newIndex = -1
+  if (fromGroupDndId(overId) === groupId) {
+    newIndex = 0
+  } else if (fromGroupContainerDndId(overId) === groupId) {
+    newIndex = list.length - 1
+  } else {
+    const overQuestionId = fromQuestionDndId(overId)
+    if (overQuestionId) newIndex = list.indexOf(overQuestionId)
+  }
+  if (newIndex === -1 || newIndex === oldIndex) return arrangement
+
+  return {
+    ...arrangement,
+    questionsByGroup: {
+      ...arrangement.questionsByGroup,
+      [groupId]: arrayMove(list, oldIndex, newIndex),
+    },
+  }
+}
+
 export const useDragAndDrop = (
   survey: Survey | undefined,
   operations?: ReturnType<typeof createSurveyOperations>,
@@ -84,20 +137,7 @@ export const useDragAndDrop = (
     const { over } = event
     if (!over || !arrangement || !activeDrag) return
 
-    if (activeDrag.type === SURVEY_ENTITY_TYPE_SECTION) {
-      const overGroupId = fromGroupDndId(String(over.id))
-      if (!overGroupId || overGroupId === activeDrag.sectionId) return
-
-      const oldIndex = arrangement.groupOrder.indexOf(activeDrag.sectionId)
-      const newIndex = arrangement.groupOrder.indexOf(overGroupId)
-      if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return
-
-      setArrangement({
-        ...arrangement,
-        groupOrder: arrayMove(arrangement.groupOrder, oldIndex, newIndex),
-      })
-      return
-    }
+    if (activeDrag.type === SURVEY_ENTITY_TYPE_SECTION) return
 
     const questionId = activeDrag.questionId
     const sourceGroupId = findQuestionGroup(arrangement, questionId)
@@ -127,24 +167,16 @@ export const useDragAndDrop = (
       return
     }
 
+    if (sourceGroupId === targetGroupId) return
+
     const sourceList = (
       arrangement.questionsByGroup[sourceGroupId] || []
     ).filter((id) => id !== questionId)
-    const targetList =
-      sourceGroupId === targetGroupId
-        ? sourceList
-        : (arrangement.questionsByGroup[targetGroupId] || []).slice()
+    const targetList = (
+      arrangement.questionsByGroup[targetGroupId] || []
+    ).slice()
 
     const clampedIndex = Math.min(Math.max(targetIndex, 0), targetList.length)
-
-    const currentTargetIndex =
-      arrangement.questionsByGroup[sourceGroupId]?.indexOf(questionId)
-    if (
-      sourceGroupId === targetGroupId &&
-      currentTargetIndex === clampedIndex
-    ) {
-      return
-    }
 
     targetList.splice(clampedIndex, 0, questionId)
 
@@ -158,13 +190,12 @@ export const useDragAndDrop = (
     })
   }
 
-  // Commits are computed entirely from `arrangement`/`activeDrag` (already
-  // kept in sync by onDragOver), so the event itself carries no information
-  // this handler needs — accepting it only matches DndContext's callback
-  // signature.
   const handleDragEnd = (event: DragEndEvent) => {
-    void event
-    commitArrangement()
+    if (arrangement && activeDrag) {
+      commitArrangement(
+        applySameContainerMove(arrangement, activeDrag, event.over),
+      )
+    }
     resetDragState()
   }
 
@@ -172,8 +203,8 @@ export const useDragAndDrop = (
     resetDragState()
   }
 
-  const commitArrangement = () => {
-    if (!survey || !arrangement || !activeDrag) return
+  const commitArrangement = (arrangement: DragArrangement) => {
+    if (!survey || !activeDrag) return
     const startArrangement = startArrangementRef.current
     if (!startArrangement) return
 
