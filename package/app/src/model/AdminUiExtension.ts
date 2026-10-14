@@ -7,5 +7,8 @@ import type { ComponentType } from 'react'
  */
 export type ProjectSwitcher = ComponentType
 
+/** Renders nothing visible; mounted once at the admin app root, beside the toaster. */
+export type AdminRootExtra = ComponentType
+
 /** Extra content at the end of the admin navbar. */
 export type AdminNavbarExtra = ComponentType

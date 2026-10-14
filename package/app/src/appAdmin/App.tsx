@@ -14,6 +14,7 @@ import { Toaster } from 'component/shadcn/sonner'
 import { VersionUpdateBanner } from 'component/VersionUpdateBanner'
 import { AuthBroadcastProvider } from 'component/AuthBroadcastProvider'
 import { SocketProvider } from 'component/SocketProvider'
+import { getAdminRootExtra } from 'registry'
 
 import { SiteAccessGate } from 'component/SiteAccessGate'
 
@@ -22,6 +23,10 @@ import { ADMIN_REALTIME_INVALIDATION } from './common/realtimeInvalidation'
 import { router } from './Router'
 import '../index.css'
 import './index.css'
+
+// Resolved once at module load: the extension registers before the app renders
+// (same pattern as NavbarBrandAdmin's getAdminNavbarExtra()).
+const AdminRootExtra = getAdminRootExtra()
 
 export const App: React.FC = () => {
   return (
@@ -42,6 +47,7 @@ export const App: React.FC = () => {
             </Suspense>
           </SiteAccessGate>
           <Toaster />
+          {AdminRootExtra && <AdminRootExtra />}
           <VersionUpdateBanner />
         </ThemeProvider>
       </PersistQueryClientProvider>

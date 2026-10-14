@@ -20,6 +20,8 @@ export type ShowFlashMessageFn = (
     title?: string
     duration?: number
     dedupKey?: string | number | boolean
+    /** Button on the toast. Pair with a long `duration` so it stays until used. */
+    action?: { label: string; onClick: () => void }
   },
 ) => void
 
@@ -60,7 +62,11 @@ const VARIANT_CONFIG = {
 const displayToast = (
   type: FlashMessageType,
   message: string,
-  options?: { title?: string; duration?: number },
+  options?: {
+    title?: string
+    duration?: number
+    action?: { label: string; onClick: () => void }
+  },
 ) => {
   const config = VARIANT_CONFIG[type]
   const Icon = config.icon
@@ -68,6 +74,7 @@ const displayToast = (
   toast(message, {
     description: options?.title,
     duration: options?.duration,
+    action: options?.action,
     icon: <Icon size={20} />,
     classNames: config.classNames,
   })
