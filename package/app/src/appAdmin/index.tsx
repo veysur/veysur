@@ -5,9 +5,11 @@ import ReactDOM from 'react-dom/client'
 import { isSelfHosted } from 'common'
 import { AuthDomain } from 'model'
 
+// Must stay above `./App`: App resolves the extension's root slot when its
+// module loads, so the registration in `./cloudFeatureGate` has to run first.
+import { isGenerated } from './cloudFeatureGate'
 import App from './App'
 import './i18n'
-import { isGenerated } from './cloudFeatureGate'
 
 import 'common/initMoment'
 
