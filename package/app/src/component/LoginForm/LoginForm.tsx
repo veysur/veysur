@@ -1,5 +1,5 @@
 import { Schema, sb } from '@datacapy/schema'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { QRCodeSVG } from 'qrcode.react'
 
@@ -77,9 +77,14 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
   const [enableError, setEnableError] = useState<string | null>(null)
   const [secretCopied, setSecretCopied] = useState(false)
 
+  const [loginDefaults] = useState(() => getLoginDefaults()())
+  const autoSubmitted = useRef(false)
+
   const form = useForm<LoginFormData>({
     resolver: datacapyResolver(loginSchema),
-    defaultValues: getLoginDefaults()() ?? { email: '', password: '' },
+    defaultValues: loginDefaults
+      ? { email: loginDefaults.email, password: loginDefaults.password }
+      : { email: '', password: '' },
   })
 
   const confirmForm = useForm<SetupConfirmFormData>({
@@ -112,8 +117,7 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
       .finally(() => setSetupIsLoading(false))
   }, [view, preAuthToken])
 
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  const submit = async () => {
     setFormIsLoading(true)
     setFormError(null)
 
@@ -158,6 +162,18 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
     }
     setFormIsLoading(false)
   }
+
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    return submit()
+  }
+
+  useEffect(() => {
+    if (!loginDefaults?.autoSubmit || autoSubmitted.current) return
+    autoSubmitted.current = true
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-shot sign-in on mount, kicking off the async submit like a button press
+    void submit()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const submitSetupConfirm = async () => {
     const isValid = await confirmForm.trigger()
@@ -387,6 +403,11 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
                   Remember me
                 </Label>
               </div>
+              {formIsLoading && loginDefaults?.autoSubmitMessage && (
+                <p role="status" className="text-center text-muted-foreground">
+                  {loginDefaults.autoSubmitMessage}
+                </p>
+              )}
               {formError && (
                 <Alert variant="destructive">
                   <AlertDescription>{formError}</AlertDescription>

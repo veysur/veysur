@@ -18,9 +18,14 @@ import { CookieConsentBanner } from 'component/CookieConsent'
 import { GoogleAnalytics } from 'component/GoogleAnalytics'
 import { VersionUpdateBanner } from 'component/VersionUpdateBanner'
 import { AuthBroadcastProvider } from 'component/AuthBroadcastProvider'
+import { getAccountRootExtra } from 'registry'
 
 import { router } from './Router'
 import { RouteLoading } from './component/RouteLoading'
+
+// Resolved once at module load: the extension registers before the app renders
+// (same pattern as appAdmin's getAdminRootExtra()).
+const AccountRootExtra = getAccountRootExtra()
 
 export const App: React.FC = () => {
   return (
@@ -40,6 +45,7 @@ export const App: React.FC = () => {
             </Suspense>
           </SiteAccessGate>
           <Toaster />
+          {AccountRootExtra && <AccountRootExtra />}
           <CookieConsentBanner />
           <GoogleAnalytics tagId={process.env.PUBLIC_GA_TAG_ID_ACCOUNT ?? ''} />
           <VersionUpdateBanner />

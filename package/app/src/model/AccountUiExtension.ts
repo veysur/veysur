@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react'
-import type { AuthData } from 'hook'
+import type { AuthData, AuthUser } from 'hook'
 
 /**
  * Extension points an extension uses to inject its own UI into shared
@@ -14,14 +14,19 @@ export interface LoginExtraContentProps {
 
 export type LoginExtraContent = ComponentType<LoginExtraContentProps>
 
+export interface LoginDefaults {
+  email: string
+  password: string
+  /** Sign in as soon as the form mounts, with `autoSubmitMessage` shown while it does. */
+  autoSubmit?: boolean
+  autoSubmitMessage?: string
+}
+
 /**
  * Initial values for the login form, or null to leave it empty. Called once
  * when the form mounts; see `registry/getLoginDefaults.ts`.
  */
-export type LoginDefaultsResolver = () => {
-  email: string
-  password: string
-} | null
+export type LoginDefaultsResolver = () => LoginDefaults | null
 
 export type ProfileDangerZoneExtra = ComponentType
 
@@ -51,7 +56,7 @@ export interface AccountNavItem {
  * `registry/getAccountNavProvider.ts`.
  */
 export interface AccountNavProvider {
-  getNavItems(): AccountNavItem[]
+  getNavItems(user?: AuthUser | null): AccountNavItem[]
 }
 
 /**

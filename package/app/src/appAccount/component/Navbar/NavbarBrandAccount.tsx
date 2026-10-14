@@ -58,7 +58,7 @@ export const NavbarBrandAccount: React.FC<NavbarBrandAccountProps> = (
   // Which items appear here (the edition's own entries vs. a single Surveys link) is
   // edition-specific - see `model/AccountUiExtension.ts`'s `AccountNavProvider`
   // and `registry/getAccountNavProvider.ts`.
-  const navItems: AccountNavItem[] = accountNavProvider.getNavItems()
+  const navItems: AccountNavItem[] = accountNavProvider.getNavItems(auth?.user)
 
   const navigation = (
     <nav className="flex items-center space-x-1 md:space-x-4">

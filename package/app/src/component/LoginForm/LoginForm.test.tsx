@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 
 import { LoginForm } from './LoginForm'
 
@@ -15,6 +15,7 @@ jest.mock('model', () => ({
 }))
 
 const mockLoginDefaults = jest.fn()
+const mockLoginEmailPassword = jest.fn()
 
 jest.mock('registry', () => ({
   getApiAuth: jest.fn(),
@@ -23,14 +24,62 @@ jest.mock('registry', () => ({
 
 jest.mock('hook', () => ({
   useAuth: () => ({
-    loginEmailPassword: jest.fn(),
+    loginEmailPassword: mockLoginEmailPassword,
     setupAndLogin: jest.fn(),
   }),
 }))
 
 describe('LoginForm', () => {
   beforeEach(() => {
+    jest.clearAllMocks()
     mockLoginDefaults.mockReturnValue(null)
+    mockLoginEmailPassword.mockResolvedValue(true)
+  })
+
+  it('does not sign in on its own by default', () => {
+    mockLoginDefaults.mockReturnValue({ email: 'a@b.test', password: 'pw' })
+
+    render(<LoginForm />)
+
+    expect(mockLoginEmailPassword).not.toHaveBeenCalled()
+  })
+
+  it('signs in once on mount when the defaults ask for auto-submit', async () => {
+    mockLoginDefaults.mockReturnValue({
+      email: 'demo@example.com',
+      password: 'demo-password',
+      autoSubmit: true,
+    })
+
+    const { rerender } = render(<LoginForm />)
+    rerender(<LoginForm />)
+
+    await waitFor(() =>
+      expect(mockLoginEmailPassword).toHaveBeenCalledWith(
+        'demo@example.com',
+        'demo-password',
+        false,
+      ),
+    )
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /login/i })).toBeEnabled(),
+    )
+    expect(mockLoginEmailPassword).toHaveBeenCalledTimes(1)
+  })
+
+  it('shows the auto-submit message while signing in', async () => {
+    mockLoginEmailPassword.mockReturnValue(new Promise(() => undefined))
+    mockLoginDefaults.mockReturnValue({
+      email: 'demo@example.com',
+      password: 'demo-password',
+      autoSubmit: true,
+      autoSubmitMessage: 'Opening the demo…',
+    })
+
+    render(<LoginForm />)
+
+    expect(await screen.findByText('Opening the demo…')).toBeInTheDocument()
+    await waitFor(() => expect(mockLoginEmailPassword).toHaveBeenCalled())
   })
 
   it('leaves the fields empty when no login defaults are registered', () => {
