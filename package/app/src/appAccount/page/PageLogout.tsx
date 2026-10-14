@@ -31,11 +31,15 @@ export const PageLogout: React.FC = () => {
     // Preserve returnTo parameter for login page
     const urlParams = new URLSearchParams(window.location.search)
     const returnTo = urlParams.get('returnTo')
+    // An optional same-origin path to land on instead of the login page, for
+    // a flow that must end signed out somewhere else (e.g. `/signup`)
+    const next = urlParams.get('next')
+    const nextPath = next && /^\/(?![/\\])/.test(next) ? next : null
     const loginPath = returnTo
       ? `/login?returnTo=${encodeURIComponent(returnTo)}`
       : '/login'
 
-    navigate(loginPath, { replace: true })
+    navigate(nextPath ?? loginPath, { replace: true })
   }, [logout, setFlashMessage, navigate])
 
   // Show brief loading state while redirecting
