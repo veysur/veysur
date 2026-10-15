@@ -72,6 +72,21 @@ describe('SurveyEmbedCard', () => {
     expect(screen.getByText('Any website')).toBeInTheDocument()
   })
 
+  test('the lazy-load checkbox adds and removes data-lazy in the snippet', () => {
+    renderCard(makeSurvey({ embed: true }))
+    const checkbox = screen.getByRole('checkbox', {
+      name: /Load the survey only when it scrolls into view/,
+    })
+
+    expect(
+      screen.getByDisplayValue(/ data-lazy><\/script>/),
+    ).toBeInTheDocument()
+
+    fireEvent.click(checkbox)
+
+    expect(screen.queryByDisplayValue(/data-lazy/)).toBeNull()
+  })
+
   test('explains why a survey that is not open cannot be embedded, and disables the switch', () => {
     renderCard(makeSurvey({ open: false }))
 

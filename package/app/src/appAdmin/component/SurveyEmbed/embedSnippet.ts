@@ -5,14 +5,17 @@ export function buildEmbedSnippet({
   projectId,
   surveyId,
   language,
+  lazy = false,
 }: {
   origin: string
   projectId: string
   surveyId: string
   language?: string
+  lazy?: boolean
 }): string {
   const lang = language ? ` data-lang="${language}"` : ''
-  return `<script async src="${origin}/embed/loader.js" data-survey="${projectId}/${surveyId}"${lang}></script>`
+  const lazyAttribute = lazy ? ' data-lazy' : ''
+  return `<script async src="${origin}/embed/loader.js" data-survey="${projectId}/${surveyId}"${lang}${lazyAttribute}></script>`
 }
 
 export function buildEmbedPreviewUrl({

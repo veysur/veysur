@@ -6,6 +6,7 @@ import type { SettingSurvey, Survey } from 'veysur-common'
 import { copyToClipboard } from 'common/copyToClipboard'
 import { Button } from 'component/shadcn/button'
 import { Card, CardContent, CardHeader, CardTitle } from 'component/shadcn/card'
+import { Checkbox } from 'component/shadcn/checkbox'
 import { Label } from 'component/shadcn/label'
 import { Switch } from 'component/shadcn/switch'
 import { Textarea } from 'component/shadcn/textarea'
@@ -36,6 +37,7 @@ export const SurveyEmbedCard: React.FC<Props> = ({
   onEmbedChange,
 }) => {
   const [copied, setCopied] = React.useState(false)
+  const [lazy, setLazy] = React.useState(true)
   const access = survey.getAccess(settingSurvey)
   const blockers = getEmbedBlockers(access, survey)
   const canEmbed = blockers.length === 0
@@ -48,7 +50,7 @@ export const SurveyEmbedCard: React.FC<Props> = ({
     surveyId: survey._id,
     language,
   }
-  const snippet = buildEmbedSnippet(target)
+  const snippet = buildEmbedSnippet({ ...target, lazy })
 
   const handleCopy = async () => {
     if (await copyToClipboard(snippet)) {
@@ -129,6 +131,17 @@ export const SurveyEmbedCard: React.FC<Props> = ({
                   </Button>
                 </div>
               </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Checkbox
+                id="survey-embed-lazy"
+                checked={lazy}
+                onCheckedChange={(checked) => setLazy(checked === true)}
+              />
+              <Label htmlFor="survey-embed-lazy">
+                Load the survey only when it scrolls into view
+              </Label>
             </div>
 
             <div className="space-y-1">

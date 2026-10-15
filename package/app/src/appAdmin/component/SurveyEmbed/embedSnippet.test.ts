@@ -39,6 +39,15 @@ describe('embedSnippet', () => {
     )
   })
 
+  test('adds data-lazy only when asked, after the language', () => {
+    expect(buildEmbedSnippet({ ...target, lazy: true })).toBe(
+      '<script async src="https://acme.veysur.com/embed/loader.js" data-survey="p1/s1" data-lazy></script>',
+    )
+    expect(
+      buildEmbedSnippet({ ...target, language: 'de', lazy: true }),
+    ).toContain(' data-lang="de" data-lazy>')
+  })
+
   test('adds the language only when one is given', () => {
     expect(buildEmbedSnippet({ ...target, language: 'de' })).toContain(
       ' data-lang="de"',
