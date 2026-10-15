@@ -157,8 +157,6 @@ export function useEntityList() {
 
 **`authRefresh(true)` calls must stay.** Force-refresh after any mutation that changes auth-related user data (email verification, 2FA toggle) to reload React auth state. This is distinct from keeping the JWT fresh — it pushes a server-side change into the React layer.
 
-**`authRefresh(true)` calls must stay.** Force-refresh after any mutation that changes auth-related user data (email verification, 2FA toggle) to reload React auth state. This is distinct from keeping the JWT fresh — it pushes a server-side change into the React layer.
-
 ## Detailed Implementation Patterns
 
 For API class, Factory/Registry, Schema, Form, Edit Page patterns and component organization, see `src/AGENTS.md` (auto-discovered when working inside `src/`).
