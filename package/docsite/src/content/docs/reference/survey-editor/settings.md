@@ -70,6 +70,7 @@ When both Markdown and Raw HTML are turned off, survey text renders as plain tex
 | Anonymous responses | Responses are not linked to a participant record. No participant ID, name, or token is stored, and every response timestamp (created, updated, started, completed) is shown as "Anonymised" rather than a real time, so a response cannot be traced to a participant. |
 | Open access | Allow anyone with the survey link to access it without a token. When disabled, a token or Public Registration is required. |
 | Public Registration | Allow unregistered visitors to register with their name and email. VeySur creates a participant record and sends an invitation email. When enabled alongside Open access, registration is required even for open surveys. |
+| Prevent repeat submissions | Stop the same browser completing an open survey more than once. VeySur stores a cookie on the participant's browser after completion. Enabled by default. Clearing cookies or using another browser bypasses it. Participants with a token are limited by their token instead. |
 | Allowed Websites for Embedding | The websites that may show this survey as an embedded survey, one per line. A website also covers its subdomains. A survey inherits the project default unless it sets its own list, and an empty list allows any website. Turn embedding on in the Share tab. See [Embed a Survey in a Website](/guides/embed-a-survey/). |
 
 <!-- CAPTCHA for Registration is not yet implemented — re-add this row to the table above once it ships.

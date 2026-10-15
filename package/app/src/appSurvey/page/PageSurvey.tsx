@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react'
+import React, { useEffect, useRef, useCallback, useMemo } from 'react'
 import {
   useParams,
   useNavigate,
@@ -22,6 +22,7 @@ import { usePageTitle } from 'hook'
 
 import { TokenEntryForm } from '../component/TokenEntryForm'
 import { resolveUiLanguage } from '../common'
+import { hasCompleted, markCompleted } from '../common/completedCookie'
 import { useSurveyParticipantSnapshotPublished } from '../hook/useSurveyParticipantSnapshotPublished'
 import { useSurveyParticipantMe } from '../hook/useSurveyParticipantMe'
 import {
@@ -69,6 +70,21 @@ export const PageSurvey: React.FC = () => {
     }
   }, [participantData?.language])
 
+  // Re-evaluated only when the survey or its setting changes, not on the
+  // cookie write at completion, so completing it in this visit keeps showing
+  // the survey's own thank-you screen.
+  const repeatCookie = survey?.access?.repeatCookie === true
+  const hasSurvey = !!survey
+  const completedBefore = useMemo(
+    () =>
+      hasSurvey &&
+      !token &&
+      !!surveyId &&
+      repeatCookie &&
+      hasCompleted(surveyId),
+    [hasSurvey, token, surveyId, repeatCookie],
+  )
+
   usePageTitle(survey?.name || 'Survey', { suffix: 'Veysur' })
 
   const {
@@ -109,8 +125,11 @@ export const PageSurvey: React.FC = () => {
       language?: string,
     ) => {
       await saveResponse(answer, completed, seeds, language)
+      if (completed && surveyId && survey?.access?.repeatCookie) {
+        markCompleted(surveyId)
+      }
     },
-    [saveResponse],
+    [saveResponse, surveyId, survey?.access?.repeatCookie],
   )
 
   useEffect(() => {
@@ -235,7 +254,7 @@ export const PageSurvey: React.FC = () => {
     )
   }
 
-  if (loadError?.ref === ERROR_SURVEY_COMPLETED) {
+  if (loadError?.ref === ERROR_SURVEY_COMPLETED || completedBefore) {
     return (
       <SurveyPageContainer>
         <SurveySuccessCard>
@@ -244,7 +263,7 @@ export const PageSurvey: React.FC = () => {
               {t('page.surveyCompletedTitle')}
             </h2>
             <p className="text-muted-foreground">
-              {loadError.userMessage || t('page.surveyCompletedBody')}
+              {loadError?.userMessage || t('page.surveyCompletedBody')}
             </p>
           </div>
         </SurveySuccessCard>

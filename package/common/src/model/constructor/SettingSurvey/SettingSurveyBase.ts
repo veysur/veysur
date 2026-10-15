@@ -224,7 +224,7 @@ export class SettingSurveyBase {
     index: false,
     tokenPersist: true,
     multiple: false,
-    repeatCookie: false,
+    repeatCookie: true,
     resumeLink: false,
     captcha: false,
     captchaReg: false,

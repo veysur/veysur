@@ -2,6 +2,8 @@ import { render } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
+import { Survey } from 'veysur-common'
+
 import { PageSurvey } from './PageSurvey'
 import { useSurveyAuth, ERROR_REG_REQUIRED } from '../hook/useSurveyAuth'
 import { useSurveyParticipantSnapshotPublished } from '../hook/useSurveyParticipantSnapshotPublished'
@@ -106,5 +108,58 @@ describe('PageSurvey registration redirect', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/s1/register', {
       replace: true,
     })
+  })
+})
+
+describe('PageSurvey repeat-submission cookie', () => {
+  const setSurvey = (repeatCookie: boolean) =>
+    mockedSnapshot.mockReturnValue({
+      surveyId: 's1',
+      survey: new Survey({
+        _id: 's1',
+        name: 'S',
+        access: { repeatCookie },
+      } as never) as never,
+      settingSurvey: undefined,
+      loading: false,
+      error: null,
+      isLoading: false,
+      isFetching: false,
+      isError: false,
+    })
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockedAuth.mockReturnValue({
+      jwt: 'jwt',
+      error: undefined,
+      isLoading: false,
+      isError: false,
+    } as never)
+    mockedMe.mockReturnValue({ participantData: {} } as never)
+    mockedResponse.mockReturnValue({
+      saveResponse: jest.fn(),
+      response: undefined,
+      loadedResponse: undefined,
+      loadError: null,
+      isLoading: false,
+    } as never)
+    document.cookie = 'veysur_done_s1=1; Path=/'
+  })
+
+  afterEach(() => {
+    document.cookie = 'veysur_done_s1=; Path=/; Max-Age=0'
+  })
+
+  test('shows the already-completed card when cookie and setting are set', () => {
+    setSurvey(true)
+    const { getByText } = renderAt('/survey/s1')
+    expect(getByText('page.surveyCompletedTitle')).toBeInTheDocument()
+  })
+
+  test('does not block when the setting is off', () => {
+    setSurvey(false)
+    const { queryByText } = renderAt('/survey/s1')
+    expect(queryByText('page.surveyCompletedTitle')).not.toBeInTheDocument()
   })
 })
