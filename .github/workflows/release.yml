@@ -37,7 +37,7 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
-          ref: ${{ format('refs/tags/v{0}', github.event.inputs.version || github.ref_name) }}
+          ref: ${{ format('refs/tags/{0}', env.TAG) }}
           submodules: recursive
 
       - name: Log in to GHCR
