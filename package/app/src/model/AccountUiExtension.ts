@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react'
+import type { ComponentType, ReactNode } from 'react'
 import type { AuthData, AuthUser } from 'hook'
 
 /**
@@ -29,6 +29,9 @@ export interface LoginDefaults {
 export type LoginDefaultsResolver = () => LoginDefaults | null
 
 export type ProfileDangerZoneExtra = ComponentType
+
+/** Wraps the profile edit pages; an extension may render a replacement for them. */
+export type ProfileEditGuard = ComponentType<{ children: ReactNode }>
 
 /**
  * A single navbar link in `appAccount`'s top nav. `external: true` means

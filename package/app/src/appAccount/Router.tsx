@@ -8,8 +8,11 @@ import {
 import { AuthGate } from 'component/AuthGate'
 import { Page404 } from 'component/Page404'
 import { PageError } from 'component/PageError'
+import { getProfileEditGuard } from 'registry'
 
 import { extraRouteObjects, isGenerated } from './cloudComposition'
+
+const ProfileEditGuard = getProfileEditGuard()
 
 const PageLogin = lazy(() => import('./page/PageLogin'))
 const PageLogout = lazy(() => import('./page/PageLogout'))
@@ -56,7 +59,9 @@ const routes = createRoutesFromElements(
       path="/profile/basic"
       element={
         <AuthGate>
-          <PageProfileBasic />
+          <ProfileEditGuard>
+            <PageProfileBasic />
+          </ProfileEditGuard>
         </AuthGate>
       }
     />
@@ -64,7 +69,9 @@ const routes = createRoutesFromElements(
       path="/profile/email"
       element={
         <AuthGate>
-          <PageProfileEmail />
+          <ProfileEditGuard>
+            <PageProfileEmail />
+          </ProfileEditGuard>
         </AuthGate>
       }
     />
@@ -72,7 +79,9 @@ const routes = createRoutesFromElements(
       path="/profile/password"
       element={
         <AuthGate>
-          <PageProfilePassword />
+          <ProfileEditGuard>
+            <PageProfilePassword />
+          </ProfileEditGuard>
         </AuthGate>
       }
     />
@@ -80,7 +89,9 @@ const routes = createRoutesFromElements(
       path="/profile/security"
       element={
         <AuthGate>
-          <PageProfileSecurity />
+          <ProfileEditGuard>
+            <PageProfileSecurity />
+          </ProfileEditGuard>
         </AuthGate>
       }
     />
