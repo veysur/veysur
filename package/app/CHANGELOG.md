@@ -1,5 +1,13 @@
 # veysur-app
 
+## 0.10.1
+
+### Patch Changes
+
+- 34fca81: Refresh the lockfile so the release workflow can build the container images. The 0.10.0 release published no images or tarballs because the lockfile did not match the docsite manifest.
+- veysur-common@0.10.1
+  - veysur-theme@0.10.1
+
 ## 0.10.0
 
 ### Minor Changes
