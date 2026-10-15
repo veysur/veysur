@@ -5,11 +5,12 @@ description: Install a self-hosted VeySur instance from a release package.
 
 ## Install
 
-1. Download the latest release from the [VeySur releases page](https://github.com/veysur/veysur/releases).
+1. Download `veysur-<version>.tar.gz` from the Assets list on the [VeySur releases page](https://github.com/veysur/veysur/releases). Do not use the "Source code" archive, which does not contain the installer.
 2. Unpack it and run the installer:
 
    ```bash
-   tar -xzf veysur-1.2.0.tar.gz && cd veysur
+   wget https://github.com/veysur/veysur/releases/download/v0.10.1/veysur-0.10.1.tar.gz
+   tar -xzf veysur-0.10.1.tar.gz && cd veysur
    ./install.sh
    ```
 
