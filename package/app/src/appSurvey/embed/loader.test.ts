@@ -81,9 +81,11 @@ describe('embed loader', () => {
       configurable: true,
     })
 
-    const embed = (window as unknown as {
-      VeySurEmbed: { setTheme: (theme: string) => void }
-    }).VeySurEmbed
+    const embed = (
+      window as unknown as {
+        VeySurEmbed: { setTheme: (theme: string) => void }
+      }
+    ).VeySurEmbed
     embed.setTheme('dark')
     embed.setTheme('dark')
 
@@ -92,6 +94,66 @@ describe('embed loader', () => {
       { type: 'veysur:embed:theme', theme: 'dark' },
       ORIGIN,
     )
+  })
+
+  describe('data-lazy', () => {
+    type Entry = { isIntersecting: boolean }
+    let trigger: (entries: Entry[]) => void
+    const disconnect = jest.fn()
+    const original = (window as { IntersectionObserver?: unknown })
+      .IntersectionObserver
+
+    beforeEach(() => {
+      disconnect.mockClear()
+      ;(
+        window as unknown as { IntersectionObserver: unknown }
+      ).IntersectionObserver = jest.fn(
+        (callback: (entries: Entry[]) => void) => {
+          trigger = callback
+          return { observe: jest.fn(), disconnect }
+        },
+      )
+    })
+
+    afterEach(() => {
+      ;(
+        window as unknown as { IntersectionObserver: unknown }
+      ).IntersectionObserver = original
+    })
+
+    test('holds the src back until the iframe nears the viewport', () => {
+      const script = runLoader({ 'data-survey': 'p1/s1', 'data-lazy': '' })
+      const iframe = script.nextElementSibling as HTMLIFrameElement
+      expect(iframe.getAttribute('src')).toBeNull()
+
+      trigger([{ isIntersecting: false }])
+      expect(iframe.getAttribute('src')).toBeNull()
+
+      trigger([{ isIntersecting: true }])
+      expect(iframe.src).toBe(`${ORIGIN}/embed/p1/s1`)
+      expect(disconnect).toHaveBeenCalled()
+    })
+
+    test('uses the theme in force when it loads', () => {
+      const script = runLoader({ 'data-survey': 'p1/s1', 'data-lazy': '' })
+      const iframe = script.nextElementSibling as HTMLIFrameElement
+      ;(
+        window as unknown as { VeySurEmbed: { setTheme: (t: string) => void } }
+      ).VeySurEmbed.setTheme('dark')
+
+      trigger([{ isIntersecting: true }])
+
+      expect(iframe.src).toBe(`${ORIGIN}/embed/p1/s1?theme=dark`)
+    })
+
+    test('loads at once when IntersectionObserver is unavailable', () => {
+      delete (window as { IntersectionObserver?: unknown }).IntersectionObserver
+      const script = runLoader({ 'data-survey': 'p1/s1', 'data-lazy': '' })
+
+      expect((script.nextElementSibling as HTMLIFrameElement).src).toBe(
+        `${ORIGIN}/embed/p1/s1`,
+      )
+    })
   })
 
   test.each(['', 'p1', 'p1/s1/extra', '../etc/passwd', 'p1/s1"onload="x'])(

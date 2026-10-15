@@ -8,6 +8,9 @@
  * Theme: data-theme="light" (default), "dark" or "auto" (follows the visitor's
  * colour scheme). A host page with its own theme switch can call
  * window.VeySurEmbed.setTheme('light' | 'dark') to change it live.
+ *
+ * Lazy: add data-lazy to hold the iframe's src back until it is within about
+ * 300px of the viewport. Without IntersectionObserver it loads straight away.
  */
 ;(function () {
   'use strict'
@@ -38,13 +41,19 @@
       : 'light'
     : normaliseTheme(script.getAttribute('data-theme'))
 
-  var params = []
-  if (lang) params.push('lang=' + encodeURIComponent(lang))
-  if (theme === 'dark') params.push('theme=dark')
+  var lazy = script.hasAttribute('data-lazy')
+
+  // Read at call time so a theme change made before a lazy load is honoured.
+  function surveyUrl() {
+    var params = []
+    if (lang) params.push('lang=' + encodeURIComponent(lang))
+    if (theme === 'dark') params.push('theme=dark')
+    return (
+      origin + '/embed/' + survey + (params.length ? '?' + params.join('&') : '')
+    )
+  }
 
   var iframe = document.createElement('iframe')
-  iframe.src =
-    origin + '/embed/' + survey + (params.length ? '?' + params.join('&') : '')
   iframe.title = script.getAttribute('data-title') || 'Survey'
   iframe.loading = 'lazy'
   // Always tell the survey which site embeds it, whatever the host page's own
@@ -55,6 +64,22 @@
   iframe.setAttribute('scrolling', 'no')
 
   script.parentNode.insertBefore(iframe, script.nextSibling)
+
+  if (lazy && 'IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(
+      function (entries) {
+        if (!entries.some(function (entry) { return entry.isIntersecting })) {
+          return
+        }
+        observer.disconnect()
+        iframe.src = surveyUrl()
+      },
+      { rootMargin: '300px' },
+    )
+    observer.observe(iframe)
+  } else {
+    iframe.src = surveyUrl()
+  }
 
   function sendTheme() {
     if (iframe.contentWindow) {

@@ -17,6 +17,12 @@ The shell ignores the shared `veysur-theme` cookie and is light unless the host 
 accepts the message from its parent window. The loader keeps one `VeySurEmbed` global, so with several
 embeds on a page the last loader wins.
 
+The iframe is created with `loading="lazy"`, so the browser decides when to fetch it. Adding `data-lazy` to the
+script tag instead leaves the iframe without a `src` until it is within about 300px of the viewport (an
+`IntersectionObserver` with `rootMargin: '300px'`), which gives a predictable threshold. The URL is built at that
+moment, so a `data-theme` or `setTheme()` change made earlier is honoured. Without `IntersectionObserver` the
+iframe loads at once. `data-lazy` does not defer `loader.js` itself: the host page still fetches the script.
+
 ## Files written (`ServiceSurveyEmbedArtefact`)
 
 Public bucket, under `project-<id>/survey/<surveyId>/embed/`:
