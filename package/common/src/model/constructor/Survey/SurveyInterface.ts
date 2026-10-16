@@ -89,7 +89,7 @@ export interface SurveyInterface
     index?: boolean | null
     tokenPersist?: boolean | null
     multiple?: boolean | null
-    repeatCookie?: boolean | null
+    preventRepeat?: boolean | null
     resumeLink?: boolean | null
     captcha?: boolean | null
     captchaReg?: boolean | null
@@ -179,7 +179,7 @@ export interface SurveyInterface
     index: boolean
     tokenPersist: boolean
     multiple: boolean
-    repeatCookie: boolean
+    preventRepeat: boolean
     resumeLink: boolean
     captcha: boolean
     captchaReg: boolean

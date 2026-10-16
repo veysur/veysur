@@ -61,7 +61,7 @@ export interface SettingSurveyProperties {
     index: boolean
     tokenPersist: boolean
     multiple: boolean
-    repeatCookie: boolean
+    preventRepeat: boolean
     resumeLink: boolean
     captcha: boolean
     captchaReg: boolean

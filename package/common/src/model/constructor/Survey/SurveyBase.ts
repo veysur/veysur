@@ -72,7 +72,7 @@ export interface SurveyData {
     index?: boolean | null
     tokenPersist?: boolean | null
     multiple?: boolean | null
-    repeatCookie?: boolean | null
+    preventRepeat?: boolean | null
     resumeLink?: boolean | null
     captcha?: boolean | null
     captchaReg?: boolean | null
@@ -206,7 +206,7 @@ export class SurveyBase {
     index?: boolean | null
     tokenPersist?: boolean | null
     multiple?: boolean | null
-    repeatCookie?: boolean | null
+    preventRepeat?: boolean | null
     resumeLink?: boolean | null
     captcha?: boolean | null
     captchaReg?: boolean | null
@@ -220,7 +220,7 @@ export class SurveyBase {
     index: null,
     tokenPersist: null,
     multiple: null,
-    repeatCookie: null,
+    preventRepeat: null,
     resumeLink: null,
     captcha: null,
     captchaReg: null,

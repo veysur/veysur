@@ -110,7 +110,7 @@ export class SchemaSettingSurvey extends Schema {
             // Allow multiple responses from one token
             multiple: sb.boolean().default(null),
             // Use cookie to prevent repeat submissions
-            repeatCookie: sb.boolean().default(null),
+            preventRepeat: sb.boolean().default(null),
             // Allow participant to resume survey after leaving the page
             // - using a provided link with a resume-token
             // - (different from a participant token)

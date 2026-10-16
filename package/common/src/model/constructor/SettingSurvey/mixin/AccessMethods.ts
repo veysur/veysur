@@ -8,7 +8,7 @@ const defaultAccess = {
   index: false,
   tokenPersist: true,
   multiple: false,
-  repeatCookie: false,
+  preventRepeat: false,
   resumeLink: false,
   captcha: false,
   captchaReg: false,

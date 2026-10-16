@@ -89,7 +89,7 @@ export interface SettingSurveyData {
     index: boolean
     tokenPersist: boolean
     multiple: boolean
-    repeatCookie: boolean
+    preventRepeat: boolean
     resumeLink: boolean
     captcha: boolean
     captchaReg: boolean
@@ -210,7 +210,7 @@ export class SettingSurveyBase {
     index: boolean
     tokenPersist: boolean
     multiple: boolean
-    repeatCookie: boolean
+    preventRepeat: boolean
     resumeLink: boolean
     captcha: boolean
     captchaReg: boolean
@@ -224,7 +224,7 @@ export class SettingSurveyBase {
     index: false,
     tokenPersist: true,
     multiple: false,
-    repeatCookie: true,
+    preventRepeat: true,
     resumeLink: false,
     captcha: false,
     captchaReg: false,

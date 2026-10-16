@@ -27,7 +27,7 @@ describe('PublishPrepMethods', () => {
         index: false,
         tokenPersist: true,
         multiple: false,
-        repeatCookie: false,
+        preventRepeat: false,
         resumeLink: false,
         captcha: false,
         captchaReg: false,
@@ -64,7 +64,7 @@ describe('PublishPrepMethods', () => {
       expect(accessSettings.index).toBe(false)
       expect(accessSettings.tokenPersist).toBe(true)
       expect(accessSettings.multiple).toBe(false)
-      expect(accessSettings.repeatCookie).toBe(false)
+      expect(accessSettings.preventRepeat).toBe(false)
       expect(accessSettings.resumeLink).toBe(false)
       expect(accessSettings.captcha).toBe(false)
       expect(accessSettings.captchaReg).toBe(false)
@@ -102,7 +102,7 @@ describe('PublishPrepMethods', () => {
           index: true,
           tokenPersist: false,
           multiple: true,
-          repeatCookie: true,
+          preventRepeat: true,
           resumeLink: true,
           captcha: true,
           captchaReg: true,
@@ -122,7 +122,7 @@ describe('PublishPrepMethods', () => {
       expect(accessSettings.index).toBe(true)
       expect(accessSettings.tokenPersist).toBe(false)
       expect(accessSettings.multiple).toBe(true)
-      expect(accessSettings.repeatCookie).toBe(true)
+      expect(accessSettings.preventRepeat).toBe(true)
       expect(accessSettings.resumeLink).toBe(true)
       expect(accessSettings.captcha).toBe(true)
       expect(accessSettings.captchaReg).toBe(true)
@@ -145,7 +145,7 @@ describe('PublishPrepMethods', () => {
           index: null,
           tokenPersist: null,
           multiple: null,
-          repeatCookie: null,
+          preventRepeat: null,
           resumeLink: null,
           captcha: null,
           captchaReg: null,
@@ -165,7 +165,7 @@ describe('PublishPrepMethods', () => {
       expect(accessSettings.index).toBe(false)
       expect(accessSettings.tokenPersist).toBe(true)
       expect(accessSettings.multiple).toBe(false)
-      expect(accessSettings.repeatCookie).toBe(false)
+      expect(accessSettings.preventRepeat).toBe(false)
       expect(accessSettings.resumeLink).toBe(false)
       expect(accessSettings.captcha).toBe(false)
       expect(accessSettings.captchaReg).toBe(false)

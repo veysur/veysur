@@ -111,14 +111,14 @@ describe('PageSurvey registration redirect', () => {
   })
 })
 
-describe('PageSurvey repeat-submission cookie', () => {
-  const setSurvey = (repeatCookie: boolean) =>
+describe('PageSurvey repeat-submission flag', () => {
+  const setSurvey = (preventRepeat: boolean) =>
     mockedSnapshot.mockReturnValue({
       surveyId: 's1',
       survey: new Survey({
         _id: 's1',
         name: 'S',
-        access: { repeatCookie },
+        access: { preventRepeat },
       } as never) as never,
       settingSurvey: undefined,
       loading: false,
@@ -144,14 +144,14 @@ describe('PageSurvey repeat-submission cookie', () => {
       loadError: null,
       isLoading: false,
     } as never)
-    document.cookie = 'veysur_done_s1=1; Path=/'
+    window.localStorage.setItem('veysur_done_s1', '1')
   })
 
   afterEach(() => {
-    document.cookie = 'veysur_done_s1=; Path=/; Max-Age=0'
+    window.localStorage.removeItem('veysur_done_s1')
   })
 
-  test('shows the already-completed card when cookie and setting are set', () => {
+  test('shows the already-completed card when the stored flag and setting are set', () => {
     setSurvey(true)
     const { getByText } = renderAt('/survey/s1')
     expect(getByText('page.surveyCompletedTitle')).toBeInTheDocument()

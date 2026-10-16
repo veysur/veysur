@@ -50,7 +50,7 @@ describe('SettingSurvey Access Methods', () => {
         'index',
         'tokenPersist',
         'multiple',
-        'repeatCookie',
+        'preventRepeat',
         'resumeLink',
         'captcha',
         'captchaReg',
@@ -235,11 +235,11 @@ describe('SettingSurvey Access Methods', () => {
     test('flexible response surveySetting configuration', () => {
       const flexibleSurvey = surveySetting
         .setAccessProperty('multiple', true)
-        .setAccessProperty('repeatCookie', true)
+        .setAccessProperty('preventRepeat', true)
         .setAccessProperty('resumeLink', true)
 
       expect(flexibleSurvey.access.multiple).toBe(true)
-      expect(flexibleSurvey.access.repeatCookie).toBe(true)
+      expect(flexibleSurvey.access.preventRepeat).toBe(true)
       expect(flexibleSurvey.access.resumeLink).toBe(true)
     })
   })

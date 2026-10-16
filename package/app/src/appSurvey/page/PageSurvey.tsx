@@ -22,7 +22,7 @@ import { usePageTitle } from 'hook'
 
 import { TokenEntryForm } from '../component/TokenEntryForm'
 import { resolveUiLanguage } from '../common'
-import { hasCompleted, markCompleted } from '../common/completedCookie'
+import { hasCompleted, markCompleted } from '../common/completedStorage'
 import { useSurveyParticipantSnapshotPublished } from '../hook/useSurveyParticipantSnapshotPublished'
 import { useSurveyParticipantMe } from '../hook/useSurveyParticipantMe'
 import {
@@ -73,16 +73,16 @@ export const PageSurvey: React.FC = () => {
   // Re-evaluated only when the survey or its setting changes, not on the
   // cookie write at completion, so completing it in this visit keeps showing
   // the survey's own thank-you screen.
-  const repeatCookie = survey?.access?.repeatCookie === true
+  const preventRepeat = survey?.access?.preventRepeat === true
   const hasSurvey = !!survey
   const completedBefore = useMemo(
     () =>
       hasSurvey &&
       !token &&
       !!surveyId &&
-      repeatCookie &&
+      preventRepeat &&
       hasCompleted(surveyId),
-    [hasSurvey, token, surveyId, repeatCookie],
+    [hasSurvey, token, surveyId, preventRepeat],
   )
 
   usePageTitle(survey?.name || 'Survey', { suffix: 'Veysur' })
@@ -125,11 +125,11 @@ export const PageSurvey: React.FC = () => {
       language?: string,
     ) => {
       await saveResponse(answer, completed, seeds, language)
-      if (completed && surveyId && survey?.access?.repeatCookie) {
+      if (completed && surveyId && survey?.access?.preventRepeat) {
         markCompleted(surveyId)
       }
     },
-    [saveResponse, surveyId, survey?.access?.repeatCookie],
+    [saveResponse, surveyId, survey?.access?.preventRepeat],
   )
 
   useEffect(() => {

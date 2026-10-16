@@ -86,17 +86,17 @@ export function BaseAccessSettings<T>({ data, handlers, layout }: Props<T>) {
 
       <DefaultableButtonSwitch
         label="Prevent repeat submissions"
-        value={data.access?.repeatCookie}
+        value={data.access?.preventRepeat}
         onChange={(value) =>
-          handlers.handleBooleanChange?.('access', 'repeatCookie', value)
+          handlers.handleBooleanChange?.('access', 'preventRepeat', value)
         }
         options={[
           { value: handlers.YES, label: handlers.YES },
           { value: handlers.NO, label: handlers.NO },
         ]}
         hasDefaults={hasDefaults}
-        defaultValue={data.getDefault?.('access', 'repeatCookie')}
-        helpText="Stops the same browser completing an open survey more than once. Clearing cookies or using another browser bypasses it."
+        defaultValue={data.getDefault?.('access', 'preventRepeat')}
+        helpText="Stops the same browser completing an open survey more than once. Clearing site data, private browsing or another browser bypasses it."
         className="mb-3"
       />
 

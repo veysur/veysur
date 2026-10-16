@@ -84,7 +84,7 @@ export interface SettingSurveyMixinBase {
     index?: boolean | null
     tokenPersist?: boolean | null
     multiple?: boolean | null
-    repeatCookie?: boolean | null
+    preventRepeat?: boolean | null
     resumeLink?: boolean | null
     captcha?: boolean | null
     captchaReg?: boolean | null
