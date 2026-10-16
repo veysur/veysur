@@ -1,7 +1,6 @@
 import { useAuth } from 'hook/useAuth'
 import { useInvalidatingMutation } from 'hook/useInvalidatingMutation'
 
-import { KEY_STATE_PROJECT_DOMAIN } from 'appAdmin/common'
 import { getProjectApi } from 'appAdmin/registry/getProjectApi'
 
 export function useProjectTimezoneUpdate(projectId: string) {
@@ -10,11 +9,12 @@ export function useProjectTimezoneUpdate(projectId: string) {
   const mutation = useInvalidatingMutation({
     mutationFn: (timezone: string) =>
       getProjectApi().updateTimezone(projectId, timezone),
-    invalidateKeys: [[KEY_STATE_PROJECT_DOMAIN]],
+    // Not KEY_STATE_PROJECT_DOMAIN: its queryFn is a null stub, so invalidating
+    // it resets the project to null and it is re-resolved from the stale auth.
+    invalidateKeys: [],
     onSuccess: async () => {
-      // Refresh auth to reload the updated timezone into
-      // auth.user.projectOwn/projectAdmin - useProjectDomain() derives its
-      // data from there, not a server-fetched query.
+      // useProjectDomain() derives its data from auth.user.projectOwn/
+      // projectAdmin, so refreshing auth is what propagates the new timezone.
       await authRefresh(true)
     },
   })
