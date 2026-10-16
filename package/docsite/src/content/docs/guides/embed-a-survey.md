@@ -27,3 +27,7 @@ By default any website can embed the survey. To limit this, open **Settings**, t
 The embed switch and the allowed websites are fixed when a survey is published. After changing either, publish the survey again. A republished survey reaches embedded pages within about a minute.
 
 Embedded responses do not resume. A visitor who returns to the page starts again.
+
+## Repeat submissions
+
+When **Prevent repeat submissions** is on, a browser that has completed an embedded survey sees a completed message instead of the survey. The record is kept per website, so the same survey embedded on another website can be completed once there too. Clearing site data or using a private window bypasses it. See [Settings](/reference/survey-editor/settings/#access).
