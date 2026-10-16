@@ -5,7 +5,11 @@ import { QUESTION_TYPE_STAR_RATING } from 'veysur-common'
 
 import { QuestionTypeProps } from '../QuestionTypeProps'
 import { useRatingSelection } from './useRatingSelection'
-import { getRatingPointLabel, POINT_SCALE_LAYOUT } from './ratingScaleLabels'
+import {
+  getRatingPointLabel,
+  POINT_SCALE_LAYOUT,
+  pointColumnStyle,
+} from './ratingScaleLabels'
 
 const STAR_COUNT = 5
 
@@ -48,7 +52,7 @@ export const MultipleChoiceStarRating: React.FC<
           <div
             key={starNumber}
             className="flex min-w-0 flex-col items-center gap-1"
-            style={{ width: columnWidth }}
+            style={pointColumnStyle(columnWidth)}
           >
             {!hideLabels && starLabel && (
               <span className="text-muted-foreground w-full text-center text-xs leading-tight break-normal">

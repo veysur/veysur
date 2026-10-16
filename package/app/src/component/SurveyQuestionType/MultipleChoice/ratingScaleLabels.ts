@@ -19,11 +19,22 @@ export const getRatingPointLabel = (
 // Column width/gap for each point-scale type's point buttons, shared between
 // each control's own rendering and QuestionTypeMultiPart's shared labels
 // header so the header columns stay aligned with the rows underneath.
+// Columns shrink (never wrap) when the row is narrower than the sum of widths.
+export const pointColumnStyle = (columnWidth: string) => ({
+  flex: `0 1 ${columnWidth}`,
+})
+
 export const POINT_SCALE_LAYOUT: Record<
   string,
   { columnWidth: string; gapClassName: string }
 > = {
   [QUESTION_TYPE_STAR_RATING]: { columnWidth: '2.5rem', gapClassName: 'gap-1' },
-  [QUESTION_TYPE_POINT_5]: { columnWidth: '2.5rem', gapClassName: 'gap-2' },
-  [QUESTION_TYPE_POINT_10]: { columnWidth: '2rem', gapClassName: 'gap-2' },
+  [QUESTION_TYPE_POINT_5]: {
+    columnWidth: '2.5rem',
+    gapClassName: 'gap-1 sm:gap-2',
+  },
+  [QUESTION_TYPE_POINT_10]: {
+    columnWidth: '2rem',
+    gapClassName: 'gap-1 sm:gap-2',
+  },
 }

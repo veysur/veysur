@@ -2,7 +2,7 @@ import React from 'react'
 
 import { SurveyQuestion } from 'veysur-common'
 
-import { getRatingPointLabel } from './ratingScaleLabels'
+import { getRatingPointLabel, pointColumnStyle } from './ratingScaleLabels'
 
 export interface RatingScaleLabelsHeaderProps {
   question: SurveyQuestion
@@ -33,7 +33,7 @@ export const RatingScaleLabelsHeader: React.FC<
 
   return (
     <div
-      className={`flex flex-wrap items-end ${gapClassName}`}
+      className={`flex flex-nowrap items-end ${gapClassName}`}
       aria-hidden="true"
       data-testid="rating-scale-labels-header"
     >
@@ -41,7 +41,7 @@ export const RatingScaleLabelsHeader: React.FC<
         <div
           key={index}
           className="flex min-w-0 flex-col items-center gap-1"
-          style={{ width: columnWidth }}
+          style={pointColumnStyle(columnWidth)}
         >
           <span className="text-muted-foreground w-full text-center text-xs leading-tight break-normal">
             {pointLabel}
