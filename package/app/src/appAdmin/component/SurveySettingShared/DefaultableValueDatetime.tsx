@@ -2,7 +2,8 @@ import React from 'react'
 import { format } from 'date-fns'
 
 import { Label } from 'component/shadcn/label'
-import { DateTimePicker } from 'component/DateTimePicker'
+import { DateTimePicker, toWallClock } from 'component/DateTimePicker'
+import { useDisplayTimezone } from 'appAdmin/hook'
 
 import { DefaultableWrapper } from './DefaultableWrapper'
 
@@ -29,11 +30,14 @@ const formatDateToISO = (date: Date | null): string | null => {
 }
 
 // Convert date to display format
-const formatDisplayDate = (date: Date | string | null | undefined): string => {
+const formatDisplayDate = (
+  date: Date | string | null | undefined,
+  timezone: string,
+): string => {
   if (!date) return ''
   const d = new Date(date)
   if (isNaN(d.getTime())) return ''
-  return format(d, 'PPP HH:mm')
+  return format(toWallClock(d, timezone), 'PPP HH:mm')
 }
 
 export const DefaultableValueDatetime: React.FC<
@@ -47,6 +51,7 @@ export const DefaultableValueDatetime: React.FC<
   helpText,
   className,
 }) => {
+  const timezone = useDisplayTimezone()
   const parsedCurrentValue = parseDate(currentValue)
   const parsedDefaultValue = parseDate(defaultValue)
 
@@ -56,6 +61,7 @@ export const DefaultableValueDatetime: React.FC<
       <div className={className}>
         <Label className="mb-2">{label}</Label>
         <DateTimePicker
+          timezone={timezone}
           value={parsedCurrentValue}
           onChange={(date) => onChange(formatDateToISO(date))}
           placeholder={`Select ${label.toLowerCase()}`}
@@ -69,7 +75,7 @@ export const DefaultableValueDatetime: React.FC<
 
   const formattedCurrentValue = formatDateToISO(parsedCurrentValue)
   const formattedDefaultValue = formatDateToISO(parsedDefaultValue)
-  const displayDefaultValue = formatDisplayDate(defaultValue)
+  const displayDefaultValue = formatDisplayDate(defaultValue, timezone)
 
   return (
     <DefaultableWrapper
@@ -86,6 +92,7 @@ export const DefaultableValueDatetime: React.FC<
         return (
           <>
             <DateTimePicker
+              timezone={timezone}
               value={currentDate}
               onChange={(date) => handleChange(formatDateToISO(date) ?? '')}
               placeholder={

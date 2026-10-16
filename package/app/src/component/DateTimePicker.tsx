@@ -1,5 +1,6 @@
 import React from 'react'
 import { format } from 'date-fns'
+import momentTimezone from 'moment-timezone'
 import { Calendar as CalendarIcon } from 'lucide-react'
 
 import { cn } from 'common/cn'
@@ -18,6 +19,35 @@ interface DateTimePickerProps {
   onChange: (date: Date | null) => void
   placeholder?: string
   disabled?: boolean
+  /** IANA zone the wall-clock date and time are entered in; browser zone when omitted. */
+  timezone?: string
+}
+
+/**
+ * The instant's wall-clock reading in `timezone`, as a browser-local Date with
+ * the same fields (the calendar widget and date-fns only work in local time).
+ */
+export const toWallClock = (date: Date, timezone?: string): Date => {
+  if (!timezone) return date
+  const m = momentTimezone.tz(date, timezone)
+  return new Date(m.year(), m.month(), m.date(), m.hour(), m.minute(), 0, 0)
+}
+
+/** Inverse of `toWallClock`: the instant whose reading in `timezone` is the local fields of `wallClock`. */
+export const fromWallClock = (wallClock: Date, timezone?: string): Date => {
+  if (!timezone) return wallClock
+  return momentTimezone
+    .tz(
+      {
+        year: wallClock.getFullYear(),
+        month: wallClock.getMonth(),
+        date: wallClock.getDate(),
+        hour: wallClock.getHours(),
+        minute: wallClock.getMinutes(),
+      },
+      timezone,
+    )
+    .toDate()
 }
 
 export const DateTimePicker: React.FC<DateTimePickerProps> = ({
@@ -25,12 +55,20 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   onChange,
   placeholder = 'Pick a date and time',
   disabled,
+  timezone,
 }) => {
-  const [date, setDate] = React.useState<Date | undefined>(value || undefined)
+  // Everything below works on wall-clock Dates; only the edges convert.
+  const wallValue = React.useMemo(
+    () => (value ? toWallClock(value, timezone) : null),
+    [value, timezone],
+  )
+  const [date, setDate] = React.useState<Date | undefined>(
+    wallValue || undefined,
+  )
   const [timeValue, setTimeValue] = React.useState<string>(() => {
-    if (value) {
-      const hours = value.getHours().toString().padStart(2, '0')
-      const minutes = value.getMinutes().toString().padStart(2, '0')
+    if (wallValue) {
+      const hours = wallValue.getHours().toString().padStart(2, '0')
+      const minutes = wallValue.getMinutes().toString().padStart(2, '0')
       return `${hours}:${minutes}`
     }
     return '00:00'
@@ -48,7 +86,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
     const newDate = new Date(selectedDate)
     newDate.setHours(hours, minutes, 0, 0)
     setDate(newDate)
-    onChange(newDate)
+    onChange(fromWallClock(newDate, timezone))
   }
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,21 +98,21 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
       const newDate = new Date(date)
       newDate.setHours(hours, minutes, 0, 0)
       setDate(newDate)
-      onChange(newDate)
+      onChange(fromWallClock(newDate, timezone))
     }
   }
 
   React.useEffect(() => {
-    if (value) {
-      setDate(value)
-      const hours = value.getHours().toString().padStart(2, '0')
-      const minutes = value.getMinutes().toString().padStart(2, '0')
+    if (wallValue) {
+      setDate(wallValue)
+      const hours = wallValue.getHours().toString().padStart(2, '0')
+      const minutes = wallValue.getMinutes().toString().padStart(2, '0')
       setTimeValue(`${hours}:${minutes}`)
     } else {
       setDate(undefined)
       setTimeValue('00:00')
     }
-  }, [value])
+  }, [wallValue])
 
   return (
     <Popover>

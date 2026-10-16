@@ -2,6 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from 'component/shadcn/card'
 import { ButtonSwitch } from 'component/ButtonSwitch'
 import { Button } from 'component/shadcn/button'
 import { Label } from 'component/shadcn/label'
+import { TimezoneNotice } from 'component/TimezoneNotice'
+import { useDisplayTimezone } from 'appAdmin/hook'
 
 import { DefaultableValueDatetime } from './DefaultableValueDatetime'
 import { SettingsDataAdapter, SettingsHandlers } from './SettingSurveyAdapter'
@@ -18,6 +20,7 @@ type Props<T> = {
 }
 
 export function BaseScheduleSettings<T>({ data, handlers, layout }: Props<T>) {
+  const timezone = useDisplayTimezone()
   const {
     wrapInForm = true,
     wrapInRow = true,
@@ -39,6 +42,7 @@ export function BaseScheduleSettings<T>({ data, handlers, layout }: Props<T>) {
 
   const scheduleContent = (
     <>
+      <TimezoneNotice timezone={timezone} mode="project" className="mb-3" />
       <div className="mb-3">
         <Label className="mb-2 block">Start</Label>
         <ButtonSwitch

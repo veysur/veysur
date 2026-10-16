@@ -2,6 +2,11 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 
 import { DefaultableValueDatetime } from './DefaultableValueDatetime'
 
+let mockTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+jest.mock('appAdmin/hook', () => ({
+  useDisplayTimezone: () => mockTimezone,
+}))
+
 describe('DefaultableValueDatetime', () => {
   const mockOnChange = jest.fn()
   // Use local dates to avoid timezone conversion issues
@@ -333,6 +338,44 @@ describe('DefaultableValueDatetime', () => {
       )
 
       expect(container.querySelector('.custom-class')).toBeInTheDocument()
+    })
+  })
+
+  describe('project timezone', () => {
+    afterEach(() => {
+      mockTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    })
+
+    it('shows the instant as wall-clock time in the project zone', () => {
+      mockTimezone = 'Asia/Tokyo'
+      render(
+        <DefaultableValueDatetime
+          label="Zoned"
+          currentValue="2023-06-15T00:00:00.000Z"
+          onChange={mockOnChange}
+          hasDefaults={false}
+        />,
+      )
+
+      expect(screen.getByRole('button')).toHaveTextContent(
+        'June 15th, 2023 09:00',
+      )
+    })
+
+    it('shows DST-aware offsets for the project zone', () => {
+      mockTimezone = 'Europe/London'
+      render(
+        <DefaultableValueDatetime
+          label="Zoned"
+          currentValue="2023-01-15T09:00:00.000Z"
+          onChange={mockOnChange}
+          hasDefaults={false}
+        />,
+      )
+
+      expect(screen.getByRole('button')).toHaveTextContent(
+        'January 15th, 2023 09:00',
+      )
     })
   })
 })

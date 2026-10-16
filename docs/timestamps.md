@@ -49,6 +49,12 @@ The zone is stated **once per view**, not on every timestamp:
 moment's locale is set to `en-gb` (`common/initMoment.ts`, imported by every sub-app entry point
 and the jest setup), so `L`/`LL`/`ll` render `28 Aug 2026`.
 
+### Schedule input
+
+The survey schedule pickers (`schedule.start` / `schedule.end`) take and show wall-clock time in the
+**project timezone**, via `DateTimePicker`'s `timezone` prop. The stored value is still a UTC instant,
+so changing `Project.timezone` later re-renders the same instants in the new zone.
+
 ## Anonymous survey responses
 
 A response to a survey with the **Access → Anonymous** setting records no real
