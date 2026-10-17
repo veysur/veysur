@@ -10,6 +10,7 @@ import {
   isMatrixQuestionType,
   isMultiPartStatsCompatibleType,
   isRankingStatsCompatibleType,
+  isMapStatsCompatibleType,
 } from 'veysur-common'
 
 import {
@@ -22,6 +23,7 @@ import type { QuestionStats } from './model/api/SurveyStatsApi'
 import { SurveyStatMatrixChart } from './SurveyStatMatrixChart'
 import { SurveyStatMultiPartChart } from './SurveyStatMultiPartChart'
 import { SurveyStatRankingChart } from './SurveyStatRankingChart'
+import { SurveyStatMapChart } from './SurveyStatMapChart'
 import {
   buildConfigFromSeries,
   buildOptionSeries,
@@ -206,6 +208,8 @@ export const SurveyStatChart: React.FC<Props> = ({
         valueMode={valueMode}
       />
     )
+  } else if (isMapStatsCompatibleType(questionType)) {
+    chart = <SurveyStatMapChart questionStat={questionStat} />
   } else if (isRankingStatsCompatibleType(questionType)) {
     chart = (
       <SurveyStatRankingChart
@@ -228,7 +232,7 @@ export const SurveyStatChart: React.FC<Props> = ({
 
   return (
     <div className="space-y-4">
-      {controls}
+      {!isMapStatsCompatibleType(questionType) && controls}
       {chart}
     </div>
   )

@@ -1,6 +1,6 @@
 import { Service, ServerErrorNotFound } from '@datacapy/server'
 import { DataSourceContext } from '@datacapy/om'
-import { Survey } from 'veysur-common'
+import { Survey, resolveMapConfig } from 'veysur-common'
 
 import {
   RepoSurveyLanguageSnapshot,
@@ -138,29 +138,32 @@ export class ServiceSurveyParticipantSnapshot extends Service {
   }
 
   /**
-   * Load the project's survey presentation settings, suppressing noBrand if the
-   * project no longer qualifies for branding removal (see isNoBrandAvailable),
-   * even though the setting itself is still stored as true.
+   * Load the project's survey settings as a participant may see them:
+   * noBrand is suppressed if the project no longer qualifies for branding
+   * removal (see isNoBrandAvailable), even though the setting itself is still
+   * stored as true, and `maps` carries the effective provider and Google key
+   * (project key over deployment key) in place of the stored override.
    */
-  async getGatedSettingSurvey(
-    projectId: string,
-    context: DataSourceContext,
-  ) {
+  async getGatedSettingSurvey(projectId: string, context: DataSourceContext) {
     const repoSettingSurvey = this.getRepo<RepoSettingSurvey>('settingSurvey')
     const settingSurvey = await repoSettingSurvey.findOne({}, { context })
+    if (!settingSurvey) return settingSurvey
 
-    if (!settingSurvey?.presentation?.noBrand) {
-      return settingSurvey
-    }
-
-    if (await this.isNoBrandAvailable(projectId)) {
-      return settingSurvey
-    }
-
-    return {
+    const gated = {
       ...settingSurvey,
-      presentation: { ...settingSurvey.presentation, noBrand: false },
+      maps: resolveMapConfig(
+        this.config.model.app.maps,
+        settingSurvey.maps?.googleApiKey,
+      ),
     }
+
+    if (
+      gated.presentation?.noBrand &&
+      !(await this.isNoBrandAvailable(projectId))
+    ) {
+      gated.presentation = { ...gated.presentation, noBrand: false }
+    }
+    return gated
   }
 
   /**

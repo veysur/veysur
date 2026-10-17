@@ -1,4 +1,5 @@
 // cspell:ignore Spalte Essen Meine
+import { MapOptions } from '../constructor/Survey/attributeMeta/types'
 import { SurveyResponseValidator } from './SurveyResponseValidator'
 
 describe('SurveyResponseValidator', () => {
@@ -885,6 +886,84 @@ describe('SurveyResponseValidator', () => {
       })
       expect(result.isValid).toBe(true)
       expect(result.errors).toEqual({})
+    })
+  })
+  describe('map', () => {
+    const mapQuestion = (
+      mapOptions: Partial<MapOptions> = {},
+      required = false,
+    ) => ({
+      code: 'Q1',
+      type: 'map',
+      attributes: { required, mapOptions: mapOptions as MapOptions },
+    })
+    const pin = { lat: 51.5074, lng: -0.1278, precision: 'exact' }
+    const coarsePin = { lat: 51.5, lng: -0.1, precision: 'coarse' }
+
+    test('accepts a valid pin', async () => {
+      const result = await validator.validate([mapQuestion()], { Q1: pin })
+      expect(result.isValid).toBe(true)
+    })
+
+    test('an unanswered optional question is valid', async () => {
+      const result = await validator.validate([mapQuestion()], {})
+      expect(result.isValid).toBe(true)
+    })
+
+    test('an unanswered required question is rejected', async () => {
+      const result = await validator.validate([mapQuestion({}, true)], {})
+      expect(result.errors.Q1).toEqual([{ key: 'validation.required' }])
+    })
+
+    test('a malformed pin is rejected', async () => {
+      const result = await validator.validate([mapQuestion()], {
+        Q1: { lat: 'x', lng: 1 },
+      })
+      expect(result.errors.Q1).toEqual([
+        { key: 'validation.mapLocationInvalid' },
+      ])
+    })
+
+    test('a coarse question rejects an exact pin', async () => {
+      const result = await validator.validate(
+        [mapQuestion({ precision: 'coarse' })],
+        { Q1: pin },
+      )
+      expect(result.errors.Q1).toEqual([{ key: 'validation.mapPrecision' }])
+    })
+
+    test('an anonymous survey rejects an exact pin on an exact question', async () => {
+      const result = await validator.validate(
+        [mapQuestion({ precision: 'exact' })],
+        { Q1: pin },
+        { anonymous: true },
+      )
+      expect(result.errors.Q1).toEqual([{ key: 'validation.mapPrecision' }])
+    })
+
+    test('an anonymous survey accepts a coarse pin', async () => {
+      const result = await validator.validate(
+        [mapQuestion({ precision: 'exact' })],
+        { Q1: coarsePin },
+        { anonymous: true },
+      )
+      expect(result.isValid).toBe(true)
+    })
+
+    test('a country restriction rejects an unlisted country', async () => {
+      const result = await validator.validate(
+        [mapQuestion({ countries: 'GB' })],
+        { Q1: { ...pin, countryCode: 'FR' } },
+      )
+      expect(result.errors.Q1).toEqual([{ key: 'validation.mapCountry' }])
+    })
+
+    test('a country restriction accepts a listed country', async () => {
+      const result = await validator.validate(
+        [mapQuestion({ countries: 'GB' })],
+        { Q1: { ...pin, countryCode: 'GB' } },
+      )
+      expect(result.isValid).toBe(true)
     })
   })
 })

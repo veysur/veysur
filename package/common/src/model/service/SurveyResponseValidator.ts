@@ -12,12 +12,14 @@ import {
   QUESTION_TYPE_NUMBER,
   QUESTION_TYPE_RANKING,
   QUESTION_TYPE_FILE_UPLOAD,
+  QUESTION_TYPE_MAP,
   SurveyAttributes,
 } from '../constructor/Survey/attributeMeta/types'
 import {
   CHOICE_OTHER_CODE,
   CHOICE_OTHER_VALUE_KEY,
 } from '../constructor/Survey/attributeMeta/constants'
+import { effectiveMapPrecision, findMapAnswerIssue } from './MapAnswer'
 import {
   isMatrixQuestionType,
   hasAnyMatrixCellFilled,
@@ -88,6 +90,8 @@ export interface SurveyResponseValidateOptions {
   /** The survey's own default language, used as a fallback when a subquestion
    * has no text in `language` - see `survey.language.default` */
   defaultLanguage?: string | null
+  /** Anonymous surveys accept only coarse map pins. */
+  anonymous?: boolean
 }
 
 export type ValidationMessage = {
@@ -123,6 +127,12 @@ function buildCountLimitError(
   }
 }
 
+const MAP_ISSUE_MESSAGE_KEYS = {
+  invalid: 'validation.mapLocationInvalid',
+  precision: 'validation.mapPrecision',
+  country: 'validation.mapCountry',
+} as const
+
 type EntityCallbackValidator = {
   validator: (value: unknown) => true | ValidationMessage
 }
@@ -137,7 +147,8 @@ export function buildEntityValidateConfig(
     Boolean(entity.attributes?.required) &&
     !isMatrixQuestionType(entity.type) &&
     !isMultiPartQuestionType(entity.type) &&
-    entity.type !== QUESTION_TYPE_FILE_UPLOAD
+    entity.type !== QUESTION_TYPE_FILE_UPLOAD &&
+    entity.type !== QUESTION_TYPE_MAP
   ) {
     // `required` catches an undefined answer, `notEmpty` catches an empty
     // string — both builtin validators accept a non-string `message`, which
@@ -267,6 +278,7 @@ function getValidationType(
   if (isMultiPartQuestionType(question.type)) return Object
   if (question.type === QUESTION_TYPE_NUMBER) return Number
   if (question.type === QUESTION_TYPE_FILE_UPLOAD) return Object
+  if (question.type === QUESTION_TYPE_MAP) return Object
   return String
 }
 
@@ -425,6 +437,27 @@ export class SurveyResponseValidator {
           questionErrors.push(
             buildCountLimitError('validation.fileCount', 0, maxFileCount),
           )
+        }
+      }
+
+      // Direct: map required + shape, precision and country
+      if (question.type === QUESTION_TYPE_MAP) {
+        const mapOptions = question.attributes?.mapOptions
+        if (value === undefined || value === null || value === '') {
+          if (question.attributes?.required) {
+            questionErrors.push({ key: 'validation.required' })
+          }
+        } else {
+          const issue = findMapAnswerIssue(value, {
+            countries: mapOptions?.countries,
+            precision: effectiveMapPrecision(
+              mapOptions?.precision,
+              Boolean(options.anonymous),
+            ),
+          })
+          if (issue) {
+            questionErrors.push({ key: MAP_ISSUE_MESSAGE_KEYS[issue] })
+          }
         }
       }
 

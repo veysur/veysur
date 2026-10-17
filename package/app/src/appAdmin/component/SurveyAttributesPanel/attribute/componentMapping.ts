@@ -23,6 +23,7 @@ import {
   ATTRIBUTE_MATRIX_ORIENTATION,
   ATTRIBUTE_QUESTION_COLUMNS,
   ATTRIBUTE_QUESTION_FILE_UPLOAD_OPTIONS,
+  ATTRIBUTE_QUESTION_MAP_OPTIONS,
 } from 'veysur-common'
 
 import { ATTRIBUTE_CONTENT_TYPE } from '../constant'
@@ -44,6 +45,7 @@ import {
   CountryMultiSelect,
   PatternInput,
   FileUploadOptions,
+  MapOptions,
 } from '../../SurveyAttribute'
 
 /**
@@ -76,4 +78,5 @@ export const attributeComponentMap = {
   [ATTRIBUTE_MATRIX_ORIENTATION]: Dropdown,
   [ATTRIBUTE_QUESTION_COLUMNS]: ImageColumnsSelect,
   [ATTRIBUTE_QUESTION_FILE_UPLOAD_OPTIONS]: FileUploadOptions,
+  [ATTRIBUTE_QUESTION_MAP_OPTIONS]: MapOptions,
 } as const

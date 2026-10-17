@@ -2,13 +2,23 @@ import {
   SurveyQuestion,
   CHOICE_OTHER_CODE,
   CHOICE_OTHER_VALUE_KEY,
+  isMapAnswer,
   isMultiPartQuestionType,
+  MapAnswer,
+  MAP_PRECISION_COARSE,
 } from 'veysur-common'
 import momentTimezone from 'moment-timezone'
 
 function truncate(str: string, maxLength: number): string {
   if (str.length <= maxLength) return str
   return str.substring(0, maxLength) + '...'
+}
+
+export function formatMapAnswer(answer: MapAnswer): string {
+  const coarse = answer.precision === MAP_PRECISION_COARSE
+  const coordinates = `${answer.lat.toFixed(coarse ? 1 : 5)}, ${answer.lng.toFixed(coarse ? 1 : 5)}`
+  const text = answer.address ?? coordinates
+  return coarse ? `${text} (approximate)` : text
 }
 
 function formatMultiPartPartValue(
@@ -135,6 +145,9 @@ export function formatAnswer(
         })
         .join(', ')
     }
+
+    case 'map':
+      return isMapAnswer(answerValue) ? formatMapAnswer(answerValue) : '—'
 
     case 'matrix':
       if (typeof answerValue === 'object' && answerValue !== null) {

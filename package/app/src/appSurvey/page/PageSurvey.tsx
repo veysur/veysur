@@ -46,11 +46,12 @@ export const PageSurvey: React.FC = () => {
   const initLanguage = searchParams.get('lang') || undefined
   const emailVerifyToken = searchParams.get('evt') || undefined
   const authResult = useSurveyAuth(surveyId, token, emailVerifyToken)
-  const { survey, loading, error } = useSurveyParticipantSnapshotPublished(
-    surveyId,
-    authResult.jwt,
-    initLanguage,
-  )
+  const { survey, settingSurvey, loading, error } =
+    useSurveyParticipantSnapshotPublished(
+      surveyId,
+      authResult.jwt,
+      initLanguage,
+    )
   const noBrand = survey?.presentation?.noBrand === true
 
   const { participantData } = useSurveyParticipantMe(surveyId, authResult.jwt)
@@ -317,6 +318,7 @@ export const PageSurvey: React.FC = () => {
       )}
       <Survey
         survey={survey}
+        mapSettings={settingSurvey?.maps}
         authToken={authResult.jwt}
         participantData={participantData}
         initAnswers={response}

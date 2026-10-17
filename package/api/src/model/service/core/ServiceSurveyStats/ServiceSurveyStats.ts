@@ -11,6 +11,7 @@ import {
   isMatrixStatsCompatibleType,
   isMultiPartStatsCompatibleType,
   isRankingStatsCompatibleType,
+  isMapStatsCompatibleType,
 } from 'veysur-common'
 
 import type {
@@ -39,6 +40,7 @@ import { StatsAggregatorMatrixBoolean } from './StatsAggregatorMatrixBoolean'
 import { StatsAggregatorMatrixNumber } from './StatsAggregatorMatrixNumber'
 import { StatsAggregatorMultiPart } from './StatsAggregatorMultiPart'
 import { StatsAggregatorRanking } from './StatsAggregatorRanking'
+import { StatsAggregatorMap } from './StatsAggregatorMap'
 import { contextForProject } from 'common'
 
 export class ServiceSurveyStats extends Service {
@@ -163,7 +165,8 @@ export class ServiceSurveyStats extends Service {
         !isChoiceQuestionType(question.type) &&
         !isMatrixStatsCompatibleType(question.type) &&
         !isMultiPartStatsCompatibleType(question.type) &&
-        !isRankingStatsCompatibleType(question.type)
+        !isRankingStatsCompatibleType(question.type) &&
+        !isMapStatsCompatibleType(question.type)
       ) {
         continue
       }
@@ -231,6 +234,8 @@ export class ServiceSurveyStats extends Service {
         questionStats.push(
           StatsAggregatorRanking.aggregate(question, responses, totalResponses),
         )
+      } else if (isMapStatsCompatibleType(question.type)) {
+        questionStats.push(StatsAggregatorMap.aggregate(question, responses))
       } else {
         questionStats.push(
           StatsAggregatorArray.aggregate(question, responses, totalResponses),

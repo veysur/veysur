@@ -107,6 +107,10 @@ export interface SettingSurveyMixinBase {
     basic?: string | null
     detailed?: string | null
   }
+  maps?: {
+    googleApiKey?: string | null
+    provider?: string | null
+  }
   stats?: {
     questions?: {
       [questionCode: string]: {

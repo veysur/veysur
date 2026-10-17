@@ -1,3 +1,5 @@
+export * from './MapAnswer'
+export * from './MapConfig'
 export * from './PatchApplierEmailTemplate'
 export * from './PatchApplierSurvey'
 export * from './PatchBuffer'

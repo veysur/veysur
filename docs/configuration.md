@@ -33,6 +33,7 @@ Required secrets fail at `docker compose config` if empty. Anything not listed h
 | `API_S3_ACCESS_KEY_ID`, `API_S3_SECRET_ACCESS_KEY` | S3 only: the access key |
 | `VEYSUR_STORAGE_SNIPPET` | nginx storage include: `./nginx/storage-local.conf` (default) or the generated `./nginx/storage-s3.conf`. Set by `config-generate.sh` |
 | `API_BRAND_NAME` | Product name in non-legal contexts, default `VeySur` |
+| `API_MAPS_PROVIDER_DEFAULT`, `API_MAPS_GOOGLE_API_KEY` | Map question provider, `osm` (default, no key) or `google`, and the Google Maps browser key. Participants receive the key, so restrict it by HTTP referrer. A project key set in project settings overrides it. Changing the key reaches already published embedded surveys only after the survey is republished or a project setting is saved |
 | `API_PROJECT_OWNER_ID` | Written by `admin-account-bootstrap.sh`; do not edit |
 | `MYSQL_DATABASE`, `MYSQL_DATABASE_IP_LOCATION`, `MYSQL_USER` | Database names and user. The IP-location database is created but not used by the self-hosted edition |
 | `MYSQL_MEMORY_LIMIT_MB`, `MYSQL_BUFFER_POOL_MB` | MySQL container memory limit / InnoDB buffer pool, in MB. Blank lets `config-generate.sh` size these from detected host RAM (floor 1250/512) |

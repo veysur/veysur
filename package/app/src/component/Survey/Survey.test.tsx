@@ -119,6 +119,11 @@ jest.mock('./SurveyFormatAll', () => ({
       <div data-testid="all-elements-kinds">
         {(allElements ?? []).map((i) => i.kind).join(',')}
       </div>
+      <div data-testid="map-config">
+        {JSON.stringify(
+          jest.requireActual('./MapConfigContext').useMapConfig(),
+        )}
+      </div>
     </div>
   ),
 }))
@@ -285,6 +290,7 @@ const createMockDefaults = (overrides = {}) => {
       basic: '',
       detailed: '',
     },
+    maps: { provider: 'osm', googleApiKey: '' },
     contentFormat: {
       htmlAllowed: false,
       markdownAllowed: true,
@@ -311,6 +317,7 @@ const createMockSurvey = (
     title: { getLang: jest.fn(() => 'Test Survey Title') },
     language,
     getLanguage: jest.fn(() => language),
+    getAccess: jest.fn((defaults) => ({ ...defaults.access })),
     getPresentation: jest.fn((defaults) => ({
       ...defaults.presentation,
       ...presentationOverrides,
@@ -499,6 +506,7 @@ describe('Survey Component', () => {
         title: { getLang: jest.fn(() => 'Test Survey Title') },
         language: { default: 'en', options: ['en'] },
         getLanguage: jest.fn(() => ({ default: 'en', options: ['en'] })),
+        getAccess: jest.fn((defaults) => ({ ...defaults.access })),
         getPresentation: jest.fn((defaults) => ({
           ...defaults.presentation,
           format: 'group',
@@ -821,6 +829,7 @@ describe('Survey Component', () => {
       const settingSurvey = createMockDefaults()
       const survey = {
         ...createMockSurvey(),
+        getAccess: jest.fn((defaults) => ({ ...defaults.access })),
         getPresentation: jest.fn(() => settingSurvey.presentation),
       } as unknown as SurveyEntity
 
@@ -1178,6 +1187,60 @@ describe('Survey Component', () => {
       expect(screen.getByTestId('current-item-kind')).toHaveTextContent(
         'content',
       )
+    })
+  })
+  describe('map configuration', () => {
+    const readMapConfig = () =>
+      JSON.parse(screen.getByTestId('map-config').textContent ?? '{}')
+
+    test('resolves the provider and key from the project settings', () => {
+      const settingSurvey = createMockDefaults({
+        maps: { provider: 'google', googleApiKey: 'project-key' },
+      })
+
+      render(
+        <Survey settingSurvey={settingSurvey} survey={createMockSurvey()} />,
+      )
+
+      expect(readMapConfig()).toEqual({
+        provider: 'google',
+        googleApiKey: 'project-key',
+        anonymous: false,
+        deferLoad: false,
+      })
+    })
+
+    test('mapSettings stands in for settingSurvey.maps', () => {
+      render(
+        <Survey
+          settingSurvey={createMockDefaults()}
+          mapSettings={{ provider: 'osm', googleApiKey: 'page-key' }}
+          survey={createMockSurvey()}
+        />,
+      )
+
+      expect(readMapConfig().googleApiKey).toBe('page-key')
+    })
+
+    test('defers the map load for embedded surveys', () => {
+      render(
+        <Survey
+          settingSurvey={createMockDefaults()}
+          survey={createMockSurvey()}
+          deferMapLoad
+        />,
+      )
+
+      expect(readMapConfig().deferLoad).toBe(true)
+    })
+
+    test('marks the survey anonymous from its access setting', () => {
+      const survey = createMockSurvey()
+      survey.getAccess = jest.fn(() => ({ anonymous: true }) as never)
+
+      render(<Survey settingSurvey={createMockDefaults()} survey={survey} />)
+
+      expect(readMapConfig().anonymous).toBe(true)
     })
   })
 })

@@ -31,6 +31,7 @@ import {
   QUESTION_TYPE_MULTI_PART_POINT_5,
   QUESTION_TYPE_MULTI_PART_POINT_10,
   QUESTION_TYPE_FILE_UPLOAD,
+  QUESTION_TYPE_MAP,
 } from 'veysur-common'
 
 const questionTypeRegistry = {
@@ -176,6 +177,11 @@ const questionTypeRegistry = {
   [QUESTION_TYPE_FILE_UPLOAD]: lazy(() =>
     import('./QuestionTypeFileUpload').then((m) => ({
       default: m.QuestionTypeFileUpload,
+    })),
+  ),
+  [QUESTION_TYPE_MAP]: lazy(() =>
+    import('./QuestionTypeMap').then((m) => ({
+      default: m.QuestionTypeMap,
     })),
   ),
 }

@@ -1,3 +1,5 @@
+import { asPrivate } from 'test-utils/asPrivate'
+
 import { ServiceSurveyParticipantSnapshot } from './ServiceSurveyParticipantSnapshot'
 
 describe('ServiceSurveyParticipantSnapshot.get()', () => {
@@ -9,6 +11,15 @@ describe('ServiceSurveyParticipantSnapshot.get()', () => {
   let mockRepoSettingSurvey: { findOne: jest.Mock }
   let isNoBrandAvailableSpy: jest.SpyInstance
 
+  const setMapsConfig = (maps: {
+    providerDefault: string
+    googleApiKey: string
+  }) => {
+    const config = { model: { app: { maps } } }
+    asPrivate<typeof service, { config: typeof config }>(service).config =
+      config
+  }
+
   const surveyId = 'survey_1'
   const projectId = 'proj_1'
 
@@ -16,6 +27,7 @@ describe('ServiceSurveyParticipantSnapshot.get()', () => {
     jest.clearAllMocks()
 
     service = new ServiceSurveyParticipantSnapshot()
+    setMapsConfig({ providerDefault: 'osm', googleApiKey: '' })
 
     mockRepoPublication = {
       findOne: jest.fn().mockResolvedValue({
@@ -191,5 +203,51 @@ describe('ServiceSurveyParticipantSnapshot.get()', () => {
       expect.anything(),
     )
     expect(result.snapshot._id).toBe('snapshot_1')
+  })
+  describe('maps settings', () => {
+    beforeEach(() => {
+      mockRepoSurveySnapshot.findOne.mockResolvedValue({
+        snapshotId: 'snapshot_1',
+        survey: { presentation: { noBrand: false } },
+      })
+    })
+
+    test('gives participants the deployment provider and key when the project has none', async () => {
+      setMapsConfig({ providerDefault: 'google', googleApiKey: 'deploy-key' })
+      mockRepoSettingSurvey.findOne.mockResolvedValue({
+        projectId,
+        presentation: { noBrand: false },
+        maps: { googleApiKey: '' },
+      })
+
+      const result = await service.get({ surveyId, projectId, lang: null })
+
+      expect(result.settingSurveyData.maps).toEqual({
+        provider: 'google',
+        googleApiKey: 'deploy-key',
+      })
+    })
+
+    test('the project key overrides the deployment key', async () => {
+      setMapsConfig({ providerDefault: 'google', googleApiKey: 'deploy-key' })
+      mockRepoSettingSurvey.findOne.mockResolvedValue({
+        projectId,
+        presentation: { noBrand: false },
+        maps: { googleApiKey: 'project-key' },
+      })
+
+      const result = await service.get({ surveyId, projectId, lang: null })
+
+      expect(result.settingSurveyData.maps.googleApiKey).toBe('project-key')
+    })
+
+    test('defaults to OpenStreetMap with no key anywhere', async () => {
+      const result = await service.get({ surveyId, projectId, lang: null })
+
+      expect(result.settingSurveyData.maps).toEqual({
+        provider: 'osm',
+        googleApiKey: '',
+      })
+    })
   })
 })

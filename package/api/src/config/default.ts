@@ -44,6 +44,9 @@ const {
   // Limits
   API_UPLOAD_MAX_FILE_SIZE,
   API_PAGINATION_MAX_PER_PAGE,
+  // Maps
+  API_MAPS_PROVIDER_DEFAULT,
+  API_MAPS_GOOGLE_API_KEY,
   // Email
   API_MAIL_ADDRESS_FROM,
   API_MAIL_FROM_NAME,
@@ -218,6 +221,10 @@ export const app = {
     maxPerPage: API_PAGINATION_MAX_PER_PAGE
       ? Number(API_PAGINATION_MAX_PER_PAGE)
       : 100,
+  },
+  maps: {
+    providerDefault: API_MAPS_PROVIDER_DEFAULT || 'osm',
+    googleApiKey: API_MAPS_GOOGLE_API_KEY || '',
   },
   mail: {
     logOnly: false,

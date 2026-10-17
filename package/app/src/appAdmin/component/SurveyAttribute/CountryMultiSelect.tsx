@@ -63,9 +63,7 @@ export const CountryMultiSelect: AttributeConfig['component'] = function ({
             role="combobox"
             className={`w-full justify-between font-normal ${!isValid ? 'border-destructive' : ''}`}
           >
-            {selected.length
-              ? `${selected.length} selected`
-              : 'Any country'}
+            {selected.length ? `${selected.length} selected` : 'Any country'}
             <ChevronDown className="h-4 w-4 opacity-50" />
           </Button>
         </PopoverTrigger>

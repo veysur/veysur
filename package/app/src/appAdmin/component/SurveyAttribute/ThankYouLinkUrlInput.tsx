@@ -75,10 +75,7 @@ export const ThankYouLinkUrlInput: AttributeConfig['component'] = function (
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleConfirm}
-                variant="destructive"
-              >
+              <AlertDialogAction onClick={handleConfirm} variant="destructive">
                 Clear
               </AlertDialogAction>
             </AlertDialogFooter>

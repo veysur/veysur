@@ -15,6 +15,9 @@ import {
   QUESTION_TYPE_YES_NO,
   QUESTION_TYPE_SURVEY_LANG_SELECT,
   QUESTION_TYPE_MATRIX_COMPOSITE,
+  QUESTION_TYPE_MAP,
+  ATTRIBUTE_QUESTION_MAP_OPTIONS,
+  MapOptions,
   ATTRIBUTE_QUESTION_TYPE,
   ATTRIBUTE_QUESTION_REQUIRED,
   ATTRIBUTE_QUESTION_INPUT_SIZE,
@@ -178,6 +181,43 @@ describe('Attribute Helpers', () => {
 
       expect(defaults1).not.toBe(defaults2)
       expect(defaults1).toEqual(defaults2)
+    })
+  })
+
+  describe('transitionAttributes: map', () => {
+    test('text to map adds default map options and drops text attributes', () => {
+      const result = transitionAttributes(
+        {
+          [ATTRIBUTE_QUESTION_REQUIRED]: false,
+          [ATTRIBUTE_QUESTION_INPUT_SIZE]: 'large',
+        },
+        QUESTION_TYPE_TEXT,
+        QUESTION_TYPE_MAP,
+      )
+
+      expect(result[ATTRIBUTE_QUESTION_REQUIRED]).toBe(false)
+      expect(result).not.toHaveProperty(ATTRIBUTE_QUESTION_INPUT_SIZE)
+      expect(result[ATTRIBUTE_QUESTION_MAP_OPTIONS]).toEqual(
+        expect.objectContaining({ provider: 'default', precision: 'exact' }),
+      )
+    })
+
+    test('map to text drops the map options', () => {
+      const result = transitionAttributes(
+        {
+          [ATTRIBUTE_QUESTION_REQUIRED]: true,
+          [ATTRIBUTE_QUESTION_MAP_OPTIONS]: {
+            ...(getDefaultAttributesForType(QUESTION_TYPE_MAP)[
+              ATTRIBUTE_QUESTION_MAP_OPTIONS
+            ] as object),
+            provider: 'google',
+          } as MapOptions,
+        },
+        QUESTION_TYPE_MAP,
+        QUESTION_TYPE_TEXT,
+      )
+
+      expect(result).not.toHaveProperty(ATTRIBUTE_QUESTION_MAP_OPTIONS)
     })
   })
 

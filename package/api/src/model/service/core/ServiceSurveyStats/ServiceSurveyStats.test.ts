@@ -1,5 +1,5 @@
 // cspell:disable
-import { Survey, QUESTION_TYPE_YES_NO } from 'veysur-common'
+import { Survey, QUESTION_TYPE_YES_NO, QUESTION_TYPE_MAP } from 'veysur-common'
 
 import { ServiceSurveyStats } from './ServiceSurveyStats'
 import { asPrivate } from '../../../../test-utils/asPrivate'
@@ -130,5 +130,52 @@ describe('ServiceSurveyStats.getStats', () => {
     const result = await buildService(survey).getStats(args)
 
     expect(result).toMatchSnapshot()
+  })
+  it('aggregates a map question into grouped pins', async () => {
+    const survey = new Survey({
+      _id: 'survey-1',
+      createdById: 'u1',
+      name: 'Map survey',
+      language: { default: 'en', options: ['en'] },
+      sections: [
+        {
+          _id: 'g1',
+          surveyId: 'survey-1',
+          createdById: 'u1',
+          code: 'G001',
+          name: { en: 'Group' },
+        },
+      ],
+      sectionIds: ['g1'],
+      elements: [
+        {
+          _id: 'q1',
+          surveyId: 'survey-1',
+          createdById: 'u1',
+          code: 'Q001',
+          type: QUESTION_TYPE_MAP,
+          sectionId: 'g1',
+          text: { en: 'Where?' },
+        },
+      ],
+      elementIds: ['q1'],
+    })
+    const service = buildService(survey)
+    const repoResponse = asPrivate<ServiceSurveyStats, GetRepoOverride>(
+      service,
+    ).getRepo('surveyResponse') as { find: jest.Mock }
+    repoResponse.find.mockResolvedValue([
+      { answers: { Q001: { lat: 51.5074, lng: -0.1278, precision: 'exact' } } },
+      { answers: { Q001: { lat: 51.5071, lng: -0.1281, precision: 'exact' } } },
+      { answers: {} },
+    ])
+
+    const result = await service.getStats(args)
+
+    expect(result.questionStats).toHaveLength(1)
+    expect(result.questionStats[0].mapStats?.pinCount).toBe(2)
+    expect(result.questionStats[0].mapStats?.points).toEqual([
+      { lat: 51.507, lng: -0.128, count: 2 },
+    ])
   })
 })

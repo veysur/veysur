@@ -30,6 +30,7 @@ export interface SurveyInterface
       | 'legalNotice'
       | 'schedule'
       | 'notify'
+      | 'maps'
       | 'stats'
       | 'contentFormat'
     >,

@@ -25,8 +25,11 @@ function setup(
   items: QuestionWithGroup[],
   language = 'en',
   defaultLanguage = 'en',
+  anonymous = false,
 ) {
-  return renderHook(() => useSurveyValidation(items, language, defaultLanguage))
+  return renderHook(() =>
+    useSurveyValidation(items, language, defaultLanguage, anonymous),
+  )
 }
 
 describe('useSurveyValidation', () => {
@@ -281,6 +284,33 @@ describe('useSurveyValidation', () => {
           0,
         ),
       ).toBe(false)
+    })
+  })
+  describe('map questions', () => {
+    const exactPin = { lat: 51.5074, lng: -0.1278, precision: 'exact' }
+
+    async function validateMapPin(anonymous: boolean) {
+      const group = buildGroup('G1')
+      const question = buildQuestion({
+        type: 'map',
+        attributes: { required: false },
+      })
+      const { result } = setup([{ question, group }], 'en', 'en', anonymous)
+      let isValid = true
+      await act(async () => {
+        isValid = await result.current.validateQuestion('Q1', exactPin)
+      })
+      return { isValid, errors: result.current.validationErrors.Q1 }
+    }
+
+    it('accepts an exact pin in a normal survey', async () => {
+      expect((await validateMapPin(false)).isValid).toBe(true)
+    })
+
+    it('rejects an exact pin in an anonymous survey', async () => {
+      const { isValid, errors } = await validateMapPin(true)
+      expect(isValid).toBe(false)
+      expect(errors).toEqual([{ key: 'validation.mapPrecision' }])
     })
   })
 })

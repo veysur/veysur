@@ -89,6 +89,7 @@ export default defineConfig({
                     { label: 'Multi-Part', slug: 'reference/survey-editor/question-types/multi-part' },
                     { label: 'Ranking', slug: 'reference/survey-editor/question-types/ranking' },
                     { label: 'File Upload', slug: 'reference/survey-editor/question-types/file-upload' },
+                    { label: 'Map', slug: 'reference/survey-editor/question-types/map' },
                   ],
                 },
                 { label: 'Preview', slug: 'reference/survey-editor/preview' },

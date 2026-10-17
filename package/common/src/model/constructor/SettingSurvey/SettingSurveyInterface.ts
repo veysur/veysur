@@ -89,6 +89,10 @@ export interface SettingSurveyProperties {
     basic: string
     detailed: string
   }
+  maps: {
+    googleApiKey: string
+    provider?: string
+  }
   stats: {
     questions: {
       [questionCode: string]: {
@@ -174,8 +178,17 @@ export interface SettingSurveyMethods {
   setStatsQuestionChartType(questionCode: string, chartType: ChartType): this
 }
 
+// Kept out of SettingSurveyMethods: a Survey carries no project-level maps section
+export interface SettingSurveyMapsMethods {
+  setMapsProperty(key: string, value: unknown): this
+  updateMaps(updates: Record<string, unknown>): this
+}
+
 export interface SettingSurveyInterface
-  extends SettingSurveyProperties, SettingSurveyMethods {}
+  extends
+    SettingSurveyProperties,
+    SettingSurveyMethods,
+    SettingSurveyMapsMethods {}
 
 // Static methods interface
 export interface SettingSurveyInterfaceStatic {

@@ -65,6 +65,25 @@ export interface RankingOptionStat {
   rankCounts: number[]
 }
 
+/**
+ * One grouped location for a Map question: every pin in the same ~110 m grid
+ * cell. See `MapStats` in the API's ServiceSurveyStats types.
+ */
+export interface MapStatPoint {
+  lat: number
+  lng: number
+  count: number
+}
+
+export interface MapStats {
+  points: MapStatPoint[]
+  pinCount: number
+  distinctPoints: number
+  truncated: boolean
+  /** `[south, west, north, east]` over all pins, null when there are none. */
+  bounds: [number, number, number, number] | null
+}
+
 export interface QuestionStats {
   questionId: string
   questionCode: string
@@ -75,6 +94,7 @@ export interface QuestionStats {
   multiPartStats?: MultiPartStat[]
   matrixSubquestionStats?: MatrixSubquestionStats[]
   rankingStats?: RankingOptionStat[]
+  mapStats?: MapStats
 }
 
 export interface SurveyStatsResponse {

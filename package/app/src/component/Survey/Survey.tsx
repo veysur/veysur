@@ -1,10 +1,4 @@
-import React, {
-  useMemo,
-  useEffect,
-  useState,
-  useCallback,
-  useRef,
-} from 'react'
+import React, { useMemo, useEffect, useState, useCallback, useRef } from 'react'
 import { Menu } from 'lucide-react'
 import {
   Survey as SurveyEntity,
@@ -25,6 +19,7 @@ import {
   buildAnswerOptionsForQuestion,
   getChoiceOtherValue,
   resolveContentFormat,
+  resolveMapConfig,
 } from 'veysur-common'
 
 import { useLatestRef } from 'hook'
@@ -48,6 +43,7 @@ import { useSurveyNavigation } from './hook/useSurveyNavigation'
 import { useSurveyValidation } from './hook/useSurveyValidation'
 import { createProgressUtils } from './surveyProgressUtils'
 import { debug } from './debugUtils'
+import { MapConfigContext } from './MapConfigContext'
 import { RandomisationContext } from './RandomisationContext'
 import {
   isContentItem,
@@ -62,11 +58,17 @@ import {
 
 type Props = {
   settingSurvey?: SettingSurvey
+  // Effective map provider and key when the page has no `settingSurvey`; the
+  // standard survey page passes only this, since its survey is already
+  // resolved against the project settings at publish time
+  mapSettings?: SettingSurvey['maps']
   survey?: SurveyEntity
   authToken?: string
   // The host authenticates inside onSaveResponse on the first answer (embeds), so
   // user actions must call it before a token exists
   authDeferred?: boolean
+  // Embedded surveys contact no map service until the participant asks for the map
+  deferMapLoad?: boolean
   initAnswers?: SurveyAnswers
   initSeeds?: Record<string, number>
   initLanguage?: string
@@ -85,9 +87,11 @@ type Props = {
 
 export const Survey: React.FC<Props> = ({
   settingSurvey,
+  mapSettings,
   survey,
   authToken,
   authDeferred = false,
+  deferMapLoad = false,
   initAnswers = {},
   initSeeds = {},
   initLanguage,
@@ -123,6 +127,20 @@ export const Survey: React.FC<Props> = ({
         ? participantData.language
         : undefined,
   })
+
+  const anonymous = survey?.getAccess(settingSurvey).anonymous ?? false
+  const mapSource = mapSettings ?? settingSurvey.maps
+  const mapConfig = useMemo(
+    () => ({
+      ...resolveMapConfig({
+        providerDefault: mapSource.provider,
+        googleApiKey: mapSource.googleApiKey,
+      }),
+      anonymous,
+      deferLoad: deferMapLoad,
+    }),
+    [mapSource.provider, mapSource.googleApiKey, anonymous, deferMapLoad],
+  )
 
   // Ref for synchronous access to latest answers when saving seeds
   const answersRef = useLatestRef(answers)
@@ -530,7 +548,12 @@ export const Survey: React.FC<Props> = ({
     validateCurrentView,
     validateAllAnswers,
     hasRequiredQuestionsInCurrentView,
-  } = useSurveyValidation(answerableQuestions, langCurrent, langDefault)
+  } = useSurveyValidation(
+    answerableQuestions,
+    langCurrent,
+    langDefault,
+    anonymous,
+  )
 
   const { getTotalItems, getAnsweredCount, getProgressPercentage } = useMemo(
     () => createProgressUtils(answerableQuestions, answers),
@@ -853,106 +876,108 @@ export const Survey: React.FC<Props> = ({
     !isCompleted && !shouldShowWelcome() && !shouldShowQuestionIndex()
 
   return (
-    <RandomisationContext.Provider
-      value={{ randomSeeds, onSeedRequired: handleSeedRequired }}
-    >
-      <>
-        {(showMenuButton || title || showLangSelector) && (
-          <>
-            <div className="survey-header py-6 flex row justify-between items-center">
-              <div className="flex items-center gap-3">
-                {showMenuButton && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setShowIndexBurgerMenu(true)}
-                    aria-label="Question Index Menu"
-                  >
-                    <Menu className="h-4 w-4" />
-                  </Button>
+    <MapConfigContext.Provider value={mapConfig}>
+      <RandomisationContext.Provider
+        value={{ randomSeeds, onSeedRequired: handleSeedRequired }}
+      >
+        <>
+          {(showMenuButton || title || showLangSelector) && (
+            <>
+              <div className="survey-header py-6 flex row justify-between items-center">
+                <div className="flex items-center gap-3">
+                  {showMenuButton && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setShowIndexBurgerMenu(true)}
+                      aria-label="Question Index Menu"
+                    >
+                      <Menu className="h-4 w-4" />
+                    </Button>
+                  )}
+                  <div>{title}</div>
+                </div>
+                {showLangSelector && (
+                  <LanguageSelector
+                    availableLanguages={availableLanguages}
+                    langEditing={langCurrent}
+                    onLanguageChange={handleLanguageChange}
+                  />
                 )}
-                <div>{title}</div>
               </div>
-              {showLangSelector && (
-                <LanguageSelector
-                  availableLanguages={availableLanguages}
-                  langEditing={langCurrent}
-                  onLanguageChange={handleLanguageChange}
+              <Separator className="mb-6" />
+            </>
+          )}
+
+          <div className="survey-body pb-6">
+            {saveError && (
+              <Alert variant="destructive" className="mb-4 relative">
+                <AlertDescription>{saveError}</AlertDescription>
+                <button
+                  onClick={() => setSaveError(null)}
+                  className={
+                    `absolute top-2 right-2 ` +
+                    `text-destructive-foreground/50 hover:text-destructive-foreground`
+                  }
+                >
+                  ✕
+                </button>
+              </Alert>
+            )}
+
+            {showProgressBar && (
+              <div className="survey-progress-section mb-6">
+                <SurveyProgressBar
+                  format={format}
+                  presentation={presentation}
+                  getAnsweredCount={getAnsweredCount}
+                  getTotalItems={getTotalItems}
+                  getProgressPercentage={getProgressPercentage}
+                  allQuestions={answerableQuestions}
+                  visibleElements={visibleElements}
+                  survey={sortedSurvey}
+                  currentGroupIndex={currentGroupIndex}
+                  currentQuestionIndex={currentQuestionIndex}
                 />
-              )}
-            </div>
-            <Separator className="mb-6" />
-          </>
-        )}
+              </div>
+            )}
 
-        <div className="survey-body pb-6">
-          {saveError && (
-            <Alert variant="destructive" className="mb-4 relative">
-              <AlertDescription>{saveError}</AlertDescription>
-              <button
-                onClick={() => setSaveError(null)}
-                className={
-                  `absolute top-2 right-2 ` +
-                  `text-destructive-foreground/50 hover:text-destructive-foreground`
-                }
-              >
-                ✕
-              </button>
-            </Alert>
+            <div className="survey-content-section">{renderContent()}</div>
+          </div>
+
+          {showSurveyNavigation && (
+            <>
+              <Separator className="mb-6" />
+              <div className="survey-footer pb-8">
+                <SurveyNavigation
+                  format={format}
+                  presentation={presentation}
+                  currentGroupIndex={currentGroupIndex}
+                  currentQuestionIndex={currentQuestionIndex}
+                  canGoBack={canGoBack()}
+                  isLastView={isLastView()}
+                  onContinue={handleContinue}
+                  onBack={handleBack}
+                  onSubmit={handleSubmit}
+                  countdown={countdown}
+                />
+              </div>
+            </>
           )}
 
-          {showProgressBar && (
-            <div className="survey-progress-section mb-6">
-              <SurveyProgressBar
-                format={format}
-                presentation={presentation}
-                getAnsweredCount={getAnsweredCount}
-                getTotalItems={getTotalItems}
-                getProgressPercentage={getProgressPercentage}
-                allQuestions={answerableQuestions}
-                visibleElements={visibleElements}
-                survey={sortedSurvey}
-                currentGroupIndex={currentGroupIndex}
-                currentQuestionIndex={currentQuestionIndex}
-              />
-            </div>
-          )}
-
-          <div className="survey-content-section">{renderContent()}</div>
-        </div>
-
-        {showSurveyNavigation && (
-          <>
-            <Separator className="mb-6" />
-            <div className="survey-footer pb-8">
-              <SurveyNavigation
-                format={format}
-                presentation={presentation}
-                currentGroupIndex={currentGroupIndex}
-                currentQuestionIndex={currentQuestionIndex}
-                canGoBack={canGoBack()}
-                isLastView={isLastView()}
-                onContinue={handleContinue}
-                onBack={handleBack}
-                onSubmit={handleSubmit}
-                countdown={countdown}
-              />
-            </div>
-          </>
-        )}
-
-        <SurveyIndexMenu
-          survey={survey}
-          lang={langCurrent}
-          langDefault={langDefault}
-          allQuestions={answerableQuestions}
-          currentQuestionIndex={answerableIndexOfCurrent}
-          onQuestionClick={handleQuestionIndexClick}
-          show={showIndexBurgerMenu}
-          onHide={() => setShowIndexBurgerMenu(false)}
-        />
-      </>
-    </RandomisationContext.Provider>
+          <SurveyIndexMenu
+            survey={survey}
+            lang={langCurrent}
+            langDefault={langDefault}
+            allQuestions={answerableQuestions}
+            currentQuestionIndex={answerableIndexOfCurrent}
+            onQuestionClick={handleQuestionIndexClick}
+            show={showIndexBurgerMenu}
+            onHide={() => setShowIndexBurgerMenu(false)}
+          />
+        </>
+      </RandomisationContext.Provider>
+    </MapConfigContext.Provider>
   )
 }

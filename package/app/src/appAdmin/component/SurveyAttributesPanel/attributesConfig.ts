@@ -48,6 +48,7 @@ import {
   ATTRIBUTE_MATRIX_ORIENTATION,
   ATTRIBUTE_QUESTION_COLUMNS,
   ATTRIBUTE_QUESTION_FILE_UPLOAD_OPTIONS,
+  ATTRIBUTE_QUESTION_MAP_OPTIONS,
   ATTRIBUTE_CONDITION,
   // Attribute configurations
   surveyPresentationTitleConfig,
@@ -74,6 +75,7 @@ import {
   matrixOrientationConfig,
   columnsConfig,
   fileUploadOptionsConfig,
+  mapOptionsConfig,
   conditionConfig,
 } from './attribute'
 
@@ -170,6 +172,7 @@ export const attributeSetsConfig: AttributeSetConfig[] = [
       ATTRIBUTE_MATRIX_ORIENTATION,
       ATTRIBUTE_QUESTION_COLUMNS,
       ATTRIBUTE_QUESTION_FILE_UPLOAD_OPTIONS,
+      ATTRIBUTE_QUESTION_MAP_OPTIONS,
       ATTRIBUTE_CONDITION,
     ],
   },
@@ -200,6 +203,7 @@ export const attributesConfig: AttributeConfig[] = [
   matrixOrientationConfig,
   columnsConfig,
   fileUploadOptionsConfig,
+  mapOptionsConfig,
   conditionConfig,
 ]
 

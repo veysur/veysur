@@ -38,6 +38,9 @@ export const ATTRIBUTE_QUESTION_FILE_UPLOAD_OPTIONS = 'fileUploadOptions'
 export const FILE_UPLOAD_MAX_FILE_SIZE_CEILING = 100 * 1024 * 1024 // 100MB
 export const FILE_UPLOAD_DEFAULT_MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 
+// Map attributes
+export const ATTRIBUTE_QUESTION_MAP_OPTIONS = 'mapOptions'
+
 // Condition attribute (for groups and questions)
 export const ATTRIBUTE_CONDITION = 'condition'
 

@@ -62,6 +62,7 @@ export const QUESTION_TYPE_MULTI_PART_STAR_RATING = 'multiPartStarRating'
 export const QUESTION_TYPE_MULTI_PART_POINT_5 = 'multiPartPoint5'
 export const QUESTION_TYPE_MULTI_PART_POINT_10 = 'multiPartPoint10'
 export const QUESTION_TYPE_FILE_UPLOAD = 'fileUpload'
+export const QUESTION_TYPE_MAP = 'map'
 
 /**
  * Union type of all valid question types
@@ -102,6 +103,7 @@ export type QuestionType =
   | typeof QUESTION_TYPE_MULTI_PART_POINT_5
   | typeof QUESTION_TYPE_MULTI_PART_POINT_10
   | typeof QUESTION_TYPE_FILE_UPLOAD
+  | typeof QUESTION_TYPE_MAP
   | string
 
 /**
@@ -163,6 +165,8 @@ export interface SurveyAttributes {
   columns?: number
   /** ATTRIBUTE_QUESTION_FILE_UPLOAD_OPTIONS */
   fileUploadOptions?: FileUploadOptions
+  /** ATTRIBUTE_QUESTION_MAP_OPTIONS */
+  mapOptions?: MapOptions
   [key: string]: AttributeValue
 }
 
@@ -174,6 +178,24 @@ export interface FileUploadOptions {
   maxFileSize: number
   allowedMimeTypes: string[]
   maxFileCount: number
+}
+
+/**
+ * Shape of the mapOptions attribute on a map question. Centre and zoom are
+ * where the map opens, and are optional; countries is a comma-separated list of ISO 3166
+ * alpha-2 codes (empty means any country).
+ */
+export interface MapOptions {
+  provider: string
+  /** Null (with `centerLng`) opens the map on the participant's location. */
+  centerLat: number | null
+  centerLng: number | null
+  /** Null picks a zoom to suit what is known about the start position. */
+  zoom: number | null
+  addressSearch: boolean
+  useMyLocation: boolean
+  countries: string
+  precision: string
 }
 
 /**

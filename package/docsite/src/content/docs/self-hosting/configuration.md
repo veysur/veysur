@@ -20,6 +20,7 @@ The script keeps existing values as defaults, so it can be re-run safely. Apply 
 | TLS | Automatic certificates, a supplied certificate, or a local certificate for trials |
 | Storage | Uploaded files in a local volume or in S3 buckets |
 | Email | The SMTP relay used for resets and invitations |
+| Maps | The provider for map questions: OpenStreetMap by default, or Google Maps with a key |
 
 ## Telemetry
 

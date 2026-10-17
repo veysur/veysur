@@ -29,6 +29,10 @@ import {
   QUESTION_TYPE_MATRIX_CHECKBOX,
   QUESTION_TYPE_MATRIX_YES_NO,
   QUESTION_TYPE_RANKING,
+  QUESTION_TYPE_MAP,
+  MAP_PRECISION_COARSE,
+  isMapAnswer,
+  toMapAnswer,
   QUESTION_TYPE_MULTI_PART_TEXT,
   QUESTION_TYPE_MULTI_PART_NUMBER,
   QUESTION_TYPE_MULTI_PART_YES_NO,
@@ -196,6 +200,9 @@ export class ResponseMapper {
           targetQuestion.answerOptions,
         )
 
+      case QUESTION_TYPE_MAP:
+        return this.validateMapAnswer(answerValue, targetQuestion)
+
       case QUESTION_TYPE_MULTI_PART_TEXT:
       case QUESTION_TYPE_MULTI_PART_NUMBER:
       case QUESTION_TYPE_MULTI_PART_YES_NO:
@@ -211,6 +218,36 @@ export class ResponseMapper {
       default:
         // For unknown/custom types, reject to be safe
         return { valid: false, reason: 'incompatible_type' }
+    }
+  }
+
+  /**
+   * Validates a map pin. A target question that only accepts coarse pins gets
+   * the pin rounded (and its address dropped) rather than rejected.
+   */
+  private static validateMapAnswer(
+    answerValue: unknown,
+    targetQuestion: SurveyQuestion,
+  ): {
+    valid: boolean
+    mappedValue?: unknown
+    reason?: AnswerSkipDetail['reason']
+  } {
+    if (!isMapAnswer(answerValue)) {
+      return { valid: false, reason: 'incompatible_type' }
+    }
+    const targetPrecision = targetQuestion.attributes?.mapOptions?.precision
+    if (targetPrecision !== MAP_PRECISION_COARSE) {
+      return { valid: true, mappedValue: answerValue }
+    }
+    return {
+      valid: true,
+      mappedValue: toMapAnswer(
+        answerValue.lat,
+        answerValue.lng,
+        MAP_PRECISION_COARSE,
+        { countryCode: answerValue.countryCode },
+      ),
     }
   }
 

@@ -7,6 +7,7 @@ import {
   SurveySubquestionCollection,
   SurveyElementCollection,
   ATTRIBUTE_CHOICE_MIN_MAX,
+  MapOptions,
 } from 'veysur-common'
 
 describe('ResponseMapper', () => {
@@ -213,6 +214,59 @@ describe('ResponseMapper', () => {
         expect(result.mappedAnswers.Q001).toBe('en')
         expect(result.skippedAnswers).toHaveLength(0)
       })
+    })
+  })
+
+  describe('validateAnswer: map', () => {
+    const mapQuestion = (precision?: string) =>
+      new SurveyQuestion({
+        _id: 'q1',
+        code: 'Q001',
+        type: 'map',
+        text: { en: 'Where?' },
+        attributes: precision
+          ? { mapOptions: { precision } as MapOptions }
+          : {},
+      })
+    const pin = {
+      lat: 51.5074,
+      lng: -0.1278,
+      precision: 'exact',
+      address: 'London',
+    }
+
+    test('copies a pin to a question that accepts exact pins', () => {
+      const result = ResponseMapper.validateAnswer(
+        'Q001',
+        pin,
+        mapQuestion('exact'),
+        mapQuestion('exact'),
+      )
+      expect(result).toEqual({ valid: true, mappedValue: pin })
+    })
+
+    test('rounds a pin and drops its address for a coarse target', () => {
+      const result = ResponseMapper.validateAnswer(
+        'Q001',
+        pin,
+        mapQuestion('exact'),
+        mapQuestion('coarse'),
+      )
+      expect(result).toEqual({
+        valid: true,
+        mappedValue: { lat: 51.5, lng: -0.1, precision: 'coarse' },
+      })
+    })
+
+    test('rejects a malformed pin', () => {
+      const result = ResponseMapper.validateAnswer(
+        'Q001',
+        { lat: 'x' },
+        mapQuestion(),
+        mapQuestion(),
+      )
+      expect(result.valid).toBe(false)
+      expect(result.reason).toBe('incompatible_type')
     })
   })
 

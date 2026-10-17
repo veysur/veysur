@@ -13,6 +13,7 @@ import {
 import { formatAnswer } from './formatAnswer'
 import { MatrixAnswerSummary } from './MatrixAnswerSummary'
 import { MultiPartAnswerSummary } from './MultiPartAnswerSummary'
+import { MapAnswerSummary } from './MapAnswerSummary'
 import { RankingAnswerSummary } from './RankingAnswerSummary'
 import {
   FileUploadAnswerSummary,
@@ -57,6 +58,10 @@ export const SurveyAnswersSummary: React.FC<SurveyAnswersSummaryProps> = ({
           onDownload={onDownloadFile}
         />
       )
+    }
+
+    if (question.type === 'map') {
+      return <MapAnswerSummary answerValue={answerValue} isPrint={isPrint} />
     }
 
     if (question.type === 'ranking') {

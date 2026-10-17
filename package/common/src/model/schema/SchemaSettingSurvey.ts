@@ -169,6 +169,11 @@ export class SchemaSettingSurvey extends Schema {
             basic: String,
             detailed: String,
           },
+          // Project-level Google Maps browser key; overrides the deployment key
+          maps: {
+            googleApiKey: String,
+            provider: String,
+          },
           stats: {
             questions: sb.object().matchAll(
               sb.object({

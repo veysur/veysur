@@ -117,6 +117,10 @@ export interface SettingSurveyData {
     basic: string
     detailed: string
   }
+  maps: {
+    googleApiKey: string
+    provider?: string
+  }
   stats: {
     questions: {
       [questionCode: string]: {
@@ -268,6 +272,12 @@ export class SettingSurveyBase {
     basic: '',
     detailed: '',
   }
+  maps: {
+    googleApiKey: string
+    provider?: string
+  } = {
+    googleApiKey: '',
+  }
   stats: {
     questions: {
       [questionCode: string]: {
@@ -338,6 +348,7 @@ export class SettingSurveyBase {
 
     this.schedule = data?.schedule || this.schedule
     this.notify = data?.notify || this.notify
+    this.maps = data?.maps || this.maps
     this.stats = data?.stats || this.stats
     this.contentFormat = mergeDefined(this.contentFormat, data?.contentFormat)
 

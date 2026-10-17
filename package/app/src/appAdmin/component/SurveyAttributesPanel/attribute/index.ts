@@ -30,6 +30,7 @@ import {
   ATTRIBUTE_MATRIX_ORIENTATION,
   ATTRIBUTE_QUESTION_COLUMNS,
   ATTRIBUTE_QUESTION_FILE_UPLOAD_OPTIONS,
+  ATTRIBUTE_QUESTION_MAP_OPTIONS,
   SurveyEntity,
   getNestedValue,
   TEXT_FORMAT_PHONE,
@@ -79,6 +80,7 @@ export {
   ATTRIBUTE_MATRIX_ORIENTATION,
   ATTRIBUTE_QUESTION_COLUMNS,
   ATTRIBUTE_QUESTION_FILE_UPLOAD_OPTIONS,
+  ATTRIBUTE_QUESTION_MAP_OPTIONS,
 }
 
 // Generate all configs using factory functions
@@ -161,4 +163,7 @@ export const columnsConfig = createQuestionAttributeConfig(
 )
 export const fileUploadOptionsConfig = createQuestionAttributeConfig(
   ATTRIBUTE_QUESTION_FILE_UPLOAD_OPTIONS,
+)
+export const mapOptionsConfig = createQuestionAttributeConfig(
+  ATTRIBUTE_QUESTION_MAP_OPTIONS,
 )

@@ -902,4 +902,104 @@ describe('SurveyResponseEntityHandler', () => {
       expect(validation.warnings).toBeUndefined()
     })
   })
+  describe('map question CSV', () => {
+    const mapSurveyData = {
+      _id: surveyId,
+      title: { en: 'Map survey' },
+      language: { default: 'en' },
+      elements: [
+        { _id: 'q1', code: 'Q001', type: 'text', text: { en: 'Name' } },
+        { _id: 'q2', code: 'Q002', type: 'map', text: { en: 'Where?' } },
+      ],
+    }
+
+    async function exportThenImport(answers: Record<string, unknown>) {
+      mockRepoSurveySnapshot.findOne.mockResolvedValue({
+        survey: mapSurveyData,
+      })
+      const response = new SurveyResponse({
+        _id: 'r1',
+        surveyId,
+        publicationId,
+        snapshotId,
+        answers,
+      })
+      const snapshotData = new SurveySnapshot({
+        snapshotId,
+        survey: mapSurveyData,
+      })
+      const exportStream = await handler.prepareExportData(
+        {
+          surveyId,
+          publicationId,
+          responses: [response],
+          snapshotData,
+          projectId,
+        },
+        new CsvFormatHandler(),
+      )
+      const csv = await streamToString(exportStream)
+      const parsedRows = await new CsvFormatHandler().parse(
+        Readable.from([Buffer.from(csv, 'utf8')]),
+      )
+      const headers = parsedRows[0] as string[]
+      const cell = (parsedRows[2] as string[])[headers.indexOf('Q002')]
+      ;(parsedRows[2] as string[])[headers.indexOf('email')] =
+        'alice@example.com'
+
+      const validation = await handler.validateImport(parsedRows, {
+        projectId,
+        aclContext: { jwt: { _id: 'user-1' } },
+        surveyId,
+        publicationId,
+        snapshotId,
+      })
+      if (!validation.valid) throw new Error('import did not validate')
+      await handler.persistImport(validation.data, {
+        projectId,
+        aclContext: { jwt: { _id: 'user-1' } },
+      })
+      const inserted = mockRepoSurveyResponse.insertOne.mock
+        .calls[0][0] as SurveyResponse
+      return { cell, answers: inserted.answers as Record<string, unknown> }
+    }
+
+    test('exports lat,lng,address and imports it back as an exact pin', async () => {
+      const { cell, answers } = await exportThenImport({
+        Q001: 'Alice',
+        Q002: {
+          lat: 51.5074,
+          lng: -0.1278,
+          precision: 'exact',
+          address: 'London, UK',
+        },
+      })
+      expect(cell).toBe('51.5074,-0.1278,London, UK')
+      expect(answers.Q002).toEqual({
+        lat: 51.5074,
+        lng: -0.1278,
+        precision: 'exact',
+        address: 'London, UK',
+      })
+    })
+
+    test('a coarse pin exports as lat,lng and imports back as coarse', async () => {
+      const { cell, answers } = await exportThenImport({
+        Q001: 'Alice',
+        Q002: { lat: 51.5, lng: -0.1, precision: 'coarse' },
+      })
+      expect(cell).toBe('51.5,-0.1')
+      expect(answers.Q002).toEqual({
+        lat: 51.5,
+        lng: -0.1,
+        precision: 'coarse',
+      })
+    })
+
+    test('an unanswered map question exports empty and imports no answer', async () => {
+      const { cell, answers } = await exportThenImport({ Q001: 'Alice' })
+      expect(cell).toBe('')
+      expect(answers.Q002).toBeUndefined()
+    })
+  })
 })

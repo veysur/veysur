@@ -119,6 +119,7 @@ export class ServiceSurveyParticipantResponse extends Service {
             sections,
             language: response.language,
             defaultLanguage: snapshotData.survey.language?.default,
+            anonymous,
           },
         )
         if (!result.isValid) {

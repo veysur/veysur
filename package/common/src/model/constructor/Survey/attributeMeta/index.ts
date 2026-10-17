@@ -29,6 +29,7 @@ import { conditionMeta } from './attributes/condition'
 import { matrixOrientationMeta } from './attributes/matrixOrientation'
 import { columnsMeta } from './attributes/columns'
 import { fileUploadOptionsMeta } from './attributes/fileUploadOptions'
+import { mapOptionsMeta } from './attributes/mapOptions'
 
 /**
  * Central registry of all attribute metadata
@@ -59,6 +60,7 @@ export const attributesMetadata = [
   conditionMeta,
   columnsMeta,
   fileUploadOptionsMeta,
+  mapOptionsMeta,
 ]
 
 // Re-export individual metadata for direct access
@@ -87,4 +89,5 @@ export {
   conditionMeta,
   columnsMeta,
   fileUploadOptionsMeta,
+  mapOptionsMeta,
 }

@@ -57,6 +57,7 @@ export const useSurveyValidation = (
   allQuestions: QuestionWithGroup[],
   language: string,
   defaultLanguage: string,
+  anonymous = false,
 ) => {
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({})
 
@@ -69,7 +70,7 @@ export const useSurveyValidation = (
     const { isValid, errors } = await validator.validate(
       [toValidatable(question)],
       { [questionCode]: value },
-      { language, defaultLanguage },
+      { language, defaultLanguage, anonymous },
     )
 
     setValidationErrors((prev) => {
@@ -166,7 +167,7 @@ export const useSurveyValidation = (
     const { isValid, errors } = await validator.validate(
       allQuestions.map((item) => toValidatable(item.question)),
       answers,
-      { language, defaultLanguage },
+      { language, defaultLanguage, anonymous },
     )
 
     const combinedErrors: ValidationErrors = {}

@@ -56,6 +56,7 @@ const NUMERIC_TYPES = new Set(['starRating', 'point5', 'point10', 'number'])
 const RANKING_TYPE = 'ranking'
 
 const FILE_UPLOAD_TYPE = 'fileUpload'
+const MAP_TYPE = 'map'
 
 /**
  * A column definition for a survey question / subquestion cell in the CSV.
@@ -434,6 +435,12 @@ function serializeAnswerForColumn(
       : ''
   }
 
+  if (type === MAP_TYPE) {
+    const pin = asRecord(val)
+    if (typeof pin?.lat !== 'number' || typeof pin?.lng !== 'number') return ''
+    return [pin.lat, pin.lng, pin.address ?? ''].join(',').replace(/,+$/, '')
+  }
+
   if (MULTIPLE_CHOICE_TYPES.has(type)) {
     const valRecord = asRecord(val)
     if (valRecord) {
@@ -560,6 +567,12 @@ function deserializeAnswerValue(
     return
   }
 
+  if (type === MAP_TYPE) {
+    const pin = parseMapPin(value)
+    if (pin) answersAcc[q] = pin
+    return
+  }
+
   if (type === RANKING_TYPE) {
     const codes = value
       .split(',')
@@ -590,6 +603,32 @@ function deserializeAnswerValue(
   }
 
   answersAcc[q] = parsePrimitiveValue(value, type)
+}
+
+/** Reads the `lat,lng[,address]` cell written by serializeAnswerForColumn. */
+function parseMapPin(value: string): AnswerRecord | null {
+  const [latText, lngText, ...addressParts] = value.split(',')
+  const lat = Number(latText)
+  const lng = Number(lngText)
+  if (
+    latText?.trim() === '' ||
+    lngText?.trim() === '' ||
+    !Number.isFinite(lat) ||
+    !Number.isFinite(lng) ||
+    Math.abs(lat) > 90 ||
+    Math.abs(lng) > 180
+  ) {
+    return null
+  }
+  const address = addressParts.join(',').trim()
+  const isRounded = (n: number) => Math.round(n * 10) / 10 === n
+  const coarse = !address && isRounded(lat) && isRounded(lng)
+  return {
+    lat,
+    lng,
+    precision: coarse ? 'coarse' : 'exact',
+    ...(address ? { address } : {}),
+  }
 }
 
 function parsePrimitiveValue(value: string, type: string): AnswerValue {

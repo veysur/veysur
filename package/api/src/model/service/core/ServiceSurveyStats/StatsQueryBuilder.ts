@@ -83,7 +83,6 @@ export class StatsQueryBuilder {
 
     // Search functionality - filter responses by participant data
     if (search) {
-
       // Find participants matching search criteria
       const participantIds = await findMatchingParticipants({
         search,

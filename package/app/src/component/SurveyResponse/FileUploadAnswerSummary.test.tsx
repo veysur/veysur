@@ -11,7 +11,10 @@ describe('FileUploadAnswerSummary', () => {
 
   it('shows "File unavailable" when the file metadata was not supplied', () => {
     render(
-      <FileUploadAnswerSummary answerValue={{ fileIds: ['file_1'] }} files={[]} />,
+      <FileUploadAnswerSummary
+        answerValue={{ fileIds: ['file_1'] }}
+        files={[]}
+      />,
     )
     expect(screen.getByText('File unavailable')).toBeInTheDocument()
   })

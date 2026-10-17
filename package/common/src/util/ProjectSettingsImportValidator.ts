@@ -4,13 +4,15 @@ import { sanitizeContent } from '../model/content/sanitizeContent'
 
 export const PROJECT_SETTINGS_VERSION = '1.0'
 
-// schedule dates go stale; stats.questions is keyed by survey-specific codes
+// schedule dates go stale; stats.questions is keyed by survey-specific codes;
+// maps holds the project's Google Maps key, which must not travel in an archive
 export const PROJECT_SETTINGS_EXCLUDED_KEYS = [
   '_id',
   'createdAt',
   'updatedAt',
   'schedule',
   'stats',
+  'maps',
 ] as const
 
 // `team-invite` is a system email, not editable as a project default

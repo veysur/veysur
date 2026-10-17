@@ -27,6 +27,7 @@ import {
   GripVertical,
   Rows3,
   Paperclip,
+  MapPin,
 } from 'lucide-react'
 import {
   QUESTION_TYPE_TEXT,
@@ -59,6 +60,7 @@ import {
   QUESTION_TYPE_MULTI_PART_POINT_5,
   QUESTION_TYPE_MULTI_PART_POINT_10,
   QUESTION_TYPE_FILE_UPLOAD,
+  QUESTION_TYPE_MAP,
   ATTRIBUTE_CHOICE_MIN_MAX,
   ATTRIBUTE_CHOICE_RANDOMISE,
   ATTRIBUTE_QUESTION_INPUT_SIZE,
@@ -115,6 +117,12 @@ export const questionCategories: QuestionCategoryConfig[] = [
     label: 'File',
     description: 'Participant file uploads',
     icon: Paperclip,
+  },
+  {
+    id: 'location',
+    label: 'Location',
+    description: 'Pin a place on a map',
+    icon: MapPin,
   },
 ]
 
@@ -322,6 +330,12 @@ export const questionTypeOptions: QuestionTypeOptionConfig[] = [
     label: 'File Upload',
     icon: Paperclip,
     category: 'file',
+  },
+  {
+    type: QUESTION_TYPE_MAP,
+    label: 'Map',
+    icon: MapPin,
+    category: 'location',
   },
 ]
 

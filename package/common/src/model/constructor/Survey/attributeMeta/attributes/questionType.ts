@@ -31,6 +31,7 @@ import {
   QUESTION_TYPE_MULTI_PART_POINT_5,
   QUESTION_TYPE_MULTI_PART_POINT_10,
   QUESTION_TYPE_FILE_UPLOAD,
+  QUESTION_TYPE_MAP,
 } from '../types'
 import { ATTRIBUTE_QUESTION_TYPE } from '../constants'
 import { getNestedValue } from '../helpers'
@@ -74,6 +75,7 @@ export const questionTypeMeta: AttributeMeta = {
     [QUESTION_TYPE_MULTI_PART_POINT_5]: 'Multi-Part 5-Point',
     [QUESTION_TYPE_MULTI_PART_POINT_10]: 'Multi-Part 10-Point',
     [QUESTION_TYPE_FILE_UPLOAD]: 'File Upload',
+    [QUESTION_TYPE_MAP]: 'Map',
   },
   schemaSpec: {
     $type: String,

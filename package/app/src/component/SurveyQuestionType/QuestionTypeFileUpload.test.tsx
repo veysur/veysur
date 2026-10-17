@@ -1,10 +1,4 @@
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  act,
-} from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { SurveyQuestion, QUESTION_TYPE_FILE_UPLOAD } from 'veysur-common'
 
 import { QuestionTypeFileUpload } from './QuestionTypeFileUpload'
@@ -102,9 +96,11 @@ describe('QuestionTypeFileUpload', () => {
 
     await selectFile()
 
-    await waitFor(() => expect(onChange).toHaveBeenCalledWith({
-      fileIds: ['file-1'],
-    }))
+    await waitFor(() =>
+      expect(onChange).toHaveBeenCalledWith({
+        fileIds: ['file-1'],
+      }),
+    )
   })
 
   it('shows an upload error and skips the upload call if ensureResponseStarted fails', async () => {

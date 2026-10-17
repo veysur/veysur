@@ -177,6 +177,7 @@ const EmbedSurvey: React.FC<{
         survey={survey}
         settingSurvey={settingSurvey}
         authDeferred
+        deferMapLoad
         initLanguage={lang}
         onSaveResponse={save}
       />

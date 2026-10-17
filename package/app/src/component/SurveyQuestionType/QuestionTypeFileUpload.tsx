@@ -31,8 +31,7 @@ export const QuestionTypeFileUpload: React.FC<QuestionTypeProps> = ({
 }) => {
   const options =
     (question?.attributes?.fileUploadOptions as
-      | FileUploadOptions
-      | undefined) || DEFAULT_OPTIONS
+      FileUploadOptions | undefined) || DEFAULT_OPTIONS
   const answer = (value as FileUploadAnswer | undefined) ?? { fileIds: [] }
   const fileIds = answer.fileIds ?? []
 
@@ -41,9 +40,7 @@ export const QuestionTypeFileUpload: React.FC<QuestionTypeProps> = ({
 
   const canAddMore = fileIds.length < options.maxFileCount
 
-  const handleFileSelect = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     e.target.value = ''
     if (!file || !authToken) return

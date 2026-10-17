@@ -83,6 +83,30 @@ export interface RankingOptionStat {
   rankCounts: number[]
 }
 
+/**
+ * One grouped location on the results map: every pin that rounds to the same
+ * grid cell, so exact coordinates beyond the grid never leave the server.
+ */
+export interface MapStatPoint {
+  lat: number
+  lng: number
+  count: number
+}
+
+/**
+ * Aggregated stats for a Map question. `points` holds up to
+ * `MAP_STATS_MAX_POINTS` grid cells, busiest first; `truncated` is set when
+ * quieter cells were left out. `pinCount` counts every pin, including those
+ * in left-out cells. `bounds` is `[south, west, north, east]` over all pins.
+ */
+export interface MapStats {
+  points: MapStatPoint[]
+  pinCount: number
+  distinctPoints: number
+  truncated: boolean
+  bounds: [number, number, number, number] | null
+}
+
 export interface QuestionStats {
   questionId: string
   questionCode: string
@@ -93,6 +117,7 @@ export interface QuestionStats {
   matrixSubquestionStats?: MatrixSubquestionStats[]
   multiPartStats?: MultiPartStat[]
   rankingStats?: RankingOptionStat[]
+  mapStats?: MapStats
 }
 
 export interface SurveyStatsResult {

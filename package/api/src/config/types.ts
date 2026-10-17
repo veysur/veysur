@@ -1,4 +1,3 @@
-
 export interface RateLimitRule {
   /** Regex pattern string matched against req.path (case-insensitive). */
   pattern: string
@@ -47,6 +46,12 @@ export interface AppConfig {
   }
   pagination: {
     maxPerPage: number
+  }
+  maps: {
+    /** `osm` or `google`; google only takes effect when a key is available */
+    providerDefault: string
+    /** Browser key, restricted to the site's referrers. Projects may override it. */
+    googleApiKey: string
   }
   mail: {
     logOnly: boolean

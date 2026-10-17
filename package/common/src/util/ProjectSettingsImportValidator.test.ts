@@ -109,6 +109,7 @@ describe('ProjectSettingsImportValidator', () => {
         'updatedAt',
         'schedule',
         'stats',
+        'maps',
       ]) {
         expect(result.data.settings).not.toHaveProperty(key)
       }
@@ -126,6 +127,20 @@ describe('ProjectSettingsImportValidator', () => {
       expect(result.valid).toBe(true)
       expect(result.data.settings).not.toHaveProperty('schedule')
       expect(result.warnings.join(' ')).toContain('schedule')
+    })
+
+    test('never imports a Google Maps key from an archive', async () => {
+      const result = await validator.validate(
+        build({
+          settings: {
+            language: { default: 'en', options: ['en'] },
+            maps: { googleApiKey: 'AIza-secret' },
+          },
+        }),
+      )
+      expect(result.valid).toBe(true)
+      expect(result.data.settings).not.toHaveProperty('maps')
+      expect(result.warnings.join(' ')).toContain('maps')
     })
 
     test('rejects unknown keys', async () => {
