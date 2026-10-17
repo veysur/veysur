@@ -618,3 +618,99 @@ describe('parseMarkdownSurvey — preset survey id', () => {
     expect(bundle.survey._id).not.toBe('presetSurvey1')
   })
 })
+
+describe('parseMarkdownSurvey — text format attributes', () => {
+  const wrap = (body: string) => `---
+spec: v1
+language:
+  default: en
+  options: [en]
+---
+
+# Survey
+
+## Group
+
+${body}`
+
+  const attributesOf = (markdown: string) =>
+    (
+      parseMarkdownSurvey(markdown).elements[0] as unknown as {
+        attributes: Record<string, unknown>
+      }
+    ).attributes
+
+  const customQuestion = (pattern: string) =>
+    wrap(
+      `### Q001 · text\nCode\n\n- textFormat: custom\n- textFormatPattern: ${pattern}\n`,
+    )
+
+  test('round-trips a custom pattern with colons, backslashes and digits', () => {
+    for (const pattern of ['^[A-Z]{2}\\d{4}$', '^a:b$', '123']) {
+      const survey = new Survey({
+        title: { en: 'S' },
+        language: { default: 'en', options: ['en'] },
+        sectionIds: ['s1'],
+        elementIds: ['q1'],
+        sections: [{ _id: 's1', kind: 'group', name: { en: 'G' } }],
+        elements: [
+          {
+            _id: 'q1',
+            kind: 'question',
+            code: 'Q001',
+            type: 'text',
+            sectionId: 's1',
+            text: { en: 'Code' },
+            attributes: {
+              textFormat: 'custom',
+              textFormatPattern: pattern,
+            },
+          },
+        ],
+      })
+      expect(
+        attributesOf(exportSurveyToMarkdown(survey)).textFormatPattern,
+      ).toBe(pattern)
+    }
+  })
+
+  test('reads a phone format with countries', () => {
+    const attributes = attributesOf(
+      wrap(
+        `### Q001 · text\nPhone\n\n- textFormat: phone\n- textFormatCountries: GB,US\n`,
+      ),
+    )
+    expect(attributes.textFormat).toBe('phone')
+    expect(attributes.textFormatCountries).toBe('GB,US')
+  })
+
+  test('rejects an unknown textFormat', () => {
+    expect(() =>
+      parseMarkdownSurvey(
+        wrap(`### Q001 · text\nX\n\n- textFormat: postcode\n`),
+      ),
+    ).toThrow(/textFormat/)
+  })
+
+  test('rejects an unsafe custom pattern', () => {
+    expect(() => parseMarkdownSurvey(customQuestion('(a+)+$'))).toThrow(
+      /textFormatPattern/,
+    )
+  })
+
+  test('rejects a pattern without the custom format', () => {
+    expect(() =>
+      parseMarkdownSurvey(
+        wrap(`### Q001 · text\nX\n\n- textFormatPattern: ^a$\n`),
+      ),
+    ).toThrow(/textFormatPattern/)
+  })
+
+  test('textFormat is not applicable to other question types', () => {
+    expect(() =>
+      parseMarkdownSurvey(
+        wrap(`### Q001 · number\nX\n\n- textFormat: email\n`),
+      ),
+    ).toThrow(/not applicable/)
+  })
+})

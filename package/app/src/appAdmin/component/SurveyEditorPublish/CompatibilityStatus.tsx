@@ -184,6 +184,8 @@ export function formatIncompatibility(issue: IncompatibilityDetail): string {
       return `Question "${issue.itemCode}" has stricter choice constraints (min/max)`
     case 'incompatible_length_constraint':
       return `Question "${issue.itemCode}" has stricter length constraints (min/max)`
+    case 'incompatible_text_format_constraint':
+      return `Question "${issue.itemCode}" requires a text format that existing responses may not match`
     case 'incompatible_number_constraint':
       return `Question "${issue.itemCode}" has stricter number constraints (min/max or negative values)`
     case 'incompatible_negative_constraint':

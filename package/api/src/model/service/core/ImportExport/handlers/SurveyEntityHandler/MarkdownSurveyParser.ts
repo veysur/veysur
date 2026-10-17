@@ -11,6 +11,9 @@ import {
   SECTION_CODE_PREFIX,
   SECTION_CODE_WELCOME,
   SECTION_CODE_THANK_YOU,
+  TEXT_FORMATS,
+  TEXT_FORMAT_CUSTOM,
+  isSafeRegexPattern,
 } from 'veysur-common'
 
 import {
@@ -28,7 +31,14 @@ const THANK_YOU_HEADING = 'Thank you'
  * (§4: "attribute ID not in that question type's applicable set").
  */
 const APPLICABLE_ATTRIBUTES_BY_TYPE: Record<string, string[]> = {
-  text: ['required', 'inputSize', 'lengthMinMax'],
+  text: [
+    'required',
+    'inputSize',
+    'lengthMinMax',
+    'textFormat',
+    'textFormatCountries',
+    'textFormatPattern',
+  ],
   number: ['required', 'numberMinMax', 'numberNegAllowed'],
   checkbox: ['required', 'choiceMinMax', 'choiceOther', 'choiceRandomise'],
   dropdown: ['required', 'choiceMinMax', 'choiceOther', 'choiceRandomise'],
@@ -378,9 +388,19 @@ function parseFrontMatter(text: string): {
   }
 }
 
+// Kept as written, so a pattern such as `123` or `true` is not read as a number or boolean.
+const STRING_ATTRIBUTES = new Set([
+  'inputSize',
+  'textFormat',
+  'textFormatCountries',
+  'textFormatPattern',
+])
+
 function parseAttributeValue(
+  attributeId: string,
   raw: string,
 ): boolean | number | string | { min: number; max: number } {
+  if (STRING_ATTRIBUTES.has(attributeId)) return raw
   if (raw === 'true') return true
   if (raw === 'false') return false
   const minMaxMatch = /^\{\s*min:\s*(-?\d+),\s*max:\s*(-?\d+)\s*\}$/.exec(raw)
@@ -389,6 +409,32 @@ function parseAttributeValue(
   }
   if (/^-?\d+$/.test(raw)) return Number(raw)
   return raw
+}
+
+function validateTextFormatAttributes(
+  lineNumber: number,
+  attributes: Record<string, unknown>,
+): void {
+  const { textFormat, textFormatPattern } = attributes
+  if (
+    textFormat !== undefined &&
+    !(TEXT_FORMATS as readonly unknown[]).includes(textFormat)
+  ) {
+    reject(
+      lineNumber,
+      `Attribute 'textFormat' must be one of ${TEXT_FORMATS.join(', ')}`,
+    )
+  }
+  if (
+    textFormatPattern &&
+    (textFormat !== TEXT_FORMAT_CUSTOM ||
+      !isSafeRegexPattern(String(textFormatPattern)))
+  ) {
+    reject(
+      lineNumber,
+      "Attribute 'textFormatPattern' needs 'textFormat: custom' and a valid pattern without nested repetition",
+    )
+  }
 }
 
 function parseAttributeBullets(
@@ -417,8 +463,10 @@ function parseAttributeBullets(
         `Attribute '${attributeId}' is not applicable to question type '${questionType}'`,
       )
     }
-    attributes[attributeId] = parseAttributeValue(rawValue)
+    attributes[attributeId] = parseAttributeValue(attributeId, rawValue)
   }
+
+  validateTextFormatAttributes(cursor.lineNumber, attributes)
 
   return attributes
 }

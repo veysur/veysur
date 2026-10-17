@@ -74,6 +74,125 @@ describe('SurveyResponseValidator', () => {
     })
   })
 
+  describe('textFormat', () => {
+    const formatQuestion = (attributes: Record<string, unknown>) => ({
+      code: 'Q1',
+      type: 'text',
+      attributes,
+    })
+
+    test('email: invalid → format error, valid → no error', async () => {
+      const q = formatQuestion({ textFormat: 'email' })
+      const bad = await validator.validate([q], { Q1: 'nope' })
+      expect(bad.isValid).toBe(false)
+      expect(bad.errors.Q1).toEqual([{ key: 'validation.textFormat_email' }])
+      const good = await validator.validate([q], { Q1: 'a@b.co' })
+      expect(good.isValid).toBe(true)
+    })
+
+    test('url and phone use their own error keys', async () => {
+      const url = await validator.validate(
+        [formatQuestion({ textFormat: 'url' })],
+        { Q1: 'example' },
+      )
+      expect(url.errors.Q1).toEqual([{ key: 'validation.textFormat_url' }])
+      const phone = await validator.validate(
+        [formatQuestion({ textFormat: 'phone', textFormatCountries: 'GB' })],
+        { Q1: '12345' },
+      )
+      expect(phone.errors.Q1).toEqual([{ key: 'validation.textFormat_phone' }])
+    })
+
+    test('phone: national number for a listed country passes', async () => {
+      const result = await validator.validate(
+        [formatQuestion({ textFormat: 'phone', textFormatCountries: 'GB' })],
+        { Q1: '07911 123456' },
+      )
+      expect(result.isValid).toBe(true)
+    })
+
+    test('custom pattern; an unsafe stored pattern is skipped', async () => {
+      const custom = formatQuestion({
+        textFormat: 'custom',
+        textFormatPattern: '^[A-Z]{2}\\d{4}$',
+      })
+      expect((await validator.validate([custom], { Q1: 'x' })).isValid).toBe(
+        false,
+      )
+      expect(
+        (await validator.validate([custom], { Q1: 'AB1234' })).isValid,
+      ).toBe(true)
+      const unsafe = formatQuestion({
+        textFormat: 'custom',
+        textFormatPattern: '(a+)+$',
+      })
+      expect((await validator.validate([unsafe], { Q1: 'x' })).isValid).toBe(
+        true,
+      )
+    })
+
+    test('empty optional answer passes; empty required answer reports required', async () => {
+      const optional = formatQuestion({ textFormat: 'email' })
+      expect((await validator.validate([optional], { Q1: '' })).isValid).toBe(
+        true,
+      )
+      const required = formatQuestion({ textFormat: 'email', required: true })
+      const result = await validator.validate([required], { Q1: '' })
+      expect(result.isValid).toBe(false)
+    })
+
+    test('textFormat none or absent does not constrain', async () => {
+      const result = await validator.validate(
+        [formatQuestion({ textFormat: 'none' })],
+        { Q1: 'anything' },
+      )
+      expect(result.isValid).toBe(true)
+    })
+
+    test('matrix text cell reports an invalid-format item error', async () => {
+      const matrix = {
+        code: 'Q1',
+        type: 'matrixComposite',
+        attributes: {},
+        subquestions: [
+          {
+            code: 'S1',
+            type: 'text',
+            text: { en: 'Email' },
+            attributes: { textFormat: 'email' },
+          },
+        ],
+        answerOptions: [{ code: 'R1' }],
+      }
+      const result = await validator.validate([matrix], {
+        Q1: { S1: { R1: 'nope' } },
+      })
+      expect(result.errors.Q1).toEqual([
+        { key: 'validation.itemInvalidFormat', params: { label: 'Email' } },
+      ])
+    })
+
+    test('multi-part text part reports an invalid-format item error', async () => {
+      const multi = {
+        code: 'Q1',
+        type: 'multiPartText',
+        attributes: {},
+        subquestions: [
+          {
+            code: 'S1',
+            type: 'text',
+            text: { en: 'Website' },
+            attributes: { textFormat: 'url' },
+          },
+        ],
+      }
+      const result = await validator.validate([multi], { Q1: { S1: 'nope' } })
+      expect(result.errors.Q1).toEqual([
+        { key: 'validation.itemInvalidFormat', params: { label: 'Website' } },
+      ])
+    })
+  })
+
   describe('numberMinMax', () => {
     const numberQuestion = {
       code: 'Q1',

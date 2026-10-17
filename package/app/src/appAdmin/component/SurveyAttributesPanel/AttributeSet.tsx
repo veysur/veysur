@@ -72,29 +72,34 @@ export const AttributeSet: React.FC<AttributeSetProps> = ({
       {!isCollapsed && (
         <TooltipProvider delayDuration={TOOLTIP_DELAY_MS}>
           <div className="attribute-set-content p-3">
-            {setConfig.attributes?.map((attributeConfig) => (
-              <Tooltip key={`${setConfig.id}-${attributeConfig.id}`}>
-                <TooltipTrigger asChild>
-                  <div
-                    className={`attribute-item ${isAdvanced ? 'advanced-attribute' : ''}`}
-                  >
-                    <AttributeCard
-                      key={`${entity._id}-${attributeConfig.id}`}
-                      attributeConfig={attributeConfig}
-                      entity={entity}
-                      onChangeValue={(value) =>
-                        onChangeValue(attributeConfig, value)
-                      }
-                      getValue={attributeConfig.getValue}
-                      langEditing={langEditing}
-                    />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="left">
-                  <p>{attributeConfig.description || attributeConfig.name}</p>
-                </TooltipContent>
-              </Tooltip>
-            ))}
+            {setConfig.attributes
+              ?.filter(
+                (attributeConfig) =>
+                  attributeConfig.isVisible?.(entity) ?? true,
+              )
+              .map((attributeConfig) => (
+                <Tooltip key={`${setConfig.id}-${attributeConfig.id}`}>
+                  <TooltipTrigger asChild>
+                    <div
+                      className={`attribute-item ${isAdvanced ? 'advanced-attribute' : ''}`}
+                    >
+                      <AttributeCard
+                        key={`${entity._id}-${attributeConfig.id}`}
+                        attributeConfig={attributeConfig}
+                        entity={entity}
+                        onChangeValue={(value) =>
+                          onChangeValue(attributeConfig, value)
+                        }
+                        getValue={attributeConfig.getValue}
+                        langEditing={langEditing}
+                      />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="left">
+                    <p>{attributeConfig.description || attributeConfig.name}</p>
+                  </TooltipContent>
+                </Tooltip>
+              ))}
           </div>
         </TooltipProvider>
       )}

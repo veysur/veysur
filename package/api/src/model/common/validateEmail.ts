@@ -1,8 +1,6 @@
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+import { isValidEmail } from 'veysur-common'
 
-export function isValidEmail(email: string): boolean {
-  return EMAIL_REGEX.test(email)
-}
+export { isValidEmail }
 
 /**
  * Throws if the email address is not well-formed.

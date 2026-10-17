@@ -14,13 +14,18 @@ The Text question type presents a single-line input field. Use it when you want 
 | Option | Description |
 |--------|-------------|
 | Required | When enabled, the participant must fill in the field before proceeding. |
-| Size | Controls the visual width of the input: Small, Medium, or Large. |
+| Size | Controls the visual width of the input: Small, Medium, or Large. Ignored for email, phone and web address formats, which always use a single line. |
 | Min length | The minimum number of characters the participant must enter. Leave blank for no minimum. |
 | Max length | The maximum number of characters allowed. Leave blank for no limit. |
+| Text format | The format the answer must match: any text, email address, phone number, web address (starting with http:// or https://), or a custom pattern. |
+| Countries | Phone format only. Pick the countries whose numbers are accepted from a searchable list. Leave empty to accept any country written with a leading plus sign. |
+| Custom pattern | Custom format only. A regular expression the whole answer must match. For example, `[A-Z]{2}\d{4}` accepts AB1234 but not XAB12345. |
 
 ### Notes
 
-Text questions accept any characters. Min and max length constraints are enforced when the participant submits the question.
+Text questions accept any characters unless a text format is set. Length and format constraints are checked as the participant answers and again on submission. An empty answer skips the format check, so use Required to insist on an answer.
+
+Phone numbers follow local rules. With countries listed, participants may type numbers in national format. With none listed, numbers must start with a plus sign and country code.
 
 ## Number
 

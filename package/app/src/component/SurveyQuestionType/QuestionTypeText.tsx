@@ -8,12 +8,24 @@ import {
   ATTRIBUTE_TEXT_INPUT_SIZE_MEDIUM,
   ATTRIBUTE_TEXT_INPUT_SIZE_LARGE,
   MinMax,
+  TEXT_FORMAT_EMAIL,
+  TEXT_FORMAT_PHONE,
+  TEXT_FORMAT_URL,
 } from 'veysur-common'
 
 import {
   ANSWER_CONTROL_MAX_WIDTH,
   QuestionTypeProps,
 } from './QuestionTypeProps'
+
+const FORMAT_INPUT_PROPS: Record<
+  string,
+  { type: string; inputMode: 'email' | 'tel' | 'url' }
+> = {
+  [TEXT_FORMAT_EMAIL]: { type: 'email', inputMode: 'email' },
+  [TEXT_FORMAT_PHONE]: { type: 'tel', inputMode: 'tel' },
+  [TEXT_FORMAT_URL]: { type: 'url', inputMode: 'url' },
+}
 
 export const QuestionTypeText: React.FC<QuestionTypeProps> = ({
   question,
@@ -27,6 +39,9 @@ export const QuestionTypeText: React.FC<QuestionTypeProps> = ({
   const lengthMinMax = question?.attributes?.lengthMinMax as
     Partial<MinMax> | undefined
 
+  const formatInputProps =
+    FORMAT_INPUT_PROPS[question?.attributes?.textFormat ?? '']
+
   let rows = 1
   switch (inputSize) {
     case ATTRIBUTE_TEXT_INPUT_SIZE_MEDIUM:
@@ -38,7 +53,8 @@ export const QuestionTypeText: React.FC<QuestionTypeProps> = ({
     default:
   }
 
-  const isTextarea = inputSize !== ATTRIBUTE_TEXT_INPUT_SIZE_SMALL
+  const isTextarea =
+    inputSize !== ATTRIBUTE_TEXT_INPUT_SIZE_SMALL && !formatInputProps
 
   return (
     <div className={cn('grid', ANSWER_CONTROL_MAX_WIDTH)}>
@@ -53,6 +69,7 @@ export const QuestionTypeText: React.FC<QuestionTypeProps> = ({
         />
       ) : (
         <Input
+          {...formatInputProps}
           placeholder="Type your answer here"
           minLength={lengthMinMax?.min || undefined}
           maxLength={lengthMinMax?.max || undefined}

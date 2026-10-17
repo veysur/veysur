@@ -9,7 +9,9 @@ import {
 
 import { QuestionTypeMultiPart } from './QuestionTypeMultiPart'
 
-function buildQuestion(): SurveyQuestion {
+function buildQuestion(
+  textAttributes: Record<string, unknown> = {},
+): SurveyQuestion {
   return {
     _id: 'q1',
     code: 'Q1',
@@ -19,7 +21,7 @@ function buildQuestion(): SurveyQuestion {
         code: 'P1',
         text: { getLang: () => 'First name' },
         type: QUESTION_TYPE_TEXT,
-        attributes: {},
+        attributes: textAttributes,
       },
       {
         _id: 'p2',
@@ -86,6 +88,21 @@ describe('QuestionTypeMultiPart', () => {
     fireEvent.change(textInput, { target: { value: 'Grace' } })
 
     expect(handleChange).toHaveBeenCalledWith({ P2: 30, P1: 'Grace' })
+  })
+
+  it('renders a text part with a format as the matching input type', () => {
+    const question = buildQuestion({ textFormat: 'email' })
+    render(
+      <QuestionTypeMultiPart
+        question={question}
+        value={{}}
+        lang="en"
+        langDefault="en"
+      />,
+    )
+    const input = screen.getByPlaceholderText('Type your answer here')
+    expect(input).toHaveAttribute('type', 'email')
+    expect(input).toHaveAttribute('inputmode', 'email')
   })
 
   it('renders the shared point-scale label set once, above every part', () => {

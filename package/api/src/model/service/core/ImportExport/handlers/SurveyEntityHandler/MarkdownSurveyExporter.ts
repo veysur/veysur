@@ -22,7 +22,14 @@ import {
  * table's own row order).
  */
 const ATTRIBUTE_ORDER_BY_TYPE: Record<string, string[]> = {
-  text: ['required', 'inputSize', 'lengthMinMax'],
+  text: [
+    'required',
+    'inputSize',
+    'lengthMinMax',
+    'textFormat',
+    'textFormatCountries',
+    'textFormatPattern',
+  ],
   number: ['required', 'numberMinMax', 'numberNegAllowed'],
   checkbox: ['required', 'choiceMinMax', 'choiceOther', 'choiceRandomise'],
   dropdown: ['required', 'choiceMinMax', 'choiceOther', 'choiceRandomise'],

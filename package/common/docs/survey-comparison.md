@@ -238,6 +238,10 @@ const newSurvey = {
 }
 ```
 
+#### Text Format (Text Questions)
+
+Target cannot require a format (`textFormat`, with its countries and pattern) that source did not, or change one. Source and target with identical settings, or a target of `none`, are compatible.
+
 #### Number Min/Max (Number Questions)
 
 Same logic as choice/length min/max - target cannot have stricter numeric range.
@@ -296,6 +300,7 @@ interface IncompatibilityDetail {
 - `incompatible_required_constraint` - Target requires answer but source didn't (applies to questions and participant attributes)
 - `incompatible_choice_constraint` - Target has stricter min/max choices (multiple choice)
 - `incompatible_length_constraint` - Target has stricter min/max length (text)
+- `incompatible_text_format_constraint` - Target requires a text format source didn't (text)
 - `incompatible_number_constraint` - Target has stricter number constraints
 - `incompatible_negative_constraint` - Target disallows negatives but source allowed
 - `missing_participant_attribute` - Custom participant attribute in survey-a doesn't exist in survey-b

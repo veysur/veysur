@@ -118,6 +118,9 @@ against `questionAttributeConfig.ts`):
 |---|---|---|---|
 | `inputSize` | `text` | `'small' \| 'medium' \| 'large'` | `'small'` |
 | `lengthMinMax` | `text` | `{ min: number, max: number }` (`0` = no limit) | `{ min: 0, max: 0 }` |
+| `textFormat` | `text` | `'none' \| 'email' \| 'phone' \| 'url' \| 'custom'` | `'none'` |
+| `textFormatCountries` | `text` | Comma-separated ISO country codes, used when `textFormat` is `phone` (empty = any country, number written with `+`) | `''` |
+| `textFormatPattern` | `text` | Regular expression matched against the whole answer, used and required when `textFormat` is `custom`; at most 200 characters, no nested repetition. Read as written, so `123` stays text | `''` |
 | `numberMinMax` | `number` | `{ min: number, max: number }` (`0` = no limit) | `{ min: 0, max: 0 }` |
 | `numberNegAllowed` | `number` | `boolean` | `false` |
 | `choiceMinMax` | `checkbox`, `dropdown` | `{ min: number, max: number }` (`0` = no limit) | `{ min: 0, max: 0 }` |

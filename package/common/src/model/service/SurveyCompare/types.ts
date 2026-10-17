@@ -64,6 +64,7 @@ export type IncompatibilityReason =
   | 'incompatible_required_constraint' // Target requires answer but source didn't
   | 'incompatible_choice_constraint' // Target has stricter min/max choices
   | 'incompatible_length_constraint' // Target has stricter min/max length
+  | 'incompatible_text_format_constraint' // Target requires a text format source didn't
   | 'incompatible_number_constraint' // Target has stricter number constraints
   | 'incompatible_negative_constraint' // Target disallows negatives but source allowed
   | 'incompatible_subquestion_type' // Subquestion type changed (matrix cell data may be invalid)

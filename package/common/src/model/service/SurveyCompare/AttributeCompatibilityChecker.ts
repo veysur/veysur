@@ -1,9 +1,14 @@
 import { SurveyQuestion } from '../../constructor/Survey/SurveyQuestion'
 import { IncompatibilityDetail } from './types'
+import { TEXT_FORMAT_NONE } from '../TextFormat'
+import { isEqual } from '../../../util/isEqual'
 import {
   ATTRIBUTE_QUESTION_REQUIRED,
   ATTRIBUTE_CHOICE_MIN_MAX,
   ATTRIBUTE_QUESTION_LENGTH_MIN_MAX,
+  ATTRIBUTE_QUESTION_TEXT_FORMAT,
+  ATTRIBUTE_QUESTION_TEXT_FORMAT_COUNTRIES,
+  ATTRIBUTE_QUESTION_TEXT_FORMAT_PATTERN,
   ATTRIBUTE_QUESTION_NUMBER_MIN_MAX,
   ATTRIBUTE_QUESTION_NUMBER_NEG_ALLOWED,
   QUESTION_TYPE_TEXT,
@@ -52,6 +57,15 @@ export class AttributeCompatibilityChecker {
         )
         if (lengthIncompat) {
           incompatibilities.push(lengthIncompat)
+        }
+
+        const formatIncompat = this.checkTextFormat(
+          questionA.code,
+          questionA,
+          questionB,
+        )
+        if (formatIncompat) {
+          incompatibilities.push(formatIncompat)
         }
         break
       }
@@ -224,6 +238,43 @@ export class AttributeCompatibilityChecker {
     }
 
     return null
+  }
+
+  /**
+   * Check 'textFormat' attribute compatibility (text)
+   * Incompatible if target requires a format and its settings differ from source
+   */
+  private checkTextFormat(
+    questionCode: string,
+    questionA: SurveyQuestion,
+    questionB: SurveyQuestion,
+  ): IncompatibilityDetail | null {
+    const read = (question: SurveyQuestion) => ({
+      format: (question.attributes?.[ATTRIBUTE_QUESTION_TEXT_FORMAT] ||
+        TEXT_FORMAT_NONE) as string,
+      countries: (question.attributes?.[
+        ATTRIBUTE_QUESTION_TEXT_FORMAT_COUNTRIES
+      ] || '') as string,
+      pattern: (question.attributes?.[ATTRIBUTE_QUESTION_TEXT_FORMAT_PATTERN] ||
+        '') as string,
+    })
+    const source = read(questionA)
+    const target = read(questionB)
+
+    if (target.format === TEXT_FORMAT_NONE || isEqual(source, target)) {
+      return null
+    }
+
+    return {
+      path: `questions[${questionCode}].attributes.${ATTRIBUTE_QUESTION_TEXT_FORMAT}`,
+      reason: 'incompatible_text_format_constraint',
+      itemType: 'question',
+      itemCode: questionCode,
+      attributeName: ATTRIBUTE_QUESTION_TEXT_FORMAT,
+      sourceAttributeValue: source.format,
+      targetAttributeValue: target.format,
+      message: `Question '${questionCode}' requires a text format (source: ${source.format}; target: ${target.format}) that existing responses may not match`,
+    }
   }
 
   /**

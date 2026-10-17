@@ -21,6 +21,12 @@ describe('AttributeMeta.initialValue matches survey-markdown-format.md §2.3', (
     expect(byId('lengthMinMax')?.initialValue).toEqual({ min: 0, max: 0 })
   })
 
+  test('textFormat: none, with empty countries and pattern', () => {
+    expect(byId('textFormat')?.initialValue).toBe('none')
+    expect(byId('textFormatCountries')?.initialValue).toBe('')
+    expect(byId('textFormatPattern')?.initialValue).toBe('')
+  })
+
   test('numberMinMax: { min: 0, max: 0 }', () => {
     expect(byId('numberMinMax')?.initialValue).toEqual({ min: 0, max: 0 })
   })

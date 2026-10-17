@@ -406,6 +406,59 @@ describe('AttributeCompatibilityChecker', () => {
     })
   })
 
+  describe('textFormat attribute (text)', () => {
+    const textQuestion = (attributes: Record<string, unknown>) =>
+      new SurveyQuestion({
+        code: 'Q1',
+        type: QUESTION_TYPE_TEXT,
+        text: { en: 'Question 1' },
+        attributes,
+      })
+
+    test('compatible when neither sets a format', () => {
+      expect(
+        checker.checkQuestionAttributes(textQuestion({}), textQuestion({})),
+      ).toHaveLength(0)
+    })
+
+    test('compatible when target drops the format', () => {
+      const result = checker.checkQuestionAttributes(
+        textQuestion({ textFormat: 'email' }),
+        textQuestion({ textFormat: 'none' }),
+      )
+      expect(result).toHaveLength(0)
+    })
+
+    test('compatible when settings are identical', () => {
+      const attributes = { textFormat: 'phone', textFormatCountries: 'GB' }
+      const result = checker.checkQuestionAttributes(
+        textQuestion(attributes),
+        textQuestion(attributes),
+      )
+      expect(result).toHaveLength(0)
+    })
+
+    test('incompatible when target adds a format', () => {
+      const result = checker.checkQuestionAttributes(
+        textQuestion({}),
+        textQuestion({ textFormat: 'email' }),
+      )
+      expect(result).toHaveLength(1)
+      expect(result[0]).toMatchObject({
+        reason: 'incompatible_text_format_constraint',
+        itemCode: 'Q1',
+      })
+    })
+
+    test('incompatible when target narrows the phone countries', () => {
+      const result = checker.checkQuestionAttributes(
+        textQuestion({ textFormat: 'phone', textFormatCountries: 'GB,US' }),
+        textQuestion({ textFormat: 'phone', textFormatCountries: 'GB' }),
+      )
+      expect(result).toHaveLength(1)
+    })
+  })
+
   describe('numberMinMax attribute (number)', () => {
     test('should be compatible with same constraints', () => {
       const questionA = new SurveyQuestion({

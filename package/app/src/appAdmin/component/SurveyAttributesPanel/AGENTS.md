@@ -66,6 +66,7 @@ All attributes now use `getValue` functions for consistent data access:
 - **Required** - YesNo toggle for mandatory answers
 - **Input Size** - Text input size (Small, Medium, Large)
 - **Length** - Min/max character limits for text questions
+- **Text Format** - Email, phone, URL or custom pattern for text questions. Phone countries and custom pattern appear only for their format, via the optional `isVisible(entity)` on `AttributeConfig`
 - **Choices** - Min/max selection limits for multiple choice
 - **Range** - Min/max numeric limits for number questions
 - **Negative** - Allow negative numbers toggle

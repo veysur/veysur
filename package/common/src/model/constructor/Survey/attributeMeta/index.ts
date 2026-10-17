@@ -16,6 +16,9 @@ import { entityCodeMeta } from './attributes/entityCode'
 import { questionTypeMeta } from './attributes/questionType'
 import { questionRequiredMeta } from './attributes/questionRequired'
 import { questionInputSizeMeta } from './attributes/questionInputSize'
+import { questionTextFormatMeta } from './attributes/questionTextFormat'
+import { questionTextFormatCountriesMeta } from './attributes/questionTextFormatCountries'
+import { questionTextFormatPatternMeta } from './attributes/questionTextFormatPattern'
 import { questionLengthMinMaxMeta } from './attributes/questionLengthMinMax'
 import { choiceMinMaxMeta } from './attributes/choiceMinMax'
 import { choiceOtherMeta } from './attributes/choiceOther'
@@ -43,6 +46,9 @@ export const attributesMetadata = [
   questionTypeMeta,
   questionRequiredMeta,
   questionInputSizeMeta,
+  questionTextFormatMeta,
+  questionTextFormatCountriesMeta,
+  questionTextFormatPatternMeta,
   questionLengthMinMaxMeta,
   choiceMinMaxMeta,
   choiceOtherMeta,
@@ -68,6 +74,9 @@ export {
   questionTypeMeta,
   questionRequiredMeta,
   questionInputSizeMeta,
+  questionTextFormatMeta,
+  questionTextFormatCountriesMeta,
+  questionTextFormatPatternMeta,
   questionLengthMinMaxMeta,
   choiceMinMaxMeta,
   choiceOtherMeta,

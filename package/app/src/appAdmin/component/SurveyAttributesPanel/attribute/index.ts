@@ -15,6 +15,9 @@ import {
   ATTRIBUTE_QUESTION_REQUIRED,
   ATTRIBUTE_QUESTION_INPUT_SIZE,
   ATTRIBUTE_QUESTION_LENGTH_MIN_MAX,
+  ATTRIBUTE_QUESTION_TEXT_FORMAT,
+  ATTRIBUTE_QUESTION_TEXT_FORMAT_COUNTRIES,
+  ATTRIBUTE_QUESTION_TEXT_FORMAT_PATTERN,
   ATTRIBUTE_CHOICE_MIN_MAX,
   ATTRIBUTE_CHOICE_OTHER,
   ATTRIBUTE_CHOICE_RANDOMISE,
@@ -27,8 +30,13 @@ import {
   ATTRIBUTE_MATRIX_ORIENTATION,
   ATTRIBUTE_QUESTION_COLUMNS,
   ATTRIBUTE_QUESTION_FILE_UPLOAD_OPTIONS,
+  SurveyEntity,
+  getNestedValue,
+  TEXT_FORMAT_PHONE,
+  TEXT_FORMAT_CUSTOM,
 } from 'veysur-common'
 
+import type { AttributeConfig } from '../attributesConfig'
 import { ATTRIBUTE_CONTENT_TYPE } from '../constant'
 import {
   createQuestionAttributeConfig,
@@ -56,6 +64,9 @@ export {
   ATTRIBUTE_QUESTION_REQUIRED,
   ATTRIBUTE_QUESTION_INPUT_SIZE,
   ATTRIBUTE_QUESTION_LENGTH_MIN_MAX,
+  ATTRIBUTE_QUESTION_TEXT_FORMAT,
+  ATTRIBUTE_QUESTION_TEXT_FORMAT_COUNTRIES,
+  ATTRIBUTE_QUESTION_TEXT_FORMAT_PATTERN,
   ATTRIBUTE_CHOICE_MIN_MAX,
   ATTRIBUTE_CHOICE_OTHER,
   ATTRIBUTE_CHOICE_RANDOMISE,
@@ -110,6 +121,22 @@ export const questionInputSizeConfig = createQuestionAttributeConfig(
 export const questionLengthMinMaxConfig = createQuestionAttributeConfig(
   ATTRIBUTE_QUESTION_LENGTH_MIN_MAX,
 )
+const getTextFormat = (entity: SurveyEntity) =>
+  getNestedValue(entity, `attributes.${ATTRIBUTE_QUESTION_TEXT_FORMAT}`)
+export const questionTextFormatConfig =
+  createQuestionOrSubquestionAttributeConfig(ATTRIBUTE_QUESTION_TEXT_FORMAT)
+export const questionTextFormatCountriesConfig: AttributeConfig = {
+  ...createQuestionOrSubquestionAttributeConfig(
+    ATTRIBUTE_QUESTION_TEXT_FORMAT_COUNTRIES,
+  ),
+  isVisible: (entity) => getTextFormat(entity) === TEXT_FORMAT_PHONE,
+}
+export const questionTextFormatPatternConfig: AttributeConfig = {
+  ...createQuestionOrSubquestionAttributeConfig(
+    ATTRIBUTE_QUESTION_TEXT_FORMAT_PATTERN,
+  ),
+  isVisible: (entity) => getTextFormat(entity) === TEXT_FORMAT_CUSTOM,
+}
 export const choiceMinMaxConfig = createQuestionOrSubquestionAttributeConfig(
   ATTRIBUTE_CHOICE_MIN_MAX,
 )

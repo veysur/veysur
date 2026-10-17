@@ -37,6 +37,9 @@ import {
   ATTRIBUTE_QUESTION_INPUT_SIZE,
   ATTRIBUTE_QUESTION_REQUIRED,
   ATTRIBUTE_QUESTION_LENGTH_MIN_MAX,
+  ATTRIBUTE_QUESTION_TEXT_FORMAT,
+  ATTRIBUTE_QUESTION_TEXT_FORMAT_COUNTRIES,
+  ATTRIBUTE_QUESTION_TEXT_FORMAT_PATTERN,
   ATTRIBUTE_CHOICE_MIN_MAX,
   ATTRIBUTE_CHOICE_OTHER,
   ATTRIBUTE_CHOICE_RANDOMISE,
@@ -60,6 +63,9 @@ import {
   questionRequiredConfig,
   questionInputSizeConfig,
   questionLengthMinMaxConfig,
+  questionTextFormatConfig,
+  questionTextFormatCountriesConfig,
+  questionTextFormatPatternConfig,
   choiceMinMaxConfig,
   choiceOtherConfig,
   choiceRandomiseConfig,
@@ -106,6 +112,8 @@ export type AttributeConfigReact = {
   ) => void
   /** Optional function to get the default value from survey settings */
   getDefaultValue?: (defaults: SettingSurvey) => unknown
+  /** Hides the attribute for an entity whose other attributes make it irrelevant */
+  isVisible?: (entity: SurveyEntity) => boolean
 }
 
 /**
@@ -151,6 +159,9 @@ export const attributeSetsConfig: AttributeSetConfig[] = [
       ATTRIBUTE_QUESTION_REQUIRED,
       ATTRIBUTE_QUESTION_INPUT_SIZE,
       ATTRIBUTE_QUESTION_LENGTH_MIN_MAX,
+      ATTRIBUTE_QUESTION_TEXT_FORMAT,
+      ATTRIBUTE_QUESTION_TEXT_FORMAT_COUNTRIES,
+      ATTRIBUTE_QUESTION_TEXT_FORMAT_PATTERN,
       ATTRIBUTE_CHOICE_MIN_MAX,
       ATTRIBUTE_CHOICE_OTHER,
       ATTRIBUTE_CHOICE_RANDOMISE,
@@ -178,6 +189,9 @@ export const attributesConfig: AttributeConfig[] = [
   questionRequiredConfig,
   questionInputSizeConfig,
   questionLengthMinMaxConfig,
+  questionTextFormatConfig,
+  questionTextFormatCountriesConfig,
+  questionTextFormatPatternConfig,
   choiceMinMaxConfig,
   choiceOtherConfig,
   choiceRandomiseConfig,

@@ -27,6 +27,11 @@ import {
   isMultiPartQuestionType,
   hasAnyMultiPartFilled,
 } from '../constructor/Survey/MultiPart'
+import {
+  TEXT_FORMAT_NONE,
+  TextFormatConfig,
+  validateTextFormat,
+} from './TextFormat'
 import { ConditionEvaluator } from './SurveyCondition/ConditionEvaluator'
 import { ExpressionContextBuilder } from './SurveyExpression/ExpressionContext'
 import { ParticipantData } from './SurveyExpression/types'
@@ -211,8 +216,44 @@ export function buildEntityValidateConfig(
       },
     })
   }
+  if (isTextFormatConstrained(entity)) {
+    callbacks.push({
+      validator: (value: unknown) =>
+        validateTextFormat(value, getTextFormatConfig(entity)) ||
+        ({
+          key: `validation.textFormat_${entity.attributes.textFormat}`,
+        } satisfies ValidationMessage),
+    })
+  }
 
   return callbacks.length > 0 ? { ...validate, callback: callbacks } : validate
+}
+
+function getTextFormatConfig(entity: ValidatableEntity): TextFormatConfig {
+  return {
+    format: entity.attributes?.textFormat,
+    countries: entity.attributes?.textFormatCountries,
+    pattern: entity.attributes?.textFormatPattern,
+  }
+}
+
+function isTextFormatConstrained(entity: ValidatableEntity): boolean {
+  const format = entity.attributes?.textFormat
+  return !!format && format !== TEXT_FORMAT_NONE
+}
+
+// A text subquestion fails either `required` or its format; the matrix and
+// multi-part summaries need to tell the two apart.
+function subquestionErrorKey(
+  sq: ValidatableEntity,
+  value: unknown,
+): 'validation.itemInvalidFormat' | 'validation.itemRequired' {
+  return isTextFormatConstrained(sq) &&
+    typeof value === 'string' &&
+    value.trim() !== '' &&
+    !validateTextFormat(value, getTextFormatConfig(sq))
+    ? 'validation.itemInvalidFormat'
+    : 'validation.itemRequired'
 }
 
 function getValidationType(
@@ -378,7 +419,8 @@ export class SurveyResponseValidator {
         if (Boolean(question.attributes?.required) && fileIds.length === 0) {
           questionErrors.push({ key: 'validation.required' })
         }
-        const maxFileCount = question.attributes?.fileUploadOptions?.maxFileCount
+        const maxFileCount =
+          question.attributes?.fileUploadOptions?.maxFileCount
         if (maxFileCount && fileIds.length > maxFileCount) {
           questionErrors.push(
             buildCountLimitError('validation.fileCount', 0, maxFileCount),
@@ -589,7 +631,7 @@ export class SurveyResponseValidator {
           })
           if (!isValid && cellErrors?.cell) {
             errors.push({
-              key: 'validation.itemRequired',
+              key: subquestionErrorKey(sq, cellValue),
               params: { label: sqLabel },
             })
             break
@@ -639,7 +681,7 @@ export class SurveyResponseValidator {
       })
       if (!isValid && partErrors?.part) {
         errors.push({
-          key: 'validation.itemRequired',
+          key: subquestionErrorKey(sq, data[sq.code]),
           params: { label: sqLabel },
         })
       }

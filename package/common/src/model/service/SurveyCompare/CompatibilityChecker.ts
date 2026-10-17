@@ -249,6 +249,7 @@ export class CompatibilityChecker {
         i.reason === 'incompatible_required_constraint' ||
         i.reason === 'incompatible_choice_constraint' ||
         i.reason === 'incompatible_length_constraint' ||
+        i.reason === 'incompatible_text_format_constraint' ||
         i.reason === 'incompatible_number_constraint' ||
         i.reason === 'incompatible_negative_constraint',
     )

@@ -5,6 +5,7 @@ import {
   MATRIX_ORIENTATION_ANSWER_OPTIONS_ROWS,
   MATRIX_ORIENTATION_SUBQUESTIONS_ROWS,
   QUESTION_TYPE_CHECKBOX,
+  QUESTION_TYPE_TEXT,
   QUESTION_TYPE_DATE,
   QUESTION_TYPE_TIME,
   QUESTION_TYPE_DATETIME,
@@ -276,5 +277,45 @@ describe('QuestionTypeMatrix', () => {
         expect(dataCol.style.width).toBe(`${minWidth}px`)
       },
     )
+  })
+
+  describe('text cells with a format', () => {
+    it('renders each cell as the matching input type', () => {
+      const question = {
+        _id: 'q1',
+        code: 'Q1',
+        answerOptions: [
+          { _id: 'ao1', code: 'AO1', label: { getLang: () => 'Home' } },
+          { _id: 'ao2', code: 'AO2', label: { getLang: () => 'Work' } },
+        ],
+        subquestions: [
+          {
+            _id: 'sq1',
+            code: 'SQ1',
+            text: { getLang: () => 'Email' },
+            type: QUESTION_TYPE_TEXT,
+            attributes: { textFormat: 'email' },
+          },
+        ],
+        attributes: {
+          [ATTRIBUTE_MATRIX_ORIENTATION]: MATRIX_ORIENTATION_SUBQUESTIONS_ROWS,
+        },
+      } as unknown as SurveyQuestion
+
+      render(
+        <QuestionTypeMatrix
+          question={question}
+          value={{}}
+          lang="en"
+          langDefault="en"
+        />,
+      )
+
+      const inputs = screen.getAllByPlaceholderText('Type your answer here')
+      expect(inputs).toHaveLength(2)
+      for (const input of inputs) {
+        expect(input).toHaveAttribute('type', 'email')
+      }
+    })
   })
 })

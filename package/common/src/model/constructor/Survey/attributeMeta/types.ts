@@ -139,6 +139,12 @@ export interface SurveyAttributes {
   inputSize?: string
   /** ATTRIBUTE_QUESTION_LENGTH_MIN_MAX */
   lengthMinMax?: MinMax
+  /** ATTRIBUTE_QUESTION_TEXT_FORMAT */
+  textFormat?: string
+  /** ATTRIBUTE_QUESTION_TEXT_FORMAT_COUNTRIES */
+  textFormatCountries?: string
+  /** ATTRIBUTE_QUESTION_TEXT_FORMAT_PATTERN */
+  textFormatPattern?: string
   /** ATTRIBUTE_CHOICE_MIN_MAX */
   choiceMinMax?: MinMax
   /** ATTRIBUTE_CHOICE_OTHER */
