@@ -100,6 +100,22 @@ export function BaseAccessSettings<T>({ data, handlers, layout }: Props<T>) {
         className="mb-3"
       />
 
+      <DefaultableButtonSwitch
+        label="Bot check"
+        value={data.access?.botProtection}
+        onChange={(value) =>
+          handlers.handleBooleanChange?.('access', 'botProtection', value)
+        }
+        options={[
+          { value: handlers.YES, label: handlers.YES },
+          { value: handlers.NO, label: handlers.NO },
+        ]}
+        hasDefaults={hasDefaults}
+        defaultValue={data.getDefault?.('access', 'botProtection')}
+        helpText="Asks participants to pass a bot check before they can answer. Off by default. Takes effect only when a provider is chosen in the project settings."
+        className="mb-3"
+      />
+
       <DefaultableDomainsInput
         label="Allowed Websites for Embedding"
         currentValue={data.access?.embedDomains}

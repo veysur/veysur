@@ -17,6 +17,7 @@ import {
   ServiceSurveyCompletionEmail,
 } from 'model'
 import { truncateIp } from 'model/common'
+import { assertBotVerified } from 'model/service/botProtection'
 import { contextForProject } from 'common'
 
 export class ServiceSurveyParticipantResponse extends Service {
@@ -71,6 +72,8 @@ export class ServiceSurveyParticipantResponse extends Service {
       participantId,
       sessionId,
     } = aclContext
+
+    assertBotVerified(aclContext.jwt)
 
     const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSurveyResponse>('surveyResponse')

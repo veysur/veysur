@@ -14,7 +14,7 @@ describe('ServiceProjectAdmin', () => {
   let mockRepoUser: { findOne: jest.Mock }
   let mockServiceEmail: { send: jest.Mock }
   let mockServiceUser: { createAccount: jest.Mock }
-  let mockServiceAuthEmailPassword: { login: jest.Mock }
+  let mockServiceAuthEmailPassword: { authenticate: jest.Mock }
 
   const projectId = 'project-1'
   const ownerId = 'owner-1'
@@ -75,7 +75,7 @@ describe('ServiceProjectAdmin', () => {
       }),
     }
     mockServiceAuthEmailPassword = {
-      login: jest.fn().mockResolvedValue({ jwt: { token: 'signed' } }),
+      authenticate: jest.fn().mockResolvedValue({ jwt: { token: 'signed' } }),
     }
 
     jest.spyOn(service, 'getRepo').mockImplementation(((name: string) => {
@@ -384,7 +384,7 @@ describe('ServiceProjectAdmin', () => {
           }),
         }),
       )
-      expect(mockServiceAuthEmailPassword.login).toHaveBeenCalledWith(
+      expect(mockServiceAuthEmailPassword.authenticate).toHaveBeenCalledWith(
         expect.objectContaining({
           email: newMemberEmail,
           password: 'A-valid-password-1',

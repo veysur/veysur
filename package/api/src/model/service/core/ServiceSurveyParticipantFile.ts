@@ -15,6 +15,10 @@ import { RepoSurveyResponse, RepoSurveySnapshot, RepoFile } from 'model'
 import { AclContext } from 'model/entity/AclContext'
 import { contextForProject } from 'common'
 import {
+  assertBotVerified,
+  ParticipantBotClaims,
+} from 'model/service/botProtection'
+import {
   ServiceFileUpload,
   GenerateUploadUrlResult,
 } from './ServiceFile/ServiceFileUpload'
@@ -104,6 +108,7 @@ export class ServiceSurveyParticipantFile extends Service {
       snapshotId: string
       projectId: string
     }
+    assertBotVerified(aclContext.jwt as ParticipantBotClaims | undefined)
     const idData = this.getIdData(aclContext)
     const context = contextForProject(projectId)
 
@@ -189,6 +194,7 @@ export class ServiceSurveyParticipantFile extends Service {
       surveyId: string
       projectId: string
     }
+    assertBotVerified(aclContext.jwt as ParticipantBotClaims | undefined)
     const idData = this.getIdData(aclContext)
     const context = contextForProject(projectId)
 

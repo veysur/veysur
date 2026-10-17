@@ -1,3 +1,5 @@
+import { BotCheck } from 'veysur-common'
+
 import { AuthData } from 'hook'
 
 import { Api } from './Api'
@@ -10,13 +12,18 @@ export type PreAuthData =
 export type LoginResult = PreAuthData | AuthData
 
 export class ApiAuth extends Api {
-  async login(email: string, password: string): Promise<LoginResult> {
+  async login(
+    email: string,
+    password: string,
+    botCheck?: BotCheck,
+  ): Promise<LoginResult> {
     try {
       return await this.getClient().post<LoginResult>(
         '/auth-email-password/login',
         {
           email,
           password,
+          botCheck,
         },
       )
     } catch (error) {
@@ -76,6 +83,7 @@ export class ApiAuth extends Api {
     nameLast: string
     email: string
     password: string
+    botCheck?: BotCheck
   }): Promise<AuthData> {
     try {
       return await this.getClient().post<AuthData>('/signup/user', data)

@@ -74,9 +74,7 @@ export interface SurveyData {
     multiple?: boolean | null
     preventRepeat?: boolean | null
     resumeLink?: boolean | null
-    captcha?: boolean | null
-    captchaReg?: boolean | null
-    captchaResume?: boolean | null
+    botProtection?: boolean | null
     embed?: boolean | null
     embedDomains?: string[] | null
   }
@@ -208,9 +206,7 @@ export class SurveyBase {
     multiple?: boolean | null
     preventRepeat?: boolean | null
     resumeLink?: boolean | null
-    captcha?: boolean | null
-    captchaReg?: boolean | null
-    captchaResume?: boolean | null
+    botProtection?: boolean | null
     embed?: boolean | null
     embedDomains?: string[] | null
   } = {
@@ -222,9 +218,7 @@ export class SurveyBase {
     multiple: null,
     preventRepeat: null,
     resumeLink: null,
-    captcha: null,
-    captchaReg: null,
-    captchaResume: null,
+    botProtection: null,
     embed: null,
     embedDomains: null,
   }

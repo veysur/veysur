@@ -52,9 +52,7 @@ describe('SettingSurvey Access Methods', () => {
         'multiple',
         'preventRepeat',
         'resumeLink',
-        'captcha',
-        'captchaReg',
-        'captchaResume',
+        'botProtection',
       ]
 
       booleanProps.forEach((prop) => {
@@ -70,7 +68,7 @@ describe('SettingSurvey Access Methods', () => {
         anonymous: true,
         open: true,
         publicReg: true,
-        captcha: true,
+        botProtection: true,
       }
       const updatedSettingSurvey = surveySetting.updateAccess(updates)
 
@@ -78,16 +76,16 @@ describe('SettingSurvey Access Methods', () => {
       expect(updatedSettingSurvey.access.anonymous).toBe(true)
       expect(updatedSettingSurvey.access.open).toBe(true)
       expect(updatedSettingSurvey.access.publicReg).toBe(true)
-      expect(updatedSettingSurvey.access.captcha).toBe(true)
+      expect(updatedSettingSurvey.access.botProtection).toBe(true)
       expect(updatedSettingSurvey.access.tokenPersist).toBe(true) // preserved
     })
 
     test('updates partial access properties', () => {
-      const updates = { anonymous: true, captcha: true }
+      const updates = { anonymous: true, botProtection: true }
       const updatedSettingSurvey = surveySetting.updateAccess(updates)
 
       expect(updatedSettingSurvey.access.anonymous).toBe(true)
-      expect(updatedSettingSurvey.access.captcha).toBe(true)
+      expect(updatedSettingSurvey.access.botProtection).toBe(true)
       expect(updatedSettingSurvey.access.open).toBe(false) // preserved
     })
 
@@ -125,12 +123,12 @@ describe('SettingSurvey Access Methods', () => {
         .setAccessProperty('anonymous', true)
         .setAccessProperty('open', true)
         .setAccessProperty('publicReg', true)
-        .setAccessProperty('captcha', true)
+        .setAccessProperty('botProtection', true)
 
       expect(updatedSettingSurvey.access.anonymous).toBe(true)
       expect(updatedSettingSurvey.access.open).toBe(true)
       expect(updatedSettingSurvey.access.publicReg).toBe(true)
-      expect(updatedSettingSurvey.access.captcha).toBe(true)
+      expect(updatedSettingSurvey.access.botProtection).toBe(true)
     })
 
     test('immutability is maintained through chaining', () => {
@@ -153,13 +151,13 @@ describe('SettingSurvey Access Methods', () => {
         .setAccessProperty('anonymous', false) // no change
         .setAccessProperty('open', true) // change
         .setAccessProperty('tokenPersist', true) // no change
-        .setAccessProperty('captcha', true) // change
+        .setAccessProperty('botProtection', true) // change
 
       expect(updatedSettingSurvey).not.toBe(surveySetting)
       expect(updatedSettingSurvey.access.anonymous).toBe(false)
       expect(updatedSettingSurvey.access.open).toBe(true)
       expect(updatedSettingSurvey.access.tokenPersist).toBe(true)
-      expect(updatedSettingSurvey.access.captcha).toBe(true)
+      expect(updatedSettingSurvey.access.botProtection).toBe(true)
     })
   })
 
@@ -173,7 +171,7 @@ describe('SettingSurvey Access Methods', () => {
       expect(minimalSettingSurvey.access.open).toBe(false)
       expect(minimalSettingSurvey.access.publicReg).toBe(false)
       expect(minimalSettingSurvey.access.tokenPersist).toBe(true)
-      expect(minimalSettingSurvey.access.captcha).toBe(false)
+      expect(minimalSettingSurvey.access.botProtection).toBe(false)
     })
 
     test('can modify schema defaults', () => {
@@ -221,14 +219,10 @@ describe('SettingSurvey Access Methods', () => {
 
     test('high security surveySetting configuration', () => {
       const secureSurvey = surveySetting
-        .setAccessProperty('captcha', true)
-        .setAccessProperty('captchaReg', true)
-        .setAccessProperty('captchaResume', true)
+        .setAccessProperty('botProtection', true)
         .setAccessProperty('anonymous', false)
 
-      expect(secureSurvey.access.captcha).toBe(true)
-      expect(secureSurvey.access.captchaReg).toBe(true)
-      expect(secureSurvey.access.captchaResume).toBe(true)
+      expect(secureSurvey.access.botProtection).toBe(true)
       expect(secureSurvey.access.anonymous).toBe(false)
     })
 

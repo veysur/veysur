@@ -20,6 +20,8 @@ import { Card, CardContent, CardHeader, CardTitle } from 'component/shadcn/card'
 import { Badge } from 'component/shadcn/badge'
 import { Checkbox } from 'component/shadcn/checkbox'
 import { Label } from 'component/shadcn/label'
+import { BotProtectionGate } from 'component/BotProtection/BotProtectionGate'
+import type { BotCheckConfig } from 'component/BotProtection/BotProtectionProvider'
 import { SurveyContent } from './SurveyContent'
 import type {
   SurveyPresentationConfig,
@@ -52,6 +54,8 @@ type Props = {
   expressionContext?: ExpressionContext
   onContinue: () => void
   countdown: number
+  /** Present while the survey has a bot check the participant must pass first. */
+  botCheck?: BotCheckConfig
 }
 
 export const SurveyWelcome: React.FC<Props> = ({
@@ -63,6 +67,7 @@ export const SurveyWelcome: React.FC<Props> = ({
   expressionContext,
   onContinue,
   countdown,
+  botCheck,
 }) => {
   const { t } = useTranslation('app-survey')
   const [dataPolicyAccepted, setDataPolicyAccepted] = useState(false)
@@ -96,10 +101,13 @@ export const SurveyWelcome: React.FC<Props> = ({
       })
     : rawWelcomeMessage
 
+  const botCheckPending = !!botCheck && !botCheck.verified
+
   // Only require checkboxes to be checked if the respective policies are shown
   const canContinue =
     (!showDataPolicy || dataPolicyAccepted) &&
     (!showLegalNotice || legalNoticeAccepted) &&
+    !botCheckPending &&
     countdown === 0
 
   const handleContinue = () => {
@@ -121,6 +129,10 @@ export const SurveyWelcome: React.FC<Props> = ({
     }
     if (showLegalNotice && !legalNoticeAccepted) {
       missingItems.push(t('welcome.legalNoticeBadge'))
+    }
+
+    if (botCheckPending && missingItems.length === 0) {
+      return t('welcome.warningBotCheck')
     }
 
     if (missingItems.length === 1) {
@@ -246,6 +258,8 @@ export const SurveyWelcome: React.FC<Props> = ({
           </CardContent>
         </Card>
       )}
+
+      {botCheck && <BotProtectionGate {...botCheck} />}
 
       <div className="welcome-navigation flex justify-end mt-8">
         <Button

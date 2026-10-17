@@ -4,6 +4,10 @@ import { Patcher, Patch, SettingSurvey } from 'veysur-common'
 
 import { RepoSettingSurvey } from 'model'
 import { contextForProject } from 'common'
+import {
+  maskBotProtectionSecrets,
+  mergeBotProtectionSecrets,
+} from 'model/service/botProtection'
 
 export class ServiceSettingSurvey extends Service {
   constructor() {
@@ -36,7 +40,11 @@ export class ServiceSettingSurvey extends Service {
       settingSurvey = new SettingSurvey()
       await repo.create(settingSurvey, { context })
     }
-    return settingSurvey
+    // Provider secret keys are write-only
+    return {
+      ...settingSurvey,
+      botProtection: maskBotProtectionSecrets(settingSurvey.botProtection),
+    }
   }
 
   async patch({ projectId, patches }) {
@@ -50,6 +58,14 @@ export class ServiceSettingSurvey extends Service {
       delete updateData._id
       delete updateData.createdAt
       delete updateData.updatedAt
+
+      if (updateData.botProtection) {
+        const stored = await repoSettingSurvey.findOne({}, { context })
+        updateData.botProtection = mergeBotProtectionSecrets(
+          updateData.botProtection,
+          stored?.botProtection,
+        )
+      }
 
       updateData.updatedAt = new Date()
       await repoSettingSurvey.updateOne(

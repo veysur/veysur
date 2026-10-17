@@ -106,5 +106,14 @@
   "validation.matrixColumnChoiceCount_atMost_other": "{{column}}: usichague zaidi ya chaguo {{max}}",
   "validation.length_between": "Lazima iwe kati ya herufi {{min}} na {{max}}",
   "validation.length_atLeast": "Lazima iwe angalau herufi {{min}}",
-  "validation.length_atMost": "Isizidi herufi {{max}}"
+  "validation.length_atMost": "Isizidi herufi {{max}}",
+  "botProtection.label": "Ukaguzi wa usalama",
+  "botProtection.checking": "Ukaguzi wa usalama unaendelea",
+  "botProtection.verified": "Ukaguzi wa usalama umekamilika",
+  "botProtection.failed": "Ukaguzi wa usalama haukuweza kukamilika.",
+  "botProtection.retry": "Jaribu tena",
+  "botProtection.providerCloudflare": "Imelindwa na Cloudflare Turnstile",
+  "botProtection.providerGoogle": "Imelindwa na Google reCAPTCHA",
+  "welcome.warningBotCheck": "Tafadhali subiri ukaguzi wa usalama ukamilike.",
+  "error.botCheckFailed": "Tafadhali kamilisha ukaguzi wa usalama ili kuendelea"
 }

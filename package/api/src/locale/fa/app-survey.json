@@ -106,5 +106,14 @@
   "validation.matrixColumnChoiceCount_atMost_other": "{{column}}: بیش از {{max}} گزینه انتخاب نکنید",
   "validation.length_between": "باید بین {{min}} تا {{max}} کاراکتر باشد",
   "validation.length_atLeast": "باید حداقل {{min}} کاراکتر باشد",
-  "validation.length_atMost": "نباید بیش از {{max}} کاراکتر باشد"
+  "validation.length_atMost": "نباید بیش از {{max}} کاراکتر باشد",
+  "botProtection.label": "بررسی امنیتی",
+  "botProtection.checking": "در حال انجام بررسی امنیتی",
+  "botProtection.verified": "بررسی امنیتی کامل شد",
+  "botProtection.failed": "بررسی امنیتی کامل نشد.",
+  "botProtection.retry": "تلاش دوباره",
+  "botProtection.providerCloudflare": "محافظت‌شده توسط Cloudflare Turnstile",
+  "botProtection.providerGoogle": "محافظت‌شده توسط Google reCAPTCHA",
+  "welcome.warningBotCheck": "لطفاً تا پایان بررسی امنیتی صبر کنید.",
+  "error.botCheckFailed": "برای ادامه، لطفاً بررسی امنیتی را کامل کنید"
 }

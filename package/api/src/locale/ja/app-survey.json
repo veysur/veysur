@@ -98,5 +98,14 @@
   "validation.matrixColumnChoiceCount_atMost_other": "{{column}}: 選択肢は {{max}} 個以内にしてください",
   "validation.length_between": "{{min}} から {{max}} 文字である必要があります",
   "validation.length_atLeast": "{{min}} 文字以上である必要があります",
-  "validation.length_atMost": "{{max}} 文字を超えることはできません"
+  "validation.length_atMost": "{{max}} 文字を超えることはできません",
+  "botProtection.label": "セキュリティチェック",
+  "botProtection.checking": "セキュリティチェックを実行しています",
+  "botProtection.verified": "セキュリティチェックが完了しました",
+  "botProtection.failed": "セキュリティチェックを完了できませんでした。",
+  "botProtection.retry": "もう一度試す",
+  "botProtection.providerCloudflare": "Cloudflare Turnstile により保護されています",
+  "botProtection.providerGoogle": "Google reCAPTCHA により保護されています",
+  "welcome.warningBotCheck": "セキュリティチェックが完了するまでお待ちください。",
+  "error.botCheckFailed": "続行するにはセキュリティチェックを完了してください"
 }

@@ -98,5 +98,14 @@
   "validation.matrixColumnChoiceCount_atMost_other": "{{column}}: kada ka zaɓi fiye da {{max}} zaɓuɓɓuka",
   "validation.length_between": "Dole ya kasance tsakanin {{min}} da {{max}} haruffa",
   "validation.length_atLeast": "Dole ya kasance aƙalla haruffa {{min}}",
-  "validation.length_atMost": "Bai kamata ya wuce haruffa {{max}} ba"
+  "validation.length_atMost": "Bai kamata ya wuce haruffa {{max}} ba",
+  "botProtection.label": "Binciken tsaro",
+  "botProtection.checking": "Ana gudanar da binciken tsaro",
+  "botProtection.verified": "An kammala binciken tsaro",
+  "botProtection.failed": "Ba a iya kammala binciken tsaro ba.",
+  "botProtection.retry": "Sake gwadawa",
+  "botProtection.providerCloudflare": "Cloudflare Turnstile ne ke kare shi",
+  "botProtection.providerGoogle": "Google reCAPTCHA ne ke kare shi",
+  "welcome.warningBotCheck": "Don Allah ka jira binciken tsaro ya kammala.",
+  "error.botCheckFailed": "Don Allah ka kammala binciken tsaro don ci gaba"
 }

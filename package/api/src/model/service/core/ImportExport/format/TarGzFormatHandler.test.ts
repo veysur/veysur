@@ -44,7 +44,12 @@ jest.mock('common', () => ({
 
 function emitEntry(name: string, content: Buffer): void {
   const entryStream = Readable.from([content])
-  extractInstance.emit('entry', { name, size: content.length }, entryStream, () => {})
+  extractInstance.emit(
+    'entry',
+    { name, size: content.length },
+    entryStream,
+    () => {},
+  )
 }
 
 describe('TarGzFormatHandler.parse', () => {
@@ -100,7 +105,9 @@ describe('TarGzFormatHandler.parse', () => {
     emitEntry('c.json', Buffer.from('{}'))
     emitEntry('d.json', Buffer.from('{}'))
 
-    await expect(parsePromise).rejects.toThrow(/exceeds the maximum allowed size/)
+    await expect(parsePromise).rejects.toThrow(
+      /exceeds the maximum allowed size/,
+    )
   })
 
   it('rejects an archive whose total size exceeds the total-size limit', async () => {
@@ -110,7 +117,9 @@ describe('TarGzFormatHandler.parse', () => {
     const parsePromise = handler.parse(input)
     emitEntry('big.bin', Buffer.alloc(1001, 'x'))
 
-    await expect(parsePromise).rejects.toThrow(/exceeds the maximum allowed size/)
+    await expect(parsePromise).rejects.toThrow(
+      /exceeds the maximum allowed size/,
+    )
   })
 
   it('rejects a single JSON entry larger than the per-entry JSON size limit', async () => {
@@ -118,7 +127,10 @@ describe('TarGzFormatHandler.parse', () => {
     const input = new PassThrough()
 
     const parsePromise = handler.parse(input)
-    emitEntry('survey.json', Buffer.from(JSON.stringify({ a: 'x'.repeat(300) })))
+    emitEntry(
+      'survey.json',
+      Buffer.from(JSON.stringify({ a: 'x'.repeat(300) })),
+    )
 
     await expect(parsePromise).rejects.toThrow(
       /Import entry "survey.json" exceeds the maximum allowed size/,

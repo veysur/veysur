@@ -53,7 +53,9 @@ describe('ServiceNotification', () => {
       count: jest.fn().mockResolvedValue(0),
     }
     mockRepoFile = { findOne: jest.fn().mockResolvedValue(null) }
-    mockServiceDataTransferJob = { deleteSettledJob: jest.fn().mockResolvedValue(undefined) }
+    mockServiceDataTransferJob = {
+      deleteSettledJob: jest.fn().mockResolvedValue(undefined),
+    }
 
     mockRealtime = { emitToUser: jest.fn().mockResolvedValue(undefined) }
 
@@ -172,7 +174,9 @@ describe('ServiceNotification', () => {
         filename: 'file.csv',
         deletedAt: new Date(Date.now() + 60 * 60 * 1000),
       })
-      generateSignedDownloadUrl.mockResolvedValue('https://example.com/download')
+      generateSignedDownloadUrl.mockResolvedValue(
+        'https://example.com/download',
+      )
 
       const result = await service.list({
         projectId: 'project-1',
@@ -189,7 +193,7 @@ describe('ServiceNotification', () => {
       )
     })
 
-    test('resolves the download URL using the job\'s own requestHost/requestProto', async () => {
+    test("resolves the download URL using the job's own requestHost/requestProto", async () => {
       const dataTransferJob = new DataTransferJob({
         _id: 'job-1',
         projectId: 'project-1',
@@ -215,7 +219,9 @@ describe('ServiceNotification', () => {
         filename: 'file.csv',
         deletedAt: new Date(Date.now() + 60 * 60 * 1000),
       })
-      generateSignedDownloadUrl.mockResolvedValue('https://example.com/download')
+      generateSignedDownloadUrl.mockResolvedValue(
+        'https://example.com/download',
+      )
 
       await service.list({
         projectId: 'project-1',
@@ -223,7 +229,9 @@ describe('ServiceNotification', () => {
       })
 
       expect(generateSignedDownloadUrl).toHaveBeenCalledWith(
-        expect.objectContaining({ publicBaseUrl: 'https://project-1.veysur.com' }),
+        expect.objectContaining({
+          publicBaseUrl: 'https://project-1.veysur.com',
+        }),
         expect.anything(),
         expect.anything(),
         'path/to/file.csv',
@@ -289,7 +297,9 @@ describe('ServiceNotification', () => {
 
       expect(mockRepo.updateOne).toHaveBeenCalledWith(
         { _id: 'notification-1' },
-        expect.objectContaining({ $set: expect.objectContaining({ status: 'dismissed' }) }),
+        expect.objectContaining({
+          $set: expect.objectContaining({ status: 'dismissed' }),
+        }),
       )
       expect(mockServiceDataTransferJob.deleteSettledJob).not.toHaveBeenCalled()
       expect(mockRealtime.emitToUser).toHaveBeenCalledWith(
@@ -320,17 +330,32 @@ describe('ServiceNotification', () => {
   describe('cleanupOld()', () => {
     test('deletes settled notifications and their related job rows', async () => {
       mockRepo.findSettledOlderThan.mockResolvedValue([
-        new Notification({ _id: 'notification-1', dataTransferJobId: 'job-1', status: 'dismissed' }),
-        new Notification({ _id: 'notification-2', dataTransferJobId: null, status: 'read' }),
+        new Notification({
+          _id: 'notification-1',
+          dataTransferJobId: 'job-1',
+          status: 'dismissed',
+        }),
+        new Notification({
+          _id: 'notification-2',
+          dataTransferJobId: null,
+          status: 'read',
+        }),
       ])
       mockRepo.deleteByIds.mockResolvedValue(2)
 
       const result = await service.cleanupOld()
 
       expect(result).toEqual({ deletedCount: 2 })
-      expect(mockServiceDataTransferJob.deleteSettledJob).toHaveBeenCalledTimes(1)
-      expect(mockServiceDataTransferJob.deleteSettledJob).toHaveBeenCalledWith('job-1')
-      expect(mockRepo.deleteByIds).toHaveBeenCalledWith(['notification-1', 'notification-2'])
+      expect(mockServiceDataTransferJob.deleteSettledJob).toHaveBeenCalledTimes(
+        1,
+      )
+      expect(mockServiceDataTransferJob.deleteSettledJob).toHaveBeenCalledWith(
+        'job-1',
+      )
+      expect(mockRepo.deleteByIds).toHaveBeenCalledWith([
+        'notification-1',
+        'notification-2',
+      ])
     })
   })
 })

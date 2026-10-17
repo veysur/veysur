@@ -1,4 +1,8 @@
-import { Service, ServerErrorNotFound, ServerErrorForbidden } from '@datacapy/server'
+import {
+  Service,
+  ServerErrorNotFound,
+  ServerErrorForbidden,
+} from '@datacapy/server'
 import { ProjectAdmin } from 'veysur-common'
 import { RepoProjectAdmin, RepoUser, Email } from 'model/repo'
 import { AclContext } from 'model/entity'
@@ -364,7 +368,7 @@ export class ServiceProjectAdmin extends Service {
 
     const loginResult = await this.getService<ServiceAuthEmailPassword>(
       'authEmailPassword',
-    ).login({
+    ).authenticate({
       email,
       password,
       ip,

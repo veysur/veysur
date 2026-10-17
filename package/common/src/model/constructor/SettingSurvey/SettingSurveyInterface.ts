@@ -63,9 +63,7 @@ export interface SettingSurveyProperties {
     multiple: boolean
     preventRepeat: boolean
     resumeLink: boolean
-    captcha: boolean
-    captchaReg: boolean
-    captchaResume: boolean
+    botProtection: boolean
     embed: boolean
     embedDomains: string[]
   }
@@ -92,6 +90,11 @@ export interface SettingSurveyProperties {
   maps: {
     googleApiKey: string
     provider?: string
+  }
+  botProtection: {
+    provider: string
+    cloudflare: { siteKey: string; secretKey: string }
+    google: { siteKey: string; secretKey: string }
   }
   stats: {
     questions: {
@@ -184,11 +187,18 @@ export interface SettingSurveyMapsMethods {
   updateMaps(updates: Record<string, unknown>): this
 }
 
+// Kept out of SettingSurveyMethods: a Survey carries no project-level bot protection section
+export interface SettingSurveyBotProtectionMethods {
+  setBotProtectionProperty(key: string, value: unknown): this
+  updateBotProtection(updates: Record<string, unknown>): this
+}
+
 export interface SettingSurveyInterface
   extends
     SettingSurveyProperties,
     SettingSurveyMethods,
-    SettingSurveyMapsMethods {}
+    SettingSurveyMapsMethods,
+    SettingSurveyBotProtectionMethods {}
 
 // Static methods interface
 export interface SettingSurveyInterfaceStatic {

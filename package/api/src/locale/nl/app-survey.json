@@ -106,5 +106,14 @@
   "validation.matrixColumnChoiceCount_atMost_other": "{{column}}: kies niet meer dan {{max}} opties",
   "validation.length_between": "Moet tussen {{min}} en {{max}} tekens bevatten",
   "validation.length_atLeast": "Moet ten minste {{min}} tekens bevatten",
-  "validation.length_atMost": "Mag niet meer dan {{max}} tekens bevatten"
+  "validation.length_atMost": "Mag niet meer dan {{max}} tekens bevatten",
+  "botProtection.label": "Beveiligingscontrole",
+  "botProtection.checking": "Beveiligingscontrole wordt uitgevoerd",
+  "botProtection.verified": "Beveiligingscontrole voltooid",
+  "botProtection.failed": "De beveiligingscontrole kon niet worden voltooid.",
+  "botProtection.retry": "Opnieuw proberen",
+  "botProtection.providerCloudflare": "Beveiligd door Cloudflare Turnstile",
+  "botProtection.providerGoogle": "Beveiligd door Google reCAPTCHA",
+  "welcome.warningBotCheck": "Wacht tot de beveiligingscontrole is afgerond.",
+  "error.botCheckFailed": "Voltooi de beveiligingscontrole om door te gaan"
 }

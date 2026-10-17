@@ -26,7 +26,8 @@ describe('ServiceSurveyParticipantFile', () => {
   const snapshotWithQuestion = (question = fileUploadQuestion()) => ({
     survey: {
       elements: {
-        getByCode: (code: string) => (code === question.code ? question : undefined),
+        getByCode: (code: string) =>
+          code === question.code ? question : undefined,
       },
     },
   })
@@ -77,6 +78,35 @@ describe('ServiceSurveyParticipantFile', () => {
       const map: Record<string, unknown> = { fileUpload: mockServiceFileUpload }
       return map[name] ?? {}
     }) as typeof service.getService)
+  })
+
+  describe('bot protection', () => {
+    const unverified = {
+      jwt: { botRequired: true, botVerified: false },
+    }
+
+    test('generateUploadUrl rejects an unverified JWT', async () => {
+      await expect(
+        service.generateUploadUrl({
+          filename: 'a.pdf',
+          fileHash: 'hash',
+          fileSize: 10,
+          mimeType: 'application/pdf',
+          questionCode: 'q1',
+          aclContext: aclContext(unverified),
+        }),
+      ).rejects.toMatchObject({ ref: 'ERROR_BOT_CHECK_FAILED' })
+    })
+
+    test('confirmUpload rejects an unverified JWT', async () => {
+      await expect(
+        service.confirmUpload({
+          fileId: 'file_1',
+          aclContext: aclContext(unverified),
+        }),
+      ).rejects.toMatchObject({ ref: 'ERROR_BOT_CHECK_FAILED' })
+      expect(mockRepoFile.findOne).not.toHaveBeenCalled()
+    })
   })
 
   describe('generateUploadUrl', () => {

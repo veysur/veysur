@@ -1,4 +1,8 @@
-import { Service, ServerErrorNotFound, ServerErrorBadRequest } from '@datacapy/server'
+import {
+  Service,
+  ServerErrorNotFound,
+  ServerErrorBadRequest,
+} from '@datacapy/server'
 import { DataTransferJob } from 'veysur-common'
 
 import { RepoDataTransferJob, RepoFile } from 'model'
@@ -128,7 +132,11 @@ export class ServiceDataTransferJob extends Service {
       ),
     )
     if (existing) {
-      return { jobId: existing._id, status: existing.status, alreadyQueued: true }
+      return {
+        jobId: existing._id,
+        status: existing.status,
+        alreadyQueued: true,
+      }
     }
 
     const job = new DataTransferJob({
@@ -240,7 +248,11 @@ export class ServiceDataTransferJob extends Service {
       options,
     })
     if (existing) {
-      return { jobId: existing._id, status: existing.status, alreadyQueued: true }
+      return {
+        jobId: existing._id,
+        status: existing.status,
+        alreadyQueued: true,
+      }
     }
 
     const repo = this.getRepoDataTransferJob()
@@ -444,7 +456,11 @@ export class ServiceDataTransferJob extends Service {
     const repo = this.getRepoDataTransferJob()
     const job = await repo.findOne({ _id: jobId })
     const userId = aclContext.jwt?._id ?? ''
-    if (!job || job.projectId !== projectId || job.requestedByUserId !== userId) {
+    if (
+      !job ||
+      job.projectId !== projectId ||
+      job.requestedByUserId !== userId
+    ) {
       throw new ServerErrorNotFound({ message: 'Job not found', jobId })
     }
     if (job.status === 'pending' || job.status === 'processing') {
@@ -485,7 +501,8 @@ export class ServiceDataTransferJob extends Service {
     await this.reapStale()
 
     const repo = this.getRepoDataTransferJob()
-    const batchSize = this.config?.model?.app?.dataTransfer?.processBatchSize ?? 10
+    const batchSize =
+      this.config?.model?.app?.dataTransfer?.processBatchSize ?? 10
     const jobs = await repo.findDuePending(batchSize)
 
     let processed = 0
@@ -595,11 +612,14 @@ export class ServiceDataTransferJob extends Service {
         level: 'success',
         title: this.buildJobLabel(job),
         message:
-          job.direction === 'import' ? 'Import complete.' : 'Ready to download.',
+          job.direction === 'import'
+            ? 'Import complete.'
+            : 'Ready to download.',
       })
       return true
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error)
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
       await repo.updateOne(
         { _id: job._id },
         {

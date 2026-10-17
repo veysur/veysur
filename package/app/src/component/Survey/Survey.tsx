@@ -34,6 +34,7 @@ import { SurveyProgressBar } from './SurveyProgressBar'
 import { SurveyFormatAll } from './SurveyFormatAll'
 import { SurveyFormatGroup } from './SurveyFormatGroup'
 import { SurveyFormatQuestion } from './SurveyFormatQuestion'
+import type { BotCheckConfig } from 'component/BotProtection/BotProtectionProvider'
 import { SurveyWelcome } from './SurveyWelcome'
 import { SurveyThankYou } from './SurveyThankYou'
 import { SurveyIndex } from './SurveyIndex'
@@ -69,6 +70,8 @@ type Props = {
   authDeferred?: boolean
   // Embedded surveys contact no map service until the participant asks for the map
   deferMapLoad?: boolean
+  // A bot check the participant passes on the start step before answering
+  botCheck?: BotCheckConfig
   initAnswers?: SurveyAnswers
   initSeeds?: Record<string, number>
   initLanguage?: string
@@ -92,6 +95,7 @@ export const Survey: React.FC<Props> = ({
   authToken,
   authDeferred = false,
   deferMapLoad = false,
+  botCheck,
   initAnswers = {},
   initSeeds = {},
   initLanguage,
@@ -522,6 +526,7 @@ export const Survey: React.FC<Props> = ({
     legalNotice,
     survey,
     visibleElements,
+    !!botCheck && !botCheck.verified,
   )
 
   // `currentQuestionIndex` walks the full ordered list (content pages
@@ -754,6 +759,7 @@ export const Survey: React.FC<Props> = ({
           expressionContext={welcomeExpressionContext}
           onContinue={handleWelcomeContinue}
           countdown={countdown}
+          botCheck={botCheck}
         />
       )
     }
@@ -850,7 +856,8 @@ export const Survey: React.FC<Props> = ({
   const welcomeEnabled = !!(
     presentation.welcomeMessage ||
     dataPolicy.show ||
-    legalNotice.show
+    legalNotice.show ||
+    (botCheck && !botCheck.verified)
   )
 
   const isFirstPage = welcomeEnabled

@@ -136,6 +136,12 @@ const {
   RATE_LIMIT_AUTH_HANDOFF_WINDOW_SECONDS,
   RATE_LIMIT_GEO_COUNTRY_LIMIT,
   RATE_LIMIT_GEO_COUNTRY_WINDOW_SECONDS,
+  RATE_LIMIT_BOT_PROTECTION_LIMIT,
+  RATE_LIMIT_BOT_PROTECTION_WINDOW_SECONDS,
+  API_BOT_PROTECTION_POW_BITS,
+  API_BOT_PROTECTION_MIN_SECONDS,
+  API_BOT_PROTECTION_RECAPTCHA_MIN_SCORE,
+  API_ACCOUNT_BOT_CHECK,
   RATE_LIMIT_GENERAL_LIMIT,
   RATE_LIMIT_GENERAL_WINDOW_SECONDS,
   // Event Log
@@ -221,6 +227,17 @@ export const app = {
     maxPerPage: API_PAGINATION_MAX_PER_PAGE
       ? Number(API_PAGINATION_MAX_PER_PAGE)
       : 100,
+  },
+  botProtection: {
+    // Leading zero bits the `simple` proof of work must reach; each extra bit
+    // doubles the participant's solve time (18 is well under a second on a laptop)
+    powBits: Number(API_BOT_PROTECTION_POW_BITS ?? 18),
+    // A `simple` solution arriving sooner than this after its challenge is rejected
+    minSeconds: Number(API_BOT_PROTECTION_MIN_SECONDS ?? 1),
+    // reCAPTCHA v3 scores below this are treated as bots
+    recaptchaMinScore: Number(API_BOT_PROTECTION_RECAPTCHA_MIN_SCORE ?? 0.5),
+    // Login and signup need a `simple` proof of work unless this is `false`
+    accountCheckEnabled: API_ACCOUNT_BOT_CHECK !== 'false',
   },
   maps: {
     providerDefault: API_MAPS_PROVIDER_DEFAULT || 'osm',
@@ -376,6 +393,21 @@ export const app = {
         tierKey: 'auth-handoff',
         limit: Number(RATE_LIMIT_AUTH_HANDOFF_LIMIT ?? 30),
         windowSeconds: Number(RATE_LIMIT_AUTH_HANDOFF_WINDOW_SECONDS ?? 900), // 15 minutes
+      },
+      // Account bot check challenge
+      {
+        pattern: '^/bot-protection/',
+        tierKey: 'bot-protection-account',
+        limit: Number(RATE_LIMIT_BOT_PROTECTION_LIMIT ?? 60),
+        windowSeconds: Number(RATE_LIMIT_BOT_PROTECTION_WINDOW_SECONDS ?? 900), // 15 minutes
+      },
+      // Bot protection challenge and verify. Tight: a legitimate participant
+      // makes one of each per survey view.
+      {
+        pattern: '^/auth-participant/[^/]+/bot-',
+        tierKey: 'bot-protection',
+        limit: Number(RATE_LIMIT_BOT_PROTECTION_LIMIT ?? 60),
+        windowSeconds: Number(RATE_LIMIT_BOT_PROTECTION_WINDOW_SECONDS ?? 900), // 15 minutes
       },
       // Geo country
       {

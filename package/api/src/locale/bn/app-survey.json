@@ -106,5 +106,14 @@
   "validation.matrixColumnChoiceCount_atMost_other": "{{column}}: {{max}} টির বেশি বিকল্প নির্বাচন করবেন না",
   "validation.length_between": "অবশ্যই {{min}} থেকে {{max}} অক্ষরের মধ্যে হতে হবে",
   "validation.length_atLeast": "কমপক্ষে {{min}} অক্ষর হতে হবে",
-  "validation.length_atMost": "{{max}} অক্ষরের বেশি হওয়া উচিত নয়"
+  "validation.length_atMost": "{{max}} অক্ষরের বেশি হওয়া উচিত নয়",
+  "botProtection.label": "নিরাপত্তা যাচাই",
+  "botProtection.checking": "নিরাপত্তা যাচাই চলছে",
+  "botProtection.verified": "নিরাপত্তা যাচাই সম্পন্ন",
+  "botProtection.failed": "নিরাপত্তা যাচাই সম্পন্ন করা যায়নি।",
+  "botProtection.retry": "আবার চেষ্টা করুন",
+  "botProtection.providerCloudflare": "Cloudflare Turnstile দ্বারা সুরক্ষিত",
+  "botProtection.providerGoogle": "Google reCAPTCHA দ্বারা সুরক্ষিত",
+  "welcome.warningBotCheck": "নিরাপত্তা যাচাই শেষ না হওয়া পর্যন্ত অনুগ্রহ করে অপেক্ষা করুন।",
+  "error.botCheckFailed": "চালিয়ে যেতে অনুগ্রহ করে নিরাপত্তা যাচাই সম্পন্ন করুন"
 }

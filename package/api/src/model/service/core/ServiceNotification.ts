@@ -356,7 +356,10 @@ export class ServiceNotification extends Service {
     await Promise.all(
       settled
         .map((notification) => notification.dataTransferJobId)
-        .filter((dataTransferJobId): dataTransferJobId is string => !!dataTransferJobId)
+        .filter(
+          (dataTransferJobId): dataTransferJobId is string =>
+            !!dataTransferJobId,
+        )
         .map((dataTransferJobId) =>
           serviceDataTransferJob.deleteSettledJob(dataTransferJobId),
         ),

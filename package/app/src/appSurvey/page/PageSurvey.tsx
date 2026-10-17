@@ -21,6 +21,7 @@ import type { SurveyAnswers } from 'component/Survey/SurveyTypes'
 import { usePageTitle } from 'hook'
 
 import { TokenEntryForm } from '../component/TokenEntryForm'
+import type { BotCheckConfig } from 'component/BotProtection/BotProtectionProvider'
 import { resolveUiLanguage } from '../common'
 import { hasCompleted, markCompleted } from '../common/completedStorage'
 import { useSurveyParticipantSnapshotPublished } from '../hook/useSurveyParticipantSnapshotPublished'
@@ -53,6 +54,16 @@ export const PageSurvey: React.FC = () => {
       initLanguage,
     )
   const noBrand = survey?.presentation?.noBrand === true
+  const botCheck: BotCheckConfig | undefined =
+    authResult.botProtection && authResult.botProtection.provider !== 'none'
+      ? {
+          provider: authResult.botProtection.provider,
+          siteKey: authResult.botProtection.siteKey,
+          verified: authResult.botVerified,
+          fetchChallenge: authResult.fetchBotChallenge,
+          verify: authResult.verifyBot,
+        }
+      : undefined
 
   const { participantData } = useSurveyParticipantMe(surveyId, authResult.jwt)
 
@@ -320,6 +331,7 @@ export const PageSurvey: React.FC = () => {
         survey={survey}
         mapSettings={settingSurvey?.maps}
         authToken={authResult.jwt}
+        botCheck={botCheck}
         participantData={participantData}
         initAnswers={response}
         initSeeds={loadedResponse?.randomSeeds}

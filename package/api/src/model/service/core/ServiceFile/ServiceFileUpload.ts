@@ -350,7 +350,10 @@ export class ServiceFileUpload extends Service {
       fileContext: fileContext || null,
     })
 
-    const { bucket, bucketType } = this.resolveBucket(storageConfig, fileContext)
+    const { bucket, bucketType } = this.resolveBucket(
+      storageConfig,
+      fileContext,
+    )
     const uploadUrl = await generateSignedUploadUrl(
       effectiveConfig,
       bucket,

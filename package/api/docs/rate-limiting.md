@@ -72,6 +72,8 @@ Evaluate rules in order (first match wins)
 | `RATE_LIMIT_AUTH_WINDOW_SECONDS` | `900` | Login/signup-tier window duration in seconds |
 | `RATE_LIMIT_GEO_COUNTRY_LIMIT` | `30` | Max requests per geo-country-tier window |
 | `RATE_LIMIT_GEO_COUNTRY_WINDOW_SECONDS` | `3600` | Geo-country-tier window duration in seconds |
+| `RATE_LIMIT_BOT_PROTECTION_LIMIT` | `60` | Max bot-check challenge and verify requests per window |
+| `RATE_LIMIT_BOT_PROTECTION_WINDOW_SECONDS` | `900` | Bot-check tier window duration in seconds |
 | `RATE_LIMIT_GENERAL_LIMIT` | `300` | Max requests per default-tier window |
 | `RATE_LIMIT_GENERAL_WINDOW_SECONDS` | `60` | Default-tier window duration in seconds |
 

@@ -268,9 +268,7 @@ const createMockDefaults = (overrides = {}) => {
       multiple: false,
       preventRepeat: false,
       resumeLink: false,
-      captcha: false,
-      captchaReg: false,
-      captchaResume: false,
+      botProtection: false,
     },
     dataPolicy: {
       show: false,

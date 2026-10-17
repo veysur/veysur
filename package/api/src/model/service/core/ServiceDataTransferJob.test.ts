@@ -32,7 +32,10 @@ describe('ServiceDataTransferJob', () => {
   }
   let mockRepoFile: { findOne: jest.Mock }
   let mockImportExport: { compileExport: jest.Mock; runImport: jest.Mock }
-  let mockNotification: { create: jest.Mock; updateForDataTransferJob: jest.Mock }
+  let mockNotification: {
+    create: jest.Mock
+    updateForDataTransferJob: jest.Mock
+  }
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -300,7 +303,10 @@ describe('ServiceDataTransferJob', () => {
         }),
       )
 
-      const result = await service.getStatus({ jobId: 'job-1', projectId: 'project-1' })
+      const result = await service.getStatus({
+        jobId: 'job-1',
+        projectId: 'project-1',
+      })
 
       expect(result).toEqual({
         jobId: 'job-1',
@@ -322,7 +328,10 @@ describe('ServiceDataTransferJob', () => {
       // mockRepoFile.findOne defaults to resolving null (beforeEach) - the
       // File the job's resultFileId points to can't be found.
 
-      const result = await service.getStatus({ jobId: 'job-1', projectId: 'project-1' })
+      const result = await service.getStatus({
+        jobId: 'job-1',
+        projectId: 'project-1',
+      })
 
       expect(result).toEqual({
         jobId: 'job-1',
@@ -378,7 +387,7 @@ describe('ServiceDataTransferJob', () => {
   })
 
   describe('listJobs()', () => {
-    test('lists the calling user\'s own jobs, resolving download info for completed ones', async () => {
+    test("lists the calling user's own jobs, resolving download info for completed ones", async () => {
       mockRepo.count.mockResolvedValue(2)
       mockRepo.findByRequester.mockResolvedValue([
         new DataTransferJob({
@@ -432,7 +441,10 @@ describe('ServiceDataTransferJob', () => {
         filename: 'export.vssa',
         label: 'My Survey (survey-1)',
       })
-      expect(result.jobs[1]).toMatchObject({ jobId: 'job-2', status: 'pending' })
+      expect(result.jobs[1]).toMatchObject({
+        jobId: 'job-2',
+        status: 'pending',
+      })
     })
   })
 
@@ -561,7 +573,10 @@ describe('ServiceDataTransferJob', () => {
         }),
       )
       expect(mockNotification.updateForDataTransferJob).toHaveBeenCalledWith(
-        expect.objectContaining({ dataTransferJobId: 'job-1', level: 'success' }),
+        expect.objectContaining({
+          dataTransferJobId: 'job-1',
+          level: 'success',
+        }),
       )
     })
 
@@ -576,7 +591,9 @@ describe('ServiceDataTransferJob', () => {
         status: 'pending',
       })
       mockRepo.findDuePending.mockResolvedValue([job])
-      mockImportExport.compileExport.mockRejectedValue(new Error('export blew up'))
+      mockImportExport.compileExport.mockRejectedValue(
+        new Error('export blew up'),
+      )
 
       const result = await service.processQueue()
 
@@ -734,7 +751,9 @@ describe('ServiceDataTransferJob', () => {
       expect(mockRepo.findStale).toHaveBeenCalled()
       expect(mockRepo.updateOne).toHaveBeenCalledWith(
         { _id: 'stale-1' },
-        expect.objectContaining({ $set: expect.objectContaining({ status: 'failed' }) }),
+        expect.objectContaining({
+          $set: expect.objectContaining({ status: 'failed' }),
+        }),
       )
     })
   })

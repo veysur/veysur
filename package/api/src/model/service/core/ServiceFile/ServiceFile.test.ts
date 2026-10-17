@@ -240,7 +240,10 @@ describe('ServiceFile', () => {
       mockRepoFile.findOne.mockResolvedValue(null)
 
       await expect(
-        service.generateDownloadUrl({ fileId: 'file_1', projectId: 'proj_123' }),
+        service.generateDownloadUrl({
+          fileId: 'file_1',
+          projectId: 'proj_123',
+        }),
       ).rejects.toThrow('File not found')
     })
   })

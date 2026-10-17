@@ -34,6 +34,14 @@ export class SchemaJwtParticipant extends Schema {
         $type: 'string',
         $validate: { required: true, notNull: true },
       },
+      botRequired: {
+        $type: Boolean,
+        $filter: { defaultValue: null },
+      },
+      botVerified: {
+        $type: Boolean,
+        $filter: { defaultValue: null },
+      },
       iat: Number,
       exp: Number,
     })

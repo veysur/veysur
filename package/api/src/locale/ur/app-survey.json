@@ -106,5 +106,14 @@
   "validation.matrixColumnChoiceCount_atMost_other": "{{column}}: {{max}} سے زیادہ اختیارات منتخب نہ کریں",
   "validation.length_between": "{{min}} سے {{max}} حروف کے درمیان ہونا چاہیے",
   "validation.length_atLeast": "کم از کم {{min}} حروف ہونے چاہئیں",
-  "validation.length_atMost": "{{max}} حروف سے زیادہ نہیں ہونا چاہیے"
+  "validation.length_atMost": "{{max}} حروف سے زیادہ نہیں ہونا چاہیے",
+  "botProtection.label": "سیکیورٹی جانچ",
+  "botProtection.checking": "سیکیورٹی جانچ جاری ہے",
+  "botProtection.verified": "سیکیورٹی جانچ مکمل ہو گئی",
+  "botProtection.failed": "سیکیورٹی جانچ مکمل نہیں ہو سکی۔",
+  "botProtection.retry": "دوبارہ کوشش کریں",
+  "botProtection.providerCloudflare": "Cloudflare Turnstile کے ذریعے محفوظ",
+  "botProtection.providerGoogle": "Google reCAPTCHA کے ذریعے محفوظ",
+  "welcome.warningBotCheck": "براہ کرم سیکیورٹی جانچ مکمل ہونے تک انتظار کریں۔",
+  "error.botCheckFailed": "جاری رکھنے کے لیے براہ کرم سیکیورٹی جانچ مکمل کریں"
 }

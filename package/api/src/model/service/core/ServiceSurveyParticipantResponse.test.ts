@@ -76,6 +76,22 @@ describe('ServiceSurveyParticipantResponse', () => {
     }) as typeof service.getService)
   })
 
+  describe('bot protection', () => {
+    test('save rejects a JWT that requires a bot check and has not passed it', async () => {
+      await expect(
+        service.save({
+          response: { answers: { q1: 'a' } },
+          aclContext: {
+            ...baseAclContext(),
+            jwt: { botRequired: true, botVerified: false },
+          },
+        }),
+      ).rejects.toMatchObject({ ref: 'ERROR_BOT_CHECK_FAILED' })
+
+      expect(mockRepoSurveyResponse.findOne).not.toHaveBeenCalled()
+    })
+  })
+
   describe('getIdData', () => {
     test('prefers participantId when both are present', () => {
       const result = service.getIdData({

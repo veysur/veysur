@@ -98,5 +98,14 @@
   "validation.matrixColumnChoiceCount_atMost_other": "{{column}}: aja milih luwih saka {{max}} pilihan",
   "validation.length_between": "Kudu antarane {{min}} lan {{max}} aksara",
   "validation.length_atLeast": "Kudu paling ora {{min}} aksara",
-  "validation.length_atMost": "Ora oleh luwih saka {{max}} aksara"
+  "validation.length_atMost": "Ora oleh luwih saka {{max}} aksara",
+  "botProtection.label": "Pamriksan keamanan",
+  "botProtection.checking": "Lagi nindakake pamriksan keamanan",
+  "botProtection.verified": "Pamriksan keamanan rampung",
+  "botProtection.failed": "Pamriksan keamanan ora bisa rampung.",
+  "botProtection.retry": "Coba maneh",
+  "botProtection.providerCloudflare": "Dijaga dening Cloudflare Turnstile",
+  "botProtection.providerGoogle": "Dijaga dening Google reCAPTCHA",
+  "welcome.warningBotCheck": "Mangga enteni nganti pamriksan keamanan rampung.",
+  "error.botCheckFailed": "Mangga rampungna pamriksan keamanan kanggo nerusake"
 }

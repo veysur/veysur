@@ -27,6 +27,8 @@ import {
   RepoSurveyPublication,
   ServiceProject,
 } from 'model'
+import { ERROR_BOT_CHECK_FAILED } from './botProtection/assertBotVerified'
+import type { ServiceBotProtection } from './ServiceBotProtection'
 import { findLiveSuppression } from 'model/common'
 import { Jwt } from 'acl/util/Jwt'
 import type { GeoServiceContract } from 'model/common'
@@ -151,14 +153,20 @@ export class ServiceAuthParticipant extends Service {
 
       if (survey.access.open) {
         // fully open, no registration required — issue anonymous JWT
+        const botProtection = await this.resolveBotProtection(survey, context)
         const jwtParticipant = new JwtParticipant({
           participantId: null,
           surveyId,
           snapshotId: snapshot._id,
           publicationId: publication._id,
           projectId,
+          ...this.botClaims(botProtection, false),
         })
-        return await this.createJsonWebToken(jwtParticipant, jwtConfig)
+        return {
+          ...(await this.createJsonWebToken(jwtParticipant, jwtConfig)),
+          botProtection,
+          botVerified: botProtection.provider === 'none',
+        }
       }
 
       throw new ServerErrorForbidden({
@@ -241,7 +249,10 @@ export class ServiceAuthParticipant extends Service {
       }
     }
 
+    // A participant who already saved answers has passed the check before
+    const botProtection = await this.resolveBotProtection(survey, context)
     const jwtParticipant = new JwtParticipant({
+      ...this.botClaims(botProtection, hasPartialAnswers),
       // An anonymous survey must never link a response to a participant, so the
       // participant id is kept out of the JWT entirely — the auto-generated
       // sessionId is the only identifier that reaches the response layer.
@@ -255,7 +266,117 @@ export class ServiceAuthParticipant extends Service {
     return {
       ...(await this.createJsonWebToken(jwtParticipant, jwtConfig)),
       reset,
+      botProtection,
+      botVerified: botProtection.provider === 'none' || hasPartialAnswers,
     }
+  }
+
+  /**
+   * Upgrade the caller's participant JWT once the widget token checks out. The
+   * old JWT already carries the survey, snapshot and session, so the new one
+   * is the same identity with `botVerified` added. Anonymous surveys pass no
+   * address to the provider.
+   */
+  async botVerify({
+    surveyId,
+    token,
+    honeypot = undefined,
+    ip = undefined,
+    aclContext,
+    jwtConfig,
+  }) {
+    if (aclContext.surveyId !== surveyId) {
+      throw new ServerErrorForbidden({
+        ref: ERROR_AUTH_FAIL,
+        key: 'error.invalidCredentials',
+        userMessage: 'Invalid credentials',
+      })
+    }
+    const { projectId } = aclContext
+    const context = DataSourceContext.fromDataSources({
+      project: { lookupKey: projectId },
+    })
+    const survey = await this.loadSnapshotSurvey(aclContext.snapshotId, context)
+    const setting = await this.getRepo<RepoSettingSurvey>(
+      'settingSurvey',
+    ).findOne({}, { context })
+
+    const botProtection = this.getBotProtectionService()
+    const verified = await botProtection.verify({
+      setting: setting?.botProtection,
+      surveyId,
+      token,
+      honeypot,
+      remoteIp: survey?.access?.anonymous ? undefined : ip,
+    })
+    if (!verified) {
+      throw new ServerErrorForbidden({
+        ref: ERROR_BOT_CHECK_FAILED,
+        key: 'error.botCheckFailed',
+        userMessage: 'Please complete the security check to continue',
+      })
+    }
+
+    const jwtParticipant = new JwtParticipant({
+      participantId: aclContext.participantId,
+      sessionId: aclContext.sessionId,
+      surveyId,
+      snapshotId: aclContext.snapshotId,
+      publicationId: aclContext.publicationId,
+      projectId,
+      botRequired: true,
+      botVerified: true,
+    })
+    return await this.createJsonWebToken(jwtParticipant, jwtConfig)
+  }
+
+  /** A signed proof-of-work challenge for the `simple` provider. */
+  async botChallenge({ surveyId, aclContext }) {
+    if (aclContext.surveyId !== surveyId) {
+      throw new ServerErrorForbidden({
+        ref: ERROR_AUTH_FAIL,
+        key: 'error.invalidCredentials',
+        userMessage: 'Invalid credentials',
+      })
+    }
+    return this.getBotProtectionService().issueChallenge(surveyId)
+  }
+
+  private getBotProtectionService(): ServiceBotProtection {
+    return this.getService<ServiceBotProtection>('botProtection')
+  }
+
+  private async loadSnapshotSurvey(
+    snapshotId: string,
+    context: DataSourceContext,
+  ): Promise<Survey | undefined> {
+    const snapshot = await this.getRepo<RepoSurveySnapshotPartial>(
+      'surveySnapshotPartial',
+    ).findOne({ _id: snapshotId }, { context })
+    return snapshot?.surveyPartial
+  }
+
+  /** The check this survey applies, with nothing a participant must not see. */
+  private async resolveBotProtection(
+    survey: Survey,
+    context: DataSourceContext,
+  ) {
+    const setting = await this.getRepo<RepoSettingSurvey>(
+      'settingSurvey',
+    ).findOne({}, { context })
+    return this.getBotProtectionService().resolve(
+      setting?.botProtection,
+      survey.access.botProtection,
+    )
+  }
+
+  private botClaims(
+    botProtection: { provider: string },
+    alreadyVerified: boolean,
+  ) {
+    return botProtection.provider === 'none'
+      ? {}
+      : { botRequired: true, botVerified: alreadyVerified }
   }
 
   async register({

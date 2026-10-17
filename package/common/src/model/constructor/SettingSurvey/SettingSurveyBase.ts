@@ -1,6 +1,7 @@
 import { genUniqueId } from '@datacapy/id'
 import { PropsOf } from '@datacapy/schema'
 
+import { BOT_PROTECTION_PROVIDER_NONE } from '../../service/BotProtectionConfig'
 import { L10n } from '../L10n'
 
 export type ChartType =
@@ -91,9 +92,7 @@ export interface SettingSurveyData {
     multiple: boolean
     preventRepeat: boolean
     resumeLink: boolean
-    captcha: boolean
-    captchaReg: boolean
-    captchaResume: boolean
+    botProtection: boolean
     embed: boolean
     embedDomains: string[]
   }
@@ -120,6 +119,11 @@ export interface SettingSurveyData {
   maps: {
     googleApiKey: string
     provider?: string
+  }
+  botProtection?: {
+    provider?: string | null
+    cloudflare?: { siteKey?: string | null; secretKey?: string | null } | null
+    google?: { siteKey?: string | null; secretKey?: string | null } | null
   }
   stats: {
     questions: {
@@ -216,9 +220,7 @@ export class SettingSurveyBase {
     multiple: boolean
     preventRepeat: boolean
     resumeLink: boolean
-    captcha: boolean
-    captchaReg: boolean
-    captchaResume: boolean
+    botProtection: boolean
     embed: boolean
     embedDomains: string[]
   } = {
@@ -230,9 +232,7 @@ export class SettingSurveyBase {
     multiple: false,
     preventRepeat: true,
     resumeLink: false,
-    captcha: false,
-    captchaReg: false,
-    captchaResume: false,
+    botProtection: false,
     embed: false,
     embedDomains: [],
   }
@@ -277,6 +277,15 @@ export class SettingSurveyBase {
     provider?: string
   } = {
     googleApiKey: '',
+  }
+  botProtection: {
+    provider: string
+    cloudflare: { siteKey: string; secretKey: string }
+    google: { siteKey: string; secretKey: string }
+  } = {
+    provider: BOT_PROTECTION_PROVIDER_NONE,
+    cloudflare: { siteKey: '', secretKey: '' },
+    google: { siteKey: '', secretKey: '' },
   }
   stats: {
     questions: {
@@ -349,6 +358,17 @@ export class SettingSurveyBase {
     this.schedule = data?.schedule || this.schedule
     this.notify = data?.notify || this.notify
     this.maps = data?.maps || this.maps
+    this.botProtection = {
+      provider: data?.botProtection?.provider || this.botProtection.provider,
+      cloudflare: mergeDefined(
+        this.botProtection.cloudflare,
+        data?.botProtection?.cloudflare ?? undefined,
+      ),
+      google: mergeDefined(
+        this.botProtection.google,
+        data?.botProtection?.google ?? undefined,
+      ),
+    }
     this.stats = data?.stats || this.stats
     this.contentFormat = mergeDefined(this.contentFormat, data?.contentFormat)
 

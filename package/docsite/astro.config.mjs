@@ -117,6 +117,7 @@ export default defineConfig({
             { label: 'Manage Team Members', slug: 'guides/manage-team-members' },
             { label: 'Publish Your Survey', slug: 'guides/publish-your-survey' },
             { label: 'Embed a Survey in a Website', slug: 'guides/embed-a-survey' },
+            { label: 'Protect a Survey from Bots', slug: 'guides/protect-a-survey-from-bots' },
             { label: 'Merge Publication Responses', slug: 'guides/merge-publication-responses' },
             { label: 'Create a Multi-Language Survey', slug: 'guides/create-multi-language-survey' },
             { label: 'Create a Conditional Question', slug: 'guides/create-conditional-question' },

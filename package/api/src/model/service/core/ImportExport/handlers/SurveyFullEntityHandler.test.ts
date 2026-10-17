@@ -51,9 +51,11 @@ describe('SurveyFullEntityHandler.estimateExportSize', () => {
       findOne: jest
         .fn()
         .mockResolvedValue({ _id: 'file-original', imageSetId: 'imgset-1' }),
-      find: jest.fn().mockResolvedValue([
-        { _id: 'file-original', imageVariant: 'original', size: 3_600_000 },
-      ]),
+      find: jest
+        .fn()
+        .mockResolvedValue([
+          { _id: 'file-original', imageVariant: 'original', size: 3_600_000 },
+        ]),
     }
 
     handler = new SurveyFullEntityHandler(
@@ -65,7 +67,9 @@ describe('SurveyFullEntityHandler.estimateExportSize', () => {
       {} as RepoSurveyParticipant,
       {} as RepoSurveyElement,
       {} as RepoSurveySection,
-      { find: jest.fn().mockResolvedValue([]) } as unknown as RepoSurveyLanguage,
+      {
+        find: jest.fn().mockResolvedValue([]),
+      } as unknown as RepoSurveyLanguage,
       undefined,
       mockRepoFile as unknown as RepoFile,
       { publicBucket: 'public', privateBucket: 'private' } as never,

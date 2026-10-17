@@ -98,5 +98,14 @@
   "validation.matrixColumnChoiceCount_atMost_other": "{{column}}：最多选择 {{max}} 个选项",
   "validation.length_between": "长度必须在 {{min}} 到 {{max}} 个字符之间",
   "validation.length_atLeast": "长度至少为 {{min}} 个字符",
-  "validation.length_atMost": "长度不得超过 {{max}} 个字符"
+  "validation.length_atMost": "长度不得超过 {{max}} 个字符",
+  "botProtection.label": "安全检查",
+  "botProtection.checking": "正在进行安全检查",
+  "botProtection.verified": "安全检查完成",
+  "botProtection.failed": "无法完成安全检查。",
+  "botProtection.retry": "重试",
+  "botProtection.providerCloudflare": "由 Cloudflare Turnstile 提供保护",
+  "botProtection.providerGoogle": "由 Google reCAPTCHA 提供保护",
+  "welcome.warningBotCheck": "请等待安全检查完成。",
+  "error.botCheckFailed": "请完成安全检查后继续"
 }

@@ -1,5 +1,6 @@
 // cspell:ignore Bonjour
 import { ServerErrorForbidden, ServerErrorBadRequest } from '@datacapy/server'
+import { resolveBotProtection } from 'veysur-common'
 import { ServiceAuthParticipant } from './ServiceAuthParticipant'
 
 const SURVEY_ID = 'survey-1'
@@ -15,10 +16,11 @@ const makeSnapshot = (
   open: boolean,
   publicReg: boolean,
   anonymous = false,
+  captcha = false,
 ) => ({
   _id: SNAPSHOT_ID,
   surveyPartial: {
-    access: { open, publicReg, anonymous },
+    access: { open, publicReg, anonymous, botProtection: captcha },
     schedule: { start: null, end: null },
   },
 })
@@ -30,12 +32,17 @@ const makeService = (
   participantOverrides: Record<string, unknown> = {},
   existingResponse: Record<string, unknown> | null = null,
   anonymous = false,
+  botProtection: { captcha: boolean; setting: Record<string, unknown> } = {
+    captcha: false,
+    setting: { provider: 'none' },
+  },
 ) => {
   const service = new ServiceAuthParticipant() as unknown as Omit<
     ServiceAuthParticipant,
-    'getRepo' | 'createJsonWebToken'
+    'getRepo' | 'getService' | 'createJsonWebToken'
   > & {
     getRepo: jest.Mock
+    getService: jest.Mock
     createJsonWebToken: jest.Mock
   }
 
@@ -45,7 +52,19 @@ const makeService = (
   const repoSurveySnapshot = {
     findOne: jest
       .fn()
-      .mockResolvedValue(makeSnapshot(open, publicReg, anonymous)),
+      .mockResolvedValue(
+        makeSnapshot(open, publicReg, anonymous, botProtection.captcha),
+      ),
+  }
+  const repoSettingSurvey = {
+    findOne: jest
+      .fn()
+      .mockResolvedValue({ botProtection: botProtection.setting }),
+  }
+  const botProtectionService = {
+    resolve: jest.fn(resolveBotProtection),
+    verify: jest.fn(),
+    issueChallenge: jest.fn(),
   }
   const repoSurveyParticipant = {
     findOne: jest
@@ -66,7 +85,13 @@ const makeService = (
     if (name === 'surveySnapshotPartial') return repoSurveySnapshot
     if (name === 'surveyParticipant') return repoSurveyParticipant
     if (name === 'surveyResponse') return repoSurveyResponse
+    if (name === 'settingSurvey') return repoSettingSurvey
     throw new Error(`Unexpected repo: ${name}`)
+  })
+
+  service.getService = jest.fn((name: string) => {
+    if (name === 'botProtection') return botProtectionService
+    throw new Error(`Unexpected service: ${name}`)
   })
 
   service.createJsonWebToken = jest
@@ -82,6 +107,7 @@ const makeService = (
     repoPublication,
     repoSurveySnapshot,
     repoSurveyResponse,
+    botProtectionService,
   }
 }
 
@@ -897,5 +923,208 @@ describe('ServiceAuthParticipant.auth — embed origin', () => {
       expect.objectContaining({ participantId: null }),
       expect.anything(),
     )
+  })
+})
+
+describe('ServiceAuthParticipant — bot protection', () => {
+  const simple = { captcha: true, setting: { provider: 'simple' } }
+
+  test('survey without a bot check issues a JWT with no bot claims', async () => {
+    const { service } = makeService(true, false)
+    const result = await service.auth(authArgs())
+    const claims = service.createJsonWebToken.mock.calls[0][0]
+    expect(claims.botRequired).toBeUndefined()
+    expect(claims.botVerified).toBeUndefined()
+    expect(result.botProtection.provider).toBe('none')
+  })
+
+  test('survey that asks for a check but whose project has no provider is not gated', async () => {
+    const { service } = makeService(true, false, undefined, {}, null, false, {
+      captcha: true,
+      setting: { provider: 'none' },
+    })
+    await service.auth(authArgs())
+    expect(
+      service.createJsonWebToken.mock.calls[0][0].botRequired,
+    ).toBeUndefined()
+  })
+
+  test('an open survey with a check issues an unverified JWT and names the provider', async () => {
+    const { service } = makeService(
+      true,
+      false,
+      undefined,
+      {},
+      null,
+      false,
+      simple,
+    )
+    const result = await service.auth(authArgs())
+    expect(service.createJsonWebToken.mock.calls[0][0]).toMatchObject({
+      botRequired: true,
+      botVerified: false,
+    })
+    expect(result.botProtection).toEqual({ provider: 'simple', siteKey: '' })
+  })
+
+  test('a participant with saved answers resumes already verified', async () => {
+    const { service } = makeService(
+      false,
+      false,
+      PARTICIPANT_TOKEN,
+      {},
+      { answers: { q1: 'a' }, snapshotId: SNAPSHOT_ID },
+      false,
+      simple,
+    )
+    await service.auth(authArgs(PARTICIPANT_TOKEN))
+    expect(service.createJsonWebToken.mock.calls[0][0]).toMatchObject({
+      botRequired: true,
+      botVerified: true,
+    })
+  })
+
+  test('a token participant with no answers yet still has to pass the check', async () => {
+    const { service } = makeService(
+      false,
+      false,
+      PARTICIPANT_TOKEN,
+      {},
+      null,
+      false,
+      simple,
+    )
+    await service.auth(authArgs(PARTICIPANT_TOKEN))
+    expect(service.createJsonWebToken.mock.calls[0][0]).toMatchObject({
+      botRequired: true,
+      botVerified: false,
+    })
+  })
+
+  describe('botVerify', () => {
+    const aclContext = {
+      surveyId: SURVEY_ID,
+      projectId: PROJECT_ID,
+      snapshotId: SNAPSHOT_ID,
+      publicationId: PUBLICATION_ID,
+      participantId: null,
+      sessionId: 'session-1',
+    }
+    const args = (overrides = {}) => ({
+      surveyId: SURVEY_ID,
+      token: 'widget-token',
+      aclContext,
+      jwtConfig: {},
+      ...overrides,
+    })
+
+    test('reissues the same identity with botVerified once the provider accepts', async () => {
+      const { service, botProtectionService } = makeService(
+        true,
+        false,
+        undefined,
+        {},
+        null,
+        false,
+        simple,
+      )
+      botProtectionService.verify.mockResolvedValue(true)
+
+      await service.botVerify(args())
+
+      expect(service.createJsonWebToken.mock.calls[0][0]).toMatchObject({
+        sessionId: 'session-1',
+        surveyId: SURVEY_ID,
+        snapshotId: SNAPSHOT_ID,
+        botRequired: true,
+        botVerified: true,
+      })
+    })
+
+    test('throws ERROR_BOT_CHECK_FAILED when the provider rejects', async () => {
+      const { service, botProtectionService } = makeService(
+        true,
+        false,
+        undefined,
+        {},
+        null,
+        false,
+        simple,
+      )
+      botProtectionService.verify.mockResolvedValue(false)
+
+      await expect(service.botVerify(args())).rejects.toMatchObject({
+        ref: 'ERROR_BOT_CHECK_FAILED',
+      })
+      expect(service.createJsonWebToken).not.toHaveBeenCalled()
+    })
+
+    test('passes no address on for an anonymous survey', async () => {
+      const { service, botProtectionService } = makeService(
+        true,
+        false,
+        undefined,
+        {},
+        null,
+        true,
+        simple,
+      )
+      botProtectionService.verify.mockResolvedValue(true)
+
+      await service.botVerify(args({ ip: '1.2.3.4' }))
+
+      expect(botProtectionService.verify).toHaveBeenCalledWith(
+        expect.objectContaining({ remoteIp: undefined }),
+      )
+    })
+
+    test('passes the address on for a non-anonymous survey', async () => {
+      const { service, botProtectionService } = makeService(
+        true,
+        false,
+        undefined,
+        {},
+        null,
+        false,
+        simple,
+      )
+      botProtectionService.verify.mockResolvedValue(true)
+
+      await service.botVerify(args({ ip: '1.2.3.4' }))
+
+      expect(botProtectionService.verify).toHaveBeenCalledWith(
+        expect.objectContaining({ remoteIp: '1.2.3.4' }),
+      )
+    })
+
+    test('refuses a JWT issued for a different survey', async () => {
+      const { service, botProtectionService } = makeService(
+        true,
+        false,
+        undefined,
+        {},
+        null,
+        false,
+        simple,
+      )
+      await expect(
+        service.botVerify(args({ surveyId: 'other-survey' })),
+      ).rejects.toBeInstanceOf(ServerErrorForbidden)
+      expect(botProtectionService.verify).not.toHaveBeenCalled()
+    })
+  })
+
+  test('botChallenge returns the signed challenge for the JWT survey', async () => {
+    const { service, botProtectionService } = makeService(true, false)
+    botProtectionService.issueChallenge.mockReturnValue({
+      challenge: 'c',
+      bits: 18,
+    })
+    const result = await service.botChallenge({
+      surveyId: SURVEY_ID,
+      aclContext: { surveyId: SURVEY_ID },
+    })
+    expect(result).toEqual({ challenge: 'c', bits: 18 })
+    expect(botProtectionService.issueChallenge).toHaveBeenCalledWith(SURVEY_ID)
   })
 })

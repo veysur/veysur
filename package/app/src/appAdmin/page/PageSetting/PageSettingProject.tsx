@@ -9,6 +9,7 @@ import { useAuth, useProjectDomain } from 'appAdmin/hook'
 import { useProjectTimezoneUpdate } from 'appAdmin/hook/useProjectTimezoneUpdate'
 import { ProjectTimezoneForm } from 'appAdmin/component/ProjectSetting/ProjectTimezoneForm'
 import { ProjectMapsSection } from 'appAdmin/component/ProjectSetting/ProjectMapsSection'
+import { ProjectBotProtectionSection } from 'appAdmin/component/ProjectSetting/ProjectBotProtectionSection'
 import { ProjectSettingsTransfer } from 'appAdmin/component/ProjectSetting/ProjectSettingsTransfer'
 
 export const PageSettingProject: React.FC = () => {
@@ -55,6 +56,7 @@ export const PageSettingProject: React.FC = () => {
           error={saveError}
         />
         <ProjectMapsSection projectId={project._id} />
+        <ProjectBotProtectionSection projectId={project._id} />
         <ProjectSettingsTransfer isOwner={isOwner} />
       </div>
     </AdminPageLayout>

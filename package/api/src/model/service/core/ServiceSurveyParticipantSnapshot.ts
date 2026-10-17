@@ -1,6 +1,6 @@
 import { Service, ServerErrorNotFound } from '@datacapy/server'
 import { DataSourceContext } from '@datacapy/om'
-import { Survey, resolveMapConfig } from 'veysur-common'
+import { Survey, resolveBotProtection, resolveMapConfig } from 'veysur-common'
 
 import {
   RepoSurveyLanguageSnapshot,
@@ -141,7 +141,7 @@ export class ServiceSurveyParticipantSnapshot extends Service {
    * Load the project's survey settings as a participant may see them:
    * noBrand is suppressed if the project no longer qualifies for branding
    * removal (see isNoBrandAvailable), even though the setting itself is still
-   * stored as true, and `maps` carries the effective provider and Google key
+   * stored as true, `botProtection` carries only the provider and site key, and `maps` carries the effective provider and Google key
    * (project key over deployment key) in place of the stored override.
    */
   async getGatedSettingSurvey(projectId: string, context: DataSourceContext) {
@@ -155,6 +155,8 @@ export class ServiceSurveyParticipantSnapshot extends Service {
         this.config.model.app.maps,
         settingSurvey.maps?.googleApiKey,
       ),
+      // Provider and site key only; the secret key never leaves the API
+      botProtection: resolveBotProtection(settingSurvey.botProtection, true),
     }
 
     if (

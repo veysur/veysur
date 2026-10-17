@@ -10,9 +10,7 @@ const defaultAccess = {
   multiple: false,
   preventRepeat: false,
   resumeLink: false,
-  captcha: false,
-  captchaReg: false,
-  captchaResume: false,
+  botProtection: false,
   embed: false,
   embedDomains: [],
 }

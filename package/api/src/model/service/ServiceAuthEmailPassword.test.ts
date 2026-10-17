@@ -13,6 +13,7 @@ describe('ServiceAuthEmailPassword', () => {
   let mockEventLog: { log: jest.Mock }
   let mockServiceTwoFactor: { createPreAuthJwt: jest.Mock }
   let mockServiceAuthDirect: { loginDirect: jest.Mock }
+  let mockServiceBotProtection: { assertAccountBotCheck: jest.Mock }
 
   const loginArgs = (overrides: Record<string, unknown> = {}) => ({
     email: 'jane@example.com',
@@ -46,15 +47,48 @@ describe('ServiceAuthEmailPassword', () => {
     mockServiceAuthDirect = {
       loginDirect: jest.fn().mockResolvedValue({ jwt: 'signed-token' }),
     }
+    mockServiceBotProtection = {
+      assertAccountBotCheck: jest.fn().mockResolvedValue(undefined),
+    }
     const mockServiceProject = buildMockServiceProject()
     jest.spyOn(service, 'getService').mockImplementation(((name: string) => {
       const map: Record<string, unknown> = {
         twoFactor: mockServiceTwoFactor,
         authDirect: mockServiceAuthDirect,
+        botProtection: mockServiceBotProtection,
         project: mockServiceProject,
       }
       return map[name] ?? {}
     }) as typeof service.getService)
+  })
+
+  test('checks the bot check before looking up the user', async () => {
+    const botCheck = { token: 'a:1' }
+    mockServiceBotProtection.assertAccountBotCheck.mockRejectedValue(
+      new Error('bot'),
+    )
+
+    await expect(service.login(loginArgs({ botCheck }))).rejects.toThrow('bot')
+    expect(mockServiceBotProtection.assertAccountBotCheck).toHaveBeenCalledWith(
+      botCheck,
+    )
+    expect(mockRepoUser.findOne).not.toHaveBeenCalled()
+  })
+
+  test('authenticate skips the bot check for an account just created', async () => {
+    mockRepoUser.findOne.mockResolvedValue({
+      _id: 'user_1',
+      password: 'hash',
+      twoFactorMeta: { enabled: false },
+    })
+    ;(bcryptjs.compare as jest.Mock).mockResolvedValue(true)
+
+    await service.authenticate(loginArgs())
+
+    expect(
+      mockServiceBotProtection.assertAccountBotCheck,
+    ).not.toHaveBeenCalled()
+    expect(mockServiceAuthDirect.loginDirect).toHaveBeenCalled()
   })
 
   test('unknown email throws unauthorized without comparing a password', async () => {

@@ -4,6 +4,7 @@ import * as bcryptjs from 'bcryptjs'
 import { RepoUser, ServiceProject } from 'model'
 import { ErrorRef } from 'model/common'
 
+import { ServiceBotProtection } from './ServiceBotProtection'
 import { ServiceAuthDirect } from './ServiceAuthDirect'
 import { ServiceTwoFactor } from './ServiceTwoFactor'
 
@@ -24,7 +25,19 @@ export class ServiceAuthEmailPassword extends Service {
     })
   }
 
+  /** The public login: checks the bot check, then authenticates. */
   async login(requestArgs) {
+    await this.getService<ServiceBotProtection>(
+      'botProtection',
+    ).assertAccountBotCheck(requestArgs.botCheck)
+    return this.authenticate(requestArgs)
+  }
+
+  /**
+   * Authenticate with no bot check, for a caller that has just created the
+   * account itself (signup, invite acceptance) and checked it already.
+   */
+  async authenticate(requestArgs) {
     const repoUser = this.getRepo<RepoUser>('user')
     const {
       email,

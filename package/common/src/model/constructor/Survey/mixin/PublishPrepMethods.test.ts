@@ -29,9 +29,7 @@ describe('PublishPrepMethods', () => {
         multiple: false,
         preventRepeat: false,
         resumeLink: false,
-        captcha: false,
-        captchaReg: false,
-        captchaResume: false,
+        botProtection: false,
         embed: false,
         embedDomains: [],
       },
@@ -66,9 +64,7 @@ describe('PublishPrepMethods', () => {
       expect(accessSettings.multiple).toBe(false)
       expect(accessSettings.preventRepeat).toBe(false)
       expect(accessSettings.resumeLink).toBe(false)
-      expect(accessSettings.captcha).toBe(false)
-      expect(accessSettings.captchaReg).toBe(false)
-      expect(accessSettings.captchaResume).toBe(false)
+      expect(accessSettings.botProtection).toBe(false)
       expect(accessSettings.embed).toBe(false)
       expect(accessSettings.embedDomains).toEqual([])
     })
@@ -104,9 +100,7 @@ describe('PublishPrepMethods', () => {
           multiple: true,
           preventRepeat: true,
           resumeLink: true,
-          captcha: true,
-          captchaReg: true,
-          captchaResume: true,
+          botProtection: true,
         },
       })
 
@@ -124,9 +118,7 @@ describe('PublishPrepMethods', () => {
       expect(accessSettings.multiple).toBe(true)
       expect(accessSettings.preventRepeat).toBe(true)
       expect(accessSettings.resumeLink).toBe(true)
-      expect(accessSettings.captcha).toBe(true)
-      expect(accessSettings.captchaReg).toBe(true)
-      expect(accessSettings.captchaResume).toBe(true)
+      expect(accessSettings.botProtection).toBe(true)
     })
 
     test('handles partial settings correctly', () => {
@@ -147,9 +139,7 @@ describe('PublishPrepMethods', () => {
           multiple: null,
           preventRepeat: null,
           resumeLink: null,
-          captcha: null,
-          captchaReg: null,
-          captchaResume: null,
+          botProtection: null,
         },
       })
 
@@ -167,9 +157,7 @@ describe('PublishPrepMethods', () => {
       expect(accessSettings.multiple).toBe(false)
       expect(accessSettings.preventRepeat).toBe(false)
       expect(accessSettings.resumeLink).toBe(false)
-      expect(accessSettings.captcha).toBe(false)
-      expect(accessSettings.captchaReg).toBe(false)
-      expect(accessSettings.captchaResume).toBe(false)
+      expect(accessSettings.botProtection).toBe(false)
     })
   })
 

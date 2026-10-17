@@ -22,7 +22,15 @@ jest.mock('registry', () => ({
   getLoginDefaults: () => mockLoginDefaults,
 }))
 
+let mockBotCheckReady = true
+const mockTake = jest.fn()
+
 jest.mock('hook', () => ({
+  useAccountBotCheck: () => ({
+    ready: mockBotCheckReady,
+    take: mockTake,
+    element: <div>bot-check</div>,
+  }),
   useAuth: () => ({
     loginEmailPassword: mockLoginEmailPassword,
     setupAndLogin: jest.fn(),
@@ -34,6 +42,30 @@ describe('LoginForm', () => {
     jest.clearAllMocks()
     mockLoginDefaults.mockReturnValue(null)
     mockLoginEmailPassword.mockResolvedValue(true)
+    mockBotCheckReady = true
+    mockTake.mockReturnValue({ token: 'solved:1', honeypot: '' })
+  })
+
+  it('shows the bot check and holds the button until it is ready', () => {
+    mockBotCheckReady = false
+
+    render(<LoginForm />)
+
+    expect(screen.getByText('bot-check')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Login' })).toBeDisabled()
+  })
+
+  it('does not auto-submit before the bot check is ready', () => {
+    mockBotCheckReady = false
+    mockLoginDefaults.mockReturnValue({
+      email: 'demo@example.com',
+      password: 'demo-password',
+      autoSubmit: true,
+    })
+
+    render(<LoginForm />)
+
+    expect(mockLoginEmailPassword).not.toHaveBeenCalled()
   })
 
   it('does not sign in on its own by default', () => {
@@ -59,6 +91,7 @@ describe('LoginForm', () => {
         'demo@example.com',
         'demo-password',
         false,
+        { token: 'solved:1', honeypot: '' },
       ),
     )
     await waitFor(() =>

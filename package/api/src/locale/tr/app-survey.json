@@ -106,5 +106,14 @@
   "validation.matrixColumnChoiceCount_atMost_other": "{{column}}: en fazla {{max}} seçenek seçin",
   "validation.length_between": "{{min}} ile {{max}} karakter arasında olmalıdır",
   "validation.length_atLeast": "En az {{min}} karakter olmalıdır",
-  "validation.length_atMost": "{{max}} karakterden fazla olmamalıdır"
+  "validation.length_atMost": "{{max}} karakterden fazla olmamalıdır",
+  "botProtection.label": "Güvenlik kontrolü",
+  "botProtection.checking": "Güvenlik kontrolü yapılıyor",
+  "botProtection.verified": "Güvenlik kontrolü tamamlandı",
+  "botProtection.failed": "Güvenlik kontrolü tamamlanamadı.",
+  "botProtection.retry": "Tekrar dene",
+  "botProtection.providerCloudflare": "Cloudflare Turnstile tarafından korunuyor",
+  "botProtection.providerGoogle": "Google reCAPTCHA tarafından korunuyor",
+  "welcome.warningBotCheck": "Lütfen güvenlik kontrolünün bitmesini bekleyin.",
+  "error.botCheckFailed": "Devam etmek için lütfen güvenlik kontrolünü tamamlayın"
 }

@@ -1,7 +1,9 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 
+import type { BotChallenge } from 'component/BotProtection/BotProtectionProvider'
 import { getAuthParticipantApi } from 'appSurvey/registry'
 import { KEY_STATE_SURVEY_AUTH } from 'appSurvey/common/keyState'
+import type { BotProtectionRequirement } from 'appSurvey/api/AuthParticipantApi'
 import { ErrorRest } from 'model'
 import i18next from '../i18n'
 
@@ -16,6 +18,8 @@ export type AuthData = {
   created?: Date
   expires?: Date
   reset?: boolean
+  botProtection?: BotProtectionRequirement
+  botVerified?: boolean
   error?: ErrorRest
 } | null
 
@@ -76,6 +80,8 @@ export function useSurveyAuth(
         created: new Date(response.created),
         expires: new Date(response.expires),
         reset: response.reset,
+        botProtection: response.botProtection,
+        botVerified: response.botVerified,
       }
     } catch (err) {
       if (err instanceof ErrorRest) {
@@ -92,8 +98,40 @@ export function useSurveyAuth(
     }
   }
 
+  // The verified JWT replaces the cached one in place. Invalidating the query
+  // instead would run auth again and hand back an unverified JWT.
+  const verifyBot = async (token: string, honeypot: string) => {
+    if (!surveyId || !auth?.jwt) {
+      throw new ErrorRest({ userMessage: 'Not authenticated' })
+    }
+    const response = await getAuthParticipantApi().botVerify(
+      surveyId,
+      auth.jwt,
+      token,
+      honeypot,
+    )
+    queryClient.setQueryData<AuthData>(queryKey, (previous) => ({
+      ...previous,
+      jwt: response.jwt,
+      created: new Date(response.created),
+      expires: new Date(response.expires),
+      botVerified: true,
+    }))
+  }
+
+  const fetchBotChallenge = async (): Promise<BotChallenge> => {
+    if (!surveyId || !auth?.jwt) {
+      throw new ErrorRest({ userMessage: 'Not authenticated' })
+    }
+    return getAuthParticipantApi().botChallenge(surveyId, auth.jwt)
+  }
+
   return {
     jwt: auth?.jwt,
+    botProtection: auth?.botProtection,
+    botVerified: auth?.botVerified ?? true,
+    verifyBot,
+    fetchBotChallenge,
     created: auth?.created,
     expires: auth?.expires,
     reset: auth?.reset,

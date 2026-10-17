@@ -13,6 +13,7 @@ export const authEmailPasswordConfig: ServerApiConfig = {
       data: {
         email: { src: 'body', required: true },
         password: { src: 'body', required: true },
+        botCheck: { src: 'body', required: false },
         ip: { src: 'request', required: false },
         clientId: { srcPath: 'Client-Id', src: 'header', required: false },
         userAgent: { srcPath: 'User-Agent', src: 'header', required: false },

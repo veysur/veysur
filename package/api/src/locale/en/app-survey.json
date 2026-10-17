@@ -127,5 +127,14 @@
   "print.title": "Your Answers",
   "print.button": "Print",
   "print.notAvailable": "Printing is not available for this survey response.",
-  "print.backToSurvey": "Back to Survey"
+  "print.backToSurvey": "Back to Survey",
+  "botProtection.label": "Security check",
+  "botProtection.checking": "Running a security check",
+  "botProtection.verified": "Security check complete",
+  "botProtection.failed": "The security check could not be completed.",
+  "botProtection.retry": "Try again",
+  "botProtection.providerCloudflare": "Protected by Cloudflare Turnstile",
+  "botProtection.providerGoogle": "Protected by Google reCAPTCHA",
+  "welcome.warningBotCheck": "Please wait for the security check to finish.",
+  "error.botCheckFailed": "Please complete the security check to continue"
 }

@@ -106,5 +106,14 @@
   "validation.matrixColumnChoiceCount_atMost_other": "{{column}}: {{max}}ஐ விட அதிகமான விருப்பங்களைத் தேர்ந்தெடுக்க வேண்டாம்",
   "validation.length_between": "{{min}} முதல் {{max}} எழுத்துகளுக்கு இடையில் இருக்க வேண்டும்",
   "validation.length_atLeast": "குறைந்தது {{min}} எழுத்துகள் இருக்க வேண்டும்",
-  "validation.length_atMost": "{{max}} எழுத்துகளுக்கு மேல் இருக்கக் கூடாது"
+  "validation.length_atMost": "{{max}} எழுத்துகளுக்கு மேல் இருக்கக் கூடாது",
+  "botProtection.label": "பாதுகாப்பு சரிபார்ப்பு",
+  "botProtection.checking": "பாதுகாப்பு சரிபார்ப்பு நடைபெறுகிறது",
+  "botProtection.verified": "பாதுகாப்பு சரிபார்ப்பு முடிந்தது",
+  "botProtection.failed": "பாதுகாப்பு சரிபார்ப்பை முடிக்க முடியவில்லை.",
+  "botProtection.retry": "மீண்டும் முயற்சிக்கவும்",
+  "botProtection.providerCloudflare": "Cloudflare Turnstile மூலம் பாதுகாக்கப்படுகிறது",
+  "botProtection.providerGoogle": "Google reCAPTCHA மூலம் பாதுகாக்கப்படுகிறது",
+  "welcome.warningBotCheck": "பாதுகாப்பு சரிபார்ப்பு முடியும் வரை காத்திருக்கவும்.",
+  "error.botCheckFailed": "தொடர பாதுகாப்பு சரிபார்ப்பை முடிக்கவும்"
 }

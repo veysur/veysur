@@ -106,5 +106,14 @@
   "validation.matrixColumnChoiceCount_atMost_other": "{{column}} : ne choisissez pas plus de {{max}} options",
   "validation.length_between": "Doit contenir entre {{min}} et {{max}} caractères",
   "validation.length_atLeast": "Doit contenir au moins {{min}} caractères",
-  "validation.length_atMost": "Ne doit pas dépasser {{max}} caractères"
+  "validation.length_atMost": "Ne doit pas dépasser {{max}} caractères",
+  "botProtection.label": "Vérification de sécurité",
+  "botProtection.checking": "Vérification de sécurité en cours",
+  "botProtection.verified": "Vérification de sécurité terminée",
+  "botProtection.failed": "La vérification de sécurité n’a pas pu être terminée.",
+  "botProtection.retry": "Réessayer",
+  "botProtection.providerCloudflare": "Protégé par Cloudflare Turnstile",
+  "botProtection.providerGoogle": "Protégé par Google reCAPTCHA",
+  "welcome.warningBotCheck": "Veuillez attendre la fin de la vérification de sécurité.",
+  "error.botCheckFailed": "Veuillez terminer la vérification de sécurité pour continuer"
 }

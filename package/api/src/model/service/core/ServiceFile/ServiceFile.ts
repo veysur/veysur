@@ -176,7 +176,10 @@ export class ServiceFile extends Service {
     const storageConfig = getStorageConfig(this.config)
     const effectiveConfig =
       requestHost && requestProto
-        ? { ...storageConfig, publicBaseUrl: `${requestProto}://${requestHost}` }
+        ? {
+            ...storageConfig,
+            publicBaseUrl: `${requestProto}://${requestHost}`,
+          }
         : storageConfig
     const adaptor = createStorageAdaptor(effectiveConfig)
     const bucketType = file.bucketType || 'public'

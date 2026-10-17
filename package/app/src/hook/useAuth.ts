@@ -1,7 +1,7 @@
 import momentTimezone from 'moment-timezone'
 import { useEffect } from 'react'
 import { useIsRestoring, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Project, ProjectAdmin } from 'veysur-common'
+import { BotCheck, Project, ProjectAdmin } from 'veysur-common'
 import { PropsOf } from '@datacapy/schema'
 
 import {
@@ -126,8 +126,9 @@ export function useAuth() {
     email: string,
     password: string,
     rememberMe = false,
+    botCheck?: BotCheck,
   ): Promise<true | PreAuthData> => {
-    const result = await getApiAuth().login(email, password)
+    const result = await getApiAuth().login(email, password, botCheck)
     if (result && 'requiresTwoFactor' in result && result.requiresTwoFactor) {
       return result as PreAuthData
     }
@@ -182,6 +183,7 @@ export function useAuth() {
     nameLast: string
     email: string
     password: string
+    botCheck?: BotCheck
   }) => {
     const result = await getApiAuth().signup(data)
     if (result?.client && result?.user && result?.accessToken && result?.jwt) {

@@ -5,7 +5,11 @@ import { DataSourceContext } from '@datacapy/om'
 import { ServerErrorBadRequest, ServerErrorNotFound } from '@datacapy/server'
 import { SurveySnapshot, SurveyLanguageSnapshot } from 'veysur-common'
 
-import { createStorageAdaptor, contextForProject, responseFileBucket } from 'common'
+import {
+  createStorageAdaptor,
+  contextForProject,
+  responseFileBucket,
+} from 'common'
 import {
   RepoSurveyLanguageSnapshot,
   RepoSurveyParticipantAttributeSnapshot,
@@ -207,7 +211,10 @@ export class VsspExportCollector {
       dsContext,
     )
 
-    return embeddedFileEntries.reduce((sum, entry) => sum + (entry.size ?? 0), 0)
+    return embeddedFileEntries.reduce(
+      (sum, entry) => sum + (entry.size ?? 0),
+      0,
+    )
   }
 
   makeBinaryFileStream(entry: {

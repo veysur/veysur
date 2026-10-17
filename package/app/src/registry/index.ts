@@ -1,6 +1,7 @@
 export * from './getRestClient'
 export * from './getServiceAuth'
 export * from './getApiAuthHandoff'
+export * from './getApiBotProtection'
 export * from './getGeoApi'
 export * from './getFeatureGateProvider'
 export * from './getAccountFooterExtraNav'

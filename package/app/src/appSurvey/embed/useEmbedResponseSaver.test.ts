@@ -6,6 +6,11 @@ import { useEmbedResponseSaver } from './useEmbedResponseSaver'
 
 const mockAuthenticate = jest.fn()
 const mockSaveResponse = jest.fn()
+const mockPassBotCheck = jest.fn()
+
+jest.mock('./embedBotCheck', () => ({
+  passEmbedBotCheck: (...args: unknown[]) => mockPassBotCheck(...args),
+}))
 
 jest.mock('appSurvey/registry', () => ({
   getAuthParticipantApi: () => ({ authenticate: mockAuthenticate }),
@@ -100,5 +105,77 @@ describe('useEmbedResponseSaver', () => {
 
     expect(mockAuthenticate).toHaveBeenCalledTimes(2)
     expect(mockSaveResponse).toHaveBeenCalledTimes(1)
+  })
+
+  describe('bot protection', () => {
+    const botProtection = { provider: 'simple', siteKey: '' }
+
+    test('passes the bot check before the first save and saves with the verified JWT', async () => {
+      mockAuthenticate.mockResolvedValue({
+        jwt: 'jwt-1',
+        botProtection,
+        botVerified: false,
+      })
+      mockPassBotCheck.mockResolvedValue('jwt-verified')
+      const save = setup()
+
+      await save({ q1: 'a' })
+
+      expect(mockPassBotCheck).toHaveBeenCalledWith(
+        's1',
+        'jwt-1',
+        botProtection,
+      )
+      expect(mockSaveResponse.mock.calls[0][2]).toBe('jwt-verified')
+    })
+
+    test('runs the check once across several saves', async () => {
+      mockAuthenticate.mockResolvedValue({
+        jwt: 'jwt-1',
+        botProtection,
+        botVerified: false,
+      })
+      mockPassBotCheck.mockResolvedValue('jwt-verified')
+      const save = setup()
+
+      await save({ q1: 'a' })
+      await save({ q1: 'a', q2: 'b' })
+
+      expect(mockPassBotCheck).toHaveBeenCalledTimes(1)
+    })
+
+    test('skips the check when none is required or it already passed', async () => {
+      const save = setup()
+      await save({ q1: 'a' })
+      expect(mockPassBotCheck).not.toHaveBeenCalled()
+
+      mockAuthenticate.mockResolvedValue({
+        jwt: 'jwt-2',
+        botProtection,
+        botVerified: true,
+      })
+      await renderHook(() =>
+        useEmbedResponseSaver('s2', 'https://host.example'),
+      ).result.current({ q1: 'a' })
+      expect(mockPassBotCheck).not.toHaveBeenCalled()
+    })
+
+    test('a failed check surfaces as a save error and is retried on the next save', async () => {
+      mockAuthenticate.mockResolvedValue({
+        jwt: 'jwt-1',
+        botProtection,
+        botVerified: false,
+      })
+      mockPassBotCheck
+        .mockRejectedValueOnce(new Error('failed'))
+        .mockResolvedValueOnce('jwt-verified')
+      const save = setup()
+
+      await expect(save({ q1: 'a' })).rejects.toThrow()
+      await save({ q1: 'a' })
+
+      expect(mockSaveResponse).toHaveBeenCalledTimes(1)
+      expect(mockSaveResponse.mock.calls[0][2]).toBe('jwt-verified')
+    })
   })
 })

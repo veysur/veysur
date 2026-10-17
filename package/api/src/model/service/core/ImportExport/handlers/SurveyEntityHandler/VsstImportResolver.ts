@@ -171,7 +171,9 @@ export class VsstImportResolver {
     for (const entry of (bundle.embeddedFileEntries ?? []).filter(
       (e) => e.imageVariant === 'edited',
     )) {
-      const newImageSetId = entry.hash ? entry.hash.substring(0, 16) : DatacapyId()
+      const newImageSetId = entry.hash
+        ? entry.hash.substring(0, 16)
+        : DatacapyId()
       imageSetIdMap[entry.imageSetId] = newImageSetId
 
       const existing = await this.repoFile.findOne(

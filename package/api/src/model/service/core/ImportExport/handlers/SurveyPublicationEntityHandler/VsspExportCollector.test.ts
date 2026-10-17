@@ -82,17 +82,20 @@ describe('VsspExportCollector — response file bundling', () => {
 
     const result = (await collector.collect(surveyId, baseContext, {
       publicationId,
-    })) as { responseFileEntries: { fileId: string; archiveEntryPath: string }[] }
+    })) as {
+      responseFileEntries: { fileId: string; archiveEntryPath: string }[]
+    }
 
     expect(result.responseFileEntries).toHaveLength(2)
     const fileIds = result.responseFileEntries.map((e) => e.fileId).sort()
     expect(fileIds).toEqual(['file-a', 'file-b'])
     expect(
-      result.responseFileEntries.find((e) => e.fileId === 'file-a')?.archiveEntryPath,
+      result.responseFileEntries.find((e) => e.fileId === 'file-a')
+        ?.archiveEntryPath,
     ).toBe('files/response/029/file-a.pdf')
   })
 
-  test('carries the source file\'s bucketType onto the manifest entry, defaulting to public', async () => {
+  test("carries the source file's bucketType onto the manifest entry, defaulting to public", async () => {
     mockRepoSurveyResponse.find.mockResolvedValueOnce([
       {
         _id: 'response-1',

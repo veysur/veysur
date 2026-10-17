@@ -138,5 +138,14 @@
   "validation.matrixColumnChoiceCount_atMost_other": "{{column}}: لا تختر أكثر من {{max}} خيارًا",
   "validation.length_between": "يجب أن يكون الطول بين {{min}} و{{max}} حرفًا",
   "validation.length_atLeast": "يجب ألا يقل عن {{min}} حرفًا",
-  "validation.length_atMost": "يجب ألا يزيد عن {{max}} حرفًا"
+  "validation.length_atMost": "يجب ألا يزيد عن {{max}} حرفًا",
+  "botProtection.label": "فحص الأمان",
+  "botProtection.checking": "جارٍ إجراء فحص الأمان",
+  "botProtection.verified": "اكتمل فحص الأمان",
+  "botProtection.failed": "تعذّر إكمال فحص الأمان.",
+  "botProtection.retry": "حاول مرة أخرى",
+  "botProtection.providerCloudflare": "محمي بواسطة Cloudflare Turnstile",
+  "botProtection.providerGoogle": "محمي بواسطة Google reCAPTCHA",
+  "welcome.warningBotCheck": "يُرجى الانتظار حتى ينتهي فحص الأمان.",
+  "error.botCheckFailed": "يُرجى إكمال فحص الأمان للمتابعة"
 }

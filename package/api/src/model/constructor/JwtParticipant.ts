@@ -8,6 +8,9 @@ export class JwtParticipant {
   snapshotId: string
   publicationId: string
   projectId: string
+  /** Set at auth when the survey has a bot check; response writes then need `botVerified`. */
+  botRequired?: boolean
+  botVerified?: boolean
 
   constructor(data) {
     if (typeof data == 'object') Object.assign(this, data)

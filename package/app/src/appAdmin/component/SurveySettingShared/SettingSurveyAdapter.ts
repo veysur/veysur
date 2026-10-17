@@ -47,9 +47,7 @@ export interface SettingsDataAdapter<T> {
     multiple?: boolean | null
     preventRepeat?: boolean | null
     resumeLink?: boolean | null
-    captcha?: boolean | null
-    captchaReg?: boolean | null
-    captchaResume?: boolean | null
+    botProtection?: boolean | null
     embed?: boolean | null
     embedDomains?: string[] | null
   }

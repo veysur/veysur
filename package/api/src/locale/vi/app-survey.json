@@ -98,5 +98,14 @@
   "validation.matrixColumnChoiceCount_atMost_other": "{{column}}: không chọn quá {{max}} lựa chọn",
   "validation.length_between": "Phải có từ {{min}} đến {{max}} ký tự",
   "validation.length_atLeast": "Phải có ít nhất {{min}} ký tự",
-  "validation.length_atMost": "Không được vượt quá {{max}} ký tự"
+  "validation.length_atMost": "Không được vượt quá {{max}} ký tự",
+  "botProtection.label": "Kiểm tra bảo mật",
+  "botProtection.checking": "Đang kiểm tra bảo mật",
+  "botProtection.verified": "Đã kiểm tra bảo mật xong",
+  "botProtection.failed": "Không thể hoàn tất kiểm tra bảo mật.",
+  "botProtection.retry": "Thử lại",
+  "botProtection.providerCloudflare": "Được bảo vệ bởi Cloudflare Turnstile",
+  "botProtection.providerGoogle": "Được bảo vệ bởi Google reCAPTCHA",
+  "welcome.warningBotCheck": "Vui lòng đợi kiểm tra bảo mật hoàn tất.",
+  "error.botCheckFailed": "Vui lòng hoàn tất kiểm tra bảo mật để tiếp tục"
 }

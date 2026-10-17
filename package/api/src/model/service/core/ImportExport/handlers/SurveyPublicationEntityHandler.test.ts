@@ -196,16 +196,16 @@ describe('SurveyPublicationEntityHandler.prepareExportData — response file man
     const bucket001 = JSON.parse(
       manifestFiles.find((f) => f.filename.endsWith('001.json')).content,
     )
-    expect(bucket001.files.map((e: ResponseFileManifestEntry) => e.fileId)).toEqual(
-      ['file-a', 'file-b'],
-    )
+    expect(
+      bucket001.files.map((e: ResponseFileManifestEntry) => e.fileId),
+    ).toEqual(['file-a', 'file-b'])
 
     const bucket042 = JSON.parse(
       manifestFiles.find((f) => f.filename.endsWith('042.json')).content,
     )
-    expect(bucket042.files.map((e: ResponseFileManifestEntry) => e.fileId)).toEqual(
-      ['file-c'],
-    )
+    expect(
+      bucket042.files.map((e: ResponseFileManifestEntry) => e.fileId),
+    ).toEqual(['file-c'])
   })
 
   test('writes no manifest when there are no response file entries', async () => {

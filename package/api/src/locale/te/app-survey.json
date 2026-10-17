@@ -106,5 +106,14 @@
   "validation.matrixColumnChoiceCount_atMost_other": "{{column}}: {{max}} కంటే ఎక్కువ ఎంపికలను ఎంచుకోవద్దు",
   "validation.length_between": "{{min}} నుండి {{max}} అక్షరాల మధ్య ఉండాలి",
   "validation.length_atLeast": "కనీసం {{min}} అక్షరాలు ఉండాలి",
-  "validation.length_atMost": "{{max}} అక్షరాల కంటే ఎక్కువ ఉండకూడదు"
+  "validation.length_atMost": "{{max}} అక్షరాల కంటే ఎక్కువ ఉండకూడదు",
+  "botProtection.label": "భద్రతా తనిఖీ",
+  "botProtection.checking": "భద్రతా తనిఖీ జరుగుతోంది",
+  "botProtection.verified": "భద్రతా తనిఖీ పూర్తయింది",
+  "botProtection.failed": "భద్రతా తనిఖీని పూర్తి చేయలేకపోయాము.",
+  "botProtection.retry": "మళ్లీ ప్రయత్నించండి",
+  "botProtection.providerCloudflare": "Cloudflare Turnstile ద్వారా రక్షించబడింది",
+  "botProtection.providerGoogle": "Google reCAPTCHA ద్వారా రక్షించబడింది",
+  "welcome.warningBotCheck": "భద్రతా తనిఖీ పూర్తయ్యే వరకు దయచేసి వేచి ఉండండి.",
+  "error.botCheckFailed": "కొనసాగడానికి దయచేసి భద్రతా తనిఖీని పూర్తి చేయండి"
 }

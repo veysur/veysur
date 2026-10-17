@@ -120,12 +120,8 @@ export class SchemaSettingSurvey extends Schema {
             // - provided email address
             // Working with open surveys when not requiring registration
             resumeLink: sb.boolean().default(null),
-            // Captcha for survey access
-            captcha: sb.boolean().default(null),
-            // Captcha for public registration
-            captchaReg: sb.boolean().default(null),
-            // Captcha for survey resumption
-            captchaResume: sb.boolean().default(null),
+            // Bot check for survey access
+            botProtection: sb.boolean().default(null),
             // Allow the survey to be embedded in other websites
             // - open surveys only, see docs/decisions/2026/2026-10-07_embedded-surveys.md
             embed: sb.boolean().default(null),
@@ -173,6 +169,19 @@ export class SchemaSettingSurvey extends Schema {
           maps: {
             googleApiKey: String,
             provider: String,
+          },
+          // Project-level bot check for the survey start step; secret keys
+          // never reach participants or leave the API
+          botProtection: {
+            provider: String,
+            cloudflare: {
+              siteKey: String,
+              secretKey: String,
+            },
+            google: {
+              siteKey: String,
+              secretKey: String,
+            },
           },
           stats: {
             questions: sb.object().matchAll(

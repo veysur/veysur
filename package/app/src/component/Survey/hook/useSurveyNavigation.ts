@@ -16,6 +16,9 @@ export const useSurveyNavigation = (
   // The full ordered render list (questions + content pages). Only its length
   // and per-index kind matter here.
   orderedElements: SurveyRenderItem[],
+  // A pending bot check needs the start step even when the survey has no
+  // welcome content of its own
+  forceWelcome = false,
 ) => {
   const [showWelcome, setShowWelcome] = useState(true)
   const [showQuestionIndex, setShowQuestionIndex] = useState(false)
@@ -148,7 +151,10 @@ export const useSurveyNavigation = (
   const shouldShowWelcome = () => {
     return (
       showWelcome &&
-      (presentation.welcomeMessage || dataPolicy.show || legalNotice.show)
+      (presentation.welcomeMessage ||
+        dataPolicy.show ||
+        legalNotice.show ||
+        forceWelcome)
     )
   }
 

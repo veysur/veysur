@@ -62,9 +62,7 @@ describe('ServiceImportExport.export()', () => {
       findOne: jest.fn().mockResolvedValue({ name: 'My Survey' }),
     }
 
-    jest.spyOn(service, 'getService').mockImplementation(((
-      name: string,
-    ) => {
+    jest.spyOn(service, 'getService').mockImplementation(((name: string) => {
       if (name === 'dataTransferJob') return mockDataTransferJob
       if (name === 'fileTempDownload') return mockFileTempDownload
       return {}
@@ -78,7 +76,11 @@ describe('ServiceImportExport.export()', () => {
 
   test('throws for a format the handler does not support', async () => {
     await expect(
-      service.export({ ...baseParams, entityType: 'surveyPublication', format: 'nope' }),
+      service.export({
+        ...baseParams,
+        entityType: 'surveyPublication',
+        format: 'nope',
+      }),
     ).rejects.toThrow()
     expect(mockDataTransferJob.enqueueExport).not.toHaveBeenCalled()
     expect(mockHandler.fetchForExport).not.toHaveBeenCalled()
@@ -142,15 +144,14 @@ describe('ServiceImportExport.export()', () => {
       format: 'vssp',
     })
 
-    expect(result).toEqual(
-      expect.objectContaining({ fileId: 'file-1' }),
-    )
+    expect(result).toEqual(expect.objectContaining({ fileId: 'file-1' }))
     expect(mockDataTransferJob.enqueueExport).not.toHaveBeenCalled()
     expect(mockHandler.fetchForExport).toHaveBeenCalled()
   })
 
   test('compiles synchronously when the handler has no estimateExportSize method', async () => {
-    delete (mockHandler as { estimateExportSize?: jest.Mock }).estimateExportSize
+    delete (mockHandler as { estimateExportSize?: jest.Mock })
+      .estimateExportSize
     mockHandler.fetchForExport.mockResolvedValue({ some: 'entity' })
     mockHandler.prepareExportData.mockResolvedValue('stream' as never)
     withPrivates(service).formatRegistry = {
@@ -203,11 +204,11 @@ describe('ServiceImportExport.compileExport()', () => {
         expiresAt: new Date(),
       }),
     }
-    jest.spyOn(service, 'getService').mockImplementation(((
-      name: string,
-    ) => {
+    jest.spyOn(service, 'getService').mockImplementation(((name: string) => {
       if (name === 'fileTempDownload') return mockFileTempDownload
-      throw new Error(`unexpected getService('${name}'): compileExport() must not enqueue`)
+      throw new Error(
+        `unexpected getService('${name}'): compileExport() must not enqueue`,
+      )
     }) as typeof service.getService)
 
     const result = await service.compileExport({
@@ -262,9 +263,7 @@ describe('ServiceImportExport.processImport() / getImportStatus()', () => {
       return {}
     }) as typeof service.getRepo)
 
-    jest.spyOn(service, 'getService').mockImplementation(((
-      name: string,
-    ) => {
+    jest.spyOn(service, 'getService').mockImplementation(((name: string) => {
       if (name === 'dataTransferJob') return mockDataTransferJob
       throw new Error(`unexpected getService('${name}')`)
     }) as typeof service.getService)
@@ -344,7 +343,11 @@ describe('ServiceImportExport.processImport() / getImportStatus()', () => {
     const storedResult = { success: true, entityId: 'survey-1' }
     mockRepoFile.findOne.mockResolvedValue(
       importFile({
-        import: { ...importFile().import, status: 'completed', result: storedResult },
+        import: {
+          ...importFile().import,
+          status: 'completed',
+          result: storedResult,
+        },
       }),
     )
 
@@ -361,7 +364,11 @@ describe('ServiceImportExport.processImport() / getImportStatus()', () => {
   test('getImportStatus() returns the file import status and result', async () => {
     mockRepoFile.findOne.mockResolvedValue(
       importFile({
-        import: { ...importFile().import, status: 'completed', result: { success: true } },
+        import: {
+          ...importFile().import,
+          status: 'completed',
+          result: { success: true },
+        },
       }),
     )
 
@@ -432,9 +439,7 @@ describe('ServiceImportExport.generateImportUrl()', () => {
       return {}
     }) as typeof service.getRepo)
 
-    jest.spyOn(service, 'getService').mockImplementation(((
-      name: string,
-    ) => {
+    jest.spyOn(service, 'getService').mockImplementation(((name: string) => {
       if (name === 'dataTransferJob') return mockDataTransferJob
       throw new Error(`unexpected getService('${name}')`)
     }) as typeof service.getService)

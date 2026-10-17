@@ -89,7 +89,8 @@ export class VssaImportParser {
         .listEntries()
         .filter(
           (name) =>
-            name.startsWith('files/response-manifest-') && name.endsWith('.json'),
+            name.startsWith('files/response-manifest-') &&
+            name.endsWith('.json'),
         )
         .sort()
       for (const key of responseManifestKeys) {

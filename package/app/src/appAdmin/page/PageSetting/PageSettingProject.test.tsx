@@ -46,6 +46,15 @@ jest.mock('appAdmin/component/ProjectSetting/ProjectMapsSection', () => ({
   ProjectMapsSection: () => <div data-testid="maps-section" />,
 }))
 
+jest.mock(
+  'appAdmin/component/ProjectSetting/ProjectBotProtectionSection',
+  () => ({
+    ProjectBotProtectionSection: () => (
+      <div data-testid="bot-protection-section" />
+    ),
+  }),
+)
+
 jest.mock('appAdmin/component/ProjectSetting/ProjectSettingsTransfer', () => ({
   ProjectSettingsTransfer: () => <div data-testid="settings-transfer" />,
 }))

@@ -301,7 +301,7 @@ const orgDefaults = new SurveySetting({
   },
   access: {
     anonymous: false,
-    captcha: true,
+    botProtection: true,
   },
 })
 

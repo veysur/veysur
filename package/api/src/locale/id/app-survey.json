@@ -98,5 +98,14 @@
   "validation.matrixColumnChoiceCount_atMost_other": "{{column}}: jangan pilih lebih dari {{max}} opsi",
   "validation.length_between": "Harus antara {{min}} dan {{max}} karakter",
   "validation.length_atLeast": "Harus minimal {{min}} karakter",
-  "validation.length_atMost": "Tidak boleh lebih dari {{max}} karakter"
+  "validation.length_atMost": "Tidak boleh lebih dari {{max}} karakter",
+  "botProtection.label": "Pemeriksaan keamanan",
+  "botProtection.checking": "Menjalankan pemeriksaan keamanan",
+  "botProtection.verified": "Pemeriksaan keamanan selesai",
+  "botProtection.failed": "Pemeriksaan keamanan tidak dapat diselesaikan.",
+  "botProtection.retry": "Coba lagi",
+  "botProtection.providerCloudflare": "Dilindungi oleh Cloudflare Turnstile",
+  "botProtection.providerGoogle": "Dilindungi oleh Google reCAPTCHA",
+  "welcome.warningBotCheck": "Harap tunggu hingga pemeriksaan keamanan selesai.",
+  "error.botCheckFailed": "Selesaikan pemeriksaan keamanan untuk melanjutkan"
 }

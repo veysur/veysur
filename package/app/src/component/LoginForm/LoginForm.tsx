@@ -15,7 +15,7 @@ import { Spinner } from 'component/shadcn/spinner'
 import { OtpInput } from 'component/OtpInput'
 import { FieldError } from 'component/Form'
 import { TwoFactorVerifyForm } from 'component/TwoFactorVerifyForm'
-import { useAuth } from 'hook'
+import { useAccountBotCheck, useAuth } from 'hook'
 import { ErrorRest } from 'model/api'
 import { AuthDomain } from 'model'
 import { getApiAuth, getLoginDefaults } from 'registry'
@@ -62,6 +62,7 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
   ...props
 }) => {
   const { loginEmailPassword, setupAndLogin } = useAuth()
+  const botCheck = useAccountBotCheck()
   const [formIsLoading, setFormIsLoading] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [rememberMe, setRememberMe] = useState(false)
@@ -136,6 +137,7 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
         values.email,
         values.password,
         rememberMe,
+        botCheck.take(),
       )
       if (
         loginResult !== true &&
@@ -170,10 +172,11 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
 
   useEffect(() => {
     if (!loginDefaults?.autoSubmit || autoSubmitted.current) return
+    if (!botCheck.ready) return
     autoSubmitted.current = true
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-shot sign-in on mount, kicking off the async submit like a button press
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-shot sign-in once the bot check is ready, kicking off the async submit like a button press
     void submit()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [botCheck.ready]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const submitSetupConfirm = async () => {
     const isValid = await confirmForm.trigger()
@@ -413,7 +416,12 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
                   <AlertDescription>{formError}</AlertDescription>
                 </Alert>
               )}
-              <Button type="submit" disabled={formIsLoading} className="w-full">
+              {botCheck.element}
+              <Button
+                type="submit"
+                disabled={formIsLoading || !botCheck.ready}
+                className="w-full"
+              >
                 {formIsLoading && <Spinner size="sm" className="mr-2" />}
                 Login
               </Button>

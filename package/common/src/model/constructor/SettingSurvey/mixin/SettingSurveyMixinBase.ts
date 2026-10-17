@@ -86,9 +86,7 @@ export interface SettingSurveyMixinBase {
     multiple?: boolean | null
     preventRepeat?: boolean | null
     resumeLink?: boolean | null
-    captcha?: boolean | null
-    captchaReg?: boolean | null
-    captchaResume?: boolean | null
+    botProtection?: boolean | null
     embed?: boolean | null
     embedDomains?: string[] | null
   }
@@ -110,6 +108,11 @@ export interface SettingSurveyMixinBase {
   maps?: {
     googleApiKey?: string | null
     provider?: string | null
+  }
+  botProtection?: {
+    provider?: string | null
+    cloudflare?: { siteKey?: string | null; secretKey?: string | null } | null
+    google?: { siteKey?: string | null; secretKey?: string | null } | null
   }
   stats?: {
     questions?: {

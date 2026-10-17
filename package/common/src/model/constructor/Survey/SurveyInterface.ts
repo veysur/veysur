@@ -31,6 +31,7 @@ export interface SurveyInterface
       | 'schedule'
       | 'notify'
       | 'maps'
+      | 'botProtection'
       | 'stats'
       | 'contentFormat'
     >,
@@ -92,9 +93,7 @@ export interface SurveyInterface
     multiple?: boolean | null
     preventRepeat?: boolean | null
     resumeLink?: boolean | null
-    captcha?: boolean | null
-    captchaReg?: boolean | null
-    captchaResume?: boolean | null
+    botProtection?: boolean | null
     embed?: boolean | null
     embedDomains?: string[] | null
   }
@@ -182,9 +181,7 @@ export interface SurveyInterface
     multiple: boolean
     preventRepeat: boolean
     resumeLink: boolean
-    captcha: boolean
-    captchaReg: boolean
-    captchaResume: boolean
+    botProtection: boolean
     embed: boolean
     embedDomains: string[]
   }

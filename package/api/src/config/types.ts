@@ -47,6 +47,13 @@ export interface AppConfig {
   pagination: {
     maxPerPage: number
   }
+  botProtection: {
+    powBits: number
+    minSeconds: number
+    recaptchaMinScore: number
+    /** Require a `simple` proof of work on login and signup. */
+    accountCheckEnabled: boolean
+  }
   maps: {
     /** `osm` or `google`; google only takes effect when a key is available */
     providerDefault: string

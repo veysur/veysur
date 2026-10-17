@@ -26,6 +26,36 @@ export const authParticipantConfig: ServerApiConfig = {
         rules: [{ allow: true, role: 'all' }],
       },
     },
+    botVerify: {
+      path: '/:surveyId/bot-verify',
+      method: 'botVerify',
+      verbs: ['post'],
+      data: {
+        surveyId: { src: 'param', required: true },
+        token: { src: 'body', required: true },
+        honeypot: { src: 'body' },
+        ip: { src: 'request', required: false },
+        jwtConfig: {
+          src: 'config',
+          srcPath: 'model.app.jwt',
+          required: true,
+        },
+      },
+      acl: {
+        rules: [{ allow: true, role: 'participant' }],
+      },
+    },
+    botChallenge: {
+      path: '/:surveyId/bot-challenge',
+      method: 'botChallenge',
+      verbs: ['post'],
+      data: {
+        surveyId: { src: 'param', required: true },
+      },
+      acl: {
+        rules: [{ allow: true, role: 'participant' }],
+      },
+    },
     register: {
       path: '/:surveyId/register',
       method: 'register',

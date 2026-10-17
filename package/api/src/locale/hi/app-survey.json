@@ -106,5 +106,14 @@
   "validation.matrixColumnChoiceCount_atMost_other": "{{column}}: {{max}} से अधिक विकल्प न चुनें",
   "validation.length_between": "{{min}} से {{max}} अक्षरों के बीच होना चाहिए",
   "validation.length_atLeast": "कम से कम {{min}} अक्षर होने चाहिए",
-  "validation.length_atMost": "{{max}} से अधिक अक्षर नहीं होने चाहिए"
+  "validation.length_atMost": "{{max}} से अधिक अक्षर नहीं होने चाहिए",
+  "botProtection.label": "सुरक्षा जाँच",
+  "botProtection.checking": "सुरक्षा जाँच चल रही है",
+  "botProtection.verified": "सुरक्षा जाँच पूरी हुई",
+  "botProtection.failed": "सुरक्षा जाँच पूरी नहीं हो सकी।",
+  "botProtection.retry": "फिर कोशिश करें",
+  "botProtection.providerCloudflare": "Cloudflare Turnstile द्वारा सुरक्षित",
+  "botProtection.providerGoogle": "Google reCAPTCHA द्वारा सुरक्षित",
+  "welcome.warningBotCheck": "कृपया सुरक्षा जाँच पूरी होने तक प्रतीक्षा करें।",
+  "error.botCheckFailed": "आगे बढ़ने के लिए कृपया सुरक्षा जाँच पूरी करें"
 }

@@ -1,5 +1,6 @@
 export * from './MapAnswer'
 export * from './MapConfig'
+export * from './BotProtectionConfig'
 export * from './PatchApplierEmailTemplate'
 export * from './PatchApplierSurvey'
 export * from './PatchBuffer'

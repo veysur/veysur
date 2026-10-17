@@ -98,5 +98,14 @@
   "validation.matrixColumnChoiceCount_atMost_other": "{{column}}: {{max}}개를 초과하여 선택하지 마세요",
   "validation.length_between": "{{min}}자에서 {{max}}자 사이여야 합니다",
   "validation.length_atLeast": "최소 {{min}}자 이상이어야 합니다",
-  "validation.length_atMost": "{{max}}자를 초과할 수 없습니다"
+  "validation.length_atMost": "{{max}}자를 초과할 수 없습니다",
+  "botProtection.label": "보안 확인",
+  "botProtection.checking": "보안 확인을 실행하는 중",
+  "botProtection.verified": "보안 확인 완료",
+  "botProtection.failed": "보안 확인을 완료하지 못했습니다.",
+  "botProtection.retry": "다시 시도",
+  "botProtection.providerCloudflare": "Cloudflare Turnstile의 보호를 받고 있습니다",
+  "botProtection.providerGoogle": "Google reCAPTCHA의 보호를 받고 있습니다",
+  "welcome.warningBotCheck": "보안 확인이 끝날 때까지 기다려 주세요.",
+  "error.botCheckFailed": "계속하려면 보안 확인을 완료해 주세요"
 }

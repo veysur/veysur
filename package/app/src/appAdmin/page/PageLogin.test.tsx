@@ -32,6 +32,7 @@ jest.mock('hook', () => ({
   ...jest.requireActual('hook'),
   useAuth: jest.requireMock('hook/useAuth').useAuth,
   usePageTitle: jest.fn(),
+  useAccountBotCheck: () => ({ ready: true, take: jest.fn(), element: null }),
 }))
 
 const createWrapper = () => {

@@ -5,6 +5,11 @@ import i18next from 'i18next'
 import { I18nextProvider, initReactI18next } from 'react-i18next'
 import { ExpressionContextBuilder } from 'veysur-common'
 import { SurveyWelcome } from './SurveyWelcome'
+import type { BotCheckConfig } from 'component/BotProtection/BotProtectionProvider'
+
+jest.mock('component/BotProtection/BotProtectionGate', () => ({
+  BotProtectionGate: () => <div data-testid="bot-gate" />,
+}))
 import type { SurveyContentFormatConfig } from './SurveyTypes'
 
 const contentFormat: SurveyContentFormatConfig = {
@@ -34,6 +39,12 @@ testI18n.use(initReactI18next).init({
           'Please read and agree to the {{item}} before continuing.',
         'welcome.warningDouble':
           'Please read and agree to the {{item1}} and {{item2}} before continuing.',
+        'welcome.warningBotCheck': 'Please wait for the security check to finish.',
+        'botProtection.label': 'Security check',
+        'botProtection.checking': 'Running a security check',
+        'botProtection.verified': 'Security check complete',
+        'botProtection.failed': 'The security check could not be completed.',
+        'botProtection.retry': 'Try again',
         'welcome.warningGeneric':
           'Please complete all required agreements before continuing.',
       },
@@ -397,5 +408,57 @@ describe('SurveyWelcome Component', () => {
     fireEvent.click(continueButton)
 
     expect(mockOnContinue).not.toHaveBeenCalled()
+  })
+
+  describe('bot check', () => {
+    const botCheck = (verified: boolean): BotCheckConfig => ({
+      provider: 'simple',
+      siteKey: '',
+      verified,
+      fetchChallenge: jest.fn(),
+      verify: jest.fn(),
+    })
+
+    const renderWelcome = (config: BotCheckConfig | undefined) => {
+      const onContinue = jest.fn()
+      renderWithI18n(
+        <SurveyWelcome
+          survey={createMockSurvey()}
+          presentation={{ welcomeMessage: true } as never}
+          contentFormat={contentFormat}
+          lang="en"
+          langDefault="en"
+          onContinue={onContinue}
+          countdown={0}
+          botCheck={config}
+        />,
+      )
+      return onContinue
+    }
+
+    test('shows no gate when the survey has no bot check', () => {
+      renderWelcome(undefined)
+      expect(screen.queryByTestId('bot-gate')).not.toBeInTheDocument()
+    })
+
+    test('blocks Continue and explains why until the check passes', () => {
+      const onContinue = renderWelcome(botCheck(false))
+
+      expect(screen.getByTestId('bot-gate')).toBeInTheDocument()
+      fireEvent.click(screen.getByRole('button', { name: /start survey/i }))
+
+      expect(onContinue).not.toHaveBeenCalled()
+      expect(
+        screen.getByText('Please wait for the security check to finish.'),
+      ).toBeInTheDocument()
+    })
+
+    test('lets the participant continue once the check has passed', () => {
+      const onContinue = renderWelcome(botCheck(true))
+
+      fireEvent.click(screen.getByRole('button', { name: /start survey/i }))
+
+      expect(onContinue).toHaveBeenCalledTimes(1)
+    })
   })
 })

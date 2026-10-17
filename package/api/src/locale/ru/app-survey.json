@@ -122,5 +122,14 @@
   "validation.matrixColumnChoiceCount_atMost_other": "{{column}}: выберите не более {{max}} вариантов",
   "validation.length_between": "Должно быть от {{min}} до {{max}} символов",
   "validation.length_atLeast": "Должно быть не менее {{min}} символов",
-  "validation.length_atMost": "Должно быть не более {{max}} символов"
+  "validation.length_atMost": "Должно быть не более {{max}} символов",
+  "botProtection.label": "Проверка безопасности",
+  "botProtection.checking": "Выполняется проверка безопасности",
+  "botProtection.verified": "Проверка безопасности завершена",
+  "botProtection.failed": "Не удалось завершить проверку безопасности.",
+  "botProtection.retry": "Повторить",
+  "botProtection.providerCloudflare": "Защищено Cloudflare Turnstile",
+  "botProtection.providerGoogle": "Защищено Google reCAPTCHA",
+  "welcome.warningBotCheck": "Дождитесь завершения проверки безопасности.",
+  "error.botCheckFailed": "Пройдите проверку безопасности, чтобы продолжить"
 }

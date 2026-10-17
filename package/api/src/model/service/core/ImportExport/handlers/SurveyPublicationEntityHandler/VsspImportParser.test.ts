@@ -50,10 +50,7 @@ describe('VsspImportParser — response file manifest discovery', () => {
       files: [makeEntry('file-c', '042')],
     })
 
-    const result = await parser.parse(
-      undefined as never,
-      makeFormatHandler(),
-    )
+    const result = await parser.parse(undefined as never, makeFormatHandler())
 
     expect(result.responseFileEntries.map((e) => e.fileId).sort()).toEqual([
       'file-a',
@@ -69,10 +66,7 @@ describe('VsspImportParser — response file manifest discovery', () => {
     })
     // A legacy archive never has per-bucket manifest keys alongside it.
 
-    const result = await parser.parse(
-      undefined as never,
-      makeFormatHandler(),
-    )
+    const result = await parser.parse(undefined as never, makeFormatHandler())
 
     expect(result.responseFileEntries.map((e) => e.fileId)).toEqual([
       'legacy-file',
@@ -80,10 +74,7 @@ describe('VsspImportParser — response file manifest discovery', () => {
   })
 
   test('returns an empty array when no response files were exported', async () => {
-    const result = await parser.parse(
-      undefined as never,
-      makeFormatHandler(),
-    )
+    const result = await parser.parse(undefined as never, makeFormatHandler())
 
     expect(result.responseFileEntries).toEqual([])
   })

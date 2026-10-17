@@ -6,6 +6,7 @@ import {
 } from 'appSurvey/registry'
 import type { SurveyAnswers } from 'component/Survey/SurveyTypes'
 import { ErrorRest } from 'model'
+import { passEmbedBotCheck } from './embedBotCheck'
 
 // Authenticates on the first real answer, never on page view, and serialises
 // saves so an older save cannot overwrite a newer one.
@@ -18,7 +19,11 @@ export function useEmbedResponseSaver(surveyId: string, embedOrigin: string) {
     if (!jwtPromiseRef.current) {
       jwtPromiseRef.current = getAuthParticipantApi()
         .authenticate(surveyId, undefined, undefined, embedOrigin)
-        .then((response) => response.jwt)
+        .then(async (response) =>
+          response.botProtection && !response.botVerified
+            ? passEmbedBotCheck(surveyId, response.jwt, response.botProtection)
+            : response.jwt,
+        )
         .catch((error) => {
           jwtPromiseRef.current = null
           throw error

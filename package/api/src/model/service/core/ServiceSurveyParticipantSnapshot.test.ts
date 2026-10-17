@@ -204,6 +204,50 @@ describe('ServiceSurveyParticipantSnapshot.get()', () => {
     )
     expect(result.snapshot._id).toBe('snapshot_1')
   })
+  describe('bot protection settings', () => {
+    beforeEach(() => {
+      mockRepoSurveySnapshot.findOne.mockResolvedValue({
+        snapshotId: 'snapshot_1',
+        survey: { presentation: { noBrand: false } },
+      })
+    })
+
+    test('gives participants the provider and site key, never the secret', async () => {
+      mockRepoSettingSurvey.findOne.mockResolvedValue({
+        projectId,
+        presentation: { noBrand: false },
+        botProtection: {
+          provider: 'cloudflare',
+          cloudflare: { siteKey: 'site', secretKey: 'top-secret' },
+          google: { siteKey: '', secretKey: 'other-secret' },
+        },
+      })
+
+      const result = await service.get({ surveyId, projectId, lang: null })
+
+      expect(result.settingSurveyData.botProtection).toEqual({
+        provider: 'cloudflare',
+        siteKey: 'site',
+      })
+      expect(JSON.stringify(result)).not.toContain('secret')
+    })
+
+    test('a half-configured provider resolves to none', async () => {
+      mockRepoSettingSurvey.findOne.mockResolvedValue({
+        projectId,
+        presentation: { noBrand: false },
+        botProtection: {
+          provider: 'google',
+          google: { siteKey: 'site', secretKey: '' },
+        },
+      })
+
+      const result = await service.get({ surveyId, projectId, lang: null })
+
+      expect(result.settingSurveyData.botProtection.provider).toBe('none')
+    })
+  })
+
   describe('maps settings', () => {
     beforeEach(() => {
       mockRepoSurveySnapshot.findOne.mockResolvedValue({

@@ -106,5 +106,14 @@
   "validation.matrixColumnChoiceCount_atMost_other": "{{column}}: {{max}} ਤੋਂ ਵੱਧ ਵਿਕਲਪ ਨਾ ਚੁਣੋ",
   "validation.length_between": "{{min}} ਤੋਂ {{max}} ਅੱਖਰਾਂ ਦੇ ਵਿਚਕਾਰ ਹੋਣਾ ਚਾਹੀਦਾ ਹੈ",
   "validation.length_atLeast": "ਘੱਟੋ-ਘੱਟ {{min}} ਅੱਖਰ ਹੋਣੇ ਚਾਹੀਦੇ ਹਨ",
-  "validation.length_atMost": "{{max}} ਅੱਖਰਾਂ ਤੋਂ ਵੱਧ ਨਹੀਂ ਹੋਣਾ ਚਾਹੀਦਾ"
+  "validation.length_atMost": "{{max}} ਅੱਖਰਾਂ ਤੋਂ ਵੱਧ ਨਹੀਂ ਹੋਣਾ ਚਾਹੀਦਾ",
+  "botProtection.label": "ਸੁਰੱਖਿਆ ਜਾਂਚ",
+  "botProtection.checking": "ਸੁਰੱਖਿਆ ਜਾਂਚ ਚੱਲ ਰਹੀ ਹੈ",
+  "botProtection.verified": "ਸੁਰੱਖਿਆ ਜਾਂਚ ਪੂਰੀ ਹੋਈ",
+  "botProtection.failed": "ਸੁਰੱਖਿਆ ਜਾਂਚ ਪੂਰੀ ਨਹੀਂ ਹੋ ਸਕੀ।",
+  "botProtection.retry": "ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
+  "botProtection.providerCloudflare": "Cloudflare Turnstile ਦੁਆਰਾ ਸੁਰੱਖਿਅਤ",
+  "botProtection.providerGoogle": "Google reCAPTCHA ਦੁਆਰਾ ਸੁਰੱਖਿਅਤ",
+  "welcome.warningBotCheck": "ਕਿਰਪਾ ਕਰਕੇ ਸੁਰੱਖਿਆ ਜਾਂਚ ਪੂਰੀ ਹੋਣ ਤੱਕ ਉਡੀਕ ਕਰੋ।",
+  "error.botCheckFailed": "ਜਾਰੀ ਰੱਖਣ ਲਈ ਕਿਰਪਾ ਕਰਕੇ ਸੁਰੱਖਿਆ ਜਾਂਚ ਪੂਰੀ ਕਰੋ"
 }
