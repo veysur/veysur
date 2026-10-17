@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+title: VeySur
+message: If you use this software, please cite it as below.
+type: software
+authors:
+  - family-names: Foster
+    given-names: Kevin
+    email: kevin@veysur.com
+repository-code: https://github.com/veysur/veysur
+url: https://veysur.com
+license: Elastic-2.0
+abstract: >-
+  Source-available survey platform for research and compliance-sensitive teams.
+  Run it on your own server or use the EU-hosted service.
+keywords:
+  - survey
+  - questionnaire
+  - self-hosted
+  - gdpr
+  - research

@@ -1,3 +1,5 @@
+<!-- cspell:ignore Zenodo zenodo -->
+
 # Versioning and releases
 
 How `veysur` and its two submodule libraries (`datacapy`, `s3-adaptor`) are versioned, and the
@@ -96,6 +98,27 @@ as private by default. Set them to public in GitHub's package settings (or link 
 `scripts/release.sh` in each repo does the mechanical part only (version bump, commit, tag,
 push); it refuses to run with pending working-tree changes or with no changesets staged.
 `veysur` publishes its images and tarballs from CI; the `datacapy` and `s3-adaptor` releases remain manual, maintainer-triggered flows.
+
+## Citable releases (Zenodo DOI)
+
+Each `veysur` GitHub release is archived on [Zenodo](https://zenodo.org), which mints a DOI so
+researchers can cite the software. Nothing extra is needed per release: Zenodo's GitHub
+integration is enabled for this repo and listens for published releases.
+
+- The release must be a published GitHub **release**, not only a tag. `release.sh` creates one
+  with `gh release create`; if `gh` is missing, the manual release you create instead triggers
+  it the same way. A release created by a workflow using `GITHUB_TOKEN` would not trigger
+  Zenodo, so keep release creation in `release.sh`.
+- Zenodo takes title, author, licence and abstract from `CITATION.cff` at the repo root. Edit
+  that file before the release if any of them change. Zenodo does not read its `version` or
+  date, so the file omits both. The archived metadata is fixed per release; fix a mistake by
+  editing the Zenodo record or cutting a new release.
+- Each release gets a version DOI. The concept DOI always resolves to the latest version, so
+  link that one from the README and website. A new version appears under the same concept
+  record, with no setup.
+- If a release does not appear on Zenodo within a few minutes, check the repo's toggle at
+  zenodo.org/account/settings/github and that the release is not a draft or pre-release.
+- Only `veysur` is archived. `datacapy` and `s3-adaptor` are on npm and need no DOI.
 
 ## Onboarding a new package
 
