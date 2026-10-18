@@ -137,6 +137,10 @@ export const SurveySetting: React.FC<Props> = ({
         operations?.updateSurveyScheduleSetting(field, value),
       updateContentFormatProperty: (field, value) =>
         operations?.updateSurveyContentFormatSetting(field, value),
+      updateMapsProperty: (field, value) =>
+        operations?.updateSurveyMapsSetting(field, value),
+      updateBotProtectionProperty: (field, value) =>
+        operations?.updateSurveyBotProtectionSetting(field, value),
       updateDataPolicyText: (value, language) => {
         const lang = language || survey.language?.default || 'en'
         operations?.updateSurveyDataPolicyText(value, lang)

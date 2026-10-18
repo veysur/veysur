@@ -4,6 +4,13 @@ import { PropsOf } from '@datacapy/schema'
 import { BOT_PROTECTION_PROVIDER_NONE } from '../../service/BotProtectionConfig'
 import { L10n } from '../L10n'
 
+// `hasSecret` is set by the API on reads: the secret key itself is write-only
+export type BotProtectionKeysSetting = {
+  siteKey?: string | null
+  secretKey?: string | null
+  hasSecret?: boolean
+}
+
 export type ChartType =
   'bar' | 'horizontalBar' | 'pie' | 'stackedBar' | 'pieGrid' | 'averageRank'
 
@@ -122,8 +129,8 @@ export interface SettingSurveyData {
   }
   botProtection?: {
     provider?: string | null
-    cloudflare?: { siteKey?: string | null; secretKey?: string | null } | null
-    google?: { siteKey?: string | null; secretKey?: string | null } | null
+    cloudflare?: BotProtectionKeysSetting | null
+    google?: BotProtectionKeysSetting | null
   }
   stats: {
     questions: {
@@ -357,7 +364,7 @@ export class SettingSurveyBase {
 
     this.schedule = data?.schedule || this.schedule
     this.notify = data?.notify || this.notify
-    this.maps = data?.maps || this.maps
+    this.maps = mergeDefined(this.maps, data?.maps ?? undefined)
     this.botProtection = {
       provider: data?.botProtection?.provider || this.botProtection.provider,
       cloudflare: mergeDefined(

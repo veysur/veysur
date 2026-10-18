@@ -78,6 +78,15 @@ export interface SurveyData {
     embed?: boolean | null
     embedDomains?: string[] | null
   }
+  maps?: {
+    googleApiKey?: string | null
+    provider?: string | null
+  }
+  botProtection?: {
+    provider?: string | null
+    cloudflare?: { siteKey?: string | null; secretKey?: string | null } | null
+    google?: { siteKey?: string | null; secretKey?: string | null } | null
+  }
   dataPolicy?: {
     show?: boolean | null
     link?: boolean | null
@@ -222,6 +231,22 @@ export class SurveyBase {
     embed: null,
     embedDomains: null,
   }
+  maps?: {
+    googleApiKey?: string | null
+    provider?: string | null
+  } = {
+    googleApiKey: null,
+    provider: null,
+  }
+  botProtection?: {
+    provider?: string | null
+    cloudflare?: { siteKey?: string | null; secretKey?: string | null } | null
+    google?: { siteKey?: string | null; secretKey?: string | null } | null
+  } = {
+    provider: null,
+    cloudflare: { siteKey: null, secretKey: null },
+    google: { siteKey: null, secretKey: null },
+  }
   dataPolicy?: {
     show?: boolean | null
     link?: boolean | null
@@ -302,6 +327,8 @@ export class SurveyBase {
     this.participant = data?.participant || this.participant
     this.data = data?.data || this.data
     this.access = data?.access || this.access
+    this.maps = data?.maps || this.maps
+    this.botProtection = data?.botProtection || this.botProtection
     this.contentFormat = data?.contentFormat || this.contentFormat
 
     // Handle L10n properties in dataPolicy and legalNotice

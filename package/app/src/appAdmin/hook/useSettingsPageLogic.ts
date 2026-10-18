@@ -45,6 +45,8 @@ export type SettingOperations = {
   updateNotifyProperty?: (field: string, value: unknown) => void
   updateScheduleProperty?: (field: string, value: unknown) => void
   updateContentFormatProperty?: (field: string, value: unknown) => void
+  updateMapsProperty?: (field: string, value: unknown) => void
+  updateBotProtectionProperty?: (field: string, value: unknown) => void
   updateDataPolicyText?: (value: string | null, language?: string) => void
   updateLegalNoticeText?: (value: string | null, language?: string) => void
   updateDataPolicyUrl?: (value: string | null, language?: string) => void
@@ -105,6 +107,12 @@ export const createSettingsHandlers = (operations: SettingOperations) => {
         break
       case 'schedule':
         operations.updateScheduleProperty?.(field, value)
+        break
+      case 'maps':
+        operations.updateMapsProperty?.(field, value)
+        break
+      case 'botProtection':
+        operations.updateBotProtectionProperty?.(field, value)
         break
     }
   }

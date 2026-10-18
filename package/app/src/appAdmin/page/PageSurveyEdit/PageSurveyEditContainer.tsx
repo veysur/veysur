@@ -15,6 +15,7 @@ import { PageSurveyEditSkeleton } from './PageSurveyEditSkeleton'
 
 export const PageSurveyEditContainer: React.FC = () => {
   const setDefaults = useSurveyEditorStore((state) => state.setDefaults)
+  const setEffective = useSurveyEditorStore((state) => state.setEffective)
   const patchBuffer = useSurveyEditorStore((state) => state.patchBuffer)
   const childNavigationBlocker = useSurveyEditorStore(
     (state) => state.childNavigationBlocker,
@@ -22,7 +23,11 @@ export const PageSurveyEditContainer: React.FC = () => {
   const emailTemplatePatchBuffer = useEmailTemplateEditorStore(
     (state) => state.patchBuffer,
   )
-  const { settingSurvey, isDirty: isSettingsDirty } = useSettingSurvey()
+  const {
+    settingSurvey,
+    effectiveSettings,
+    isDirty: isSettingsDirty,
+  } = useSettingSurvey()
   const { surveyId } = useParams<{ surveyId: string }>()
   const useSurveyEditorState = useSurveyEditor({ surveyId })
   const { loadSurvey, survey, isLoading } = useSurveyEditorState
@@ -72,6 +77,10 @@ export const PageSurveyEditContainer: React.FC = () => {
   useEffect(() => {
     if (settingSurvey) setDefaults(settingSurvey)
   }, [settingSurvey, setDefaults])
+
+  useEffect(() => {
+    setEffective(effectiveSettings)
+  }, [effectiveSettings, setEffective])
 
   if (!survey) {
     return <PageSurveyEditSkeleton />

@@ -14,6 +14,8 @@ import { StatsMethods } from './SettingSurvey/mixin/StatsMethods'
 import { ParticipantMethods } from './SettingSurvey/mixin/ParticipantMethods'
 import { DataMethods } from './SettingSurvey/mixin/DataMethods'
 import { AccessMethods } from './SettingSurvey/mixin/AccessMethods'
+import { MapsMethods } from './SettingSurvey/mixin/MapsMethods'
+import { BotProtectionMethods } from './SettingSurvey/mixin/BotProtectionMethods'
 import { DataPolicyMethods } from './SettingSurvey/mixin/DataPolicyMethods'
 import { LegalNoticeMethods } from './SettingSurvey/mixin/LegalNoticeMethods'
 import { ScheduleMethods } from './SettingSurvey/mixin/ScheduleMethods'
@@ -77,26 +79,32 @@ export * from './Survey/index'
  * → returns new Survey instance with updated title, reusing all other objects
  */
 const SurveyImpl = ContentFormatMethods(
-  AccessMethods(
-    WelcomeThankYouSectionMethods(
-      NotifyMethods(
-        ScheduleMethods(
-          LegalNoticeMethods(
-            DataPolicyMethods(
-              DataMethods(
-                ParticipantMethods(
-                  StatsMethods(
-                    PresentationMethods(
-                      LanguageMethods(
-                        AnswerOptionMethods(
-                          SubquestionMethods(
-                            ContentMethods(
-                              QuestionMethods(
-                                PublishPrepMethods(
-                                  SectionMethods(
-                                    SurveyCoreMethods(
-                                      GetterMethods(
-                                        SettingSurveyCoreMethods(SurveyBase),
+  MapsMethods(
+    BotProtectionMethods(
+      AccessMethods(
+        WelcomeThankYouSectionMethods(
+          NotifyMethods(
+            ScheduleMethods(
+              LegalNoticeMethods(
+                DataPolicyMethods(
+                  DataMethods(
+                    ParticipantMethods(
+                      StatsMethods(
+                        PresentationMethods(
+                          LanguageMethods(
+                            AnswerOptionMethods(
+                              SubquestionMethods(
+                                ContentMethods(
+                                  QuestionMethods(
+                                    PublishPrepMethods(
+                                      SectionMethods(
+                                        SurveyCoreMethods(
+                                          GetterMethods(
+                                            SettingSurveyCoreMethods(
+                                              SurveyBase,
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),

@@ -165,22 +165,23 @@ export class SchemaSettingSurvey extends Schema {
             basic: String,
             detailed: String,
           },
-          // Project-level Google Maps browser key; overrides the deployment key
+          // Google Maps browser key; overrides the deployment key. A survey
+          // value of null inherits the project value
           maps: {
-            googleApiKey: String,
-            provider: String,
+            googleApiKey: sb.string().default(null),
+            provider: sb.string().default(null),
           },
-          // Project-level bot check for the survey start step; secret keys
-          // never reach participants or leave the API
+          // Bot check for the survey start step; secret keys never reach
+          // participants. A survey value of null inherits the project value
           botProtection: {
-            provider: String,
+            provider: sb.string().default(null),
             cloudflare: {
-              siteKey: String,
-              secretKey: String,
+              siteKey: sb.string().default(null),
+              secretKey: sb.string().default(null),
             },
             google: {
-              siteKey: String,
-              secretKey: String,
+              siteKey: sb.string().default(null),
+              secretKey: sb.string().default(null),
             },
           },
           stats: {

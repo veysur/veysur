@@ -112,7 +112,7 @@ export function BaseAccessSettings<T>({ data, handlers, layout }: Props<T>) {
         ]}
         hasDefaults={hasDefaults}
         defaultValue={data.getDefault?.('access', 'botProtection')}
-        helpText="Asks participants to pass a bot check before they can answer. Off by default. Takes effect only when a provider is chosen in the project settings."
+        helpText="Asks participants to pass a bot check before they can answer. Off by default. Takes effect only when a provider is chosen under Bot protection in the settings."
         className="mb-3"
       />
 

@@ -113,6 +113,7 @@ export class ServiceSurveyEmbedArtefact extends Service {
     const settingSurveyData = await participantSnapshot.getGatedSettingSurvey(
       projectId,
       context,
+      surveyId,
     )
 
     await adaptor.putObject({

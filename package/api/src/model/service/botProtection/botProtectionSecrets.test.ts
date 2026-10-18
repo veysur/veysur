@@ -61,3 +61,49 @@ describe('mergeBotProtectionSecrets', () => {
     expect(merged.google).toEqual({ siteKey: 's', secretKey: 'k' })
   })
 })
+
+describe('survey-level secrets (null inherits the project value)', () => {
+  test('masking keeps null as null so the editor can show "inherited"', () => {
+    const masked = maskBotProtectionSecrets({
+      provider: null,
+      cloudflare: { siteKey: null, secretKey: null },
+      google: { siteKey: 'own', secretKey: 'own-secret' },
+    })
+    expect(masked.provider).toBeNull()
+    expect(masked.cloudflare).toEqual({
+      siteKey: null,
+      secretKey: null,
+      hasSecret: false,
+    })
+    expect(masked.google).toEqual({
+      siteKey: 'own',
+      secretKey: '',
+      hasSecret: true,
+    })
+  })
+
+  test('merge stores null when inheriting and keeps a blank secret otherwise', () => {
+    const merged = mergeBotProtectionSecrets(
+      {
+        provider: 'google',
+        cloudflare: { siteKey: null, secretKey: null },
+        google: { siteKey: 'g-new', secretKey: '' },
+      },
+      { google: { siteKey: 'g-old', secretKey: 'g-secret' } },
+      { nullInherits: true },
+    )
+    expect(merged.cloudflare).toEqual({ siteKey: null, secretKey: null })
+    expect(merged.google).toEqual({ siteKey: 'g-new', secretKey: 'g-secret' })
+  })
+
+  test('without nullInherits a null falls back to the stored value (project)', () => {
+    const merged = mergeBotProtectionSecrets(
+      { cloudflare: { siteKey: null, secretKey: null } },
+      stored,
+    )
+    expect(merged.cloudflare).toEqual({
+      siteKey: 'cf-site',
+      secretKey: 'cf-secret',
+    })
+  })
+})

@@ -13,6 +13,8 @@ import { SurveyData } from './SurveyBase'
 import {
   SettingSurveyProperties,
   SettingSurveyMethods,
+  SettingSurveyMapsMethods,
+  SettingSurveyBotProtectionMethods,
 } from '../SettingSurvey/SettingSurveyInterface'
 import { SettingSurvey } from '../SettingSurvey'
 import { AttributeValue, SurveyAttributes } from './attributeMeta'
@@ -35,7 +37,9 @@ export interface SurveyInterface
       | 'stats'
       | 'contentFormat'
     >,
-    SettingSurveyMethods {
+    SettingSurveyMethods,
+    SettingSurveyMapsMethods,
+    SettingSurveyBotProtectionMethods {
   // Additional properties from Survey Base (extends SettingSurvey)
   createdById: string
   name: string
@@ -96,6 +100,15 @@ export interface SurveyInterface
     botProtection?: boolean | null
     embed?: boolean | null
     embedDomains?: string[] | null
+  }
+  maps?: {
+    googleApiKey?: string | null
+    provider?: string | null
+  }
+  botProtection?: {
+    provider?: string | null
+    cloudflare?: { siteKey?: string | null; secretKey?: string | null } | null
+    google?: { siteKey?: string | null; secretKey?: string | null } | null
   }
   dataPolicy?: {
     show?: boolean | null
@@ -204,6 +217,15 @@ export interface SurveyInterface
   getNotify(defaults: SettingSurvey): {
     basic: string
     detailed: string
+  }
+  getMaps(defaults: SettingSurvey): {
+    googleApiKey: string
+    provider: string | undefined
+  }
+  getBotProtection(defaults: SettingSurvey): {
+    provider: string
+    cloudflare: { siteKey: string; secretKey: string }
+    google: { siteKey: string; secretKey: string }
   }
   getContentFormat(defaults: SettingSurvey): {
     htmlAllowed: boolean

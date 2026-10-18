@@ -6,6 +6,7 @@ import type { SurveyAnswers } from 'component/Survey/SurveyTypes'
 import { Button } from 'component/shadcn/button'
 import {
   SurveyEditorNavContainer,
+  useEditorMapConfig,
   useSurveyEditorStore,
   useLangFetchSwitch,
 } from 'appAdmin/component/SurveyEditor'
@@ -18,6 +19,7 @@ export const PageSurveyEditPreview: React.FC = () => {
   const { t } = useTranslation('app-survey')
   const survey = useSurveyEditorStore((state) => state.survey)
   const settingSurvey = useSurveyEditorStore((state) => state.defaults)
+  const mapSettings = useEditorMapConfig()
   const langEditing = useSurveyEditorStore((state) => state.langEditing)
   const setLangEditing = useSurveyEditorStore((state) => state.setLangEditing)
   const switchLangFetch = useLangFetchSwitch()
@@ -90,6 +92,7 @@ export const PageSurveyEditPreview: React.FC = () => {
         ) : (
           <Survey
             settingSurvey={settingSurvey}
+            mapSettings={mapSettings}
             survey={survey}
             initLanguage={langEditing}
             onLanguageChange={handleLanguageChange}

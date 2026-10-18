@@ -1,3 +1,5 @@
+import { asPrivate } from 'test-utils/asPrivate'
+
 import { ServiceSettingSurvey } from './ServiceSettingSurvey'
 
 jest.mock('model', () => ({}))
@@ -59,6 +61,13 @@ describe('ServiceSettingSurvey bot protection secrets', () => {
       },
       writable: true,
     })
+    asPrivate<typeof service, { config: unknown }>(service).config = {
+      model: {
+        app: {
+          maps: { providerDefault: 'google', googleApiKey: 'deploy-key' },
+        },
+      },
+    }
     return { service, repo }
   }
 
@@ -76,6 +85,26 @@ describe('ServiceSettingSurvey bot protection secrets', () => {
       secretKey: '',
       hasSecret: true,
     })
+  })
+
+  test('getOne adds the maps config resolved against the deployment', async () => {
+    const { service, repo } = makeService()
+    repo.findOne.mockResolvedValue({
+      _id: 's1',
+      botProtection: stored,
+      maps: { googleApiKey: '' },
+    })
+
+    const result = await service.getOne({
+      projectId: 'proj_1',
+      aclConditions: undefined,
+    })
+
+    expect(result.effective.maps).toEqual({
+      provider: 'google',
+      googleApiKey: 'deploy-key',
+    })
+    expect(result.maps).toEqual({ googleApiKey: '' })
   })
 
   test('patch keeps the stored secret when the form leaves it blank', async () => {

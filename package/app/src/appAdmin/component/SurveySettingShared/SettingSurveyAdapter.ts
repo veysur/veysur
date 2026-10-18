@@ -1,4 +1,9 @@
-import { Survey, SettingSurvey, L10n } from 'veysur-common'
+import {
+  Survey,
+  SettingSurvey,
+  L10n,
+  BotProtectionKeysSetting,
+} from 'veysur-common'
 
 export interface SettingsDataAdapter<T> {
   language?: {
@@ -76,6 +81,14 @@ export interface SettingsDataAdapter<T> {
     markdownAllowed?: boolean | null
     scriptTagsAllowed?: boolean | null
   }
+  maps?: {
+    googleApiKey?: string | null
+  }
+  botProtection?: {
+    provider?: string | null
+    cloudflare?: BotProtectionKeysSetting | null
+    google?: BotProtectionKeysSetting | null
+  }
   getDefault?: <TValue = unknown>(section: string, field: string) => TValue
   getValue?: <TValue = unknown>(section: string, field: string) => TValue
   // The original data source
@@ -126,6 +139,14 @@ export class SurveyAdapter implements SettingsDataAdapter<Survey> {
 
   get contentFormat() {
     return this.source.contentFormat
+  }
+
+  get maps() {
+    return this.source.maps
+  }
+
+  get botProtection() {
+    return this.source.botProtection
   }
 
   // `Survey` / `SettingSurvey` are class instances with typed section getters,
@@ -195,6 +216,14 @@ export class SettingSurveyAdapter implements SettingsDataAdapter<SettingSurvey> 
 
   get contentFormat() {
     return this.source.contentFormat
+  }
+
+  get maps() {
+    return this.source.maps
+  }
+
+  get botProtection() {
+    return this.source.botProtection
   }
 }
 

@@ -2,6 +2,7 @@
 import { ServerErrorForbidden, ServerErrorBadRequest } from '@datacapy/server'
 import { resolveBotProtection } from 'veysur-common'
 import { ServiceAuthParticipant } from './ServiceAuthParticipant'
+import { ServiceBotProtection } from './ServiceBotProtection'
 
 const SURVEY_ID = 'survey-1'
 const PROJECT_ID = 'project-1'
@@ -63,8 +64,12 @@ const makeService = (
   }
   const botProtectionService = {
     resolve: jest.fn(resolveBotProtection),
+    effectiveSetting: ServiceBotProtection.prototype.effectiveSetting,
     verify: jest.fn(),
     issueChallenge: jest.fn(),
+  }
+  const repoSurvey = {
+    findOne: jest.fn().mockResolvedValue({ botProtection: null }),
   }
   const repoSurveyParticipant = {
     findOne: jest
@@ -86,6 +91,7 @@ const makeService = (
     if (name === 'surveyParticipant') return repoSurveyParticipant
     if (name === 'surveyResponse') return repoSurveyResponse
     if (name === 'settingSurvey') return repoSettingSurvey
+    if (name === 'survey') return repoSurvey
     throw new Error(`Unexpected repo: ${name}`)
   })
 
@@ -107,6 +113,7 @@ const makeService = (
     repoPublication,
     repoSurveySnapshot,
     repoSurveyResponse,
+    repoSurvey,
     botProtectionService,
   }
 }

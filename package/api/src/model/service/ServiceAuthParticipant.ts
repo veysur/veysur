@@ -297,13 +297,9 @@ export class ServiceAuthParticipant extends Service {
       project: { lookupKey: projectId },
     })
     const survey = await this.loadSnapshotSurvey(aclContext.snapshotId, context)
-    const setting = await this.getRepo<RepoSettingSurvey>(
-      'settingSurvey',
-    ).findOne({}, { context })
-
     const botProtection = this.getBotProtectionService()
     const verified = await botProtection.verify({
-      setting: setting?.botProtection,
+      setting: await this.loadEffectiveBotProtection(survey, context),
       surveyId,
       token,
       honeypot,
@@ -361,13 +357,29 @@ export class ServiceAuthParticipant extends Service {
     survey: Survey,
     context: DataSourceContext,
   ) {
+    return this.getBotProtectionService().resolve(
+      await this.loadEffectiveBotProtection(survey, context),
+      survey.access.botProtection,
+    )
+  }
+
+  private async loadEffectiveBotProtection(
+    snapshotSurvey: Survey | undefined,
+    context: DataSourceContext,
+  ) {
     const setting = await this.getRepo<RepoSettingSurvey>(
       'settingSurvey',
     ).findOne({}, { context })
-    return this.getBotProtectionService().resolve(
-      setting?.botProtection,
-      survey.access.botProtection,
-    )
+    const live = snapshotSurvey?._id
+      ? await this.getRepo<RepoSurvey>('survey').findOne(
+          { _id: snapshotSurvey._id },
+          { context },
+        )
+      : undefined
+    return this.getBotProtectionService().effectiveSetting({
+      survey: live?.botProtection,
+      project: setting?.botProtection,
+    })
   }
 
   private botClaims(

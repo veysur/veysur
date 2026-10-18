@@ -3,6 +3,7 @@ import { DataSourceContext } from '@datacapy/om'
 import { Survey, resolveBotProtection, resolveMapConfig } from 'veysur-common'
 
 import {
+  RepoSurvey,
   RepoSurveyLanguageSnapshot,
   RepoSurveySnapshotPartial,
   RepoSurveySnapshot,
@@ -11,6 +12,7 @@ import {
 } from 'model'
 import { mergeSurveyLanguageSnapshots } from 'model/common'
 import { contextForProject } from 'common'
+import type { ServiceBotProtection } from '../ServiceBotProtection'
 
 export class ServiceSurveyParticipantSnapshot extends Service {
   constructor() {
@@ -128,6 +130,7 @@ export class ServiceSurveyParticipantSnapshot extends Service {
     const settingSurveyData = await this.getGatedSettingSurvey(
       projectId,
       context,
+      surveyId,
     )
 
     return {
@@ -142,21 +145,43 @@ export class ServiceSurveyParticipantSnapshot extends Service {
    * noBrand is suppressed if the project no longer qualifies for branding
    * removal (see isNoBrandAvailable), even though the setting itself is still
    * stored as true, `botProtection` carries only the provider and site key, and `maps` carries the effective provider and Google key
-   * (project key over deployment key) in place of the stored override.
+   * (survey key, else project key, over deployment key) in place of the
+   * stored override. Pass the survey id to apply that survey's own overrides.
    */
-  async getGatedSettingSurvey(projectId: string, context: DataSourceContext) {
+  async getGatedSettingSurvey(
+    projectId: string,
+    context: DataSourceContext,
+    surveyId?: string,
+  ) {
     const repoSettingSurvey = this.getRepo<RepoSettingSurvey>('settingSurvey')
     const settingSurvey = await repoSettingSurvey.findOne({}, { context })
     if (!settingSurvey) return settingSurvey
+
+    const survey = surveyId
+      ? await this.getRepo<RepoSurvey>('survey').findOne(
+          { _id: surveyId },
+          { context },
+        )
+      : undefined
+    const botProtectionService =
+      this.getService<ServiceBotProtection>('botProtection')
 
     const gated = {
       ...settingSurvey,
       maps: resolveMapConfig(
         this.config.model.app.maps,
-        settingSurvey.maps?.googleApiKey,
+        survey
+          ? survey.getMaps(settingSurvey).googleApiKey
+          : settingSurvey.maps?.googleApiKey,
       ),
       // Provider and site key only; the secret key never leaves the API
-      botProtection: resolveBotProtection(settingSurvey.botProtection, true),
+      botProtection: resolveBotProtection(
+        botProtectionService.effectiveSetting({
+          survey: survey?.botProtection,
+          project: settingSurvey.botProtection,
+        }),
+        true,
+      ),
     }
 
     if (

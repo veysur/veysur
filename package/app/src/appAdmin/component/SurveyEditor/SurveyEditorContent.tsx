@@ -9,7 +9,11 @@ import {
   SurveySection,
 } from 'veysur-common'
 
-import { useSurveyEditorStore } from 'appAdmin/component/SurveyEditor'
+import { MapConfigContext } from 'component/Survey/MapConfigContext'
+import {
+  useEditorMapConfig,
+  useSurveyEditorStore,
+} from 'appAdmin/component/SurveyEditor'
 
 import { SurveyEditorEmpty } from './SurveyEditorEmpty'
 import { QuestionView } from './QuestionView'
@@ -50,6 +54,13 @@ type SurveyItem =
 export const SurveyEditorContent: React.FC = () => {
   const survey = useSurveyEditorStore((state) => state.survey)
   const settingSurvey = useSurveyEditorStore((state) => state.defaults)
+  const resolvedMaps = useEditorMapConfig()
+
+  // Question previews outside `Survey` need the provider participants get
+  const mapConfig = useMemo(
+    () => ({ ...resolvedMaps, anonymous: false, deferLoad: false }),
+    [resolvedMaps],
+  )
 
   const presentation = useMemo(
     () =>
@@ -170,7 +181,7 @@ export const SurveyEditorContent: React.FC = () => {
   }, [survey, presentation])
 
   return (
-    <>
+    <MapConfigContext.Provider value={mapConfig}>
       <div className="flex justify-between items-center mt-6 mx-14 pr-4">
         <div className="flex-grow" />
         <SurveyLanguageSelector />
@@ -273,6 +284,6 @@ export const SurveyEditorContent: React.FC = () => {
           )}
         </section>
       </div>
-    </>
+    </MapConfigContext.Provider>
   )
 }

@@ -6,6 +6,7 @@ Optional and off by default. Nothing changes for a survey until a project choose
 ## Settings
 
 - `settingSurvey.botProtection`: `provider` (`none`, `simple`, `cloudflare`, `google`) and a `siteKey` and `secretKey` for each third-party provider. Secret keys are write-only: reads return `hasSecret`, a blank write keeps the stored key, and project settings archives exclude the whole block.
+- `survey.botProtection` and `survey.maps`: the same shape with every field nullable. A null field inherits the project value, so a survey overrides the provider, each site key and each secret key independently. The survey's secrets are masked on reads and kept on a blank write exactly as the project's are (`mergeBotProtectionSecrets` with `nullInherits`, also applied to the editor's dotted-key patches). Survey exports omit both sections, and publishing does not copy them into snapshots, so no secret reaches participants or the embed bucket. The provider, keys and maps are resolved live (survey over project), not frozen at publish: `ServiceBotProtection.effectiveSetting` for the check and `getGatedSettingSurvey` for maps. A survey patch touching either refreshes the embed pointer.
 - `access.botProtection`: the existing survey access flag. Project value is the default, a survey may override it.
 - `resolveBotProtection()` in `veysur-common` returns the provider and site key a participant needs. A provider missing a key resolves to `none`, so a half-configured project never locks participants out.
 

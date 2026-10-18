@@ -20,6 +20,7 @@ import {
 } from 'model'
 import type { ServiceRealtime } from '../../ServiceRealtime'
 import { ServiceFileDeletion } from '../ServiceFile/ServiceFileDeletion'
+import { maskBotProtectionSecrets } from '../../botProtection/botProtectionSecrets'
 import { ServiceSettingSurvey } from '../ServiceSettingSurvey'
 import { ServiceSurveyLanguage } from '../ServiceSurveyLanguage'
 import { ServiceSurveyTemplate } from '../ServiceSurveyTemplate'
@@ -160,12 +161,21 @@ export class ServiceSurvey extends Service {
     const fallbackLang = defaultLang || activeLang
     const serviceSurveyLanguage =
       this.getService<ServiceSurveyLanguage>('surveyLanguage')
-    return serviceSurveyLanguage.getSurveyWithLanguages(
-      survey,
-      projectId,
-      activeLang,
-      fallbackLang,
+    return this.maskSecrets(
+      await serviceSurveyLanguage.getSurveyWithLanguages(
+        survey,
+        projectId,
+        activeLang,
+        fallbackLang,
+      ),
     )
+  }
+
+  /** Bot check secret keys are write-only; the editor sees `hasSecret` instead. */
+  private maskSecrets(survey: Survey): Survey {
+    return Object.assign(survey, {
+      botProtection: maskBotProtectionSecrets(survey.botProtection),
+    })
   }
 
   async getAll({
@@ -223,7 +233,7 @@ export class ServiceSurvey extends Service {
       },
     })
 
-    return { surveys, surveyCount }
+    return { surveys: surveys.map((s) => this.maskSecrets(s)), surveyCount }
   }
 
   async patch({
@@ -302,6 +312,20 @@ export class ServiceSurvey extends Service {
           `Failed to cleanup orphaned stats for survey ${surveyId}: ${error.message}`,
         )
       }
+    }
+
+    // An embed's pointer carries the resolved map key, so it follows the survey's
+    const hasEmbedSettingPatch = patches.some(
+      (patch) =>
+        patch.type === 'survey' &&
+        (patch.data?.maps !== undefined ||
+          patch.data?.botProtection !== undefined),
+    )
+    if (hasEmbedSettingPatch) {
+      await this.modelManager.services.surveyEmbedArtefact.refresh({
+        surveyId,
+        projectId,
+      })
     }
 
     await this.getService<ServiceRealtime>('realtime').emitSurveyChanged(

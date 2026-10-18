@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import {
+  EffectiveSettingSurvey,
   Iso639v1,
   SettingSurvey,
   Survey,
@@ -24,6 +25,8 @@ import {
 export type SurveyEditorStore = {
   surveyAdapter?: SurveyAdapter
   defaults: SettingSurvey
+  // Project settings resolved against the deployment, as participants get them
+  effective?: EffectiveSettingSurvey
   survey?: Survey
   operations?: ReturnType<typeof createSurveyOperations>
   surveyFocus?: SurveyFocus
@@ -53,6 +56,7 @@ export type SurveyEditorStore = {
     onSaveAndContinue?: () => Promise<void>
   } | null
   setDefaults: (defaults: SettingSurvey) => void
+  setEffective: (effective: EffectiveSettingSurvey | undefined) => void
   setSurvey: (survey: Survey | undefined) => void
   setOperations: (operations: SurveyEditorStore['operations']) => void
   setSurveyFocus: (surveyFocus: SurveyFocus) => void
@@ -111,6 +115,7 @@ export const useSurveyEditorStore = create<SurveyEditorStore>((set, get) => {
   return {
     surveyAdapter: undefined,
     defaults: new SettingSurvey(),
+    effective: undefined,
     survey: undefined,
     operations: undefined,
     surveyFocus: undefined,
@@ -129,6 +134,7 @@ export const useSurveyEditorStore = create<SurveyEditorStore>((set, get) => {
     },
     validationErrors: {},
     childNavigationBlocker: null,
+    setEffective: (effective) => set(() => ({ effective })),
     setDefaults: (defaults) => {
       const { survey, langDefaultSeededFor } = get()
       const surveyAdapter = survey

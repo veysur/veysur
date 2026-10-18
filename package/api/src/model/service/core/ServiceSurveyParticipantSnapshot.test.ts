@@ -1,5 +1,8 @@
 import { asPrivate } from 'test-utils/asPrivate'
 
+import { Survey } from 'veysur-common'
+
+import { ServiceBotProtection } from '../ServiceBotProtection'
 import { ServiceSurveyParticipantSnapshot } from './ServiceSurveyParticipantSnapshot'
 
 describe('ServiceSurveyParticipantSnapshot.get()', () => {
@@ -9,6 +12,7 @@ describe('ServiceSurveyParticipantSnapshot.get()', () => {
   let mockRepoSurveySnapshot: { findOne: jest.Mock }
   let mockRepoSurveyLanguageSnapshot: { find: jest.Mock }
   let mockRepoSettingSurvey: { findOne: jest.Mock }
+  let mockRepoSurvey: { findOne: jest.Mock }
   let isNoBrandAvailableSpy: jest.SpyInstance
 
   const setMapsConfig = (maps: {
@@ -52,6 +56,17 @@ describe('ServiceSurveyParticipantSnapshot.get()', () => {
       }),
     }
 
+    mockRepoSurvey = {
+      findOne: jest.fn().mockResolvedValue(new Survey({ _id: surveyId })),
+    }
+
+    jest
+      .spyOn(service, 'getService')
+      .mockImplementation(((name: string) =>
+        name === 'botProtection'
+          ? new ServiceBotProtection()
+          : undefined) as typeof service.getService)
+
     jest.spyOn(service, 'getRepo').mockImplementation(((name: string) => {
       const map: Record<string, unknown> = {
         surveyPublication: mockRepoPublication,
@@ -59,6 +74,7 @@ describe('ServiceSurveyParticipantSnapshot.get()', () => {
         surveySnapshot: mockRepoSurveySnapshot,
         surveyLanguageSnapshot: mockRepoSurveyLanguageSnapshot,
         settingSurvey: mockRepoSettingSurvey,
+        survey: mockRepoSurvey,
       }
       return map[name] ?? {}
     }) as typeof service.getRepo)
@@ -245,6 +261,49 @@ describe('ServiceSurveyParticipantSnapshot.get()', () => {
       const result = await service.get({ surveyId, projectId, lang: null })
 
       expect(result.settingSurveyData.botProtection.provider).toBe('none')
+    })
+  })
+
+  describe('survey-level overrides', () => {
+    test('the survey map key wins over the project key', async () => {
+      mockRepoSettingSurvey.findOne.mockResolvedValue({
+        projectId,
+        presentation: { noBrand: false },
+        maps: { googleApiKey: 'project-key' },
+      })
+      mockRepoSurvey.findOne.mockResolvedValue(
+        new Survey({ _id: surveyId, maps: { googleApiKey: 'survey-key' } }),
+      )
+
+      const gated = await service.getGatedSettingSurvey(
+        projectId,
+        {} as never,
+        surveyId,
+      )
+
+      expect(gated.maps.googleApiKey).toBe('survey-key')
+    })
+
+    test('the survey bot check provider wins over the project one', async () => {
+      mockRepoSettingSurvey.findOne.mockResolvedValue({
+        projectId,
+        presentation: { noBrand: false },
+        botProtection: { provider: 'simple' },
+      })
+      mockRepoSurvey.findOne.mockResolvedValue(
+        new Survey({
+          _id: surveyId,
+          botProtection: { provider: 'none' },
+        }),
+      )
+
+      const gated = await service.getGatedSettingSurvey(
+        projectId,
+        {} as never,
+        surveyId,
+      )
+
+      expect(gated.botProtection.provider).toBe('none')
     })
   })
 

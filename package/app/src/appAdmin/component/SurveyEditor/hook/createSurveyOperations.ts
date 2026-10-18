@@ -8,6 +8,8 @@ import {
   createSurveyAccessOperations,
   createSurveyScheduleOperations,
   createSurveyContentFormatOperations,
+  createSurveyMapsOperations,
+  createSurveyBotProtectionOperations,
 } from './createSurveyOperations/surveySectionOperations'
 import { createSurveyLegalNoticeOperations } from './createSurveyOperations/surveyLegalNoticeOperations'
 import { createSurveyDataPolicyOperations } from './createSurveyOperations/surveyDataPolicyOperations'
@@ -45,6 +47,8 @@ export const createSurveyOperations = (
     ...createSurveyDataPolicyOperations(dependencies),
     ...createSurveyScheduleOperations(dependencies),
     ...createSurveyContentFormatOperations(dependencies),
+    ...createSurveyMapsOperations(dependencies),
+    ...createSurveyBotProtectionOperations(dependencies),
     ...createSurveyNotifyOperations(dependencies),
     ...createSurveyWelcomeOperations(dependencies),
     ...createSurveyCompleteOperations(dependencies),

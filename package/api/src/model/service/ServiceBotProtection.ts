@@ -45,6 +45,33 @@ export class ServiceBotProtection extends Service {
     return resolveBotProtection(setting, surveyEnabled)
   }
 
+  /**
+   * The setting a survey really uses: each value is the survey's own, else the
+   * project's. Resolved live, so a key change applies to published surveys
+   * the same way a project change always has.
+   */
+  effectiveSetting({
+    survey,
+    project,
+  }: {
+    survey: BotProtectionSetting | null | undefined
+    project: BotProtectionSetting | null | undefined
+  }): BotProtectionSetting {
+    const keysFor = (provider: 'cloudflare' | 'google') => ({
+      siteKey:
+        survey?.[provider]?.siteKey?.trim() || project?.[provider]?.siteKey,
+      secretKey:
+        survey?.[provider]?.secretKey?.trim() ||
+        project?.[provider]?.secretKey?.trim() ||
+        '',
+    })
+    return {
+      provider: survey?.provider || project?.provider,
+      cloudflare: keysFor('cloudflare'),
+      google: keysFor('google'),
+    }
+  }
+
   issueChallenge(surveyId: string): SimpleChallenge {
     return this.getSimpleVerifier().issueChallenge(surveyId)
   }

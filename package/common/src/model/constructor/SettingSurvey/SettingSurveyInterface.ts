@@ -181,13 +181,13 @@ export interface SettingSurveyMethods {
   setStatsQuestionChartType(questionCode: string, chartType: ChartType): this
 }
 
-// Kept out of SettingSurveyMethods: a Survey carries no project-level maps section
+// Kept out of SettingSurveyMethods: implemented by both SettingSurvey and Survey, unlike the shared set
 export interface SettingSurveyMapsMethods {
   setMapsProperty(key: string, value: unknown): this
   updateMaps(updates: Record<string, unknown>): this
 }
 
-// Kept out of SettingSurveyMethods: a Survey carries no project-level bot protection section
+// Kept out of SettingSurveyMethods for the same reason as the maps methods
 export interface SettingSurveyBotProtectionMethods {
   setBotProtectionProperty(key: string, value: unknown): this
   updateBotProtection(updates: Record<string, unknown>): this

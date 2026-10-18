@@ -156,4 +156,42 @@ describe('ServiceBotProtection', () => {
       })
     })
   })
+
+  describe('effectiveSetting', () => {
+    const project = {
+      provider: 'cloudflare',
+      cloudflare: { siteKey: 'p-site', secretKey: 'p-secret' },
+      google: { siteKey: 'pg-site', secretKey: 'pg-secret' },
+    }
+
+    test('uses the project values when the survey overrides nothing', () => {
+      expect(service.effectiveSetting({ survey: null, project })).toEqual(
+        project,
+      )
+    })
+
+    test('overrides each field on its own', () => {
+      const setting = service.effectiveSetting({
+        survey: {
+          provider: 'google',
+          cloudflare: { siteKey: null, secretKey: null },
+          google: { siteKey: 's-site', secretKey: null },
+        },
+        project,
+      })
+      expect(setting.provider).toBe('google')
+      expect(setting.google).toEqual({
+        siteKey: 's-site',
+        secretKey: 'pg-secret',
+      })
+    })
+
+    test('a survey provider of none turns the check off', () => {
+      const setting = service.effectiveSetting({
+        survey: { provider: 'none' },
+        project,
+      })
+      expect(service.resolve(setting, true).provider).toBe('none')
+    })
+  })
 })
