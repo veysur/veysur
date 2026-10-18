@@ -8,6 +8,7 @@ import {
 import { SchemaEncryptionServiceRsa } from '@datacapy/om'
 
 import configDefault, { encryption } from './config/default'
+import type { EncryptionConfig } from './config/encryptionKeys'
 import type { ModelConfig } from './config/types'
 import { classArrayInstantiate } from './model/classArrayInstantiate'
 
@@ -79,9 +80,9 @@ export interface ModelComposition {
   migrate?: {
     patchDirectory: string
     metaTableName: string
-    ContextResolverProject: new (
-      accountDataSource: unknown,
-    ) => { resolve(pattern: string): Promise<Array<Record<string, string>>> }
+    ContextResolverProject: new (accountDataSource: unknown) => {
+      resolve(pattern: string): Promise<Array<Record<string, string>>>
+    }
   }
 }
 
@@ -94,16 +95,30 @@ export interface ComposedModel {
 
 const isClass = (v: unknown): v is new () => unknown => typeof v === 'function'
 
-const buildEncryptionService = () =>
-  encryption.publicKey
-    ? new SchemaEncryptionServiceRsa({
-        publicKey: Buffer.from(encryption.publicKey, 'base64').toString('utf8'),
-        privateKey: encryption.privateKey
-          ? Buffer.from(encryption.privateKey, 'base64').toString('utf8')
-          : undefined,
-        privateKeyPassword: encryption.privateKeyPassword || undefined,
-      })
-    : undefined
+const decodePem = (value: string) =>
+  Buffer.from(value, 'base64').toString('utf8')
+
+export const buildEncryptionService = (
+  config: EncryptionConfig = encryption,
+) => {
+  if (config.keys.length) {
+    return new SchemaEncryptionServiceRsa({
+      keys: config.keys.map((key) => ({
+        id: key.id,
+        publicKey: decodePem(key.publicKey),
+        privateKey: key.privateKey ? decodePem(key.privateKey) : undefined,
+        privateKeyPassword: key.privateKeyPassword || undefined,
+      })),
+      activeKeyId: config.activeKeyId,
+    })
+  }
+  if (!config.publicKey) return undefined
+  return new SchemaEncryptionServiceRsa({
+    publicKey: decodePem(config.publicKey),
+    privateKey: config.privateKey ? decodePem(config.privateKey) : undefined,
+    privateKeyPassword: config.privateKeyPassword || undefined,
+  })
+}
 
 export function composeModel(c: ModelComposition = {}): ComposedModel {
   const encryptionService = buildEncryptionService()

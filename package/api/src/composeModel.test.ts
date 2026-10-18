@@ -33,7 +33,8 @@ jest.mock('@datacapy/server', () => {
 
 // composeModel imports config/default, which reads real env vars — fine here,
 // we only inspect the dataSources/dynamicDataSource shape, not connect to anything.
-import { composeModel } from './composeModel'
+import { generateKeyPairSync } from 'crypto'
+import { buildEncryptionService, composeModel } from './composeModel'
 
 describe('composeModel', () => {
   beforeEach(() => {
@@ -97,5 +98,63 @@ describe('composeModel', () => {
     expect(registered[userIndexes[userIndexes.length - 1]]).toBeInstanceOf(
       ExtensionUserSchema,
     )
+  })
+})
+
+describe('buildEncryptionService', () => {
+  const makeKey = (id: string) => {
+    const pair = generateKeyPairSync('rsa', {
+      modulusLength: 2048,
+      publicKeyEncoding: { type: 'spki', format: 'pem' },
+      privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
+    })
+    return {
+      id,
+      publicKey: Buffer.from(pair.publicKey).toString('base64'),
+      privateKey: Buffer.from(pair.privateKey).toString('base64'),
+    }
+  }
+  const empty = {
+    publicKey: '',
+    privateKey: '',
+    privateKeyPassword: '',
+    keys: [],
+    activeKeyId: '',
+  }
+  const keyIdOf = (ciphertext: string): string =>
+    JSON.parse(Buffer.from(ciphertext, 'base64').toString('utf8')).kid
+
+  it('is disabled when nothing is configured', () => {
+    expect(buildEncryptionService(empty)).toBeUndefined()
+  })
+
+  it('builds a single default key from the legacy variables', async () => {
+    const { publicKey, privateKey } = makeKey('default')
+    const service = buildEncryptionService({ ...empty, publicKey, privateKey })!
+    const ciphertext = await service.encrypt('x')
+    expect(keyIdOf(ciphertext)).toBe('default')
+    expect(await service.decrypt(ciphertext)).toBe('x')
+  })
+
+  it('builds a multi-key service that writes with the active key', async () => {
+    const keys = [makeKey('old'), makeKey('new')]
+    const service = buildEncryptionService({
+      ...empty,
+      keys,
+      activeKeyId: 'new',
+    })!
+    const ciphertext = await service.encrypt('x')
+    expect(keyIdOf(ciphertext)).toBe('new')
+    expect(await service.decrypt(ciphertext)).toBe('x')
+  })
+
+  it('rejects an active key id that is not configured', () => {
+    expect(() =>
+      buildEncryptionService({
+        ...empty,
+        keys: [makeKey('old')],
+        activeKeyId: 'missing',
+      }),
+    ).toThrow('activeKeyId "missing"')
   })
 })

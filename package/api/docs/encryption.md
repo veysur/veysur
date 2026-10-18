@@ -13,8 +13,10 @@ service or endpoint code beyond schema annotation and environment configuration.
 | `API_ENCRYPTION_PUBLIC_KEY` | Yes (to enable) | Base64-encoded RSA public key PEM |
 | `API_ENCRYPTION_PRIVATE_KEY` | For decryption | Base64-encoded RSA private key PEM (omit on read-only nodes) |
 | `API_ENCRYPTION_PRIVATE_KEY_PASSWORD` | If key is encrypted | Passphrase for the private key |
+| `API_ENCRYPTION_KEYS` | Only to rotate | JSON array of `{ id, publicKey, privateKey?, privateKeyPassword? }`, each PEM base64-encoded. Replaces the three variables above when set |
+| `API_ENCRYPTION_ACTIVE_KEY_ID` | With `API_ENCRYPTION_KEYS` | `id` of the key used for new values. Must be one of the listed ids |
 
-Encryption is disabled when `API_ENCRYPTION_PUBLIC_KEY` is not set. The API starts
+Encryption is disabled when neither `API_ENCRYPTION_PUBLIC_KEY` nor `API_ENCRYPTION_KEYS` is set. The API starts
 normally and all fields store plaintext.
 
 Keys are stored base64-encoded (single line) to be compatible with the `key=value` format
@@ -53,11 +55,45 @@ API_ENCRYPTION_PRIVATE_KEY=$(base64 -w 0 < private.pem)
 
 Store the passphrase you entered in `API_ENCRYPTION_PRIVATE_KEY_PASSWORD`.
 
+## Rotating keys
+
+Each stored value carries the id (`kid`) of the key that wrapped it. Values written before
+key ids existed have none and count as the key with id `default`. With a single key set
+through the three variables above, the key id is `default`.
+
+`ServiceEncryptionRotation.reencryptUsers` (task `encryptionRotation`, seeded disabled by
+migration `2026-10-18_1000`) re-wraps every encrypted field of the `user` collection under the
+active key without ever producing plaintext. It runs in batches, continues from a cursor saved
+in the task's `options.afterId`, and can be repeated safely. Its result reports `byKid`, the
+number of values found on each key before the run.
+
+1. Back up the database.
+2. Generate a new key pair (see Key Generation).
+3. Set `API_ENCRYPTION_KEYS` to a list holding the current key and the new one, and leave
+   `API_ENCRYPTION_ACTIVE_KEY_ID` on the current key. The current key's `id` must be `default`
+   while stored values predate key ids. Deploy this to **every** node, including read-only
+   ones (which need the private halves of every key they must read), and wait for the rollout
+   to finish: an older build cannot parse envelopes written under a newer one.
+4. Switch `API_ENCRYPTION_ACTIVE_KEY_ID` to the new key and deploy. New values now use it.
+5. Enable the `Field Encryption Rotation` task. It starts with `dryRun: true`; read the first
+   execution's result, then set `options.dryRun` to `false`.
+6. Wait until a run reports `byKid` with zero values on the old key and `failed: 0`. A
+   failed document is left unchanged; fix its cause and run again. Then disable the task.
+7. Retire the old key only when no database backup that may still be restored holds values
+   wrapped by it. Losing a key makes the values on it unreadable.
+
+```bash
+# dry run against the running dev stack
+pnpm dev:task -- encryptionRotation reencryptUsers '{"dryRun":true}'
+```
+
+See [task-manager.md](task-manager.md) for manual triggering and execution history.
+
 ## Limitations
 
 - **Not queryable by value** — the database stores ciphertext; `find({ nationalId: '...' })` will not match.
 - **String coercion** — numeric/boolean fields are returned as strings after decryption.
-- **No built-in key rotation** — rotating keys requires re-encrypting all stored values outside the API.
+- **Envelope not bound to its field** — a ciphertext is not tied to its document or field, so it could be copied between fields (tracked in the security review).
 - **Node.js only** — uses the built-in `crypto` module via `SchemaEncryptionServiceRsa`.
 
 ## References

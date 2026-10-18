@@ -5,6 +5,7 @@ import { S3_DEFAULT_BUCKET, S3_PRIVATE_BUCKET } from 'veysur-common'
 import { setDomainSubdomain } from '../common/domainUtils'
 import { getEdition, isSelfHosted } from './edition'
 import { ServerConfig } from './types'
+import { parseEncryptionKeys } from './encryptionKeys'
 
 const {
   API_BRAND_NAME,
@@ -126,6 +127,8 @@ const {
   API_ENCRYPTION_PUBLIC_KEY,
   API_ENCRYPTION_PRIVATE_KEY,
   API_ENCRYPTION_PRIVATE_KEY_PASSWORD,
+  API_ENCRYPTION_KEYS,
+  API_ENCRYPTION_ACTIVE_KEY_ID,
   // Rate Limiting
   RATE_LIMIT_ENABLED,
   RATE_LIMIT_AUTH_REFRESH_LIMIT,
@@ -493,6 +496,8 @@ export const encryption = {
   publicKey: API_ENCRYPTION_PUBLIC_KEY || '',
   privateKey: API_ENCRYPTION_PRIVATE_KEY || '',
   privateKeyPassword: API_ENCRYPTION_PRIVATE_KEY_PASSWORD || '',
+  keys: parseEncryptionKeys(API_ENCRYPTION_KEYS),
+  activeKeyId: API_ENCRYPTION_ACTIVE_KEY_ID || '',
 }
 
 export default server

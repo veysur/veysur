@@ -53,7 +53,7 @@ Fixed in `compose.yaml`, not keys: `DEPLOYMENT_MODE=self-hosted`, the local stor
 field-encryption trio `API_ENCRYPTION_PUBLIC_KEY`, `API_ENCRYPTION_PRIVATE_KEY`,
 `API_ENCRYPTION_PRIVATE_KEY_PASSWORD` (the keys are base64 of a 4096-bit RSA PEM pair). Generated values are
 hex or base64 so they are safe unquoted in `.env`. `./scripts/backup.sh` includes `.env`. [maintenance.md](./maintenance.md) lists what losing each secret costs;
-losing the encryption keys, for example, makes encrypted fields unreadable.
+losing the encryption keys, for example, makes encrypted fields unreadable. To rotate the encryption key, set `API_ENCRYPTION_KEYS` and `API_ENCRYPTION_ACTIVE_KEY_ID` as described in [encryption.md](../package/api/docs/encryption.md); keep every retired key until no stored value or restorable backup uses it.
 
 ## Frontend values fixed at image build time
 
