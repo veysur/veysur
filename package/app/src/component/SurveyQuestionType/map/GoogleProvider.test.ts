@@ -1,3 +1,4 @@
+import { MapAuthError } from './MapProvider'
 import { GoogleProvider } from './GoogleProvider'
 
 type FakeResult = {
@@ -78,5 +79,25 @@ describe('GoogleProvider', () => {
     geocode.mockResolvedValue({ results: [] })
 
     expect(await new GoogleProvider('k').reverse(0, 0)).toBeNull()
+  })
+})
+
+describe('GoogleProvider API key failures', () => {
+  it('turns a denied geocode request into MapAuthError', async () => {
+    geocode.mockRejectedValue(
+      Object.assign(new Error('denied'), { code: 'REQUEST_DENIED' }),
+    )
+
+    await expect(new GoogleProvider('k').search('London', [])).rejects.toThrow(
+      MapAuthError,
+    )
+  })
+
+  it('passes other geocode errors through', async () => {
+    geocode.mockRejectedValue(new Error('network'))
+
+    await expect(
+      new GoogleProvider('k').search('London', []),
+    ).rejects.not.toBeInstanceOf(MapAuthError)
   })
 })

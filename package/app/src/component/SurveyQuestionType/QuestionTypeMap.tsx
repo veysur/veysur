@@ -18,7 +18,12 @@ import { Spinner } from 'component/shadcn/spinner'
 import { useMapConfig } from 'component/Survey/MapConfigContext'
 
 import { QuestionTypeProps } from './QuestionTypeProps'
-import { GeocodeResult, MapProvider, MapViewHandle } from './map/MapProvider'
+import {
+  GeocodeResult,
+  MapAuthError,
+  MapProvider,
+  MapViewHandle,
+} from './map/MapProvider'
 import { loadMapProvider } from './map/loadMapProvider'
 import {
   readBrowserHints,
@@ -88,8 +93,12 @@ export const QuestionTypeMap: React.FC<QuestionTypeProps> = ({
           const found = await provider.reverse(lat, lng)
           address = address ?? found?.address
           countryCode = found?.countryCode
-        } catch {
-          setNotice('We could not check the country of that location.')
+        } catch (error) {
+          setNotice(
+            error instanceof MapAuthError
+              ? 'We could not check the country: the map service is not set up correctly.'
+              : 'We could not check the country of that location.',
+          )
           return
         } finally {
           setBusy(false)
@@ -154,6 +163,7 @@ export const QuestionTypeMap: React.FC<QuestionTypeProps> = ({
         lng: start?.lng ?? startView.lng,
         zoom: start ? MAP_ZOOM_STREET : startView.zoom,
         onPick: (lat, lng) => void chooseRef.current(lat, lng),
+        onError: () => !cancelled && setMapFailed(true),
       })
       .then((created) => {
         if (cancelled) {
@@ -202,8 +212,12 @@ export const QuestionTypeMap: React.FC<QuestionTypeProps> = ({
       setResults(found)
       if (found.length === 0)
         setNotice('No places found. Try a different search.')
-    } catch {
-      setNotice('Search is unavailable right now.')
+    } catch (error) {
+      setNotice(
+        error instanceof MapAuthError
+          ? 'Search is unavailable: the map service is not set up correctly.'
+          : 'Search is unavailable right now.',
+      )
     } finally {
       setBusy(false)
     }

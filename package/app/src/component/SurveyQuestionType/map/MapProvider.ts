@@ -17,6 +17,16 @@ export interface MapViewOptions {
   lng: number
   zoom: number
   onPick: (lat: number, lng: number) => void
+  /** Called if the service rejects the map after it was created, e.g. a bad API key. */
+  onError?: (error: Error) => void
+}
+
+/** The map service refused the request: a missing, invalid or restricted API key. */
+export class MapAuthError extends Error {
+  constructor(message = 'The map service rejected the API key') {
+    super(message)
+    this.name = 'MapAuthError'
+  }
 }
 
 export interface MapViewHandle {
