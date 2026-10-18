@@ -110,6 +110,10 @@ needs a test; a bug fix needs a test that would have caught it.
 Conventional commit messages (`type(scope): summary`), imperative present
 tense. Keep pull requests focused on one logical change.
 
+Implement features on a feature branch and squash merge into `master` only once
+they are covered by automated tests and documented. Small fixes may go straight
+to `master`.
+
 ## Releases
 
 Versioned via [Changesets](https://github.com/changesets/changesets); `veysur-app`,
