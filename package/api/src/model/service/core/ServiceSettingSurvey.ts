@@ -1,19 +1,9 @@
 import { Service } from '@datacapy/server'
 import { DataSourceContext } from '@datacapy/om'
-import {
-  Patcher,
-  Patch,
-  SettingSurvey,
-  EffectiveSettingSurvey,
-  resolveMapConfig,
-} from 'veysur-common'
+import { Patcher, Patch, SettingSurvey } from 'veysur-common'
 
 import { RepoSettingSurvey } from 'model'
 import { contextForProject } from 'common'
-import {
-  maskBotProtectionSecrets,
-  mergeBotProtectionSecrets,
-} from 'model/service/botProtection'
 
 export class ServiceSettingSurvey extends Service {
   constructor() {
@@ -46,21 +36,7 @@ export class ServiceSettingSurvey extends Service {
       settingSurvey = new SettingSurvey()
       await repo.create(settingSurvey, { context })
     }
-    // The stored values are what the settings forms edit; `effective` is what
-    // participants will get once the deployment defaults are applied
-    const effective: EffectiveSettingSurvey = {
-      maps: resolveMapConfig(
-        this.config.model.app.maps,
-        settingSurvey.maps?.googleApiKey,
-      ),
-      mapsDeployment: this.config.model.app.maps,
-    }
-    // Provider secret keys are write-only
-    return {
-      ...settingSurvey,
-      botProtection: maskBotProtectionSecrets(settingSurvey.botProtection),
-      effective,
-    }
+    return settingSurvey
   }
 
   async patch({ projectId, patches }) {
@@ -74,14 +50,6 @@ export class ServiceSettingSurvey extends Service {
       delete updateData._id
       delete updateData.createdAt
       delete updateData.updatedAt
-
-      if (updateData.botProtection) {
-        const stored = await repoSettingSurvey.findOne({}, { context })
-        updateData.botProtection = mergeBotProtectionSecrets(
-          updateData.botProtection,
-          stored?.botProtection,
-        )
-      }
 
       updateData.updatedAt = new Date()
       await repoSettingSurvey.updateOne(

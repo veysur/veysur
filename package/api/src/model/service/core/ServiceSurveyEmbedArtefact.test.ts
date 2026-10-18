@@ -49,6 +49,7 @@ describe('ServiceSurveyEmbedArtefact', () => {
   let snapshotAccess: { open: boolean; embed: boolean }
   let mockParticipantSnapshot: {
     getGatedSettingSurvey: jest.Mock
+    getGatedSettingProject: jest.Mock
     isNoBrandAllowed: jest.Mock
   }
 
@@ -74,6 +75,9 @@ describe('ServiceSurveyEmbedArtefact', () => {
     })
     mockParticipantSnapshot = {
       getGatedSettingSurvey: jest.fn().mockResolvedValue({ gated: true }),
+      getGatedSettingProject: jest
+        .fn()
+        .mockResolvedValue({ maps: { provider: 'osm' } }),
       isNoBrandAllowed: jest.fn().mockResolvedValue(false),
     }
 
@@ -160,6 +164,7 @@ describe('ServiceSurveyEmbedArtefact', () => {
       access: { open: true, embed: true },
       noBrandAvailable: false,
       settingSurveyData: { gated: true },
+      settingProjectData: { maps: { provider: 'osm' } },
     })
   })
 

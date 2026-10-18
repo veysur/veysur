@@ -72,10 +72,6 @@ export const PageSettingSurvey: React.FC = () => {
       operations?.updateSettingSurveyNotifyProperty(field, value),
     updateScheduleProperty: (field, value) =>
       operations?.updateSettingSurveyScheduleProperty(field, value),
-    updateMapsProperty: (field, value) =>
-      operations?.updateSettingSurveyMapsProperty(field, value),
-    updateBotProtectionProperty: (field, value) =>
-      operations?.updateSettingSurveyBotProtectionProperty(field, value),
     updateContentFormatProperty: (field, value) =>
       operations?.updateSettingSurveyContentFormatProperty(field, value),
     updateDataPolicyText: (value, language) =>

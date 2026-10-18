@@ -1,6 +1,7 @@
 export * from './RepoEmailTemplate'
 export * from './RepoEventLog'
 export * from './RepoFile'
+export * from './RepoSettingProject'
 export * from './RepoSettingSurvey'
 export * from './RepoSurvey'
 export * from './RepoSurveyLanguage'

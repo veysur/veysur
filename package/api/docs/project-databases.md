@@ -90,6 +90,7 @@ The following VeySur repos use project-specific databases (configured with `data
 - `surveySnapshot`
 - `surveySnapshotData`
 - `surveyPublication`
+- `settingProject`
 - `settingSurvey`
 - `file`
 - `emailTemplate`

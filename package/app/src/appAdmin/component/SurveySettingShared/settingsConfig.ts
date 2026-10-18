@@ -10,8 +10,6 @@ import {
   Bell,
   Mail,
   FileCode,
-  MapPin,
-  ShieldCheck,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -102,20 +100,6 @@ export const settingsConfig: SettingInfo[] = [
     icon: Bell,
     category: 'user',
     description: 'Notification and alert settings',
-  },
-  {
-    key: 'maps',
-    title: 'Maps',
-    icon: MapPin,
-    category: 'content',
-    description: 'Choose the map service used by map questions',
-  },
-  {
-    key: 'botProtection',
-    title: 'Bot protection',
-    icon: ShieldCheck,
-    category: 'security',
-    description: 'Choose the bot check provider and its keys',
   },
   {
     key: 'emailTemplates',

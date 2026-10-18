@@ -72,7 +72,7 @@ This allows adding new entity types or formats independently without modifying c
           └── thumb.jpg
   ```
 
-- **ProjectEntityHandler** — Project-wide settings import/export (.vsps tar+gz, entity id is the project id). Always synchronous. Import applies only the parts named in `options.apply` (`timezone`, `settings`, `templates`; all by default) through the `project`, `settingSurvey` and `emailTemplate` services, so an extension's overrides and plan guards apply. Validation is shared with the app via `ProjectSettingsImportValidator` in `veysur-common`.
+- **ProjectEntityHandler** — Project-wide settings import/export (.vsps tar+gz, entity id is the project id). Always synchronous. Import applies only the parts named in `options.apply` (`timezone`, `settings`, `templates`; all by default) through the `project`, `settingSurvey` and `emailTemplate` services, so an extension's overrides and plan guards apply. The `.vsps` archive carries neither the Google Maps key nor the bot-protection block (`settingProject`); an older archive that has them imports with a warning and skips them. Validation is shared with the app via `ProjectSettingsImportValidator` in `veysur-common`.
 
   ```
   project-settings.vsps (tar+gz)

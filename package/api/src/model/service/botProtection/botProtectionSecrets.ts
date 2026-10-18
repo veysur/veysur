@@ -2,11 +2,7 @@ import { BotProtectionSetting } from 'veysur-common'
 
 const KEYED_PROVIDERS = ['cloudflare', 'google'] as const
 
-type MaskedKeys = {
-  siteKey: string | null
-  secretKey: string | null
-  hasSecret: boolean
-}
+type MaskedKeys = { siteKey: string; secretKey: string; hasSecret: boolean }
 
 export type MaskedBotProtection = Omit<
   BotProtectionSetting,
@@ -15,8 +11,7 @@ export type MaskedBotProtection = Omit<
 
 /**
  * The setting as an admin may read it back: secret keys are write-only, so
- * each is blanked and `hasSecret` says whether one is stored. A null key on
- * a survey means it inherits the project value, so null is kept as null.
+ * each is blanked and `hasSecret` says whether one is stored.
  */
 export function maskBotProtectionSecrets(
   setting: BotProtectionSetting | null | undefined,
@@ -26,8 +21,8 @@ export function maskBotProtectionSecrets(
   for (const provider of KEYED_PROVIDERS) {
     const keys = setting[provider]
     masked[provider] = {
-      siteKey: keys?.siteKey === null ? null : (keys?.siteKey ?? ''),
-      secretKey: keys?.secretKey === null ? null : '',
+      siteKey: keys?.siteKey ?? '',
+      secretKey: '',
       hasSecret: !!keys?.secretKey,
     } satisfies MaskedKeys
   }
@@ -37,27 +32,19 @@ export function maskBotProtectionSecrets(
 /**
  * Prepare an admin's botProtection write for storage. A blank or absent
  * `secretKey` keeps the stored one (the form never receives it), and the
- * read-only `hasSecret` flag is dropped. With `nullInherits` (a survey), an
- * explicit null key is stored as null so the survey inherits the project's.
+ * read-only `hasSecret` flag is dropped.
  */
 export function mergeBotProtectionSecrets(
   incoming: BotProtectionSetting,
   stored: BotProtectionSetting | null | undefined,
-  { nullInherits = false }: { nullInherits?: boolean } = {},
 ): BotProtectionSetting {
   const merged: BotProtectionSetting = { ...incoming }
   for (const provider of KEYED_PROVIDERS) {
     if (!incoming[provider]) continue
     const { siteKey, secretKey } = incoming[provider]
     merged[provider] = {
-      siteKey:
-        nullInherits && siteKey === null
-          ? null
-          : (siteKey ?? stored?.[provider]?.siteKey ?? ''),
-      secretKey:
-        nullInherits && secretKey === null
-          ? null
-          : secretKey?.trim() || stored?.[provider]?.secretKey || '',
+      siteKey: siteKey ?? stored?.[provider]?.siteKey ?? '',
+      secretKey: secretKey?.trim() || stored?.[provider]?.secretKey || '',
     }
   }
   return merged

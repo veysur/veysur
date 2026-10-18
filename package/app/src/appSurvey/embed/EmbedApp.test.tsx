@@ -50,6 +50,10 @@ const makePointer = (
   settingSurveyData: {
     _id: 'setting',
   } as SurveyEmbedPointer['settingSurveyData'],
+  settingProjectData: {
+    maps: { provider: 'osm', googleApiKey: '' },
+    botProtection: { provider: 'none', siteKey: '' },
+  },
 })
 
 const mockFetch = (pointer: SurveyEmbedPointer | null) => {

@@ -13,8 +13,6 @@ import { BaseScheduleSettings } from './BaseScheduleSettings'
 import { BaseDataPolicySettings } from './BaseDataPolicySettings'
 import { BaseLegalNoticeSettings } from './BaseLegalNoticeSettings'
 import { BaseNotifySettings } from './BaseNotifySettings'
-import { BaseMapsSettings } from './BaseMapsSettings'
-import { BaseBotProtectionSettings } from './BaseBotProtectionSettings'
 
 type EmailTemplateProps = {
   emailTemplates?: Map<string, EmailTemplate>
@@ -77,12 +75,6 @@ export function ContentRenderer<T>(
           NO={handlers.NO}
         />
       )
-
-    case 'maps':
-      return <BaseMapsSettings data={data} handlers={handlers} />
-
-    case 'botProtection':
-      return <BaseBotProtectionSettings data={data} handlers={handlers} />
 
     case 'notify':
       return <BaseNotifySettings data={data} handlers={handlers} />

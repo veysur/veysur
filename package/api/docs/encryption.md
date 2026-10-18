@@ -17,7 +17,16 @@ service or endpoint code beyond schema annotation and environment configuration.
 | `API_ENCRYPTION_ACTIVE_KEY_ID` | With `API_ENCRYPTION_KEYS` | `id` of the key used for new values. Must be one of the listed ids |
 
 Encryption is disabled when neither `API_ENCRYPTION_PUBLIC_KEY` nor `API_ENCRYPTION_KEYS` is set. The API starts
-normally and all fields store plaintext.
+normally, but saving a value into an encrypted field then fails (the bot-protection settings return a 400 that
+says an encryption key is needed). Values stored as plaintext before a field became encrypted are read as they
+are and encrypted by a migration or the next write.
+
+## Encrypted Fields
+
+| Collection | Field |
+|---|---|
+| `user` | `twoFactorSecret` |
+| `settingProject` (per project) | `botProtection.cloudflare.secretKey`, `botProtection.google.secretKey` |
 
 Keys are stored base64-encoded (single line) to be compatible with the `key=value` format
 used by `.env` files.
@@ -61,11 +70,13 @@ Each stored value carries the id (`kid`) of the key that wrapped it. Values writ
 key ids existed have none and count as the key with id `default`. With a single key set
 through the three variables above, the key id is `default`.
 
-`ServiceEncryptionRotation.reencryptUsers` (task `encryptionRotation`, seeded disabled by
-migration `2026-10-18_1000`) re-wraps every encrypted field of the `user` collection under the
-active key without ever producing plaintext. It runs in batches, continues from a cursor saved
-in the task's `options.afterId`, and can be repeated safely. Its result reports `byKid`, the
-number of values found on each key before the run.
+`ServiceEncryptionRotation` re-wraps encrypted fields under the active key without ever producing
+plaintext. Two actions of the `encryptionRotation` task cover the encrypted collections, each
+seeded disabled by a migration: `reencryptUsers` (`2026-10-18_1000`, the `user` collection) and
+`reencryptProjectSettings` (`2026-10-18_1200`, each project's `settingProject`; `batchSize`
+counts projects). Enable both during a rotation. Each runs in batches, continues from a cursor
+saved in the task's `options.afterId`, and can be repeated safely. Its result reports `byKid`,
+the number of values found on each key before the run.
 
 1. Back up the database.
 2. Generate a new key pair (see Key Generation).
@@ -75,9 +86,9 @@ number of values found on each key before the run.
    ones (which need the private halves of every key they must read), and wait for the rollout
    to finish: an older build cannot parse envelopes written under a newer one.
 4. Switch `API_ENCRYPTION_ACTIVE_KEY_ID` to the new key and deploy. New values now use it.
-5. Enable the `Field Encryption Rotation` task. It starts with `dryRun: true`; read the first
+5. Enable the `Field Encryption Rotation` and `Field Encryption Rotation (project settings)` tasks. It starts with `dryRun: true`; read the first
    execution's result, then set `options.dryRun` to `false`.
-6. Wait until a run reports `byKid` with zero values on the old key and `failed: 0`. A
+6. Wait until a run of each reports `byKid` with zero values on the old key and `failed: 0`. A
    failed document is left unchanged; fix its cause and run again. Then disable the task.
 7. Retire the old key only when no database backup that may still be restored holds values
    wrapped by it. Losing a key makes the values on it unreadable.
@@ -85,6 +96,7 @@ number of values found on each key before the run.
 ```bash
 # dry run against the running dev stack
 pnpm dev:task -- encryptionRotation reencryptUsers '{"dryRun":true}'
+pnpm dev:task -- encryptionRotation reencryptProjectSettings '{"dryRun":true}'
 ```
 
 See [task-manager.md](task-manager.md) for manual triggering and execution history.

@@ -288,7 +288,6 @@ const createMockDefaults = (overrides = {}) => {
       basic: '',
       detailed: '',
     },
-    maps: { provider: 'osm', googleApiKey: '' },
     contentFormat: {
       htmlAllowed: false,
       markdownAllowed: true,
@@ -1192,12 +1191,12 @@ describe('Survey Component', () => {
       JSON.parse(screen.getByTestId('map-config').textContent ?? '{}')
 
     test('resolves the provider and key from the project settings', () => {
-      const settingSurvey = createMockDefaults({
-        maps: { provider: 'google', googleApiKey: 'project-key' },
-      })
-
       render(
-        <Survey settingSurvey={settingSurvey} survey={createMockSurvey()} />,
+        <Survey
+          settingSurvey={createMockDefaults()}
+          mapSettings={{ provider: 'google', googleApiKey: 'project-key' }}
+          survey={createMockSurvey()}
+        />,
       )
 
       expect(readMapConfig()).toEqual({
@@ -1208,16 +1207,18 @@ describe('Survey Component', () => {
       })
     })
 
-    test('mapSettings stands in for settingSurvey.maps', () => {
+    test('falls back to OpenStreetMap with no key when the page has no map settings', () => {
       render(
         <Survey
           settingSurvey={createMockDefaults()}
-          mapSettings={{ provider: 'osm', googleApiKey: 'page-key' }}
           survey={createMockSurvey()}
         />,
       )
 
-      expect(readMapConfig().googleApiKey).toBe('page-key')
+      expect(readMapConfig()).toMatchObject({
+        provider: 'osm',
+        googleApiKey: '',
+      })
     })
 
     test('defers the map load for embedded surveys', () => {

@@ -11,7 +11,7 @@ trade-offs: `docs/decisions/2026/2026-10-07_embedded-surveys.md` in the VeySur m
 3. On the first answer it calls `POST /auth-participant/:surveyId` with `X-Embed-Origin` (the embedding site),
    then saves responses as normal.
 
-When `access.preventRepeat` is on (read from the pointer's `settingSurveyData`), the shell stores
+When `access.preventRepeat` is on (read from the pointer's `settingSurveyData`; the map provider and key come from `settingProjectData`), the shell stores
 `veysur_done_<surveyId>` in `localStorage` after a completed save and shows the completed card on later loads
 (`appSurvey/common/completedStorage.ts`). Browsers partition iframe storage per embedding site, so the limit is once
 per site, and third-party cookie blocking does not affect it. It is a deterrent only: the server never sees the flag.

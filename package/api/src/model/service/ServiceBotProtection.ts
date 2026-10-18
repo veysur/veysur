@@ -24,7 +24,7 @@ import {
 
 /**
  * Bot checks for the survey start step. The project picks a provider and its
- * keys (`settingSurvey.botProtection`); a survey opts in with `access.botProtection`.
+ * keys (`settingProject.botProtection`); a survey opts in with `access.botProtection`.
  * Design: docs/bot-protection.md.
  */
 export class ServiceBotProtection extends Service {
@@ -43,33 +43,6 @@ export class ServiceBotProtection extends Service {
     surveyEnabled: boolean | null | undefined,
   ): ResolvedBotProtection {
     return resolveBotProtection(setting, surveyEnabled)
-  }
-
-  /**
-   * The setting a survey really uses: each value is the survey's own, else the
-   * project's. Resolved live, so a key change applies to published surveys
-   * the same way a project change always has.
-   */
-  effectiveSetting({
-    survey,
-    project,
-  }: {
-    survey: BotProtectionSetting | null | undefined
-    project: BotProtectionSetting | null | undefined
-  }): BotProtectionSetting {
-    const keysFor = (provider: 'cloudflare' | 'google') => ({
-      siteKey:
-        survey?.[provider]?.siteKey?.trim() || project?.[provider]?.siteKey,
-      secretKey:
-        survey?.[provider]?.secretKey?.trim() ||
-        project?.[provider]?.secretKey?.trim() ||
-        '',
-    })
-    return {
-      provider: survey?.provider || project?.provider,
-      cloudflare: keysFor('cloudflare'),
-      google: keysFor('google'),
-    }
   }
 
   issueChallenge(surveyId: string): SimpleChallenge {

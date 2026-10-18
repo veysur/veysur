@@ -57,12 +57,14 @@ import {
   type SurveyRenderItem,
 } from './SurveyTypes'
 
+type MapSettings = { provider?: string; googleApiKey?: string }
+
+const DEFAULT_MAP_SETTINGS: MapSettings = {}
+
 type Props = {
   settingSurvey?: SettingSurvey
-  // Effective map provider and key when the page has no `settingSurvey`; the
-  // standard survey page passes only this, since its survey is already
-  // resolved against the project settings at publish time
-  mapSettings?: SettingSurvey['maps']
+  // The project's map provider and key; OpenStreetMap when absent
+  mapSettings?: MapSettings
   survey?: SurveyEntity
   authToken?: string
   // The host authenticates inside onSaveResponse on the first answer (embeds), so
@@ -133,7 +135,7 @@ export const Survey: React.FC<Props> = ({
   })
 
   const anonymous = survey?.getAccess(settingSurvey).anonymous ?? false
-  const mapSource = mapSettings ?? settingSurvey.maps
+  const mapSource = mapSettings ?? DEFAULT_MAP_SETTINGS
   const mapConfig = useMemo(
     () => ({
       ...resolveMapConfig({

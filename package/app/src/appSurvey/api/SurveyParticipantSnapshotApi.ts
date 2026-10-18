@@ -2,6 +2,7 @@ import {
   SurveySnapshotPartial,
   SurveySnapshot,
   SettingSurvey,
+  SettingProjectGated,
 } from 'veysur-common'
 import { PropsOf } from '@datacapy/schema'
 
@@ -12,6 +13,7 @@ export interface SurveyParticipantSnapshotResponse {
   snapshot: PropsOf<SurveySnapshotPartial>
   snapshotData: PropsOf<SurveySnapshot>
   settingSurveyData: PropsOf<SettingSurvey>
+  settingProjectData: SettingProjectGated
 }
 
 export class SurveyParticipantSnapshotApi extends Api {

@@ -105,15 +105,6 @@ export interface SettingSurveyMixinBase {
     basic?: string | null
     detailed?: string | null
   }
-  maps?: {
-    googleApiKey?: string | null
-    provider?: string | null
-  }
-  botProtection?: {
-    provider?: string | null
-    cloudflare?: { siteKey?: string | null; secretKey?: string | null } | null
-    google?: { siteKey?: string | null; secretKey?: string | null } | null
-  }
   stats?: {
     questions?: {
       [questionCode: string]: {

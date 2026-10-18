@@ -3,16 +3,15 @@ import { DataSourceContext } from '@datacapy/om'
 import { Survey, resolveBotProtection, resolveMapConfig } from 'veysur-common'
 
 import {
-  RepoSurvey,
   RepoSurveyLanguageSnapshot,
   RepoSurveySnapshotPartial,
   RepoSurveySnapshot,
   RepoSurveyPublication,
+  RepoSettingProject,
   RepoSettingSurvey,
 } from 'model'
 import { mergeSurveyLanguageSnapshots } from 'model/common'
 import { contextForProject } from 'common'
-import type { ServiceBotProtection } from '../ServiceBotProtection'
 
 export class ServiceSurveyParticipantSnapshot extends Service {
   constructor() {
@@ -127,16 +126,16 @@ export class ServiceSurveyParticipantSnapshot extends Service {
       projectId,
     )
 
-    const settingSurveyData = await this.getGatedSettingSurvey(
-      projectId,
-      context,
-      surveyId,
-    )
+    const [settingSurveyData, settingProjectData] = await Promise.all([
+      this.getGatedSettingSurvey(projectId, context),
+      this.getGatedSettingProject(context),
+    ])
 
     return {
       snapshot,
       snapshotData: { ...snapshotData, survey },
       settingSurveyData,
+      settingProjectData,
     }
   }
 
@@ -144,45 +143,14 @@ export class ServiceSurveyParticipantSnapshot extends Service {
    * Load the project's survey settings as a participant may see them:
    * noBrand is suppressed if the project no longer qualifies for branding
    * removal (see isNoBrandAvailable), even though the setting itself is still
-   * stored as true, `botProtection` carries only the provider and site key, and `maps` carries the effective provider and Google key
-   * (survey key, else project key, over deployment key) in place of the
-   * stored override. Pass the survey id to apply that survey's own overrides.
+   * stored as true.
    */
-  async getGatedSettingSurvey(
-    projectId: string,
-    context: DataSourceContext,
-    surveyId?: string,
-  ) {
+  async getGatedSettingSurvey(projectId: string, context: DataSourceContext) {
     const repoSettingSurvey = this.getRepo<RepoSettingSurvey>('settingSurvey')
     const settingSurvey = await repoSettingSurvey.findOne({}, { context })
     if (!settingSurvey) return settingSurvey
 
-    const survey = surveyId
-      ? await this.getRepo<RepoSurvey>('survey').findOne(
-          { _id: surveyId },
-          { context },
-        )
-      : undefined
-    const botProtectionService =
-      this.getService<ServiceBotProtection>('botProtection')
-
-    const gated = {
-      ...settingSurvey,
-      maps: resolveMapConfig(
-        this.config.model.app.maps,
-        survey
-          ? survey.getMaps(settingSurvey).googleApiKey
-          : settingSurvey.maps?.googleApiKey,
-      ),
-      // Provider and site key only; the secret key never leaves the API
-      botProtection: resolveBotProtection(
-        botProtectionService.effectiveSetting({
-          survey: survey?.botProtection,
-          project: settingSurvey.botProtection,
-        }),
-        true,
-      ),
-    }
+    const gated = { ...settingSurvey }
 
     if (
       gated.presentation?.noBrand &&
@@ -191,6 +159,26 @@ export class ServiceSurveyParticipantSnapshot extends Service {
       gated.presentation = { ...gated.presentation, noBrand: false }
     }
     return gated
+  }
+
+  /**
+   * The project's provider settings as a participant may see them: `maps`
+   * carries the effective provider and Google key (project key over
+   * deployment key) in place of the stored override, and `botProtection`
+   * carries only the provider and site key, never the secret.
+   */
+  async getGatedSettingProject(context: DataSourceContext) {
+    const settingProject = await this.getRepo<RepoSettingProject>(
+      'settingProject',
+    ).findOne({}, { context })
+
+    return {
+      maps: resolveMapConfig(
+        this.config.model.app.maps,
+        settingProject?.maps?.googleApiKey,
+      ),
+      botProtection: resolveBotProtection(settingProject?.botProtection, true),
+    }
   }
 
   /**

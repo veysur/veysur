@@ -17,13 +17,6 @@ export interface ResolvedMapConfig {
   googleApiKey: string
 }
 
-/** Settings resolved against the deployment, returned beside the stored survey settings. */
-export interface EffectiveSettingSurvey {
-  maps: ResolvedMapConfig
-  /** What a survey's own key resolves against; maps above is the project's view */
-  mapsDeployment: MapDeploymentConfig
-}
-
 export function resolveMapConfig(
   deployment: MapDeploymentConfig,
   projectGoogleApiKey?: string | null,

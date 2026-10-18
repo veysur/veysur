@@ -12,6 +12,10 @@ jest.mock('@datacapy/om', () => ({
 const makeService = (encryptionService?: unknown) => {
   const repoTask = { updateOne: jest.fn().mockResolvedValue({ count: 1 }) }
   const repoUser = {}
+  const repoSettingProject = {}
+  const repoProject = {
+    find: jest.fn().mockResolvedValue([{ _id: 'p1' }, { _id: 'p2' }]),
+  }
   const service = asPrivate<
     ServiceEncryptionRotation,
     { getRepo: jest.Mock; modelManager: unknown }
@@ -20,9 +24,11 @@ const makeService = (encryptionService?: unknown) => {
   service.getRepo = jest.fn((name: string) => {
     if (name === 'task') return repoTask
     if (name === 'user') return repoUser
+    if (name === 'settingProject') return repoSettingProject
+    if (name === 'project') return repoProject
     throw new Error(`Unexpected repo: ${name}`)
   })
-  return { service, repoTask }
+  return { service, repoTask, repoProject }
 }
 
 const makeEncryptionService = () => {
@@ -83,5 +89,68 @@ describe('ServiceEncryptionRotation.reencryptUsers', () => {
 
     expect(repoTask.updateOne).not.toHaveBeenCalled()
     expect(result.dryRun).toBe(true)
+  })
+})
+
+describe('ServiceEncryptionRotation.reencryptProjectSettings', () => {
+  beforeEach(() => mockRun.mockReset())
+
+  it('rewraps each project in its own context and merges the reports', async () => {
+    mockRun
+      .mockResolvedValueOnce({
+        scanned: 1,
+        rewrapped: 1,
+        skipped: 0,
+        failed: 0,
+        byKid: { default: 2 },
+      })
+      .mockResolvedValueOnce({
+        scanned: 1,
+        rewrapped: 0,
+        skipped: 1,
+        failed: 0,
+        byKid: { default: 1, '2026': 1 },
+      })
+    const { service, repoTask } = makeService(makeEncryptionService())
+
+    const result = await service.reencryptProjectSettings({ batchSize: 2 })
+
+    expect(mockRun).toHaveBeenCalledTimes(2)
+    expect(result).toMatchObject({
+      scanned: 2,
+      rewrapped: 1,
+      skipped: 1,
+      byKid: { default: 3, '2026': 1 },
+      lastId: 'p2',
+      done: false,
+    })
+    expect(repoTask.updateOne).toHaveBeenCalledWith(
+      { task: 'encryptionRotation', action: 'reencryptProjectSettings' },
+      { $set: { options: { batchSize: 2, dryRun: false, afterId: 'p2' } } },
+    )
+  })
+
+  it('resets the cursor once every project is covered', async () => {
+    mockRun.mockResolvedValue({
+      scanned: 0,
+      rewrapped: 0,
+      skipped: 0,
+      failed: 0,
+      byKid: {},
+    })
+    const { service, repoTask } = makeService(makeEncryptionService())
+
+    await service.reencryptProjectSettings({ batchSize: 5 })
+
+    expect(repoTask.updateOne).toHaveBeenCalledWith(expect.anything(), {
+      $set: { options: { batchSize: 5, dryRun: false, afterId: null } },
+    })
+  })
+
+  it('throws when field encryption is not configured', async () => {
+    const { service } = makeService(undefined)
+    await expect(service.reencryptProjectSettings({})).rejects.toThrow(
+      'Field encryption is not configured',
+    )
   })
 })

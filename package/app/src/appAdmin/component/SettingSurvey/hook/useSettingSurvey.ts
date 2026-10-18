@@ -1,17 +1,12 @@
 import { useState, useCallback } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAuthdQuery } from 'hook/useAuthdQuery'
-import { EffectiveSettingSurvey, SettingSurvey } from 'veysur-common'
+import { SettingSurvey } from 'veysur-common'
 
 import { useAuth, useProjectDomain } from 'appAdmin/hook'
 
 import { getSettingSurveyApi } from '../registry'
 import { KEY_STATE_SETTING_SURVEY } from '../common/keyState'
-
-type SettingSurveyData = {
-  settingSurvey: SettingSurvey
-  effective?: EffectiveSettingSurvey
-}
 
 export function useSettingSurvey() {
   const queryClient = useQueryClient()
@@ -23,12 +18,12 @@ export function useSettingSurvey() {
   const [isDirty, setIsDirty] = useState(false)
 
   const {
-    data: serverData,
+    data: serverSettingSurvey,
     isError,
     isLoading,
     isFetching,
     error,
-  } = useAuthdQuery<SettingSurveyData | undefined>(
+  } = useAuthdQuery<SettingSurvey | undefined>(
     {
       enabled: !!project?._id,
       queryKey: [KEY_STATE_SETTING_SURVEY, project?._id],
@@ -40,22 +35,20 @@ export function useSettingSurvey() {
           return Promise.reject('Invalid project ID')
         }
 
-        const { effective, ...setting } = await getSettingSurveyApi().getOne()
+        const setting = await getSettingSurveyApi().getOne()
         const settingSurvey = new SettingSurvey(setting)
 
         // Initialize local state with server data
         setLocalSettingSurvey(settingSurvey)
         setIsDirty(false)
 
-        return { settingSurvey, effective }
+        return settingSurvey
       },
       refetchOnMount: 'always',
       refetchOnWindowFocus: false,
     },
     queryClient,
   )
-
-  const serverSettingSurvey = serverData?.settingSurvey
 
   const updateLocalSettingSurvey = useCallback(
     (updater: (s: SettingSurvey) => SettingSurvey) => {
@@ -83,7 +76,6 @@ export function useSettingSurvey() {
   return {
     settingSurvey: localSettingSurvey || serverSettingSurvey,
     serverSettingSurvey,
-    effectiveSettings: serverData?.effective,
     isLoading,
     isFetching,
     isError,

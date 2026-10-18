@@ -1,15 +1,7 @@
 import { genUniqueId } from '@datacapy/id'
 import { PropsOf } from '@datacapy/schema'
 
-import { BOT_PROTECTION_PROVIDER_NONE } from '../../service/BotProtectionConfig'
 import { L10n } from '../L10n'
-
-// `hasSecret` is set by the API on reads: the secret key itself is write-only
-export type BotProtectionKeysSetting = {
-  siteKey?: string | null
-  secretKey?: string | null
-  hasSecret?: boolean
-}
 
 export type ChartType =
   'bar' | 'horizontalBar' | 'pie' | 'stackedBar' | 'pieGrid' | 'averageRank'
@@ -122,15 +114,6 @@ export interface SettingSurveyData {
   notify: {
     basic: string
     detailed: string
-  }
-  maps: {
-    googleApiKey: string
-    provider?: string
-  }
-  botProtection?: {
-    provider?: string | null
-    cloudflare?: BotProtectionKeysSetting | null
-    google?: BotProtectionKeysSetting | null
   }
   stats: {
     questions: {
@@ -279,21 +262,6 @@ export class SettingSurveyBase {
     basic: '',
     detailed: '',
   }
-  maps: {
-    googleApiKey: string
-    provider?: string
-  } = {
-    googleApiKey: '',
-  }
-  botProtection: {
-    provider: string
-    cloudflare: { siteKey: string; secretKey: string }
-    google: { siteKey: string; secretKey: string }
-  } = {
-    provider: BOT_PROTECTION_PROVIDER_NONE,
-    cloudflare: { siteKey: '', secretKey: '' },
-    google: { siteKey: '', secretKey: '' },
-  }
   stats: {
     questions: {
       [questionCode: string]: {
@@ -364,18 +332,6 @@ export class SettingSurveyBase {
 
     this.schedule = data?.schedule || this.schedule
     this.notify = data?.notify || this.notify
-    this.maps = mergeDefined(this.maps, data?.maps ?? undefined)
-    this.botProtection = {
-      provider: data?.botProtection?.provider || this.botProtection.provider,
-      cloudflare: mergeDefined(
-        this.botProtection.cloudflare,
-        data?.botProtection?.cloudflare ?? undefined,
-      ),
-      google: mergeDefined(
-        this.botProtection.google,
-        data?.botProtection?.google ?? undefined,
-      ),
-    }
     this.stats = data?.stats || this.stats
     this.contentFormat = mergeDefined(this.contentFormat, data?.contentFormat)
 

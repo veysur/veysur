@@ -7,6 +7,7 @@ import {
 } from './MapProvider'
 
 const SCRIPT_URL = 'https://maps.googleapis.com/maps/api/js'
+const READY_CALLBACK = '__veysurGoogleMapsReady'
 
 const scriptLoads = new Map<string, Promise<void>>()
 
@@ -45,15 +46,21 @@ function loadGoogleMaps(apiKey: string): Promise<void> {
   if (cached) return cached
 
   const load = new Promise<void>((resolve, reject) => {
-    if (window.google?.maps) {
+    if (typeof window.google?.maps?.importLibrary === 'function') {
       resolve()
       return
     }
     watchAuthFailure()
+    // The script's own load event fires while `google.maps` is still a stub
+    // without `importLibrary`; only the callback marks the API as ready.
+    Reflect.set(window, READY_CALLBACK, resolve)
     const script = document.createElement('script')
-    script.src = `${SCRIPT_URL}?${new URLSearchParams({ key: apiKey, loading: 'async' })}`
+    script.src = `${SCRIPT_URL}?${new URLSearchParams({
+      key: apiKey,
+      loading: 'async',
+      callback: READY_CALLBACK,
+    })}`
     script.async = true
-    script.onload = () => resolve()
     script.onerror = () => reject(new Error('Google Maps failed to load'))
     document.head.appendChild(script)
   })

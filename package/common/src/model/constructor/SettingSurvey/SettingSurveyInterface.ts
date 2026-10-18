@@ -87,15 +87,6 @@ export interface SettingSurveyProperties {
     basic: string
     detailed: string
   }
-  maps: {
-    googleApiKey: string
-    provider?: string
-  }
-  botProtection: {
-    provider: string
-    cloudflare: { siteKey: string; secretKey: string }
-    google: { siteKey: string; secretKey: string }
-  }
   stats: {
     questions: {
       [questionCode: string]: {
@@ -181,24 +172,8 @@ export interface SettingSurveyMethods {
   setStatsQuestionChartType(questionCode: string, chartType: ChartType): this
 }
 
-// Kept out of SettingSurveyMethods: implemented by both SettingSurvey and Survey, unlike the shared set
-export interface SettingSurveyMapsMethods {
-  setMapsProperty(key: string, value: unknown): this
-  updateMaps(updates: Record<string, unknown>): this
-}
-
-// Kept out of SettingSurveyMethods for the same reason as the maps methods
-export interface SettingSurveyBotProtectionMethods {
-  setBotProtectionProperty(key: string, value: unknown): this
-  updateBotProtection(updates: Record<string, unknown>): this
-}
-
 export interface SettingSurveyInterface
-  extends
-    SettingSurveyProperties,
-    SettingSurveyMethods,
-    SettingSurveyMapsMethods,
-    SettingSurveyBotProtectionMethods {}
+  extends SettingSurveyProperties, SettingSurveyMethods {}
 
 // Static methods interface
 export interface SettingSurveyInterfaceStatic {

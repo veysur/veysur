@@ -19,7 +19,7 @@ The Map question type lets a participant mark one place on a map. Use it to coll
 
 ## Google Maps key
 
-A project admin can set a Google Maps key under **Settings > Survey**, and a single survey can override it in its own settings. The key replaces any key configured for the whole installation. Participants receive the key, so restrict it to the survey websites in the Google Cloud console.
+A project owner can set a Google Maps key under **Settings, Project**. It replaces any key configured for the whole installation. Participants receive the key, so restrict it to the survey websites in the Google Cloud console.
 
 ## Results
 

@@ -95,6 +95,7 @@ export function useSurveyEmbed(
     language,
     survey,
     settingSurvey,
+    settingProject: pointer?.settingProjectData,
     isLoading: pointerQuery.isLoading || artefactQuery.isLoading,
     isError: pointerQuery.isError || artefactQuery.isError,
   }

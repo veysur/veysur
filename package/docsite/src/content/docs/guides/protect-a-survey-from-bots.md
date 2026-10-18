@@ -5,7 +5,7 @@ description: Ask participants to pass a bot check before they answer an open sur
 
 ## Choose a provider
 
-Bot protection is off by default. Open **Settings > Survey**, find **Bot protection** and choose a provider:
+Bot protection is off by default. Open **Settings > Project**, find **Bot protection** and choose a provider:
 
 | Provider | Notes |
 |---|---|
@@ -14,8 +14,6 @@ Bot protection is off by default. Open **Settings > Survey**, find **Bot protect
 | Google reCAPTCHA v3 | Needs a site key and secret key from Google. |
 
 Secret keys are write-only. Leave the field blank to keep the saved key.
-
-A single survey can override the provider, site key and secret key in its own settings. Each value has a default switch that returns it to the project value.
 
 ## Switch the check on
 

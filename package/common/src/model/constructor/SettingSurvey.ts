@@ -9,8 +9,6 @@ import { AccessMethods } from './SettingSurvey/mixin/AccessMethods'
 import { DataPolicyMethods } from './SettingSurvey/mixin/DataPolicyMethods'
 import { LegalNoticeMethods } from './SettingSurvey/mixin/LegalNoticeMethods'
 import { ScheduleMethods } from './SettingSurvey/mixin/ScheduleMethods'
-import { BotProtectionMethods } from './SettingSurvey/mixin/BotProtectionMethods'
-import { MapsMethods } from './SettingSurvey/mixin/MapsMethods'
 import { NotifyMethods } from './SettingSurvey/mixin/NotifyMethods'
 import { ContentFormatMethods } from './SettingSurvey/mixin/ContentFormatMethods'
 import { SettingSurveyInterface } from './SettingSurvey/SettingSurveyInterface'
@@ -38,8 +36,6 @@ export * from './SettingSurvey/index'
  * - LegalNoticeMethods - Legal notice settings operations
  * - ScheduleMethods - Publish schedule settings operations
  * - NotifyMethods - Notification settings operations
- * - MapsMethods - Map provider settings operations
- * - BotProtectionMethods - Bot protection provider settings operations
  * - ContentFormatMethods - Content format/sanitization settings operations
  *
  * IMMUTABILITY PATTERN:
@@ -58,21 +54,17 @@ export * from './SettingSurvey/index'
  * → returns new SettingSurvey instance with updated presentation, reusing all other objects
  */
 const SettingSurveyImpl = ContentFormatMethods(
-  MapsMethods(
-    BotProtectionMethods(
-      NotifyMethods(
-        ScheduleMethods(
-          LegalNoticeMethods(
-            DataPolicyMethods(
-              AccessMethods(
-                DataMethods(
-                  ParticipantMethods(
-                    StatsMethods(
-                      PresentationMethods(
-                        LanguageMethods(
-                          SettingSurveyCoreMethods(SettingSurveyBase),
-                        ),
-                      ),
+  NotifyMethods(
+    ScheduleMethods(
+      LegalNoticeMethods(
+        DataPolicyMethods(
+          AccessMethods(
+            DataMethods(
+              ParticipantMethods(
+                StatsMethods(
+                  PresentationMethods(
+                    LanguageMethods(
+                      SettingSurveyCoreMethods(SettingSurveyBase),
                     ),
                   ),
                 ),

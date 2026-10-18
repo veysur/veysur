@@ -47,7 +47,7 @@ export const PageSurvey: React.FC = () => {
   const initLanguage = searchParams.get('lang') || undefined
   const emailVerifyToken = searchParams.get('evt') || undefined
   const authResult = useSurveyAuth(surveyId, token, emailVerifyToken)
-  const { survey, settingSurvey, loading, error } =
+  const { survey, settingProject, loading, error } =
     useSurveyParticipantSnapshotPublished(
       surveyId,
       authResult.jwt,
@@ -329,7 +329,7 @@ export const PageSurvey: React.FC = () => {
       )}
       <Survey
         survey={survey}
-        mapSettings={settingSurvey?.maps}
+        mapSettings={settingProject?.maps}
         authToken={authResult.jwt}
         botCheck={botCheck}
         participantData={participantData}

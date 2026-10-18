@@ -19,7 +19,12 @@ beforeEach(() => {
   geocode.mockReset()
   Object.defineProperty(window, 'google', {
     configurable: true,
-    value: { maps: { Geocoder: jest.fn(() => ({ geocode })) } },
+    value: {
+      maps: {
+        importLibrary: jest.fn(),
+        Geocoder: jest.fn(() => ({ geocode })),
+      },
+    },
   })
 })
 
@@ -99,5 +104,40 @@ describe('GoogleProvider API key failures', () => {
     await expect(
       new GoogleProvider('k').search('London', []),
     ).rejects.not.toBeInstanceOf(MapAuthError)
+  })
+
+  it('waits for the ready callback before using the API', async () => {
+    const importLibrary = jest.fn().mockResolvedValue({
+      Map: jest.fn(() => ({ addListener: jest.fn(), setCenter: jest.fn() })),
+    })
+    Object.defineProperty(window, 'google', {
+      configurable: true,
+      value: { maps: { modules: {} } },
+    })
+
+    const created = new GoogleProvider('ready-key')
+      .createMap(document.createElement('div'), {
+        lat: 0,
+        lng: 0,
+        zoom: 1,
+        onPick: jest.fn(),
+      })
+      .catch(() => undefined)
+    const script = document.head.querySelector<HTMLScriptElement>(
+      'script[src*="key=ready-key"]',
+    )
+    const callback = new URL(script?.src ?? '').searchParams.get('callback')
+
+    expect(callback).toBeTruthy()
+    expect(importLibrary).not.toHaveBeenCalled()
+
+    Object.defineProperty(window, 'google', {
+      configurable: true,
+      value: { maps: { importLibrary } },
+    })
+    ;(Reflect.get(window, callback as string) as () => void)()
+    await created
+
+    expect(importLibrary).toHaveBeenCalledWith('maps')
   })
 })

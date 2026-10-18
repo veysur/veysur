@@ -3,8 +3,6 @@ import '@testing-library/jest-dom'
 
 import { PageSurveyEditPreview } from './PageSurveyEditPreview'
 
-const mockEffective = { maps: { provider: 'google', googleApiKey: 'key' } }
-
 jest.mock('react-i18next', () => ({
   ...jest.requireActual('react-i18next'),
   useTranslation: () => ({ t: (key: string) => key }),
@@ -23,7 +21,6 @@ jest.mock('appAdmin/component/SurveyEditor', () => ({
     selector: (state: {
       survey: { name: string; language: { default: string } }
       defaults: undefined
-      effective: typeof mockEffective
       langEditing: string
       setLangEditing: () => void
     }) => unknown,
@@ -31,12 +28,14 @@ jest.mock('appAdmin/component/SurveyEditor', () => ({
     selector({
       survey: { name: 'Test Survey', language: { default: 'en' } },
       defaults: undefined,
-      effective: mockEffective,
       langEditing: 'en',
       setLangEditing: jest.fn(),
     }),
   useLangFetchSwitch: () => jest.fn(),
-  useEditorMapConfig: () => mockEffective.maps,
+}))
+
+jest.mock('appAdmin/hook/useSettingProject', () => ({
+  useSettingProject: () => ({ settingProject: undefined }),
 }))
 
 jest.mock('appAdmin/component/SurveyEditorPublish', () => ({
@@ -47,13 +46,11 @@ jest.mock('component/Survey', () => ({
   Survey: ({
     onComplete,
     onPrint,
-    mapSettings,
   }: {
-    mapSettings?: typeof mockEffective.maps
     onComplete?: (answers: Record<string, unknown>) => void
     onPrint?: () => void
   }) => (
-    <div data-testid="survey-preview" data-map-provider={mapSettings?.provider}>
+    <div data-testid="survey-preview">
       <button onClick={() => onComplete?.({ Q1: 'Ada Lovelace' })}>
         Complete Survey
       </button>
@@ -71,15 +68,6 @@ describe('PageSurveyEditPreview', () => {
 
     expect(screen.getByTestId('survey-preview')).toBeInTheDocument()
     expect(screen.queryByTestId('survey-print-view')).not.toBeInTheDocument()
-  })
-
-  test('previews with the map provider resolved for this survey', () => {
-    render(<PageSurveyEditPreview />)
-
-    expect(screen.getByTestId('survey-preview')).toHaveAttribute(
-      'data-map-provider',
-      'google',
-    )
   })
 
   test('does not switch to the print view before the preview survey is completed', () => {

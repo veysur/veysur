@@ -1,5 +1,5 @@
 import type { PropsOf } from '@datacapy/schema'
-import type { SettingSurvey, Survey } from 'veysur-common'
+import type { SettingProjectGated, SettingSurvey, Survey } from 'veysur-common'
 
 // Shapes written by the API's ServiceSurveyEmbedArtefact
 export interface SurveyEmbedPointer {
@@ -18,6 +18,7 @@ export interface SurveyEmbedPointer {
   schedule?: { start: string | null; end: string | null }
   noBrandAvailable: boolean
   settingSurveyData: PropsOf<SettingSurvey>
+  settingProjectData: SettingProjectGated
 }
 
 export interface SurveyEmbedArtefact {

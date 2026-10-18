@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Survey, SettingSurvey } from 'veysur-common'
+import { Survey, SettingSurvey, SettingProjectGated } from 'veysur-common'
 import { PropsOf } from '@datacapy/schema'
 
 import { KEY_STATE_SURVEY_SNAPSHOT_PUBLISHED } from 'appSurvey/common'
@@ -22,7 +22,8 @@ export function useSurveyParticipantSnapshotPublished(
   const cachedDataRef = useRef<{
     survey: PropsOf<Survey> | undefined
     settingSurvey: PropsOf<SettingSurvey> | undefined
-  }>({ survey: undefined, settingSurvey: undefined })
+    settingProject: SettingProjectGated | undefined
+  }>({ survey: undefined, settingSurvey: undefined, settingProject: undefined })
 
   // Cache-key on the snapshot the JWT actually resolves to (rather than just
   // surveyId/lang) so that a resumed/reset JWT — which can point at a
@@ -49,6 +50,7 @@ export function useSurveyParticipantSnapshotPublished(
   const { data, isError, isLoading, isFetching, error } = useQuery<{
     survey: PropsOf<Survey> | undefined
     settingSurvey: PropsOf<SettingSurvey> | undefined
+    settingProject: SettingProjectGated | undefined
   }>(
     {
       enabled: queryEnabled,
@@ -84,6 +86,7 @@ export function useSurveyParticipantSnapshotPublished(
         const result = {
           survey: response.snapshotData?.survey,
           settingSurvey: response.settingSurveyData,
+          settingProject: response.settingProjectData,
         }
         cachedDataRef.current = result
         return result
@@ -102,6 +105,7 @@ export function useSurveyParticipantSnapshotPublished(
     settingSurvey: data?.settingSurvey
       ? new SettingSurvey(data.settingSurvey)
       : undefined,
+    settingProject: data?.settingProject,
     loading: isLoading,
     error: isError
       ? (error as Error)?.message || 'Failed to load survey'

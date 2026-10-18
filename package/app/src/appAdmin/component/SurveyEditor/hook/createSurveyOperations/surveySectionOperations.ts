@@ -75,39 +75,3 @@ export const createSurveyContentFormatOperations = (
     updateSurveyContentFormatSetting: updateSetting,
   }
 }
-
-export const createSurveyMapsOperations = (deps: OperationDependencies) => {
-  const { update, updateSetting } = createSectionOperations(deps, {
-    section: 'maps',
-    update: (s, u) => s.updateMaps(u),
-    setProperty: (s, k, v) => s.setMapsProperty(k, v),
-  })
-  return {
-    updateSurveyMaps: update,
-    updateSurveyMapsSetting: updateSetting,
-  }
-}
-
-// `cloudflare.siteKey` style keys edit one field of a provider's key pair
-export const createSurveyBotProtectionOperations = (
-  deps: OperationDependencies,
-) => {
-  const { update, updateSetting } = createSectionOperations(deps, {
-    section: 'botProtection',
-    update: (s, u) => s.updateBotProtection(u),
-    setProperty: (s, key, value) => {
-      const [provider, field] = key.split('.')
-      if (field && (provider === 'cloudflare' || provider === 'google')) {
-        return s.setBotProtectionProperty(provider, {
-          ...s.botProtection?.[provider],
-          [field]: value,
-        })
-      }
-      return s.setBotProtectionProperty(key, value)
-    },
-  })
-  return {
-    updateSurveyBotProtection: update,
-    updateSurveyBotProtectionSetting: updateSetting,
-  }
-}

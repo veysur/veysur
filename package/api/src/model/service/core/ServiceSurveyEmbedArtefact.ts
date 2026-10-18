@@ -110,11 +110,10 @@ export class ServiceSurveyEmbedArtefact extends Service {
 
     const participantSnapshot =
       this.modelManager.services.surveyParticipantSnapshot
-    const settingSurveyData = await participantSnapshot.getGatedSettingSurvey(
-      projectId,
-      context,
-      surveyId,
-    )
+    const [settingSurveyData, settingProjectData] = await Promise.all([
+      participantSnapshot.getGatedSettingSurvey(projectId, context),
+      participantSnapshot.getGatedSettingProject(context),
+    ])
 
     await adaptor.putObject({
       Bucket: publicBucket,
@@ -131,6 +130,7 @@ export class ServiceSurveyEmbedArtefact extends Service {
         schedule: snapshot.surveyPartial?.schedule,
         noBrandAvailable: await participantSnapshot.isNoBrandAllowed(projectId),
         settingSurveyData,
+        settingProjectData,
       }),
       ContentType: 'application/json',
     })

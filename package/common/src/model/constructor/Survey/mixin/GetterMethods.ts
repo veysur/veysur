@@ -97,31 +97,6 @@ export function GetterMethods<T extends Constructor<SurveyBase>>(Base: T) {
       }
     }
 
-    getMaps(defaults: SettingSurvey) {
-      return {
-        googleApiKey:
-          this.maps?.googleApiKey ?? defaults.maps?.googleApiKey ?? '',
-        provider: this.maps?.provider ?? defaults.maps?.provider ?? undefined,
-      }
-    }
-
-    getBotProtection(defaults: SettingSurvey) {
-      const resolveKeys = (provider: 'cloudflare' | 'google') => ({
-        siteKey:
-          this.botProtection?.[provider]?.siteKey ??
-          defaults.botProtection[provider].siteKey,
-        secretKey:
-          this.botProtection?.[provider]?.secretKey ??
-          defaults.botProtection[provider].secretKey,
-      })
-      return {
-        provider:
-          this.botProtection?.provider ?? defaults.botProtection.provider,
-        cloudflare: resolveKeys('cloudflare'),
-        google: resolveKeys('google'),
-      }
-    }
-
     getDataPolicy(defaults: SettingSurvey) {
       return {
         show: this.dataPolicy?.show ?? defaults.dataPolicy.show,

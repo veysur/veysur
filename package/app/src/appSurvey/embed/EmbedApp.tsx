@@ -52,11 +52,8 @@ const EmbedSurvey: React.FC<{
   lang?: string
 }> = ({ projectId, surveyId, lang }) => {
   const { t } = useTranslation('app-survey')
-  const { pointer, survey, settingSurvey, isLoading, isError } = useSurveyEmbed(
-    projectId,
-    surveyId,
-    lang,
-  )
+  const { pointer, survey, settingSurvey, settingProject, isLoading, isError } =
+    useSurveyEmbed(projectId, surveyId, lang)
   const embedOrigin = useMemo(
     () =>
       getEmbedAncestorOrigin(
@@ -176,6 +173,7 @@ const EmbedSurvey: React.FC<{
       <Survey
         survey={survey}
         settingSurvey={settingSurvey}
+        mapSettings={settingProject?.maps}
         authDeferred
         deferMapLoad
         initLanguage={lang}

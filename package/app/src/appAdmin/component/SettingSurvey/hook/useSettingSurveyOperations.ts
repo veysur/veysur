@@ -4,19 +4,15 @@ import {
   Patch,
   BUFFERED_PATCH_ACTION_UPDATE,
 } from 'veysur-common'
-import { useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-import { useInvalidatingMutation } from 'hook/useInvalidatingMutation'
 import { useAuth, useProjectDomain } from 'appAdmin/hook'
 import { getRestClient } from 'registry'
 
 import { getSettingSurveyApi } from '../registry'
 import { useSettingSurvey } from './useSettingSurvey'
 import { ProjectEmailTemplateApi } from 'appAdmin/component/SurveySettingShared'
-import {
-  KEY_STATE_SETTING_SURVEY,
-  KEY_STATE_SETTING_SURVEY_EDITING,
-} from '../common/keyState'
+import { KEY_STATE_SETTING_SURVEY } from '../common/keyState'
 
 type Props = {
   useSettingSurveyState: ReturnType<typeof useSettingSurvey>
@@ -36,32 +32,38 @@ export function useSettingSurveyOperations({ useSettingSurveyState }: Props) {
   } = useSettingSurveyState
 
   // Save mutation
-  const saveMutation = useInvalidatingMutation({
-    mutationFn: async (settingToSave: SettingSurvey) => {
-      if (!auth?.accessToken?.token) {
-        return Promise.reject('Authentication required')
-      }
-      if (!project?._id) {
-        return Promise.reject('Invalid project ID')
-      }
+  const saveMutation = useMutation(
+    {
+      mutationFn: async (settingToSave: SettingSurvey) => {
+        if (!auth?.accessToken?.token) {
+          return Promise.reject('Authentication required')
+        }
+        if (!project?._id) {
+          return Promise.reject('Invalid project ID')
+        }
 
-      const patches: Patch[] = [
-        {
-          type: 'settingSurvey',
-          action: BUFFERED_PATCH_ACTION_UPDATE,
-          data: { ...settingToSave },
-        },
-      ]
+        const patches: Patch[] = [
+          {
+            type: 'settingSurvey',
+            action: BUFFERED_PATCH_ACTION_UPDATE,
+            data: { ...settingToSave },
+          },
+        ]
 
-      return getSettingSurveyApi().patch(patches)
+        return getSettingSurveyApi().patch(patches)
+      },
+      onSuccess: (savedSettingData) => {
+        // Update query cache with saved data
+        const savedSetting = new SettingSurvey(savedSettingData)
+        queryClient.setQueryData(
+          [KEY_STATE_SETTING_SURVEY, project?._id],
+          savedSetting,
+        )
+        markClean()
+      },
     },
-    // Refetching also refreshes `effective`, which a saved maps key changes
-    invalidateKeys: [
-      [KEY_STATE_SETTING_SURVEY, project?._id],
-      [KEY_STATE_SETTING_SURVEY_EDITING],
-    ],
-    onSuccess: () => markClean(),
-  })
+    queryClient,
+  )
 
   // Save operation
   const save = useCallback((): Promise<void> => {
@@ -145,30 +147,6 @@ export function useSettingSurveyOperations({ useSettingSurveyState }: Props) {
   const updateSettingSurveyNotifyProperty = useCallback(
     (key: string, value: unknown) => {
       updateSettingSurvey((setting) => setting.setNotifyProperty(key, value))
-    },
-    [updateSettingSurvey],
-  )
-
-  const updateSettingSurveyMapsProperty = useCallback(
-    (key: string, value: unknown) => {
-      updateSettingSurvey((setting) => setting.setMapsProperty(key, value))
-    },
-    [updateSettingSurvey],
-  )
-
-  // `cloudflare.siteKey` style keys edit one field of a provider's key pair
-  const updateSettingSurveyBotProtectionProperty = useCallback(
-    (key: string, value: unknown) => {
-      updateSettingSurvey((setting) => {
-        const [provider, field] = key.split('.')
-        if (field && (provider === 'cloudflare' || provider === 'google')) {
-          return setting.setBotProtectionProperty(provider, {
-            ...setting.botProtection?.[provider],
-            [field]: value,
-          })
-        }
-        return setting.setBotProtectionProperty(key, value)
-      })
     },
     [updateSettingSurvey],
   )
@@ -266,8 +244,6 @@ export function useSettingSurveyOperations({ useSettingSurveyState }: Props) {
     updateSettingSurveyLanguageProperty,
     updateSettingSurveyNotifyProperty,
     updateSettingSurveyScheduleProperty,
-    updateSettingSurveyMapsProperty,
-    updateSettingSurveyBotProtectionProperty,
     updateSettingSurveyContentFormatProperty,
     updateSettingSurveyDataPolicyText,
     updateSettingSurveyLegalNoticeText,

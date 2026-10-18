@@ -1,5 +1,4 @@
-import { BotProtectionSetting, Patch, schemaManager } from 'veysur-common'
-import { mergeBotProtectionSecrets } from '../../../botProtection/botProtectionSecrets'
+import { Patch, schemaManager } from 'veysur-common'
 import {
   PatchContext,
   updateHandler,
@@ -9,14 +8,10 @@ import {
 
 type L10nField = Record<string, string>
 
-const BOT_PROTECTION_SECRET_PATH =
-  /^botProtection\.(cloudflare|google)\.secretKey$/
-
 type SurveyUpdateData = {
   title?: L10nField
   dataPolicy?: { text?: L10nField; [key: string]: unknown }
   legalNotice?: { text?: L10nField; [key: string]: unknown }
-  botProtection?: BotProtectionSetting
   [key: string]: unknown
 }
 
@@ -67,34 +62,6 @@ export async function handleSurveyUpdate(
     updateData.legalNotice =
       Object.keys(legalNoticeRest).length > 0 ? legalNoticeRest : undefined
     if (!updateData.legalNotice) delete updateData.legalNotice
-  }
-
-  // The editor patches one field at a time as a dotted key; a blank secret
-  // means "keep the stored one", as in a whole-object write
-  for (const key of Object.keys(updateData)) {
-    const value = updateData[key]
-    if (
-      BOT_PROTECTION_SECRET_PATH.test(key) &&
-      typeof value === 'string' &&
-      !value.trim()
-    ) {
-      delete updateData[key]
-    }
-  }
-
-  if (
-    updateData.botProtection &&
-    typeof updateData.botProtection === 'object'
-  ) {
-    const stored = await repos.repoSurvey.findOne(
-      { _id: patch.id },
-      { context: ctx.context },
-    )
-    updateData.botProtection = mergeBotProtectionSecrets(
-      updateData.botProtection,
-      stored?.botProtection,
-      { nullInherits: true },
-    )
   }
 
   await persistSurveyLanguageFields(svc, surveyId, projectId, l10nFields)
