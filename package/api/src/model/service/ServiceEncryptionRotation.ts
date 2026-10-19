@@ -21,6 +21,25 @@ const TASK_NAME = 'encryptionRotation'
 const ACTION_USERS = 'reencryptUsers'
 const ACTION_PROJECT_SETTINGS = 'reencryptProjectSettings'
 
+/** Sums the counters of two reports; cursor fields come from `total`. */
+const mergeReports = (
+  total: EncryptionReencryptorReport,
+  part: EncryptionReencryptorReport,
+): EncryptionReencryptorReport => {
+  const byKid = { ...total.byKid }
+  for (const [kid, count] of Object.entries(part.byKid)) {
+    byKid[kid] = (byKid[kid] ?? 0) + count
+  }
+  return {
+    ...total,
+    scanned: total.scanned + part.scanned,
+    rewrapped: total.rewrapped + part.rewrapped,
+    skipped: total.skipped + part.skipped,
+    failed: total.failed + part.failed,
+    byKid,
+  }
+}
+
 /**
  * Moves stored field-encryption envelopes onto the active key, so a retired key
  * can be dropped. Run through a Task (seeded disabled) during a key rotation;
@@ -34,15 +53,10 @@ export class ServiceEncryptionRotation extends Service {
   async reencryptUsers(
     options: EncryptionRotationOptions = {},
   ): Promise<EncryptionRotationResult> {
-    const encryptionService = this.modelManager.config.encryptionService
-    if (!encryptionService) {
-      throw new Error('Field encryption is not configured')
-    }
-
     const dryRun = options.dryRun ?? false
     const report = await new EncryptionReencryptor(
       this.getRepo('user'),
-      encryptionService,
+      this.requireEncryptionService(),
     ).run({
       batchSize: options.batchSize,
       dryRun,
@@ -64,11 +78,7 @@ export class ServiceEncryptionRotation extends Service {
   async reencryptProjectSettings(
     options: EncryptionRotationOptions = {},
   ): Promise<EncryptionRotationResult> {
-    const encryptionService = this.modelManager.config.encryptionService
-    if (!encryptionService) {
-      throw new Error('Field encryption is not configured')
-    }
-
+    const encryptionService = this.requireEncryptionService()
     const dryRun = options.dryRun ?? false
     const batchSize = options.batchSize ?? 20
     const projects = await this.getRepo<RepoProject>('project').find(
@@ -76,7 +86,7 @@ export class ServiceEncryptionRotation extends Service {
       { sort: { _id: 1 }, limit: batchSize },
     )
 
-    const report: EncryptionReencryptorReport = {
+    let report: EncryptionReencryptorReport = {
       scanned: 0,
       rewrapped: 0,
       skipped: 0,
@@ -94,14 +104,7 @@ export class ServiceEncryptionRotation extends Service {
         dryRun,
         context: contextForProject(project._id),
       })
-      report.scanned += part.scanned
-      report.rewrapped += part.rewrapped
-      report.skipped += part.skipped
-      report.failed += part.failed
-      for (const [kid, count] of Object.entries(part.byKid)) {
-        report.byKid[kid] = (report.byKid[kid] ?? 0) + count
-      }
-      report.lastId = project._id
+      report = { ...mergeReports(report, part), lastId: project._id }
     }
 
     if (!dryRun) {
@@ -109,6 +112,14 @@ export class ServiceEncryptionRotation extends Service {
     }
 
     return { ...report, dryRun }
+  }
+
+  private requireEncryptionService() {
+    const encryptionService = this.modelManager.config.encryptionService
+    if (!encryptionService) {
+      throw new Error('Field encryption is not configured')
+    }
+    return encryptionService
   }
 
   /**
