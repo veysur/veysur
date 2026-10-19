@@ -1,0 +1,26 @@
+name: Release check
+
+# Proves the release images build before scripts/release.sh cuts a release. It builds the
+# api and nginx images exactly as release.yml does, but pushes nothing and touches no
+# release. Run by scripts/release.sh; also useful by hand after a dependency or submodule bump.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-check
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build images
+        run: deploy/scripts/release-package.sh 0.0.0-check --check

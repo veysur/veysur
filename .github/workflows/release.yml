@@ -2,7 +2,8 @@
 name: Release package
 
 # Publishes the container images to GHCR and attaches the operator tarballs to the GitHub
-# release. scripts/release.sh creates the tag and the release; this runs on that tag.
+# release. scripts/release.sh creates the tag and a draft release, runs this on the tag, and
+# publishes the release only once this succeeds. release-check.yml proves the build first.
 # workflow_dispatch re-runs it for an existing tag, for example after a failed run.
 on:
   push:

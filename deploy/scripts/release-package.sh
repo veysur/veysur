@@ -5,16 +5,17 @@ set -euo pipefail
 # shellcheck source=lib/common.sh
 source "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh"
 
-VERSION="" WITH_IMAGES=false BUILD_IMAGES=false PUSH=false
+VERSION="" WITH_IMAGES=false BUILD_IMAGES=false PUSH=false CHECK=false
 IMAGE_REPO="ghcr.io/veysur"
 while [ $# -gt 0 ]; do
   case $1 in
     --images) WITH_IMAGES=true; shift ;;
     --build-images) BUILD_IMAGES=true; WITH_IMAGES=true; shift ;;
     --push) PUSH=true; shift ;;
+    --check) BUILD_IMAGES=true; CHECK=true; shift ;;
     --help | -h)
       cat <<USAGE
-Usage: $0 <version> [--build-images] [--images] [--push]
+Usage: $0 <version> [--build-images] [--images] [--push] [--check]
 
   <version>        Release version, for example 1.2.0
   --build-images   Build $IMAGE_REPO/api and $IMAGE_REPO/nginx at <version> first (implies --images)
@@ -23,6 +24,8 @@ Usage: $0 <version> [--build-images] [--images] [--push]
   --push           Push $IMAGE_REPO/api and $IMAGE_REPO/nginx to the registry (run
                    'docker login ghcr.io' first). Independent of --images: with a
                    registry push, the tarball can stay thin
+  --check          Build the images to prove they build, then exit: no push, no tarball.
+                   Used by the release check before a release is cut
 USAGE
       exit 0 ;;
     -*) die "unknown option: $1" ;;
@@ -44,6 +47,11 @@ if $BUILD_IMAGES; then
   info "Building images at $VERSION"
   docker build -q -f "$DEPLOY_DIR/docker/Dockerfile.api" -t "$IMAGE_REPO/api:$VERSION" "$REPO_DIR" >/dev/null
   docker build -q -f "$DEPLOY_DIR/docker/Dockerfile.nginx" -t "$IMAGE_REPO/nginx:$VERSION" --build-arg BUILD_VERSION="$VERSION" "$REPO_DIR" >/dev/null
+fi
+
+if $CHECK; then
+  info "Image build check passed"
+  exit 0
 fi
 
 if $PUSH; then

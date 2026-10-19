@@ -120,3 +120,6 @@ Builds `veysur/api` and `veysur/nginx`, pushes them to `ghcr.io/veysur`, and wri
 `--images`/`--build-images`: add `--images` (bundle already-built images) or `--build-images` (build them
 first, implies `--images`) instead of/alongside `--push` to also produce the larger
 (~456 MB) `-with-images` variant for air-gapped installs with no registry access.
+
+`./scripts/release-package.sh 1.2.0 --check` only builds the two images, to prove they build: no push, no
+tarball. `scripts/release.sh` runs it in CI (`.github/workflows/release-check.yml`) before cutting a release.

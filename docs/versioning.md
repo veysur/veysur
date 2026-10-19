@@ -83,21 +83,45 @@ pointers need to reflect `datacapy`/`s3-adaptor`'s latest tagged commit:
 4. **`veysur`** (if it has pending changesets): `./scripts/release.sh`. Bumps all five
    packages together, syncs the root `package.json` version, commits, tags `vX.Y.Z`, pushes.
 
-Each `scripts/release.sh` prints a `gh release create` command as its last step. Run it
-(one per tag) to cut the actual GitHub release from that package's `CHANGELOG.md` entry.
-`veysur`'s `release.sh` creates its own release. Its tag push then starts
-`.github/workflows/release.yml`, which builds and pushes the `api`/`nginx` images to GHCR (also
-tagged `latest`) and attaches the thin and `-with-images` operator tarballs to the release. See
-[deployment.md](./deployment.md#build-a-release-package) for what the package script does.
-To re-run it for an existing tag: `gh workflow run release.yml -f version=X.Y.Z`.
+Each `scripts/release.sh` for `datacapy` and `s3-adaptor` prints a `gh release create` command as
+its last step. Run it (one per tag) to cut the actual GitHub release from that package's
+`CHANGELOG.md` entry.
+
+`veysur`'s `release.sh` runs the whole sequence and publishes only a release that has its assets:
+
+1. Pre-flight: clean tree, on `master` and in sync with `origin/master`, `gh` signed in, and
+   `pnpm-lock.yaml` current (`pnpm install --frozen-lockfile --lockfile-only`).
+2. It runs `.github/workflows/release-check.yml`, which builds the `api` and `nginx` images
+   without pushing anything, and waits. A failure stops the release before any commit or tag.
+3. Version bump, changelog, commit, tag `vX.Y.Z`, push.
+4. It creates the GitHub release as a **draft**. The tag push starts `.github/workflows/release.yml`,
+   which pushes the images to GHCR (also tagged `latest`) and attaches the thin and `-with-images`
+   operator tarballs to the draft. See [deployment.md](./deployment.md#build-a-release-package)
+   for what the package script does.
+5. When that run succeeds, `release.sh` publishes the draft. If it fails, the draft stays private.
+
+`./scripts/release.sh --dry-run` runs steps 1 and 2 only: nothing is versioned, tagged or published.
+Use it after a dependency or submodule bump to see whether a release would build.
+
+**Recovering from a failed publish run**: the release is still a private draft and nothing is
+archived. Fix the cause, then re-run the workflow and publish the draft:
+
+```bash
+gh workflow run release.yml -f version=X.Y.Z
+gh run watch -R veysur/veysur
+gh release edit vX.Y.Z --draft=false --latest
+```
+
+If the fix changes the tagged commit, move the tag to it first (`git tag -f`, `git push -f origin vX.Y.Z`);
+that is safe only while the release is a draft.
 
 **One-time setup**: the first workflow run creates the `api`/`nginx` packages under `ghcr.io/veysur`
 as private by default. Set them to public in GitHub's package settings (or link them to the
 `veysur` repo for inherited visibility), or self-hosters pulling without credentials get 401s.
 
-`scripts/release.sh` in each repo does the mechanical part only (version bump, commit, tag,
-push); it refuses to run with pending working-tree changes or with no changesets staged.
-`veysur` publishes its images and tarballs from CI; the `datacapy` and `s3-adaptor` releases remain manual, maintainer-triggered flows.
+`scripts/release.sh` in each repo refuses to run with pending working-tree changes or with no
+changesets staged. `veysur` publishes its images and tarballs from CI; the `datacapy` and
+`s3-adaptor` releases remain manual, maintainer-triggered flows.
 
 ## Citable releases (Zenodo DOI)
 
