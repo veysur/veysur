@@ -300,7 +300,7 @@ export class ServiceAuthParticipant extends Service {
     const survey = await this.loadSnapshotSurvey(aclContext.snapshotId, context)
     const botProtection = this.getBotProtectionService()
     const verified = await botProtection.verify({
-      setting: await this.loadProjectBotProtection(context),
+      setting: await this.loadProjectBotProtection(context, true),
       surveyId,
       token,
       honeypot,
@@ -364,10 +364,14 @@ export class ServiceAuthParticipant extends Service {
     )
   }
 
-  private async loadProjectBotProtection(context: DataSourceContext) {
+  /** Secret keys stay encrypted unless `decrypt` is set: only verification needs them. */
+  private async loadProjectBotProtection(
+    context: DataSourceContext,
+    decrypt = false,
+  ) {
     const setting = await this.getRepo<RepoSettingProject>(
       'settingProject',
-    ).findOne({}, { context })
+    ).findOne({}, { context, decrypt })
     return setting?.botProtection
   }
 
