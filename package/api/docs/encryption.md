@@ -106,6 +106,7 @@ See [task-manager.md](task-manager.md) for manual triggering and execution histo
 - **Not queryable by value** — the database stores ciphertext; `find({ nationalId: '...' })` will not match.
 - **String coercion** — numeric/boolean fields are returned as strings after decryption.
 - **Envelope not bound to its field** — a ciphertext is not tied to its document or field, so it could be copied between fields (tracked in the security review).
+- **Thread pool bound** — RSA runs on the libuv thread pool and does not block the event loop; `UV_THREADPOOL_SIZE` (default 4) caps concurrent RSA operations, so raise it if encrypted-field reads are heavy.
 - **Node.js only** — uses the built-in `crypto` module via `SchemaEncryptionServiceRsa`.
 
 ## References
@@ -113,3 +114,5 @@ See [task-manager.md](task-manager.md) for manual triggering and execution histo
 - Implementation details: [`external/datacapy/package/om/docs/encryption.md`](../../../external/datacapy/package/om/docs/encryption.md)
 - Configuration keys: [`docs/configuration.md`](../../../docs/configuration.md)
 - ModelManager wiring: [`src/model-manager.ts`](../src/model-manager.ts)
+
+<!-- cspell:ignore libuv THREADPOOL -->
