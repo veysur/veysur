@@ -109,6 +109,7 @@ const makeService = (
     repoPublication,
     repoSurveySnapshot,
     repoSurveyResponse,
+    repoSettingProject,
     botProtectionService,
   }
 }
@@ -1041,6 +1042,26 @@ describe('ServiceAuthParticipant — bot protection', () => {
         botRequired: true,
         botVerified: true,
       })
+    })
+
+    test('loads the project secret keys decrypted for verification only', async () => {
+      const { service, botProtectionService, repoSettingProject } = makeService(
+        true,
+        false,
+        undefined,
+        {},
+        null,
+        false,
+        simple,
+      )
+      botProtectionService.verify.mockResolvedValue(true)
+
+      await service.botVerify(args())
+
+      expect(repoSettingProject.findOne).toHaveBeenCalledWith(
+        {},
+        expect.objectContaining({ decrypt: true }),
+      )
     })
 
     test('throws ERROR_BOT_CHECK_FAILED when the provider rejects', async () => {

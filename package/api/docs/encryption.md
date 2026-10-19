@@ -3,8 +3,8 @@
 # Field-Level Encryption
 
 Opt-in at-rest encryption for individual schema fields using RSA+AES-256-GCM. Fields are
-transparently encrypted before write and decrypted after read — no changes needed in
-service or endpoint code beyond schema annotation and environment configuration.
+encrypted before write. Reads return them as ciphertext unless the query passes `decrypt: true`
+(see [Reading plaintext](#reading-plaintext)).
 
 ## Environment Variables
 
@@ -43,7 +43,17 @@ const userSchema = new Schema({
 ```
 
 The encryption service is propagated automatically from ModelManager to every schema that
-does not define its own. No other code changes are needed.
+does not define its own.
+
+## Reading plaintext
+
+Decrypting is an RSA operation, so repo reads skip it. Pass `decrypt: true` only where the
+plaintext is used: `repoUser.findOne(query, { decrypt: true })`, or `repoUser.decrypt(doc)` on a
+document already read. Today that is two places: `ServiceTwoFactor.verifyLogin` (the TOTP
+secret) and `ServiceAuthParticipant.botVerify` (the provider secret keys, through
+`loadProjectBotProtection`). Code that only checks whether a secret is set, such as
+`maskBotProtectionSecrets`, works on the ciphertext. A document carrying a ciphertext can be
+written back: values that are already encrypted are stored unchanged, not encrypted twice.
 
 ## Key Generation
 

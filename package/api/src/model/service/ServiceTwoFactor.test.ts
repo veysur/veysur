@@ -184,6 +184,34 @@ describe('ServiceTwoFactor', () => {
       expect(result).toMatchObject({ jwt: 'jwt_token' })
     })
 
+    test('reads the user with its secret decrypted', async () => {
+      const secret = new OTPAuth.Secret()
+      const code = new OTPAuth.TOTP({ secret }).generate()
+      const mockUser = {
+        _id: 'user_1',
+        twoFactorSecret: secret.base32,
+        twoFactorMeta: { enabled: true },
+        client: [],
+      }
+      mockRepoUser.findOne.mockResolvedValue(mockUser)
+      mockServiceAuthDirect.loginDirect.mockResolvedValue({
+        jwt: 'jwt_token',
+        user: mockUser,
+      })
+      mockEventLog.log.mockResolvedValue(undefined)
+
+      await service.verifyLogin({
+        code,
+        jwtConfig,
+        aclContext: { jwt: makePreAuthJwt('user_1') },
+      })
+
+      expect(mockRepoUser.findOne).toHaveBeenCalledWith(
+        { _id: 'user_1' },
+        expect.objectContaining({ decrypt: true }),
+      )
+    })
+
     test('rejects with INVALID_CODE for wrong code', async () => {
       const secret = new OTPAuth.Secret()
       const mockUser = {

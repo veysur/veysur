@@ -167,7 +167,7 @@ export class ServiceTwoFactor extends Service {
     }
     const user = await repoUser.findOne(
       { _id: preAuthJwt._id },
-      { includeDeleted: true, populate: userPopulate },
+      { includeDeleted: true, populate: userPopulate, decrypt: true },
     )
     if (!user)
       throw new ServerErrorUnauthorized({
