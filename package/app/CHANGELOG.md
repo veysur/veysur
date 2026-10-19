@@ -1,5 +1,12 @@
 # veysur-app
 
+## 0.11.1
+
+### Patch Changes
+
+- veysur-common@0.11.1
+  - veysur-theme@0.11.1
+
 ## 0.11.0
 
 ### Minor Changes

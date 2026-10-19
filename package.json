@@ -1,6 +1,6 @@
 {
   "name": "veysur",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "private": true,
   "description": "VeySur - self-hostable survey platform",
   "license": "Elastic-2.0",

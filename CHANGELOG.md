@@ -5,6 +5,12 @@ released together under a single version number (see `.changeset/README.md`). Th
 the canonical release history; the identical entry is duplicated into each package's own
 `CHANGELOG.md` by [Changesets](https://github.com/changesets/changesets).
 
+## 0.11.1
+
+### Patch Changes
+
+- bbd3702: Refresh the lockfile so the release image build installs with a frozen lockfile.
+
 ## 0.11.0
 
 ### Minor Changes

@@ -1,5 +1,12 @@
 # veysur-api
 
+## 0.11.1
+
+### Patch Changes
+
+- bbd3702: Refresh the lockfile so the release image build installs with a frozen lockfile.
+- veysur-common@0.11.1
+
 ## 0.11.0
 
 ### Minor Changes
