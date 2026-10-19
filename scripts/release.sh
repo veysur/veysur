@@ -35,8 +35,12 @@ if [[ -n "$(git status --porcelain)" ]]; then
 fi
 
 if ! ls .changeset/*.md >/dev/null 2>&1; then
-  echo "No pending changesets in .changeset/ — nothing to release." >&2
-  exit 1
+  if $DRY_RUN; then
+    echo "No pending changesets: a real release would stop here. Continuing the dry run."
+  else
+    echo "No pending changesets in .changeset/ — nothing to release." >&2
+    exit 1
+  fi
 fi
 
 if ! command -v gh >/dev/null 2>&1 || ! gh auth status >/dev/null 2>&1; then
