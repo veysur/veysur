@@ -5,6 +5,7 @@ import { BotProtectionSetting, SettingProject } from 'veysur-common'
 import { RepoSettingProject } from 'model'
 import { contextForProject } from 'common'
 import {
+  hasBotProtectionSecret,
   maskBotProtectionSecrets,
   mergeBotProtectionSecrets,
 } from 'model/service/botProtection'
@@ -98,13 +99,8 @@ export class ServiceSettingProject extends Service {
   }
 
   /** The secret keys are encrypted fields, which need an encryption key. */
-  private assertCanStoreSecrets(botProtection: {
-    cloudflare?: { secretKey?: string }
-    google?: { secretKey?: string }
-  }) {
-    const hasSecret =
-      !!botProtection.cloudflare?.secretKey || !!botProtection.google?.secretKey
-    if (hasSecret && !this.modelManager.config.encryptionService) {
+  private assertCanStoreSecrets(botProtection: BotProtectionSetting) {
+    if (hasBotProtectionSecret(botProtection) &&!this.modelManager.config.encryptionService) {
       throw new ServerErrorBadRequest({
         message:
           'Bot protection secret keys need an encryption key. Set API_ENCRYPTION_PUBLIC_KEY and API_ENCRYPTION_PRIVATE_KEY first.',

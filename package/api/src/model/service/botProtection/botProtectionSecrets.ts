@@ -9,6 +9,10 @@ export type MaskedBotProtection = Omit<
   'cloudflare' | 'google'
 > & { cloudflare?: MaskedKeys; google?: MaskedKeys }
 
+export function hasBotProtectionSecret(setting: BotProtectionSetting): boolean {
+  return KEYED_PROVIDERS.some((provider) => !!setting[provider]?.secretKey)
+}
+
 /**
  * The setting as an admin may read it back: secret keys are write-only, so
  * each is blanked and `hasSecret` says whether one is stored.

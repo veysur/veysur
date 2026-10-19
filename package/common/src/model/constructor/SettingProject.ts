@@ -35,19 +35,14 @@ export interface SettingProjectGated {
   botProtection: ResolvedBotProtection
 }
 
-// Keep the default for any key whose incoming value is null/undefined (schema
-// validation fills unset fields with null)
-function mergeDefined<T extends object>(
-  defaults: T,
-  incoming: Partial<T> | null | undefined,
-): T {
-  const merged = { ...defaults }
-  for (const key of Object.keys(incoming ?? {}) as (keyof T)[]) {
-    if (incoming[key] !== null && incoming[key] !== undefined) {
-      merged[key] = incoming[key] as T[keyof T]
-    }
+// Schema validation fills unset fields with null, so null/undefined become ''
+function normaliseKeys(
+  incoming: Partial<SettingProjectKeys> | null | undefined,
+): SettingProjectKeys {
+  return {
+    siteKey: incoming?.siteKey ?? '',
+    secretKey: incoming?.secretKey ?? '',
   }
-  return merged
 }
 
 /**
@@ -72,11 +67,10 @@ export class SettingProject {
       googleApiKey: data.maps?.googleApiKey ?? '',
       ...(data.maps?.provider ? { provider: data.maps.provider } : {}),
     }
-    const empty: SettingProjectKeys = { siteKey: '', secretKey: '' }
     this.botProtection = {
       provider: data.botProtection?.provider || BOT_PROTECTION_PROVIDER_NONE,
-      cloudflare: mergeDefined(empty, data.botProtection?.cloudflare),
-      google: mergeDefined(empty, data.botProtection?.google),
+      cloudflare: normaliseKeys(data.botProtection?.cloudflare),
+      google: normaliseKeys(data.botProtection?.google),
     }
     this.createdAt = (data.createdAt && new Date(data.createdAt)) || new Date()
     this.updatedAt = (data.updatedAt && new Date(data.updatedAt)) || new Date()

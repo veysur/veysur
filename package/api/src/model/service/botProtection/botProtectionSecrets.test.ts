@@ -1,4 +1,5 @@
 import {
+  hasBotProtectionSecret,
   maskBotProtectionSecrets,
   mergeBotProtectionSecrets,
 } from './botProtectionSecrets'
@@ -8,6 +9,22 @@ const stored = {
   cloudflare: { siteKey: 'cf-site', secretKey: 'cf-secret' },
   google: { siteKey: 'g-site', secretKey: '' },
 }
+
+describe('hasBotProtectionSecret', () => {
+  test('is true when any provider holds a secret', () => {
+    expect(hasBotProtectionSecret(stored)).toBe(true)
+  })
+
+  test('is false when no provider holds a secret', () => {
+    expect(
+      hasBotProtectionSecret({
+        provider: 'google',
+        cloudflare: { siteKey: 'cf-site', secretKey: '' },
+        google: null,
+      }),
+    ).toBe(false)
+  })
+})
 
 describe('maskBotProtectionSecrets', () => {
   test('blanks every secret and reports whether one is stored', () => {
