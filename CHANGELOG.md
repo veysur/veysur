@@ -5,6 +5,23 @@ released together under a single version number (see `.changeset/README.md`). Th
 the canonical release history; the identical entry is duplicated into each package's own
 `CHANGELOG.md` by [Changesets](https://github.com/changesets/changesets).
 
+## 0.11.0
+
+### Minor Changes
+
+- 604457b: Optional bot protection for the survey start step. It is off by default. A project picks a provider (Cloudflare Turnstile, Google reCAPTCHA v3 or VeySur Bot Detection, a built-in proof-of-work check) and switches the bot check on for the project or per survey. Response and file writes need a verified participant token.
+- 0ad8e3b: The embed loader accepts a `data-lazy` attribute that holds the survey iframe's `src` back until it is within about 300px of the viewport.
+- ab02890: A map question's starting latitude, longitude and zoom are now optional. Left blank, the map opens on the participant's city, or their country, found from their IP address, or on the world map. Set `API_MAPS_AUTO_LOCATE=false` to turn the lookup off. Anonymous surveys never look the participant up.
+- 62c4fed: Open surveys now stop the same browser completing them more than once, using a flag in the browser's local storage, which also works inside embedded surveys. The `preventRepeat` access setting defaults to on and has a switch in the Access settings. The retired `access.repeatCookie` setting, renamed `access.preventRepeat`, is removed from stored data by a migration.
+- af85128: Text questions can require an email address, phone number, web address or custom pattern. Phone numbers are checked against the countries the author lists, in national or international format.
+- f6d27d9: Field-encryption key rotation. Set `API_ENCRYPTION_KEYS` and `API_ENCRYPTION_ACTIVE_KEY_ID` to hold several keys and choose the one used for new values; the existing three variables still work as a single `default` key. A disabled `Field Encryption Rotation` task re-wraps stored values onto the active key. See `package/api/docs/encryption.md`.
+
+### Patch Changes
+
+- ba0b410: The project's Google Maps key and bot-protection settings now live in their own `settingProject` document instead of `settingSurvey`, and the bot-protection secret keys are encrypted at rest. A migration moves existing values and encrypts them, saving a key needs an encryption key to be configured, and the field-encryption rotation task has a second action, `reencryptProjectSettings`, for them. The project settings page saves through `PUT /setting-project/maps` and `PUT /setting-project/bot-protection`, and participant and embed payloads carry the map and bot-check settings as `settingProjectData`.
+- ab02890: A map question's zoom now applies only together with a starting latitude and longitude, so it no longer overrides the automatic starting view. The editor disables the zoom field until both are set.
+- 93cf6dd: Encrypted fields (the two-factor secret and the bot-protection secret keys) are no longer decrypted on every read. Reads return the stored ciphertext; only two-factor login verification and bot verification decrypt them. Reads that only check whether a secret is set no longer pay for an RSA operation.
+
 ## 0.10.1
 
 ### Patch Changes
