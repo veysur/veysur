@@ -5,7 +5,7 @@ export type CookieInfo = {
 }
 
 export type CookieCategory = {
-  id: 'necessary' | 'functional' | 'analytics'
+  id: 'necessary' | 'functional' | 'analytics' | 'marketing'
   label: string
   description: string
   cookies: CookieInfo[]
@@ -52,15 +52,33 @@ export const cookieCatalog: CookieCategory[] = [
 ]
 
 /**
+ * Core sets no marketing cookies, so this category is shown only when an extension
+ * supplies some.
+ */
+const marketingCategory: CookieCategory = {
+  id: 'marketing',
+  label: 'Marketing',
+  description:
+    'Measures how well our advertising performs. Only set if you agree.',
+  cookies: [],
+}
+
+/**
  * Adds an extension's cookies to core's catalogue, category by category. Core's
- * categories, and the order of cookies within them, are unchanged.
+ * categories, and the order of cookies within them, are unchanged. The marketing
+ * category is appended only when the extension supplies marketing cookies.
  */
 export function mergeExtraCookies(
   catalog: CookieCategory[],
   extra: Partial<Record<CookieCategory['id'], CookieInfo[]>>,
 ): CookieCategory[] {
-  return catalog.map((category) => ({
+  const merged = catalog.map((category) => ({
     ...category,
     cookies: [...category.cookies, ...(extra[category.id] ?? [])],
   }))
+  const marketing = extra.marketing ?? []
+  if (marketing.length === 0 || catalog.some((c) => c.id === 'marketing')) {
+    return merged
+  }
+  return [...merged, { ...marketingCategory, cookies: marketing }]
 }

@@ -33,11 +33,20 @@ User clicks "Accept All" / "Essential Only" / "Save Preferences"
   ThemeProvider reads functional → setThemeCookie() only if true
   SidebarProvider reads functional → document.cookie only if true
   GoogleAnalytics reads analytics → gtag('consent', 'update', ...) only if true
+  GoogleAnalytics reads marketing → ad_storage / ad_user_data / ad_personalization granted only if true
 ```
 
 ## Google Analytics Integration
 
 Configured via `PUBLIC_GA_TAG_ID_ACCOUNT` env var. When set, `GoogleAnalytics` loads `gtag.js` with consent mode `denied` by default and updates to `granted` only when the user accepts analytics cookies.
+
+## Marketing category
+
+Core sets no marketing cookies, so the Marketing category is hidden unless an extension supplies some through `KEY_REGISTRY_EXTRA_COOKIES` (`marketing: [...]`); `mergeExtraCookies` then appends the category to the banner. Consent for it sets `marketing` in the stored consent, and `GoogleAnalytics` maps that to the three ad consent signals (`ad_storage`, `ad_user_data`, `ad_personalization`), which stay `denied` otherwise.
+
+An extension that needs another gtag destination registers `ExtraGtagConfig[]` under `KEY_REGISTRY_EXTRA_GTAG_CONFIGS`; `GoogleAnalytics` calls `gtag('config', id, config)` for each after its own tag. Conversion events are the extension's own concern.
+
+Changing the stored consent shape bumps `CONSENT_VERSION`, which re-prompts every visitor once.
 
 The component is mounted in `appAccount/App.tsx` inside `QueryClientProvider` (required for `useCookieConsent`).
 
@@ -62,6 +71,7 @@ When `hasConsented === true`, `CookieConsentBanner` renders a fixed cookie icon 
 - `src/component/CookieConsent/CookieConsentBanner.tsx` — banner UI and fixed cookie icon button (shadcn/ui)
 - `src/component/CookieConsent/cookieCatalog.ts` — cookie catalog data (names, descriptions, durations)
 - `src/component/GoogleAnalytics/GoogleAnalytics.tsx` — GA consent mode integration
+- `src/registry/getExtraGtagConfigs.ts` — extra gtag destinations registered by an extension
 - `src/component/ThemeProvider.tsx` — gates `veysur-theme` cookie
 - `src/component/shadcn/sidebar.tsx` — gates `sidebar_state` cookie
 - `src/common/keyState.ts` — `KEY_STATE_COOKIE_CONSENT` query key

@@ -3,12 +3,13 @@ import { useCallback } from 'react'
 
 import { KEY_STATE_COOKIE_CONSENT } from 'common/keyState'
 
-const CONSENT_VERSION = '1.1'
+const CONSENT_VERSION = '1.2'
 
 export type CookieConsentData = {
   hasConsented: boolean
   functional: boolean
   analytics: boolean
+  marketing: boolean
   consentedAt: string | null
   version: string
 }
@@ -17,6 +18,7 @@ const defaultConsent: CookieConsentData = {
   hasConsented: false,
   functional: false,
   analytics: false,
+  marketing: false,
   consentedAt: null,
   version: CONSENT_VERSION,
 }
@@ -61,16 +63,26 @@ export function useCookieConsent() {
   )
 
   const acceptAll = useCallback(() => {
-    save({ hasConsented: true, functional: true, analytics: true })
+    save({
+      hasConsented: true,
+      functional: true,
+      analytics: true,
+      marketing: true,
+    })
   }, [save])
 
   const acceptEssentialOnly = useCallback(() => {
-    save({ hasConsented: true, functional: false, analytics: false })
+    save({
+      hasConsented: true,
+      functional: false,
+      analytics: false,
+      marketing: false,
+    })
   }, [save])
 
   const savePreferences = useCallback(
-    (functional: boolean, analytics: boolean) => {
-      save({ hasConsented: true, functional, analytics })
+    (functional: boolean, analytics: boolean, marketing = false) => {
+      save({ hasConsented: true, functional, analytics, marketing })
     },
     [save],
   )
@@ -83,6 +95,7 @@ export function useCookieConsent() {
     hasConsented: consent.hasConsented,
     functional: consent.functional,
     analytics: consent.analytics,
+    marketing: consent.marketing,
     consentedAt: consent.consentedAt,
     acceptAll,
     acceptEssentialOnly,

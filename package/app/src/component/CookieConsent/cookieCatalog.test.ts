@@ -48,4 +48,21 @@ describe('mergeExtraCookies', () => {
 
     expect(JSON.stringify(cookieCatalog)).toBe(before)
   })
+
+  it('adds a marketing category only when marketing cookies are supplied', () => {
+    const marketing = [
+      { name: 'ad_cookie', description: 'Measures ads.', duration: '90 days' },
+    ]
+
+    const merged = mergeExtraCookies(cookieCatalog, { marketing })
+
+    expect(merged.map((c) => c.id)).toEqual([
+      ...cookieCatalog.map((c) => c.id),
+      'marketing',
+    ])
+    expect(merged.find((c) => c.id === 'marketing')?.cookies).toEqual(marketing)
+    expect(
+      mergeExtraCookies(cookieCatalog, { marketing: [] }).map((c) => c.id),
+    ).toEqual(cookieCatalog.map((c) => c.id))
+  })
 })

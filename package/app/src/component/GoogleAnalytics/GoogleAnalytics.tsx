@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useCookieConsent } from 'component/CookieConsent'
+import { getExtraGtagConfigs } from 'registry'
 
 declare global {
   interface Window {
@@ -14,7 +15,7 @@ type Props = {
 
 export const GoogleAnalytics: React.FC<Props> = ({ tagId }) => {
   const initialized = useRef(false)
-  const { analytics } = useCookieConsent()
+  const { analytics, marketing } = useCookieConsent()
   const previousAnalytics = useRef(analytics)
 
   useEffect(() => {
@@ -34,6 +35,11 @@ export const GoogleAnalytics: React.FC<Props> = ({ tagId }) => {
     script.onload = () => {
       window.gtag('js', new Date())
       window.gtag('config', tagId)
+      getExtraGtagConfigs().forEach(({ id, config }) =>
+        config
+          ? window.gtag('config', id, config)
+          : window.gtag('config', id),
+      )
     }
     document.head.appendChild(script)
   }, [tagId])
@@ -46,9 +52,9 @@ export const GoogleAnalytics: React.FC<Props> = ({ tagId }) => {
     if (!initialized.current) return
     window.gtag?.('consent', 'update', {
       analytics_storage: analytics ? 'granted' : 'denied',
-      ad_storage: 'denied',
-      ad_user_data: 'denied',
-      ad_personalization: 'denied',
+      ad_storage: marketing ? 'granted' : 'denied',
+      ad_user_data: marketing ? 'granted' : 'denied',
+      ad_personalization: marketing ? 'granted' : 'denied',
     })
 
     // The initial page_view (fired at gtag('config', ...) time) may already have been
@@ -61,7 +67,7 @@ export const GoogleAnalytics: React.FC<Props> = ({ tagId }) => {
       })
     }
     previousAnalytics.current = analytics
-  }, [analytics])
+  }, [analytics, marketing])
 
   return null
 }

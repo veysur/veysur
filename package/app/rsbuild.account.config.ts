@@ -83,6 +83,12 @@ export default defineConfig({
       'process.env.PUBLIC_GA_TAG_ID_ACCOUNT': JSON.stringify(
         process.env.PUBLIC_GA_TAG_ID_ACCOUNT ?? '',
       ),
+      'process.env.PUBLIC_GOOGLE_ADS_ID': JSON.stringify(
+        process.env.PUBLIC_GOOGLE_ADS_ID ?? '',
+      ),
+      'process.env.PUBLIC_GOOGLE_ADS_SIGNUP_CONVERSION': JSON.stringify(
+        process.env.PUBLIC_GOOGLE_ADS_SIGNUP_CONVERSION ?? '',
+      ),
     },
   },
   output: {

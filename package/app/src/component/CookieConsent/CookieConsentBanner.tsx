@@ -13,6 +13,7 @@ export const CookieConsentBanner: React.FC = () => {
     hasConsented,
     functional,
     analytics,
+    marketing,
     acceptAll,
     acceptEssentialOnly,
     savePreferences,
@@ -20,6 +21,7 @@ export const CookieConsentBanner: React.FC = () => {
   const [showDetails, setShowDetails] = useState(false)
   const [functionalEnabled, setFunctionalEnabled] = useState(functional)
   const [analyticsEnabled, setAnalyticsEnabled] = useState(analytics)
+  const [marketingEnabled, setMarketingEnabled] = useState(marketing)
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
     new Set(),
   )
@@ -126,6 +128,11 @@ export const CookieConsentBanner: React.FC = () => {
                       checked={functionalEnabled}
                       onCheckedChange={setFunctionalEnabled}
                     />
+                  ) : category.id === 'marketing' ? (
+                    <Switch
+                      checked={marketingEnabled}
+                      onCheckedChange={setMarketingEnabled}
+                    />
                   ) : (
                     <Switch
                       checked={analyticsEnabled}
@@ -147,7 +154,11 @@ export const CookieConsentBanner: React.FC = () => {
             <Button
               size="sm"
               onClick={() =>
-                savePreferences(functionalEnabled, analyticsEnabled)
+                savePreferences(
+                  functionalEnabled,
+                  analyticsEnabled,
+                  marketingEnabled,
+                )
               }
             >
               Save Preferences
