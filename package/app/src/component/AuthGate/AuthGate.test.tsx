@@ -123,6 +123,26 @@ describe('AuthGate', () => {
     expect(RedirectPending.push).not.toHaveBeenCalled()
   })
 
+  it('includes the router basename in returnTo so the user returns to the same app', () => {
+    mockUseAuth({ isAuthed: false })
+    mockUseIsRestoring.mockReturnValue(false)
+    jest.spyOn(AuthDomain, 'hasAuthDomain').mockReturnValue(true)
+    jest.spyOn(AuthDomain, 'onAuthDomain').mockReturnValue(false)
+    jest.spyOn(AuthDomain, 'shouldBypassAuthDomain').mockReturnValue(false)
+
+    render(
+      <MemoryRouter basename="/admin" initialEntries={['/admin/survey/']}>
+        <AuthGate>
+          <div>protected content</div>
+        </AuthGate>
+      </MemoryRouter>,
+    )
+
+    expect(AuthDomain.redirectToAuthDomain).toHaveBeenCalledWith(
+      '/admin/survey/',
+    )
+  })
+
   it('pushes the current deep link to RedirectPending and navigates to login when no auth domain is configured', () => {
     mockUseAuth({ isAuthed: false })
     mockUseIsRestoring.mockReturnValue(false)

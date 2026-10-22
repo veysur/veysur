@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react'
 import { useIsRestoring } from '@tanstack/react-query'
-import { Navigate, useLocation } from 'react-router-dom'
+import { Navigate, useHref, useLocation } from 'react-router-dom'
 
 import { useAuth } from 'hook'
 import { AuthDomain } from 'model/service/AuthDomain/AuthDomain'
@@ -21,6 +21,9 @@ export const AuthGate: React.FC<AuthGateProps> = ({
   const isRestoring = useIsRestoring()
   const location = useLocation()
   const deepLink = location.pathname + location.search
+  // `location.pathname` is relative to the router basename (e.g. `/admin`); the cross-domain
+  // returnTo needs the real browser path, or the user lands outside this app after login.
+  const browserDeepLink = useHref(deepLink)
 
   // Defer the auth decision until the persisted session cache has finished restoring —
   // otherwise an already-authenticated user on a cold tab would be bounced to login before
@@ -38,7 +41,7 @@ export const AuthGate: React.FC<AuthGateProps> = ({
       !AuthDomain.onAuthDomain() &&
       !AuthDomain.shouldBypassAuthDomain()
     ) {
-      AuthDomain.redirectToAuthDomain(deepLink)
+      AuthDomain.redirectToAuthDomain(browserDeepLink)
       return null
     }
     RedirectPending.push('authGate', deepLink)
