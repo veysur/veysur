@@ -1,10 +1,14 @@
-import { renderHook } from '@testing-library/react'
+import { renderHook, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { useIsRestoring } from '@tanstack/react-query'
 
-import { useAuthLoginRedirect } from './useAuthLoginRedirect'
+import {
+  resetAuthReloadThrottle,
+  useAuthLoginRedirect,
+} from './useAuthLoginRedirect'
 import { AuthDomain, RedirectPending } from 'model'
 import * as useAuthHook from './useAuth'
+import { allowConsole } from '../../tests/consoleGuard'
 
 jest.mock('@tanstack/react-query', () => ({
   ...jest.requireActual('@tanstack/react-query'),
@@ -130,5 +134,70 @@ describe('useAuthLoginRedirect', () => {
       expect.any(Function),
       auth,
     )
+  })
+  describe('already-logged-in refresh on the auth domain', () => {
+    const setup = (authRefresh: jest.Mock) => {
+      window.history.pushState(
+        {},
+        '',
+        '/login?returnTo=https://p.example.com/admin',
+      )
+      mockUseAuth({ isAuthed: true, auth: buildMockAuth(), authRefresh })
+      mockUseIsRestoring.mockReturnValue(false)
+      ;(AuthDomain.onAuthDomain as jest.Mock).mockReturnValue(true)
+      return renderHook(() => useAuthLoginRedirect(), { wrapper })
+    }
+
+    beforeEach(() => resetAuthReloadThrottle())
+
+    afterEach(() => {
+      window.history.pushState({}, '', '/')
+      ;(AuthDomain.onAuthDomain as jest.Mock).mockReturnValue(false)
+    })
+
+    it('force-refreshes auth once and reports it until done', async () => {
+      const authRefresh = jest.fn().mockResolvedValue(undefined)
+      const { result } = setup(authRefresh)
+
+      expect(result.current.isRefreshingAuth).toBe(true)
+      await waitFor(() => expect(result.current.isRefreshingAuth).toBe(false))
+      expect(authRefresh).toHaveBeenCalledTimes(1)
+      expect(authRefresh).toHaveBeenCalledWith(true)
+    })
+
+    it('does not force-refresh again on a remount shortly afterwards', async () => {
+      const authRefresh = jest.fn().mockResolvedValue(undefined)
+      const first = setup(authRefresh)
+      await waitFor(() =>
+        expect(first.result.current.isRefreshingAuth).toBe(false),
+      )
+      first.unmount()
+
+      const second = setup(authRefresh)
+      await waitFor(() =>
+        expect(second.result.current.isRefreshingAuth).toBe(false),
+      )
+      expect(authRefresh).toHaveBeenCalledTimes(1)
+    })
+
+    it('stops reporting a refresh when the refresh fails', async () => {
+      const authRefresh = jest.fn().mockRejectedValue(new Error('boom'))
+      const { result } = setup(authRefresh)
+
+      await allowConsole(/Auth refresh failed/, () =>
+        waitFor(() => expect(result.current.isRefreshingAuth).toBe(false)),
+      )
+    })
+
+    it('skips the refresh straight after a login submit', async () => {
+      ;(AuthDomain.consumeLoginJustSubmitted as jest.Mock).mockReturnValueOnce(
+        true,
+      )
+      const authRefresh = jest.fn().mockResolvedValue(undefined)
+      const { result } = setup(authRefresh)
+      await waitFor(() => expect(result.current.isRefreshingAuth).toBe(false))
+
+      expect(authRefresh).not.toHaveBeenCalledWith(true)
+    })
   })
 })

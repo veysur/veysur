@@ -28,6 +28,7 @@ export const PageLogin: React.FC = () => {
     sameOriginRedirect,
     effectiveAuth,
     effectiveIsAuthed,
+    isRefreshingAuth,
     ensureFreshJwtAndHandleAuthed,
     isReturnToSameOrigin,
   } = useAuthLoginRedirect({
@@ -78,6 +79,7 @@ export const PageLogin: React.FC = () => {
             showContinueButton={showContinueButton}
             isTargetDomainAuthorized={isTargetDomainAuthorized}
             isAuthed={isAuthed}
+            isRefreshing={isRefreshingAuth}
             onContinue={handleContinueClick}
             logoutPath="/logout"
           >

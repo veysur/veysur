@@ -13,6 +13,35 @@ import { KEY_STATE_AUTH } from 'common/keyState'
 
 import { useAuth, AuthData } from './useAuth'
 
+// A forced reload of the user's projects is skipped when one completed this recently
+// (or a login just produced fresh auth), and concurrent callers share one request.
+const AUTH_RELOAD_MIN_INTERVAL_MS = 60_000
+let lastAuthReloadAt = 0
+let authReloadInFlight: Promise<unknown> | null = null
+
+const reloadAuthThrottled = (
+  authRefresh: (force?: boolean) => Promise<AuthData | undefined>,
+): Promise<unknown> => {
+  if (authReloadInFlight) return authReloadInFlight
+  if (Date.now() - lastAuthReloadAt < AUTH_RELOAD_MIN_INTERVAL_MS) {
+    return Promise.resolve()
+  }
+  authReloadInFlight = authRefresh(true)
+    .then(() => {
+      lastAuthReloadAt = Date.now()
+    })
+    .finally(() => {
+      authReloadInFlight = null
+    })
+  return authReloadInFlight
+}
+
+/** Test-only: clears the shared throttle state. */
+export const resetAuthReloadThrottle = (): void => {
+  lastAuthReloadAt = 0
+  authReloadInFlight = null
+}
+
 export type UseAuthLoginRedirectOptions = {
   // If true, the broadcast-listener timeout falls back to AuthDomain.handleAuth() when no
   // tab responds. If false, the timeout simply closes the channel.
@@ -45,6 +74,9 @@ export function useAuthLoginRedirect(
   const [sameOriginRedirect, setSameOriginRedirect] = useState<string | null>(
     null,
   )
+  // The "already logged in" screen decides from the stored projectOwn/projectAdmin
+  // snapshot, which can lag server-side changes. Reload it once before showing Continue.
+  const [hasRefreshedAuth, setHasRefreshedAuth] = useState(false)
 
   const urlParams = new URLSearchParams(window.location.search)
   const returnTo = urlParams.get('returnTo')
@@ -167,10 +199,19 @@ export function useAuthLoginRedirect(
           // New Login flow: proceed immediately.
           // Ensure JWT is fresh before transferring to target domain
           ensureFreshJwtAndHandleAuthed(auth)
-        } else {
-          // Already Authenticated flow: show button and wait for user to click
-          // Note: We can't auto-click because modern browsers block popups that aren't
-          // from direct user gestures
+          lastAuthReloadAt = Date.now()
+        }
+        if (!hasRefreshedAuth) {
+          // Reload the user's projects first so the domain check isn't run on a stale
+          // snapshot. A failed refresh falls back to the stored data.
+          reloadAuthThrottled(authRefresh)
+            .catch((error) => {
+              console.error(
+                'Auth refresh failed on already-logged-in screen:',
+                error,
+              )
+            })
+            .finally(() => setHasRefreshedAuth(true))
         }
       } else if (checkRedirectPending) {
         const redirect = RedirectPending.remove('authGate')
@@ -197,7 +238,12 @@ export function useAuthLoginRedirect(
     checkRedirectPending,
     requireNoReturnToForHandleAuthed,
     deferHandleAuthForBroadcastRelay,
+    hasRefreshedAuth,
+    authRefresh,
   ])
+
+  const isRefreshingAuth =
+    isAuthed && !!returnTo && AuthDomain.onAuthDomain() && !hasRefreshedAuth
 
   const effectiveAuth = auth ?? broadcastAuth
   const effectiveIsAuthed = isAuthed || broadcastAuth !== null
@@ -208,6 +254,7 @@ export function useAuthLoginRedirect(
     sameOriginRedirect,
     effectiveAuth,
     effectiveIsAuthed,
+    isRefreshingAuth,
     ensureFreshJwtAndHandleAuthed,
     isReturnToSameOrigin,
   }

@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
@@ -68,7 +68,7 @@ describe('PageLogin', () => {
     })
   })
 
-  it('shows continue button when already authenticated on auth domain with returnTo', () => {
+  it('shows continue button when already authenticated on auth domain with returnTo', async () => {
     const mockAuth = {
       client: { _id: 'client123' },
       user: {
@@ -116,7 +116,7 @@ describe('PageLogin', () => {
       verifyTwoFactor: jest.fn(),
       setupAndLogin: jest.fn(),
       signupEmailPassword: jest.fn(),
-      authRefresh: jest.fn(),
+      authRefresh: jest.fn().mockResolvedValue(undefined),
       authRefreshWithRetry: jest.fn(),
     })
 
@@ -127,7 +127,8 @@ describe('PageLogin', () => {
 
     const { getByText } = render(<PageLogin />, { wrapper: createWrapper() })
 
-    // Verify continue button is shown
+    // Auth is reloaded before the continue button is offered
+    expect(await screen.findByText('Continue')).toBeInTheDocument()
     expect(getByText('Continue')).toBeInTheDocument()
     expect(getByText('You are already logged in.')).toBeInTheDocument()
 
@@ -164,7 +165,7 @@ describe('PageLogin', () => {
       verifyTwoFactor: jest.fn(),
       setupAndLogin: jest.fn(),
       signupEmailPassword: jest.fn(),
-      authRefresh: jest.fn(),
+      authRefresh: jest.fn().mockResolvedValue(undefined),
       authRefreshWithRetry: jest.fn(),
     })
 
@@ -208,7 +209,7 @@ describe('PageLogin', () => {
       verifyTwoFactor: jest.fn(),
       setupAndLogin: jest.fn(),
       signupEmailPassword: jest.fn(),
-      authRefresh: jest.fn(),
+      authRefresh: jest.fn().mockResolvedValue(undefined),
       authRefreshWithRetry: jest.fn(),
     })
 
@@ -234,7 +235,7 @@ describe('PageLogin', () => {
       verifyTwoFactor: jest.fn(),
       setupAndLogin: jest.fn(),
       signupEmailPassword: jest.fn(),
-      authRefresh: jest.fn(),
+      authRefresh: jest.fn().mockResolvedValue(undefined),
       authRefreshWithRetry: jest.fn(),
     })
 

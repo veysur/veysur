@@ -71,10 +71,14 @@ prior tab to broadcast to. Example: a team-invite email links straight to
 1. User already authenticated on auth domain visits domain X (not authenticated there)
 2. Redirected to auth domain with `returnTo` parameter
 3. Auth domain detects user is already authenticated
-4. Validates that domain X is in user's authorized domains (from `projectOwn`/`projectAdmin`)
-5. Shows "Continue" button to user (no prior form submission, so `consumeLoginJustSubmitted()` is `false`)
-6. User clicks "Continue"
-7. Same mint → redirect → redeem sequence as Flow 1 steps 5–7
+4. Reloads the user's auth once (`authRefresh(true)`) so `projectOwn`/`projectAdmin` are not a stale snapshot;
+   "Checking your session..." shows meanwhile. `useAuthLoginRedirect` skips the reload if one completed in the
+   last 60 seconds or a login just produced fresh auth, and concurrent mounts share one request. A failed
+   reload falls back to the stored data.
+5. Validates that domain X is in user's authorized domains (from `projectOwn`/`projectAdmin`)
+6. Shows "Continue" button to user (no prior form submission, so `consumeLoginJustSubmitted()` is `false`)
+7. User clicks "Continue"
+8. Same mint → redirect → redeem sequence as Flow 1 steps 5–7
 
 ## Flow 3: Already Authenticated (Unauthorized Domain)
 

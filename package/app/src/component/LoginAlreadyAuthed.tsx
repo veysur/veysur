@@ -6,6 +6,7 @@ type Props = {
   showContinueButton: boolean
   isTargetDomainAuthorized: boolean | string | null | undefined
   isAuthed: boolean
+  isRefreshing?: boolean
   onContinue: () => void
   logoutPath: string
   children: React.ReactNode
@@ -15,11 +16,20 @@ export const LoginAlreadyAuthed: React.FC<Props> = ({
   showContinueButton,
   isTargetDomainAuthorized,
   isAuthed,
+  isRefreshing = false,
   onContinue,
   logoutPath,
   children,
 }) => {
   const navigate = useNavigate()
+
+  if (isRefreshing) {
+    return (
+      <p className="text-center text-muted-foreground text-sm">
+        Checking your session...
+      </p>
+    )
+  }
 
   if (showContinueButton) {
     if (isTargetDomainAuthorized) {
