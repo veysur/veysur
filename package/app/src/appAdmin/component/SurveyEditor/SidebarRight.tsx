@@ -18,7 +18,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
     <Sidebar
       collapsible="offcanvas"
       side="right"
-      className={cn('h-full', className)}
+      className={cn('h-full min-h-0', className)}
     >
       <SidebarContent>
         <SurveyAttributesPanel entity={entity} />

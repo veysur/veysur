@@ -106,7 +106,7 @@ export const SurveyEditorNavContainer: React.FC<Props> = ({
   const content = (toggleOuter: () => void, toggleLeft?: () => void) => {
     const header = renderHeaderBar(toggleOuter, toggleLeft)
     const mainContent = rightSidebar ? (
-      <SidebarProvider className="h-full flex-1">
+      <SidebarProvider className="h-full min-h-0 flex-1">
         <SidebarInset className="h-full flex flex-col min-w-0 pb-12">
           {header}
           {children}
