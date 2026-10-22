@@ -35,6 +35,7 @@ type Props = {
   onAnswerChange: (questionCode: string, value: unknown) => void
   validationErrors: ValidationErrors
   authToken?: string
+  isPreview?: boolean
   ensureResponseStarted?: () => Promise<void>
 }
 
@@ -56,6 +57,7 @@ export const SurveyFormatQuestion: React.FC<Props> = ({
   onAnswerChange,
   validationErrors,
   authToken,
+  isPreview,
   ensureResponseStarted,
 }) => {
   const currentItem = allElements[currentQuestionIndex]
@@ -111,6 +113,7 @@ export const SurveyFormatQuestion: React.FC<Props> = ({
             onAnswerChange={onAnswerChange}
             validationErrors={validationErrors}
             authToken={authToken}
+            isPreview={isPreview}
             ensureResponseStarted={ensureResponseStarted}
           />
         )}

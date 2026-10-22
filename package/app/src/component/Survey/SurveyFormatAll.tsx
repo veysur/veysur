@@ -34,6 +34,7 @@ type Props = {
   onAnswerChange: (questionCode: string, value: unknown) => void
   validationErrors: ValidationErrors
   authToken?: string
+  isPreview?: boolean
   ensureResponseStarted?: () => Promise<void>
 }
 
@@ -54,6 +55,7 @@ export const SurveyFormatAll: React.FC<Props> = ({
   onAnswerChange,
   validationErrors,
   authToken,
+  isPreview,
   ensureResponseStarted,
 }) => {
   // Global question number = position among questions only (content elements
@@ -118,6 +120,7 @@ export const SurveyFormatAll: React.FC<Props> = ({
                     onAnswerChange={onAnswerChange}
                     validationErrors={validationErrors}
                     authToken={authToken}
+                    isPreview={isPreview}
                     ensureResponseStarted={ensureResponseStarted}
                   />
                 )

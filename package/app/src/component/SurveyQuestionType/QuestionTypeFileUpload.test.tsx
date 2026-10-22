@@ -131,4 +131,36 @@ describe('QuestionTypeFileUpload', () => {
     expect(mockUploadSurveyParticipantFile).not.toHaveBeenCalled()
     expect(onChange).not.toHaveBeenCalled()
   })
+
+  it('disables the input and shows a hint when there is no auth token (preview)', () => {
+    render(
+      <QuestionTypeFileUpload
+        question={buildQuestion()}
+        value={undefined}
+        lang="en"
+        langDefault="en"
+      />,
+    )
+
+    expect(
+      screen.getByText(/File uploads are disabled in preview/),
+    ).toBeInTheDocument()
+    expect(
+      document.querySelector<HTMLInputElement>('input[type="file"]')!.disabled,
+    ).toBe(true)
+  })
+
+  it('shows no preview hint when an auth token is present', () => {
+    render(
+      <QuestionTypeFileUpload
+        question={buildQuestion()}
+        value={undefined}
+        lang="en"
+        langDefault="en"
+        authToken="jwt-token"
+      />,
+    )
+
+    expect(screen.queryByText(/disabled in preview/)).not.toBeInTheDocument()
+  })
 })

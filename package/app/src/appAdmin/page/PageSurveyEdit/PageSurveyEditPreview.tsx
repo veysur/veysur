@@ -94,6 +94,7 @@ export const PageSurveyEditPreview: React.FC = () => {
             settingSurvey={settingSurvey}
             mapSettings={settingProject?.maps}
             survey={survey}
+            isPreview
             initLanguage={langEditing}
             onLanguageChange={handleLanguageChange}
             onComplete={setPreviewAnswers}

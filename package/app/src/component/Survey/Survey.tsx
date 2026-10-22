@@ -67,6 +67,8 @@ type Props = {
   mapSettings?: MapSettings
   survey?: SurveyEntity
   authToken?: string
+  // The admin preview: nothing is saved, so file uploads are disabled
+  isPreview?: boolean
   // The host authenticates inside onSaveResponse on the first answer (embeds), so
   // user actions must call it before a token exists
   authDeferred?: boolean
@@ -95,6 +97,7 @@ export const Survey: React.FC<Props> = ({
   mapSettings,
   survey,
   authToken,
+  isPreview = false,
   authDeferred = false,
   deferMapLoad = false,
   botCheck,
@@ -799,6 +802,7 @@ export const Survey: React.FC<Props> = ({
             getContentExpressionContext={getContentExpressionContext}
             validationErrors={validationErrors}
             authToken={authToken}
+            isPreview={isPreview}
             ensureResponseStarted={ensureResponseStarted}
           />
         )
@@ -821,6 +825,7 @@ export const Survey: React.FC<Props> = ({
             getContentExpressionContext={getContentExpressionContext}
             validationErrors={validationErrors}
             authToken={authToken}
+            isPreview={isPreview}
             ensureResponseStarted={ensureResponseStarted}
           />
         )
@@ -843,6 +848,7 @@ export const Survey: React.FC<Props> = ({
             getContentExpressionContext={getContentExpressionContext}
             validationErrors={validationErrors}
             authToken={authToken}
+            isPreview={isPreview}
             ensureResponseStarted={ensureResponseStarted}
           />
         )

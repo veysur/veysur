@@ -39,6 +39,7 @@ export const QuestionTypeFileUpload: React.FC<QuestionTypeProps> = ({
   const [error, setError] = useState<string | null>(null)
 
   const canAddMore = fileIds.length < options.maxFileCount
+  const isPreview = !authToken
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -106,8 +107,8 @@ export const QuestionTypeFileUpload: React.FC<QuestionTypeProps> = ({
 
       {canAddMore && (
         <div>
-          <Button asChild variant="outline" disabled={uploading}>
-            <label className="cursor-pointer">
+          <Button asChild variant="outline" disabled={uploading || isPreview}>
+            <label className={isPreview ? '' : 'cursor-pointer'}>
               {uploading ? (
                 <Spinner size="sm" className="mr-2" />
               ) : (
@@ -118,13 +119,19 @@ export const QuestionTypeFileUpload: React.FC<QuestionTypeProps> = ({
                 type="file"
                 className="hidden"
                 onChange={handleFileSelect}
-                disabled={uploading}
+                disabled={uploading || isPreview}
               />
             </label>
           </Button>
           <p className="text-xs text-muted-foreground mt-1">
             Max {formatFileSize(options.maxFileSize)}
           </p>
+          {isPreview && (
+            <p className="text-xs text-muted-foreground mt-1">
+              File uploads are disabled in preview. Files you choose are not
+              saved.
+            </p>
+          )}
         </div>
       )}
 

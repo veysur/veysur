@@ -34,6 +34,7 @@ type Props = {
   onAnswerChange: (questionCode: string, value: unknown) => void
   validationErrors: ValidationErrors
   authToken?: string
+  isPreview?: boolean
   ensureResponseStarted?: () => Promise<void>
 }
 
@@ -55,6 +56,7 @@ export const SurveyFormatGroup: React.FC<Props> = ({
   onAnswerChange,
   validationErrors,
   authToken,
+  isPreview,
   ensureResponseStarted,
 }) => {
   const questionOrder = new Map(
@@ -119,6 +121,7 @@ export const SurveyFormatGroup: React.FC<Props> = ({
               onAnswerChange={onAnswerChange}
               validationErrors={validationErrors}
               authToken={authToken}
+              isPreview={isPreview}
               ensureResponseStarted={ensureResponseStarted}
             />
           )
