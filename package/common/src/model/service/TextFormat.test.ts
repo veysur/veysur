@@ -11,6 +11,10 @@ describe('TextFormat', () => {
     test.each(['jane@example.com', 'a.b+c@sub.example.co.uk'])('%s', (v) =>
       expect(isValidEmail(v)).toBe(true),
     )
+    test('rejects empty domain labels without backtracking', () => {
+      expect(isValidEmail('a@b..c')).toBe(false)
+      expect(isValidEmail('a@' + '!.'.repeat(50000))).toBe(false)
+    })
     test.each(['not-an-email', 'missing@domain', 'a b@example.com'])(
       '%s is rejected',
       (v) => expect(isValidEmail(v)).toBe(false),

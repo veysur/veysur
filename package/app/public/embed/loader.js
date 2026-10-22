@@ -25,6 +25,7 @@
 
   var origin = new URL(script.src, window.location.href).origin
   var lang = script.getAttribute('data-lang')
+  if (lang && !/^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$/.test(lang)) lang = null
 
   var darkQuery = window.matchMedia
     ? window.matchMedia('(prefers-color-scheme: dark)')
@@ -45,12 +46,10 @@
 
   // Read at call time so a theme change made before a lazy load is honoured.
   function surveyUrl() {
-    var params = []
-    if (lang) params.push('lang=' + encodeURIComponent(lang))
-    if (theme === 'dark') params.push('theme=dark')
-    return (
-      origin + '/embed/' + survey + (params.length ? '?' + params.join('&') : '')
-    )
+    var url = new URL('/embed/' + survey, origin)
+    if (lang) url.searchParams.set('lang', lang)
+    if (theme === 'dark') url.searchParams.set('theme', 'dark')
+    return url.href
   }
 
   var iframe = document.createElement('iframe')
