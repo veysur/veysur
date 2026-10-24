@@ -163,7 +163,7 @@ const ContentViewComponent: React.FC<ContentViewProps> = ({
       data-testid="content-container"
       className={cn(
         'content mb-10 group relative transition-colors rounded-md p-4 mb-4 border-l-4 border-transparent',
-        focused ? 'border-primary bg-editor-focus' : 'hover:bg-muted/50',
+        focused ? 'border-primary bg-editor-focus' : 'hover:bg-editor-hover',
       )}
     >
       <div className="grow relative" onClick={handleOnFocus}>

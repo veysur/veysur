@@ -6,7 +6,7 @@ themselves live in `src/tokens.css` and `src/brand.css`; this file explains the
 raw palette colour or an opacity hack.
 
 Scope: the shared tokens only. App-local tokens (`sidebar`, `chart`, `code`,
-`alert-*`, `editor-active`) and the marketing vars (`hero-glow`, `highlights-*`)
+`alert-*`, `editor-hover`, `editor-focus`, `editor-active`) and the marketing vars (`hero-glow`, `highlights-*`)
 are noted where relevant but documented in `AGENTS.md` and the consuming packages.
 
 ## Layering
@@ -245,7 +245,9 @@ There is no single "highlight" token. Pick by intent:
 | Subtle wash on a featured row or column in a comparison table | `bg-primary/5` |
 | Selected list or table row | `bg-muted` (align on `data-[state=selected]:bg-muted` from `src/component/shadcn/table.tsx`) |
 | Active nav / menu / toolbar item | `bg-accent` (or `bg-sidebar-accent` inside the sidebar) |
-| Active element in the survey editor | the `bg-editor-active` utility (`package/app/src/styles/tokens-app.css`) |
+| Pointer over a survey editor element | the `bg-editor-hover` utility (`package/app/src/styles/tokens-app.css`) |
+| Focused survey editor element (question, group, title) | the `bg-editor-focus` utility (same file) |
+| Focused row inside a question (matrix, ranking, ...) | the `bg-editor-active` utility (same file) |
 
 Current drift to be aware of: selected rows appear as `bg-muted`, `bg-muted/70` and
 `bg-accent/30` in different components.

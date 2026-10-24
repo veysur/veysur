@@ -2,13 +2,21 @@
    survey-editor active-element highlight. Colour tokens shared across app and
    website live in veysur-theme; these are specific to appAdmin UI. */
 
-/* Resolves to the correct light/dark shade automatically — no dark: variant needed */
+/* Survey editor highlight states, each a utility that resolves to the right
+   light/dark shade (no dark: variant needed):
+   - bg-editor-hover:  pointer over an editor element
+   - bg-editor-focus:  the focused element (question, group, title, message)
+   - bg-editor-active: the focused row inside a question (matrix, ranking, ...) */
+@utility bg-editor-hover {
+  background-color: color-mix(in oklab, var(--muted) 50%, transparent);
+}
+
 @utility bg-editor-active {
   background-color: var(--editor-active-bg);
 }
 
-/* Survey element focus background. Dark mode composites primary over the
-   original (pre-darkening) card shade so the focused element keeps its look. */
+/* Survey element focus background. Dark mode composites primary over --card
+   so the focused element tracks the card colour. */
 @utility bg-editor-focus {
   background-color: var(--editor-focus-bg);
 }
@@ -78,7 +86,7 @@
   --editor-focus-bg: color-mix(
     in oklch,
     var(--primary) 5%,
-    oklch(0.25 0.006 88)
+    var(--card)
   );
 }
 

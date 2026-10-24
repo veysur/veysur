@@ -261,7 +261,7 @@ const QuestionViewComponent: React.FC<QuestionProps> = ({
       data-testid="question-container"
       className={cn(
         'question mb-10 group relative transition-colors rounded-md p-4 mb-4 border-l-4 border-transparent',
-        focused ? 'border-primary bg-editor-focus' : 'hover:bg-muted/50',
+        focused ? 'border-primary bg-editor-focus' : 'hover:bg-editor-hover',
       )}
     >
       <div className="grow relative" onClick={handleOnFocus}>

@@ -69,7 +69,7 @@ export const SurveyThankYouMessage: React.FC = () => {
       data-testid="survey-thankyou-container"
       className={cn(
         'transition-colors rounded-md p-4 border-l-4 border-transparent',
-        focused ? 'border-primary bg-editor-focus' : 'hover:bg-muted/50',
+        focused ? 'border-primary bg-editor-focus' : 'hover:bg-editor-hover',
       )}
     >
       <Card className="shadow-sm bg-muted border-muted">
