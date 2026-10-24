@@ -39,12 +39,13 @@
   --code-border: oklch(0.87 0.014 88);
   --scrollbar-thumb: oklch(0.8 0.012 88);
 
-  --editor-focus-bg: color-mix(in oklch, var(--primary) 5%, transparent);
+  --editor-focus-bg: color-mix(in oklch, var(--primary) 3%, transparent);
 
-  /* Survey editor active-element highlight — shared by focus/hover states across SurveyEditor components */
+  /* Survey editor active-element highlight — shared by focus/hover states across SurveyEditor components.
+     A translucent tint, so the same value reads correctly over both light and dark surfaces. */
   --editor-active-bg: color-mix(
     in oklch,
-    var(--color-amber-200) 20%,
+    var(--color-amber-200) 8%,
     transparent
   );
 }
@@ -55,21 +56,21 @@
   --chart-3: oklch(0.556 0.014 88);
   --chart-4: oklch(0.439 0.014 88);
   --chart-5: oklch(0.371 0.014 88);
-  --sidebar: oklch(0.185 0.006 88);
+  --sidebar: oklch(0.24 0.006 88);
   --sidebar-foreground: oklch(0.94 0.006 88);
   /* Mirrors the ink accent's inversion (see tokens.css --ink in .dark): a
      light chip reads as the highest-contrast "selected" state on a dark
      sidebar, rather than an unrelated green. */
   --sidebar-primary: oklch(0.94 0.006 88);
   --sidebar-primary-foreground: oklch(0.16 0.01 88);
-  --sidebar-accent: oklch(0.26 0.008 88);
+  --sidebar-accent: oklch(0.315 0.008 88);
   --sidebar-accent-foreground: oklch(0.9 0.006 88);
-  --sidebar-border: oklch(0.255 0.008 88);
+  --sidebar-border: oklch(0.31 0.008 88);
   --sidebar-ring: oklch(0.44 0.012 88);
-  --scrollbar-thumb: oklch(0.32 0.01 88);
-  --code: oklch(0.2 0.01 88);
+  --scrollbar-thumb: oklch(0.38 0.01 88);
+  --code: oklch(0.255 0.01 88);
   --code-foreground: oklch(0.7 0.012 88);
-  --code-highlight: oklch(0.27 0.012 88);
+  --code-highlight: oklch(0.325 0.012 88);
   --code-number: oklch(0.72 0.012 88);
   --code-selection: oklch(0.92 0.012 88);
   --code-border: oklch(1 0 0 / 10%);
@@ -77,12 +78,7 @@
   --editor-focus-bg: color-mix(
     in oklch,
     var(--primary) 5%,
-    oklch(0.195 0.006 88)
-  );
-  --editor-active-bg: color-mix(
-    in oklch,
-    var(--color-amber-400) 3%,
-    transparent
+    oklch(0.25 0.006 88)
   );
 }
 
