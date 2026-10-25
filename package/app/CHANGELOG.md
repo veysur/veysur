@@ -1,5 +1,19 @@
 # veysur-app
 
+## 0.12.0
+
+### Minor Changes
+
+- f4f2011: Add an optional Marketing cookie category and an extra gtag destination registry slot. Both are inert unless an extension registers marketing cookies or destinations. Existing visitors see the consent banner once more because the stored consent shape changed.
+
+### Patch Changes
+
+- b5a48dc: Reload the user's projects before the "already logged in" screen decides whether the target project is authorised, so a stale session snapshot no longer offers a Continue button that ends on a permission error.
+- 3939976: Keep the router base path in the return URL when an unauthenticated visitor is sent to the auth domain, so switching projects lands back in the admin app instead of the public survey app.
+- 4b38dd4: Disable the file upload question in the admin survey preview and show a hint that files are not saved there, instead of a picker that silently does nothing.
+- veysur-common@0.12.0
+  - veysur-theme@0.12.0
+
 ## 0.11.1
 
 ### Patch Changes

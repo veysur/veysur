@@ -1,5 +1,11 @@
 # veysur-api
 
+## 0.12.0
+
+### Patch Changes
+
+- veysur-common@0.12.0
+
 ## 0.11.1
 
 ### Patch Changes
