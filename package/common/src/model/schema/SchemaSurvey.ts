@@ -34,7 +34,8 @@ export class SchemaSurvey extends SchemaSettingSurvey {
           elementIds: sb.array(sb.string()),
           sections: sb.array().ofSchema('surveySection'),
           elements: sb.array().ofSchema('surveyElement'),
-        }),
+        })
+        .build(),
     )
   }
 }
