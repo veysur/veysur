@@ -28,7 +28,12 @@ describe('buildQuestionVariableEntries', () => {
       { code: 'Q001', type: 'text', position: 0, text: 'Your name' },
     ]
     expect(buildQuestionVariableEntries(questions)).toEqual([
-      { path: 'answers.Q001', label: 'Your name' },
+      {
+        path: 'answers.Q001',
+        label: 'Your name',
+        context: 'Your name',
+        detail: 'Whole answer',
+      },
     ])
   })
 
@@ -37,7 +42,12 @@ describe('buildQuestionVariableEntries', () => {
       { code: 'Q001', type: 'text', position: 0 },
     ]
     expect(buildQuestionVariableEntries(questions)).toEqual([
-      { path: 'answers.Q001', label: 'Q001' },
+      {
+        path: 'answers.Q001',
+        label: 'Q001',
+        context: 'Q001',
+        detail: 'Whole answer',
+      },
     ])
   })
 
@@ -55,9 +65,24 @@ describe('buildQuestionVariableEntries', () => {
       },
     ]
     expect(buildQuestionVariableEntries(questions)).toEqual([
-      { path: 'answers.Q001', label: 'Colour' },
-      { path: 'answers.Q001.A001', label: 'Colour — Red' },
-      { path: 'answers.Q001.A002', label: 'Colour — Blue' },
+      {
+        path: 'answers.Q001',
+        label: 'Colour',
+        context: 'Colour',
+        detail: 'Whole answer',
+      },
+      {
+        path: 'answers.Q001.A001',
+        label: 'Colour — Red',
+        context: 'Colour',
+        detail: 'Red',
+      },
+      {
+        path: 'answers.Q001.A002',
+        label: 'Colour — Blue',
+        context: 'Colour',
+        detail: 'Blue',
+      },
     ])
   })
 
@@ -72,9 +97,24 @@ describe('buildQuestionVariableEntries', () => {
       },
     ]
     expect(buildQuestionVariableEntries(questions)).toEqual([
-      { path: 'answers.Q001', label: 'Agree?' },
-      { path: 'answers.Q001.YES', label: 'Agree? — YES' },
-      { path: 'answers.Q001.NO', label: 'Agree? — NO' },
+      {
+        path: 'answers.Q001',
+        label: 'Agree?',
+        context: 'Agree?',
+        detail: 'Whole answer',
+      },
+      {
+        path: 'answers.Q001.YES',
+        label: 'Agree? — YES',
+        context: 'Agree?',
+        detail: 'YES',
+      },
+      {
+        path: 'answers.Q001.NO',
+        label: 'Agree? — NO',
+        context: 'Agree?',
+        detail: 'NO',
+      },
     ])
   })
 
@@ -90,8 +130,18 @@ describe('buildQuestionVariableEntries', () => {
       },
     ]
     expect(buildQuestionVariableEntries(questions)).toEqual([
-      { path: 'answers.Q001', label: 'Rate these' },
-      { path: 'answers.Q001.S001.A001', label: 'Rate these — Speed — Good' },
+      {
+        path: 'answers.Q001',
+        label: 'Rate these',
+        context: 'Rate these',
+        detail: 'Whole answer',
+      },
+      {
+        path: 'answers.Q001.S001.A001',
+        label: 'Rate these — Speed — Good',
+        context: 'Rate these',
+        detail: 'Speed — Good',
+      },
     ])
   })
 
@@ -106,8 +156,18 @@ describe('buildQuestionVariableEntries', () => {
       },
     ]
     expect(buildQuestionVariableEntries(questions)).toEqual([
-      { path: 'answers.Q001', label: 'Details' },
-      { path: 'answers.Q001.P001', label: 'Details — Part 1' },
+      {
+        path: 'answers.Q001',
+        label: 'Details',
+        context: 'Details',
+        detail: 'Whole answer',
+      },
+      {
+        path: 'answers.Q001.P001',
+        label: 'Details — Part 1',
+        context: 'Details',
+        detail: 'Part 1',
+      },
     ])
   })
 
@@ -122,7 +182,12 @@ describe('buildAnswerLabelVariableEntries', () => {
       { code: 'Q004', type: 'number', position: 0, text: 'How many?' },
     ]
     expect(buildAnswerLabelVariableEntries(questions)).toEqual([
-      { path: 'answerLabels.Q004', label: 'How many? — answer' },
+      {
+        path: 'answerLabels.Q004',
+        label: 'How many? — answer',
+        context: 'How many?',
+        detail: 'answer',
+      },
     ])
   })
 
@@ -141,15 +206,29 @@ describe('buildAnswerLabelVariableEntries', () => {
       },
     ]
     expect(buildAnswerLabelVariableEntries(questions)).toEqual([
-      { path: 'answerLabels.Q005', label: 'Rate these — answer' },
-      { path: 'answerLabels.Q005.S001', label: 'Rate these — Speed (answer)' },
+      {
+        path: 'answerLabels.Q005',
+        label: 'Rate these — answer',
+        context: 'Rate these',
+        detail: 'answer',
+      },
+      {
+        path: 'answerLabels.Q005.S001',
+        label: 'Rate these — Speed (answer)',
+        context: 'Rate these',
+        detail: 'Speed (answer)',
+      },
       {
         path: 'answerLabels.Q005.S001.A001',
         label: 'Rate these — Speed — Good (answer)',
+        context: 'Rate these',
+        detail: 'Speed — Good (answer)',
       },
       {
         path: 'answerLabels.Q005.S001.A002',
         label: 'Rate these — Speed — Bad (answer)',
+        context: 'Rate these',
+        detail: 'Speed — Bad (answer)',
       },
     ])
   })
@@ -166,11 +245,23 @@ describe('buildAnswerLabelVariableEntries', () => {
       },
     ]
     expect(buildAnswerLabelVariableEntries(questions)).toEqual([
-      { path: 'answerLabels.Q006', label: 'Agree? — answer' },
-      { path: 'answerLabels.Q006.S001', label: 'Agree? — Speed (answer)' },
+      {
+        path: 'answerLabels.Q006',
+        label: 'Agree? — answer',
+        context: 'Agree?',
+        detail: 'answer',
+      },
+      {
+        path: 'answerLabels.Q006.S001',
+        label: 'Agree? — Speed (answer)',
+        context: 'Agree?',
+        detail: 'Speed (answer)',
+      },
       {
         path: 'answerLabels.Q006.S001.A001',
         label: 'Agree? — Speed — A001 (answer)',
+        context: 'Agree?',
+        detail: 'Speed — A001 (answer)',
       },
     ])
   })
@@ -186,8 +277,18 @@ describe('buildAnswerLabelVariableEntries', () => {
       },
     ]
     expect(buildAnswerLabelVariableEntries(questions)).toEqual([
-      { path: 'answerLabels.Q007', label: 'Details — answer' },
-      { path: 'answerLabels.Q007.P001', label: 'Details — Part 1 (answer)' },
+      {
+        path: 'answerLabels.Q007',
+        label: 'Details — answer',
+        context: 'Details',
+        detail: 'answer',
+      },
+      {
+        path: 'answerLabels.Q007.P001',
+        label: 'Details — Part 1 (answer)',
+        context: 'Details',
+        detail: 'Part 1 (answer)',
+      },
     ])
   })
 
@@ -202,8 +303,53 @@ describe('buildAnswerLabelVariableEntries', () => {
       },
     ]
     expect(buildAnswerLabelVariableEntries(questions)).toEqual([
-      { path: 'answerLabels.Q008', label: 'Colour — answer' },
-      { path: 'answerLabels.Q008.A001', label: 'Colour — Red (label)' },
+      {
+        path: 'answerLabels.Q008',
+        label: 'Colour — answer',
+        context: 'Colour',
+        detail: 'answer',
+      },
+      {
+        path: 'answerLabels.Q008.A001',
+        label: 'Colour — Red (label)',
+        context: 'Colour',
+        detail: 'Red (label)',
+      },
     ])
+  })
+})
+
+describe('entry context and detail', () => {
+  const longText = 'I understood what taking part in the study involves'
+
+  it('shares one context across a question and gives each option a distinct detail', () => {
+    const entries = buildQuestionVariableEntries([
+      {
+        code: 'Q001',
+        type: 'choice',
+        position: 0,
+        text: longText,
+        answerOptions: [
+          { code: 'A001', label: 'Yes' },
+          { code: 'A002', label: 'No' },
+        ],
+      } as QuestionInfo,
+    ])
+
+    expect(new Set(entries.map((entry) => entry.context))).toEqual(
+      new Set([longText]),
+    )
+    expect(entries.map((entry) => entry.detail)).toEqual([
+      'Whole answer',
+      'Yes',
+      'No',
+    ])
+    entries.forEach((entry) =>
+      expect(entry.label).toBe(
+        entry.detail === 'Whole answer'
+          ? longText
+          : `${longText} — ${entry.detail}`,
+      ),
+    )
   })
 })

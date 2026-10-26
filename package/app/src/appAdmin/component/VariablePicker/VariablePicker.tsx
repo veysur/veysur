@@ -43,6 +43,76 @@ type VariablePickerProps = {
   onOpenChange?: (open: boolean) => void
 }
 
+type VariablePickerListProps = {
+  groups: VariablePickerGroup[]
+  onSelect: (path: string) => void
+}
+
+/**
+ * The picker's group/entry list. Consecutive entries sharing a `context`
+ * (a question's text) sit under one heading and show only their `detail`, so
+ * answer options of one question are told apart without repeating the long
+ * question text on every row. Text wraps rather than truncating, and nothing
+ * relies on a hover tooltip, so it reads the same on touch screens.
+ */
+export function VariablePickerList({
+  groups,
+  onSelect,
+}: VariablePickerListProps) {
+  return (
+    <>
+      {groups.map(
+        (group, groupIndex) =>
+          group.entries.length > 0 && (
+            <div key={group.label}>
+              {groupIndex > 0 && <div className="my-1 h-px bg-border" />}
+              <div className="flex items-center gap-1.5 px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                {group.icon && <group.icon size={12} className="shrink-0" />}
+                {group.label}
+              </div>
+              {group.entries.map((entry, entryIndex) => {
+                const showContext =
+                  entry.context !== undefined &&
+                  entry.context !== group.entries[entryIndex - 1]?.context
+                return (
+                  <div key={entry.path}>
+                    {showContext && (
+                      <div
+                        className="line-clamp-2 break-words px-2 pb-0.5 pt-2 text-xs font-medium text-muted-foreground"
+                        data-testid="variable-picker-context"
+                      >
+                        {entry.context}
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      className={cn(
+                        'flex min-h-7 w-full items-center rounded-md py-1 pr-2 text-left text-sm',
+                        // Larger tap targets on touch screens only
+                        '[@media(pointer:coarse)]:min-h-10 [@media(pointer:coarse)]:py-2',
+                        entry.context !== undefined ? 'pl-4' : 'pl-2',
+                        'cursor-pointer outline-none transition-colors',
+                        'hover:bg-accent hover:text-accent-foreground',
+                        'focus-visible:bg-accent focus-visible:text-accent-foreground',
+                      )}
+                      onClick={() => onSelect(entry.path)}
+                    >
+                      <span className="break-words">
+                        {entry.context !== undefined
+                          ? (entry.detail ?? entry.label)
+                          : entry.label}
+                      </span>
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+          ),
+      )}
+    </>
+  )
+}
+
 /**
  * Reusable dropdown for inserting a `answers.*`/`participant.*`/`survey.*`/
  * `project.*`/`projectOwner.*` variable reference into a text field. Shared
@@ -123,7 +193,8 @@ export function VariablePicker({
       </PopoverTrigger>
       <PopoverContent
         align="end"
-        className="max-h-80 overflow-y-auto w-72 p-1"
+        className="max-h-[min(20rem,60dvh)] w-[min(24rem,calc(100vw-2rem))] overflow-y-auto p-1"
+        collisionPadding={8}
         onOpenAutoFocus={(e) => {
           // Keep focus wherever it already was (the trigger's mousedown
           // guard above kept it on the editor) rather than Radix's default
@@ -143,36 +214,13 @@ export function VariablePicker({
           e.preventDefault()
         }}
       >
-        {groups.map(
-          (group, groupIndex) =>
-            group.entries.length > 0 && (
-              <div key={group.label}>
-                {groupIndex > 0 && <div className="my-1 h-px bg-border" />}
-                <div className="flex items-center gap-1.5 px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  {group.icon && <group.icon size={12} className="shrink-0" />}
-                  {group.label}
-                </div>
-                {group.entries.map((entry) => (
-                  <button
-                    key={entry.path}
-                    type="button"
-                    className={cn(
-                      'flex w-full items-center rounded-md px-2 py-1.5 text-left text-sm',
-                      'cursor-pointer outline-none transition-colors',
-                      'hover:bg-accent hover:text-accent-foreground',
-                      'focus-visible:bg-accent focus-visible:text-accent-foreground',
-                    )}
-                    onClick={() => {
-                      onSelect(entry.path)
-                      setOpen(false)
-                    }}
-                  >
-                    <span className="truncate">{entry.label}</span>
-                  </button>
-                ))}
-              </div>
-            ),
-        )}
+        <VariablePickerList
+          groups={groups}
+          onSelect={(path) => {
+            onSelect(path)
+            setOpen(false)
+          }}
+        />
       </PopoverContent>
     </Popover>
   )

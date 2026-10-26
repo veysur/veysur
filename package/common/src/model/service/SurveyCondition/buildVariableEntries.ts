@@ -7,6 +7,24 @@ export interface VariableEntry {
   path: string
   /** Human-readable label for display in a variable picker */
   label: string
+  /**
+   * Set on entries that belong to a question: the question text (or code). A
+   * picker groups consecutive entries sharing a `context` under one heading
+   * and shows only `detail` per row, since `label` repeats the same long
+   * question text for every answer option.
+   */
+  context?: string
+  /** The part of `label` after `context`, i.e. what tells this entry apart. */
+  detail?: string
+}
+
+/** Builds an entry whose label is `context — detail`. */
+function contextEntry(
+  path: string,
+  context: string,
+  detail: string,
+): VariableEntry {
+  return { path, label: `${context} — ${detail}`, context, detail }
 }
 
 /**
@@ -57,15 +75,20 @@ export function buildQuestionVariableEntries(
     entries.push({
       path: `answers.${question.code}`,
       label: questionLabel,
+      context: questionLabel,
+      detail: 'Whole answer',
     })
 
     if (question.subquestions && question.subquestions.length > 0) {
       if (isMultiPartQuestionType(question.type)) {
         for (const part of question.subquestions) {
-          entries.push({
-            path: `answers.${question.code}.${part.code}`,
-            label: `${questionLabel} — ${part.text || part.code}`,
-          })
+          entries.push(
+            contextEntry(
+              `answers.${question.code}.${part.code}`,
+              questionLabel,
+              part.text || part.code,
+            ),
+          )
         }
       } else {
         const options: { code: string; label?: string }[] =
@@ -73,10 +96,13 @@ export function buildQuestionVariableEntries(
           (question.answerOptionCodes || []).map((code) => ({ code }))
         for (const subquestion of question.subquestions) {
           for (const option of options) {
-            entries.push({
-              path: `answers.${question.code}.${subquestion.code}.${option.code}`,
-              label: `${questionLabel} — ${subquestion.text || subquestion.code} — ${option.label || option.code}`,
-            })
+            entries.push(
+              contextEntry(
+                `answers.${question.code}.${subquestion.code}.${option.code}`,
+                questionLabel,
+                `${subquestion.text || subquestion.code} — ${option.label || option.code}`,
+              ),
+            )
           }
         }
       }
@@ -85,17 +111,19 @@ export function buildQuestionVariableEntries(
 
     if (question.answerOptions && question.answerOptions.length > 0) {
       for (const option of question.answerOptions) {
-        entries.push({
-          path: `answers.${question.code}.${option.code}`,
-          label: `${questionLabel} — ${option.label || option.code}`,
-        })
+        entries.push(
+          contextEntry(
+            `answers.${question.code}.${option.code}`,
+            questionLabel,
+            option.label || option.code,
+          ),
+        )
       }
     } else if (question.answerOptionCodes) {
       for (const code of question.answerOptionCodes) {
-        entries.push({
-          path: `answers.${question.code}.${code}`,
-          label: `${questionLabel} — ${code}`,
-        })
+        entries.push(
+          contextEntry(`answers.${question.code}.${code}`, questionLabel, code),
+        )
       }
     }
   }
@@ -117,17 +145,19 @@ export function buildAnswerLabelVariableEntries(
 
   for (const question of questionsInfo) {
     const questionLabel = question.text || question.code
-    entries.push({
-      path: `answerLabels.${question.code}`,
-      label: `${questionLabel} — answer`,
-    })
+    entries.push(
+      contextEntry(`answerLabels.${question.code}`, questionLabel, 'answer'),
+    )
 
     if (isMultiPartQuestionType(question.type)) {
       for (const part of question.subquestions ?? []) {
-        entries.push({
-          path: `answerLabels.${question.code}.${part.code}`,
-          label: `${questionLabel} — ${part.text || part.code} (answer)`,
-        })
+        entries.push(
+          contextEntry(
+            `answerLabels.${question.code}.${part.code}`,
+            questionLabel,
+            `${part.text || part.code} (answer)`,
+          ),
+        )
       }
       continue
     }
@@ -138,25 +168,34 @@ export function buildAnswerLabelVariableEntries(
         (question.answerOptionCodes || []).map((code) => ({ code }))
       for (const subquestion of question.subquestions ?? []) {
         const subLabel = subquestion.text || subquestion.code
-        entries.push({
-          path: `answerLabels.${question.code}.${subquestion.code}`,
-          label: `${questionLabel} — ${subLabel} (answer)`,
-        })
+        entries.push(
+          contextEntry(
+            `answerLabels.${question.code}.${subquestion.code}`,
+            questionLabel,
+            `${subLabel} (answer)`,
+          ),
+        )
         for (const option of options) {
-          entries.push({
-            path: `answerLabels.${question.code}.${subquestion.code}.${option.code}`,
-            label: `${questionLabel} — ${subLabel} — ${option.label || option.code} (answer)`,
-          })
+          entries.push(
+            contextEntry(
+              `answerLabels.${question.code}.${subquestion.code}.${option.code}`,
+              questionLabel,
+              `${subLabel} — ${option.label || option.code} (answer)`,
+            ),
+          )
         }
       }
       continue
     }
 
     for (const option of question.answerOptions ?? []) {
-      entries.push({
-        path: `answerLabels.${question.code}.${option.code}`,
-        label: `${questionLabel} — ${option.label || option.code} (label)`,
-      })
+      entries.push(
+        contextEntry(
+          `answerLabels.${question.code}.${option.code}`,
+          questionLabel,
+          `${option.label || option.code} (label)`,
+        ),
+      )
     }
   }
 
@@ -191,27 +230,35 @@ export function buildLabelVariableEntries(
 
   for (const question of questionsInfo) {
     const questionLabel = question.text || question.code
-    entries.push({
-      path: `labels.${question.code}`,
-      label: `${questionLabel} — question text`,
-    })
+    entries.push(
+      contextEntry(`labels.${question.code}`, questionLabel, 'question text'),
+    )
     if (question.detail !== undefined) {
-      entries.push({
-        path: `labels.${question.code}.detail`,
-        label: `${questionLabel} — question detail`,
-      })
+      entries.push(
+        contextEntry(
+          `labels.${question.code}.detail`,
+          questionLabel,
+          'question detail',
+        ),
+      )
     }
     for (const subquestion of question.subquestions ?? []) {
-      entries.push({
-        path: `labels.${question.code}.${subquestion.code}`,
-        label: `${questionLabel} — ${subquestion.text || subquestion.code}`,
-      })
+      entries.push(
+        contextEntry(
+          `labels.${question.code}.${subquestion.code}`,
+          questionLabel,
+          subquestion.text || subquestion.code,
+        ),
+      )
     }
     for (const option of question.answerOptions ?? []) {
-      entries.push({
-        path: `labels.${question.code}.${option.code}`,
-        label: `${questionLabel} — ${option.label || option.code} (label)`,
-      })
+      entries.push(
+        contextEntry(
+          `labels.${question.code}.${option.code}`,
+          questionLabel,
+          `${option.label || option.code} (label)`,
+        ),
+      )
     }
   }
 
