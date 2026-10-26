@@ -1,36 +1,28 @@
-import { Schema } from '@datacapy/schema'
+import { Schema, sb } from '@datacapy/schema'
 
 export class SchemaJwtPreAuth extends Schema {
   constructor() {
-    super({
-      $name: 'jwtPreAuth',
-      $strict: true,
-      _id: {
-        $type: 'string',
-        $validate: { required: true, notNull: true },
-      },
-      clientId: {
-        $type: 'string',
-      },
-      type: {
-        $type: String,
-        $filter: { defaultValue: 'pre-auth' },
-      },
-      ip: { $type: String },
-      userAgent: { $type: String },
-      deviceName: { $type: String },
-      deviceSystem: { $type: String },
-      deviceSystemVersion: { $type: String },
-      buildNumber: { $type: String },
-      buildVersion: { $type: String },
-      notificationToken: { $type: String },
-      requiresTwoFactorSetup: {
-        $type: Boolean,
-        $filter: { defaultValue: false },
-      },
-      iat: Number,
-      exp: Number,
-    })
+    super(
+      sb
+        .schema('jwtPreAuth')
+        .strict()
+        .shape({
+          _id: sb.string().required().notNull(),
+          clientId: sb.string(),
+          type: sb.string().default('pre-auth'),
+          ip: sb.string(),
+          userAgent: sb.string(),
+          deviceName: sb.string(),
+          deviceSystem: sb.string(),
+          deviceSystemVersion: sb.string(),
+          buildNumber: sb.string(),
+          buildVersion: sb.string(),
+          notificationToken: sb.string(),
+          requiresTwoFactorSetup: sb.boolean().default(false),
+          iat: sb.number(),
+          exp: sb.number(),
+        }),
+    )
   }
 }
 

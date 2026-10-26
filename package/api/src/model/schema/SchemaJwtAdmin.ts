@@ -1,61 +1,38 @@
-import { Schema } from '@datacapy/schema'
+import { Schema, sb } from '@datacapy/schema'
 
 export class SchemaJwtAdmin extends Schema {
   constructor() {
-    super({
-      $name: 'jwtAdmin',
-      $construct: 'JwtAdmin',
-      $strict: true,
-      _id: {
-        $type: 'string',
-        $validate: { required: true, notNull: true },
-      },
-      clientId: {
-        $type: 'string',
-        $validate: { required: true, notNull: true },
-      },
-      type: {
-        $type: String,
-        $filter: { defaultValue: 'admin' },
-      },
-      nameFirst: {
-        $type: String,
-        $validate: { required: true, notNull: true, valueLength: { max: 64 } },
-        $filter: { trim: true },
-      },
-      nameLast: {
-        $type: String,
-        $validate: { required: true, notNull: true, valueLength: { max: 64 } },
-        $filter: { trim: true },
-      },
-      email: {
-        $type: String,
-        $validate: {
-          required: true,
-          notNull: true,
-          email: true,
-          valueLength: { max: 256 },
-        },
-        $filter: { lowercase: true, trim: true },
-      },
-      project: {
-        $strict: false,
-        '*': {
-          name: String,
-          owner: Boolean,
-        },
-      },
-      role: {
-        $type: String,
-        $filter: { defaultValue: 'admin' },
-      },
-      twoFactorEnabled: {
-        $type: Boolean,
-        $filter: { defaultValue: false },
-      },
-      iat: Number,
-      exp: Number,
-    })
+    super(
+      sb
+        .schema('jwtAdmin')
+        .construct('JwtAdmin')
+        .strict()
+        .shape({
+          _id: sb.string().required().notNull(),
+          clientId: sb.string().required().notNull(),
+          type: sb.string().default('admin'),
+          nameFirst: sb.string().required().notNull().maxLength(64).trim(),
+          nameLast: sb.string().required().notNull().maxLength(64).trim(),
+          email: sb
+            .string()
+            .required()
+            .notNull()
+            .email()
+            .maxLength(256)
+            .lowercase()
+            .trim(),
+          project: sb
+            .object()
+            .strict(false)
+            .matchAll(
+              sb.object().shape({ name: sb.string(), owner: sb.boolean() }),
+            ),
+          role: sb.string().default('admin'),
+          twoFactorEnabled: sb.boolean().default(false),
+          iat: sb.number(),
+          exp: sb.number(),
+        }),
+    )
   }
 }
 

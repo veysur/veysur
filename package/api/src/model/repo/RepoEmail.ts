@@ -1,3 +1,4 @@
+import { sb } from '@datacapy/schema'
 import { Repo, repib } from '@datacapy/server'
 
 export interface Email {
@@ -31,95 +32,58 @@ export class RepoEmail extends Repo<Email> {
       name: 'email',
       autoIndex: false,
       relations: {},
-      schema: {
-        _id: { $type: String },
-        userId: { $type: String, $filter: { defaultValue: null } },
-        projectId: { $type: String, $filter: { defaultValue: null } },
-        service: {
-          $type: String,
-          $validate: {
-            required: true,
-            notNull: true,
-            valueLength: { max: 127 },
-          },
-          $filter: { lowercase: true, trim: true },
-        },
-        type: {
-          $type: String,
-          $validate: {
-            required: true,
-            notNull: true,
-            valueLength: { max: 512 },
-          },
-          $filter: { lowercase: true, trim: true },
-        },
-        to: {
-          $type: String,
-          $validate: {
-            required: true,
-            notNull: true,
-            email: true,
-            valueLength: { max: 512 },
-          },
-          $filter: { lowercase: true, trim: true },
-        },
-        from: {
-          $type: String,
-          $validate: {
-            required: true,
-            notNull: true,
-            email: true,
-            valueLength: { max: 512 },
-          },
-          $filter: { lowercase: true, trim: true },
-        },
-        subject: {
-          $type: String,
-          $validate: {
-            required: true,
-            notNull: true,
-            valueLength: { max: 2048 },
-          },
-          $filter: { trim: true },
-        },
-        template: {
-          $type: String,
-          $validate: { valueLength: { max: 2048 } },
-          $filter: { trim: true, defaultValue: null },
-        },
-        html: {
-          $type: String,
-          $validate: { valueLength: { max: 50000 } },
-          $filter: { trim: true, defaultValue: null },
-        },
-        text: {
-          $type: String,
-          $validate: { valueLength: { max: 50000 } },
-          $filter: { trim: true, defaultValue: null },
-        },
-        templateData: { $type: Object },
-        messageId: {
-          $type: String,
-          $validate: { valueLength: { max: 2048 } },
-          $filter: { trim: true },
-        },
-        data: { $type: Object },
-        error: {
-          $type: String,
-          $validate: { valueLength: { max: 2048 } },
-          $filter: { trim: true },
-        },
-        attempts: { $type: Number, $filter: { defaultValue: 0 } },
-        status: {
-          $type: String,
-          $validate: { inArray: { values: ['pending', 'sent', 'error'] } },
-          $filter: { defaultValue: 'sent' },
-        },
-        scheduledAt: { $type: Date, $filter: { defaultValue: null } },
-        sent: { $type: Date, $filter: { defaultValue: null } },
-        updatedAt: { $type: Date, $filter: { defaultValue: null } },
-        createdAt: { $type: Date, $filter: { defaultValue: 'now' } },
-      },
+      schema: sb.schema().shape({
+        _id: sb.string(),
+        userId: sb.string().default(null),
+        projectId: sb.string().default(null),
+        service: sb
+          .string()
+          .required()
+          .notNull()
+          .maxLength(127)
+          .lowercase()
+          .trim(),
+        type: sb
+          .string()
+          .required()
+          .notNull()
+          .maxLength(512)
+          .lowercase()
+          .trim(),
+        to: sb
+          .string()
+          .required()
+          .notNull()
+          .email()
+          .maxLength(512)
+          .lowercase()
+          .trim(),
+        from: sb
+          .string()
+          .required()
+          .notNull()
+          .email()
+          .maxLength(512)
+          .lowercase()
+          .trim(),
+        subject: sb.string().required().notNull().maxLength(2048).trim(),
+        template: sb.string().maxLength(2048).trim().default(null),
+        html: sb.string().maxLength(50000).trim().default(null),
+        text: sb.string().maxLength(50000).trim().default(null),
+        templateData: sb.object(),
+        messageId: sb.string().maxLength(2048).trim(),
+        data: sb.object(),
+        error: sb.string().maxLength(2048).trim(),
+        attempts: sb.number().default(0),
+        status: sb
+          .string()
+          .inArray(['pending', 'sent', 'error'])
+          .default('sent'),
+        scheduledAt: sb.date().default(null),
+        sent: sb.date().default(null),
+        updatedAt: sb.date().default(null),
+        createdAt: sb.date().default('now'),
+      }),
       indexes: {
         createdAt: repib.desc('createdAt').timestamp(),
         user: repib.asc('userId').desc('createdAt').timestamp('createdAt'),
