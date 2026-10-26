@@ -1,5 +1,5 @@
 import { SurveyParticipant } from 'veysur-common/model/constructor'
-import { Repo, ServerErrorBadRequest, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
+import { Repo, ServerErrorBadRequest, relb, repib } from '@datacapy/server'
 
 export class RepoSurveyParticipant extends Repo<SurveyParticipant> {
   constructor() {
@@ -8,74 +8,35 @@ export class RepoSurveyParticipant extends Repo<SurveyParticipant> {
       dataSource: 'project', // Use dynamic datasource routing
       autoIndex: false,
       relations: {
-        surveyResponse: {
-          alias: 'surveyResponse',
-          type: 'hasOne',
-          repo: 'surveyResponse',
-          key: 'participantId',
-          pkey: '_id',
-          keys: {
+        surveyResponse: relb
+          .hasOne('surveyResponse')
+          .key('participantId')
+          .pkey('_id')
+          .keys({
             surveyId: 'surveyId',
-          },
-          // Must include every composite-key field (surveyId, participantId),
-          // not just the fields we want displayed - @datacapy/om matches related
-          // docs back to their source doc via these fields *after* this
-          // projection is applied, so omitting one breaks the match silently
-          // (no error, the relation just never populates).
-          fields: {
+          })
+          .fields({
             completed: 1,
             completedAt: 1,
             participantId: 1,
             surveyId: 1,
-          },
-        },
+          }),
       },
       indexes: {
-        createdAt: {
-          spec: { createdAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
-        updatedAt: {
-          spec: { updatedAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
-        createdById: {
-          spec: { createdById: 1, createdAt: -1 },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
-        surveyId: {
-          spec: {
-            surveyId: 1,
-            createdAt: -1,
-          },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
-        token: {
-          spec: {
-            surveyId: 1,
-            token: 1,
-          },
-          options: { unique: true },
-        },
-        email: {
-          spec: {
-            surveyId: 1,
-            email: 1,
-          },
-          options: { unique: true },
-        },
-        searchNameFirst: {
-          spec: {
-            surveyId: 1,
-            nameFirst: 1,
-          },
-        },
-        searchNameLast: {
-          spec: {
-            surveyId: 1,
-            nameLast: 1,
-          },
-        },
+        createdAt: repib.desc('createdAt').timestamp(),
+        updatedAt: repib.desc('updatedAt').timestamp(),
+        createdById: repib
+          .asc('createdById')
+          .desc('createdAt')
+          .timestamp('createdAt'),
+        surveyId: repib
+          .asc('surveyId')
+          .desc('createdAt')
+          .timestamp('createdAt'),
+        token: repib.asc('surveyId').asc('token').unique(),
+        email: repib.asc('surveyId').asc('email').unique(),
+        searchNameFirst: repib.asc('surveyId').asc('nameFirst'),
+        searchNameLast: repib.asc('surveyId').asc('nameLast'),
       },
     })
   }

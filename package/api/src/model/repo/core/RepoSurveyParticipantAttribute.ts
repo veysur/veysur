@@ -1,5 +1,5 @@
 import { SurveyParticipantAttribute } from 'veysur-common'
-import { Repo } from '@datacapy/server'
+import { Repo, repib } from '@datacapy/server'
 
 export class RepoSurveyParticipantAttribute extends Repo<SurveyParticipantAttribute> {
   constructor() {
@@ -8,10 +8,7 @@ export class RepoSurveyParticipantAttribute extends Repo<SurveyParticipantAttrib
       dataSource: 'project',
       autoIndex: false,
       indexes: {
-        surveyId: {
-          spec: { surveyId: 1 },
-          options: { unique: true },
-        },
+        surveyId: repib.asc('surveyId').unique(),
       },
     })
   }

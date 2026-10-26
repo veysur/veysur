@@ -1,4 +1,4 @@
-import { Repo, ServerErrorBadRequest, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
+import { Repo, ServerErrorBadRequest, repib } from '@datacapy/server'
 import { TaskLock } from '../constructor'
 
 /**
@@ -12,17 +12,9 @@ export class RepoTaskLock extends Repo<TaskLock> {
       autoIndex: false,
       relations: {},
       indexes: {
-        lockKey: {
-          spec: { lockKey: 1 },
-          options: { unique: true },
-        },
-        expiresAt: {
-          spec: { expiresAt: 1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
-        resourceType: {
-          spec: { resourceType: 1, resourceId: 1 },
-        },
+        lockKey: repib.asc('lockKey').unique(),
+        expiresAt: repib.asc('expiresAt').timestamp(),
+        resourceType: repib.asc('resourceType').asc('resourceId'),
       },
     })
   }

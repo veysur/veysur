@@ -1,4 +1,4 @@
-import { Repo, ServerErrorBadRequest, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
+import { Repo, ServerErrorBadRequest, repib } from '@datacapy/server'
 import { File } from 'veysur-common'
 
 const FILE_CONTEXT_SURVEY = 'survey'
@@ -12,44 +12,29 @@ export class RepoFile extends Repo<File> {
       autoIndex: false,
       relations: {},
       indexes: {
-        createdAt: {
-          spec: { createdAt: -1 },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
-        updatedAt: {
-          spec: { updatedAt: -1 },
-          options: { typeHint: { updatedAt: TYPE_HINT_TIMESTAMP } },
-        },
-        createdById: {
-          spec: { createdById: 1, createdAt: -1 },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
-        uploadedAt: {
-          spec: { uploadedAt: -1 },
-          options: { typeHint: { uploadedAt: TYPE_HINT_TIMESTAMP } },
-        },
-        deletedAt: {
-          spec: { deletedAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
-        hash: {
-          spec: { hash: 1 },
-        },
-        filePath: {
-          spec: { filePath: 1 },
-        },
-        surveyId: {
-          spec: { surveyId: 1, createdAt: -1 },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
-        responseId: {
-          spec: { surveyId: 1, responseId: 1, createdAt: -1 },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
-        fileContext: {
-          spec: { fileContext: 1, deletedAt: 1 },
-          options: { typeHint: { deletedAt: TYPE_HINT_TIMESTAMP } },
-        },
+        createdAt: repib.desc('createdAt').timestamp('createdAt'),
+        updatedAt: repib.desc('updatedAt').timestamp('updatedAt'),
+        createdById: repib
+          .asc('createdById')
+          .desc('createdAt')
+          .timestamp('createdAt'),
+        uploadedAt: repib.desc('uploadedAt').timestamp('uploadedAt'),
+        deletedAt: repib.desc('deletedAt').timestamp(),
+        hash: repib.asc('hash'),
+        filePath: repib.asc('filePath'),
+        surveyId: repib
+          .asc('surveyId')
+          .desc('createdAt')
+          .timestamp('createdAt'),
+        responseId: repib
+          .asc('surveyId')
+          .asc('responseId')
+          .desc('createdAt')
+          .timestamp('createdAt'),
+        fileContext: repib
+          .asc('fileContext')
+          .asc('deletedAt')
+          .timestamp('deletedAt'),
       },
     })
   }

@@ -1,4 +1,4 @@
-import { Repo, ServerErrorBadRequest, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
+import { Repo, ServerErrorBadRequest, repib } from '@datacapy/server'
 import { EmailTemplate } from 'veysur-common'
 
 export class RepoEmailTemplate extends Repo<EmailTemplate> {
@@ -9,18 +9,13 @@ export class RepoEmailTemplate extends Repo<EmailTemplate> {
       autoIndex: false,
       relations: {},
       indexes: {
-        createdAt: {
-          spec: { createdAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
-        updatedAt: {
-          spec: { updatedAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
-        surveyIdTypeLang: {
-          spec: { surveyId: 1, type: 1, lang: 1 },
-          options: { unique: true },
-        },
+        createdAt: repib.desc('createdAt').timestamp(),
+        updatedAt: repib.desc('updatedAt').timestamp(),
+        surveyIdTypeLang: repib
+          .asc('surveyId')
+          .asc('type')
+          .asc('lang')
+          .unique(),
       },
     })
   }

@@ -1,5 +1,5 @@
 import { Notification } from 'veysur-common'
-import { Repo, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
+import { Repo, relb, repib } from '@datacapy/server'
 
 /**
  * Default (account) datasource, not project-scoped - same reasoning as
@@ -13,33 +13,28 @@ export class RepoNotification extends Repo<Notification> {
       name: 'notification',
       autoIndex: false,
       relations: {
-        dataTransferJob: {
-          alias: 'dataTransferJob',
-          type: 'belongsToOne',
-          repo: 'dataTransferJob',
-          key: 'dataTransferJobId',
-          autoPopulate: false,
-          recursion: 0,
-        },
+        dataTransferJob: relb
+          .belongsToOne('dataTransferJob')
+          .key('dataTransferJobId')
+          .autoPopulate(false)
+          .recursion(0),
       },
       indexes: {
         // Backs findByRecipient() - list()'s personal-notification query.
-        recipient: {
-          spec: { projectId: 1, recipientUserId: 1, createdAt: -1 },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
+        recipient: repib
+          .asc('projectId')
+          .asc('recipientUserId')
+          .desc('createdAt')
+          .timestamp('createdAt'),
         // Backs findSettledOlderThan()'s cleanup query - retention is
         // measured from when a notification was read/dismissed, not from
         // when its job was originally enqueued (createdAt).
-        settled: {
-          spec: { status: 1, dismissedAt: 1, readAt: 1 },
-          options: {
-            typeHint: {
-              dismissedAt: TYPE_HINT_TIMESTAMP,
-              readAt: TYPE_HINT_TIMESTAMP,
-            },
-          },
-        },
+        settled: repib
+          .asc('status')
+          .asc('dismissedAt')
+          .asc('readAt')
+          .timestamp('dismissedAt')
+          .timestamp('readAt'),
       },
     })
   }

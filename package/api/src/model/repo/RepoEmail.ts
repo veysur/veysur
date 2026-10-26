@@ -1,4 +1,4 @@
-import { Repo, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
+import { Repo, repib } from '@datacapy/server'
 
 export interface Email {
   _id?: string
@@ -121,26 +121,17 @@ export class RepoEmail extends Repo<Email> {
         createdAt: { $type: Date, $filter: { defaultValue: 'now' } },
       },
       indexes: {
-        createdAt: {
-          spec: { createdAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
-        user: {
-          spec: { userId: 1, createdAt: -1 },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
-        to: {
-          spec: { to: 1, createdAt: -1 },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
-        project: {
-          spec: { projectId: 1, createdAt: -1 },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
-        queueStatus: {
-          spec: { status: 1, scheduledAt: 1 },
-          options: { typeHint: { scheduledAt: TYPE_HINT_TIMESTAMP } },
-        },
+        createdAt: repib.desc('createdAt').timestamp(),
+        user: repib.asc('userId').desc('createdAt').timestamp('createdAt'),
+        to: repib.asc('to').desc('createdAt').timestamp('createdAt'),
+        project: repib
+          .asc('projectId')
+          .desc('createdAt')
+          .timestamp('createdAt'),
+        queueStatus: repib
+          .asc('status')
+          .asc('scheduledAt')
+          .timestamp('scheduledAt'),
       },
     })
   }

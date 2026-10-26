@@ -1,8 +1,4 @@
-import {
-  Repo,
-  ServerErrorBadRequest,
-  TYPE_HINT_TIMESTAMP,
-} from '@datacapy/server'
+import { Repo, ServerErrorBadRequest, repib } from '@datacapy/server'
 import { SettingProject } from 'veysur-common'
 
 export class RepoSettingProject extends Repo<SettingProject> {
@@ -13,14 +9,8 @@ export class RepoSettingProject extends Repo<SettingProject> {
       autoIndex: false,
       relations: {},
       indexes: {
-        createdAt: {
-          spec: { createdAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
-        updatedAt: {
-          spec: { updatedAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
+        createdAt: repib.desc('createdAt').timestamp(),
+        updatedAt: repib.desc('updatedAt').timestamp(),
       },
     })
   }

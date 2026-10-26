@@ -1,4 +1,4 @@
-import { Repo, ServerErrorBadRequest, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
+import { Repo, ServerErrorBadRequest, repib } from '@datacapy/server'
 import { Task } from 'veysur-common'
 
 const MINUTE_MS = 60 * 1000
@@ -26,18 +26,12 @@ export class RepoTask extends Repo<Task> {
       autoIndex: false,
       relations: {},
       indexes: {
-        name: {
-          spec: { name: 1 },
-          options: { unique: true },
-        },
-        enabled: {
-          spec: { enabled: 1, backedOffUntil: 1 },
-          options: { typeHint: { backedOffUntil: TYPE_HINT_TIMESTAMP } },
-        },
-        createdAt: {
-          spec: { createdAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
+        name: repib.asc('name').unique(),
+        enabled: repib
+          .asc('enabled')
+          .asc('backedOffUntil')
+          .timestamp('backedOffUntil'),
+        createdAt: repib.desc('createdAt').timestamp(),
       },
     })
   }

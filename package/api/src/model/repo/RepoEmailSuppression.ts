@@ -1,4 +1,4 @@
-import { Repo, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
+import { Repo, repib } from '@datacapy/server'
 import { EmailSuppression } from 'veysur-common'
 
 export class RepoEmailSuppression extends Repo<EmailSuppression> {
@@ -8,31 +8,14 @@ export class RepoEmailSuppression extends Repo<EmailSuppression> {
       autoIndex: false,
       relations: {},
       indexes: {
-        email: {
-          spec: { email: 1 },
-          options: { unique: true },
-        },
-        reason: {
-          spec: { reason: 1, createdAt: -1 },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
-        complaintEvents: {
-          spec: {
-            'complaintEvents.projectId': 1,
-            'complaintEvents.occurredAt': -1,
-          },
-          options: {
-            typeHint: { 'complaintEvents.occurredAt': TYPE_HINT_TIMESTAMP },
-          },
-        },
-        createdAt: {
-          spec: { createdAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
-        expiresAt: {
-          spec: { expiresAt: 1 },
-          options: { typeHint: { expiresAt: TYPE_HINT_TIMESTAMP } },
-        },
+        email: repib.asc('email').unique(),
+        reason: repib.asc('reason').desc('createdAt').timestamp('createdAt'),
+        complaintEvents: repib
+          .asc('complaintEvents.projectId')
+          .desc('complaintEvents.occurredAt')
+          .timestamp('complaintEvents.occurredAt'),
+        createdAt: repib.desc('createdAt').timestamp(),
+        expiresAt: repib.asc('expiresAt').timestamp('expiresAt'),
       },
     })
   }

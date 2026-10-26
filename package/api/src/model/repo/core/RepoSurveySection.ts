@@ -1,5 +1,5 @@
 import { SurveySection } from 'veysur-common/model/constructor'
-import { Repo, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
+import { Repo, repib } from '@datacapy/server'
 
 export class RepoSurveySection extends Repo<SurveySection> {
   constructor() {
@@ -9,25 +9,16 @@ export class RepoSurveySection extends Repo<SurveySection> {
       autoIndex: false,
       relations: {},
       indexes: {
-        createdAt: {
-          spec: { createdAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
-        updatedAt: {
-          spec: { updatedAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
-        createdById: {
-          spec: { createdById: 1, createdAt: -1 },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
-        surveyId: {
-          spec: {
-            surveyId: 1,
-            createdAt: -1,
-          },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
+        createdAt: repib.desc('createdAt').timestamp(),
+        updatedAt: repib.desc('updatedAt').timestamp(),
+        createdById: repib
+          .asc('createdById')
+          .desc('createdAt')
+          .timestamp('createdAt'),
+        surveyId: repib
+          .asc('surveyId')
+          .desc('createdAt')
+          .timestamp('createdAt'),
       },
     })
   }

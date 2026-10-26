@@ -1,4 +1,4 @@
-import { Repo } from '@datacapy/server'
+import { Repo, repib } from '@datacapy/server'
 import { SurveyParticipantAttributeSnapshot } from 'veysur-common'
 
 export class RepoSurveyParticipantAttributeSnapshot extends Repo<SurveyParticipantAttributeSnapshot> {
@@ -8,10 +8,7 @@ export class RepoSurveyParticipantAttributeSnapshot extends Repo<SurveyParticipa
       dataSource: 'project',
       autoIndex: false,
       indexes: {
-        snapshotId: {
-          spec: { snapshotId: 1 },
-          options: { unique: true },
-        },
+        snapshotId: repib.asc('snapshotId').unique(),
       },
     })
   }

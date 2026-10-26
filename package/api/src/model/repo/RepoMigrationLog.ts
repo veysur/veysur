@@ -1,4 +1,4 @@
-import { Repo, ServerErrorBadRequest, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
+import { Repo, ServerErrorBadRequest, repib } from '@datacapy/server'
 import { genUniqueId } from '@datacapy/id'
 import { MigrationResult } from '@datacapy/migrate'
 
@@ -21,17 +21,9 @@ export class RepoMigrationLog extends Repo<MigrationLogEntry> {
       autoIndex: false,
       relations: {},
       indexes: {
-        runIdContextKey: {
-          spec: { runId: 1, contextKey: 1 },
-          options: { unique: true },
-        },
-        runIdStatus: {
-          spec: { runId: 1, status: 1 },
-        },
-        createdAt: {
-          spec: { createdAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
+        runIdContextKey: repib.asc('runId').asc('contextKey').unique(),
+        runIdStatus: repib.asc('runId').asc('status'),
+        createdAt: repib.desc('createdAt').timestamp(),
       },
     })
   }

@@ -1,5 +1,5 @@
 import { SurveySnapshotPartial } from 'veysur-common'
-import { Repo, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
+import { Repo, relb, repib } from '@datacapy/server'
 
 export class RepoSurveySnapshotPartial extends Repo<SurveySnapshotPartial> {
   constructor() {
@@ -8,59 +8,33 @@ export class RepoSurveySnapshotPartial extends Repo<SurveySnapshotPartial> {
       dataSource: 'project', // Use dynamic datasource routing
       autoIndex: false,
       relations: {
-        publications: {
-          alias: 'publications',
-          type: 'hasMany',
-          repo: 'surveyPublication',
-          key: 'snapshotId',
-        },
-        responseCount: {
-          alias: 'responseCount',
-          type: 'hasManyCount',
-          repo: 'surveyResponse',
-          pkey: '_id',
-          key: 'snapshotId',
-        },
-        createdBy: {
-          alias: 'createdBy',
-          type: 'belongsToOne',
-          repo: 'user',
-          key: 'createdById',
-          fields: {
-            _id: 1,
-            nameFirst: 1,
-            nameLast: 1,
-          },
-        },
+        publications: relb.hasMany('surveyPublication').key('snapshotId'),
+        responseCount: relb
+          .hasManyCount('surveyResponse')
+          .pkey('_id')
+          .key('snapshotId'),
+        createdBy: relb.belongsToOne('user').key('createdById').fields({
+          _id: 1,
+          nameFirst: 1,
+          nameLast: 1,
+        }),
       },
       indexes: {
-        createdAt: {
-          spec: { createdAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
-        updatedAt: {
-          spec: { updatedAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
-        createdById: {
-          spec: { createdById: 1, createdAt: -1 },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
-        surveyId: {
-          spec: {
-            surveyId: 1,
-            createdAt: -1,
-          },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
-        contentHash: {
-          spec: {
-            surveyId: 1,
-            contentHash: 1,
-            createdAt: -1,
-          },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
+        createdAt: repib.desc('createdAt').timestamp(),
+        updatedAt: repib.desc('updatedAt').timestamp(),
+        createdById: repib
+          .asc('createdById')
+          .desc('createdAt')
+          .timestamp('createdAt'),
+        surveyId: repib
+          .asc('surveyId')
+          .desc('createdAt')
+          .timestamp('createdAt'),
+        contentHash: repib
+          .asc('surveyId')
+          .asc('contentHash')
+          .desc('createdAt')
+          .timestamp('createdAt'),
       },
     })
   }

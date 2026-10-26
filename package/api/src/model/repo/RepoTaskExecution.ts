@@ -1,4 +1,4 @@
-import { Repo, ServerErrorBadRequest, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
+import { Repo, ServerErrorBadRequest, repib } from '@datacapy/server'
 import { TaskExecution } from 'veysur-common'
 
 const TaskExecutionStatus = {
@@ -18,26 +18,15 @@ export class RepoTaskExecution extends Repo<TaskExecution> {
       autoIndex: false,
       relations: {},
       indexes: {
-        createdAt: {
-          spec: { createdAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
-        startedAt: {
-          spec: { startedAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
-        taskId: {
-          spec: { taskId: 1, createdAt: -1 },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
-        taskStatus: {
-          spec: { taskId: 1, status: 1, startedAt: -1 },
-          options: { typeHint: { startedAt: TYPE_HINT_TIMESTAMP } },
-        },
-        status: {
-          spec: { status: 1, createdAt: -1 },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
+        createdAt: repib.desc('createdAt').timestamp(),
+        startedAt: repib.desc('startedAt').timestamp(),
+        taskId: repib.asc('taskId').desc('createdAt').timestamp('createdAt'),
+        taskStatus: repib
+          .asc('taskId')
+          .asc('status')
+          .desc('startedAt')
+          .timestamp('startedAt'),
+        status: repib.asc('status').desc('createdAt').timestamp('createdAt'),
       },
     })
   }

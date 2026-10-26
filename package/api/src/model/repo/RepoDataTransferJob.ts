@@ -1,6 +1,6 @@
 // cspell:ignore sargable
 import { DataTransferJob } from 'veysur-common'
-import { Repo, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
+import { Repo, repib } from '@datacapy/server'
 
 /**
  * Default (account) datasource, not project-scoped: processQueue() needs to
@@ -16,36 +16,28 @@ export class RepoDataTransferJob extends Repo<DataTransferJob> {
       autoIndex: false,
       relations: {},
       indexes: {
-        createdAt: {
-          spec: { createdAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
-        status: {
-          spec: { status: 1, createdAt: 1 },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
+        createdAt: repib.desc('createdAt').timestamp(),
+        status: repib.asc('status').asc('createdAt').timestamp('createdAt'),
         // Backs findByRequester() - listJobs() (the notification bell,
         // polled every 15s while a job is active) filters on this pair then
         // sorts by createdAt.
-        requester: {
-          spec: { projectId: 1, requestedByUserId: 1, createdAt: -1 },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
+        requester: repib
+          .asc('projectId')
+          .asc('requestedByUserId')
+          .desc('createdAt')
+          .timestamp('createdAt'),
         // Backs findActiveMatch() - enqueueExport()'s dedup lookup. `status`
         // is deliberately excluded: it's a 4-value enum queried with `$in`
         // (not sargable as a composite-index tail column anyway), and
         // including it alongside `entityType`/`format` as default-sized
         // generated VARCHAR(255) columns pushes the composite key over
         // MySQL's 3072-byte limit. find() still filters on it post-scan.
-        activeMatch: {
-          spec: {
-            projectId: 1,
-            requestedByUserId: 1,
-            entityType: 1,
-            entityId: 1,
-            format: 1,
-          },
-        },
+        activeMatch: repib
+          .asc('projectId')
+          .asc('requestedByUserId')
+          .asc('entityType')
+          .asc('entityId')
+          .asc('format'),
         // Backs findActiveImportMatch() - the import equivalent of
         // activeMatch. Imports have no entityId to key on (an import
         // creates a new entity rather than referencing an existing one),
@@ -55,14 +47,11 @@ export class RepoDataTransferJob extends Repo<DataTransferJob> {
         // activeMatch above - four non-id VARCHAR(255) generated columns
         // would exceed MySQL's 3072-byte composite key limit. find() still
         // filters on both post-scan.
-        activeImportMatch: {
-          spec: {
-            projectId: 1,
-            requestedByUserId: 1,
-            entityType: 1,
-            sourceFileHash: 1,
-          },
-        },
+        activeImportMatch: repib
+          .asc('projectId')
+          .asc('requestedByUserId')
+          .asc('entityType')
+          .asc('sourceFileHash'),
       },
     })
   }
@@ -158,7 +147,6 @@ export class RepoDataTransferJob extends Repo<DataTransferJob> {
       status: { $in: ['pending', 'processing'] },
     })
   }
-
 }
 
 export default RepoDataTransferJob

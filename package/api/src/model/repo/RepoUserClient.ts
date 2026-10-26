@@ -1,5 +1,5 @@
 import { UserClient } from 'veysur-common'
-import { Repo, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
+import { Repo, relb, repib } from '@datacapy/server'
 
 export class RepoUserClient extends Repo<UserClient> {
   constructor() {
@@ -7,24 +7,15 @@ export class RepoUserClient extends Repo<UserClient> {
       name: 'userClient',
       autoIndex: false,
       relations: {
-        user: {
-          alias: 'user',
-          type: 'belongsToOne',
-          repo: 'user',
-          key: 'userId',
-          autoPopulate: false,
-          recursion: 1,
-        },
+        user: relb
+          .belongsToOne('user')
+          .key('userId')
+          .autoPopulate(false)
+          .recursion(1),
       },
       indexes: {
-        createdAt: {
-          spec: { createdAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
-        userId: {
-          spec: { userId: 1, createdAt: -1 },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
+        createdAt: repib.desc('createdAt').timestamp(),
+        userId: repib.asc('userId').desc('createdAt').timestamp('createdAt'),
       },
     })
   }

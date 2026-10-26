@@ -1,5 +1,5 @@
 import { SurveyPublication } from 'veysur-common'
-import { Repo, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
+import { Repo, relb, repib } from '@datacapy/server'
 
 export class RepoSurveyPublication extends Repo<SurveyPublication> {
   constructor() {
@@ -8,44 +8,27 @@ export class RepoSurveyPublication extends Repo<SurveyPublication> {
       dataSource: 'project', // Use dynamic datasource routing
       autoIndex: false,
       relations: {
-        snapshot: {
-          type: 'one',
-          repo: 'surveySnapshot',
-          localField: 'snapshotId',
-        },
-        responseCount: {
-          alias: 'responseCount',
-          type: 'hasManyCount',
-          repo: 'surveyResponse',
-          pkey: '_id',
-          key: 'publicationId',
-        },
-        publishedBy: {
-          type: 'one',
-          repo: 'user',
-          localField: 'publishedById',
-        },
+        snapshot: relb.belongsToOne('surveySnapshot').key('snapshotId'),
+        responseCount: relb
+          .hasManyCount('surveyResponse')
+          .pkey('_id')
+          .key('publicationId'),
+        publishedBy: relb.belongsToOne('user').key('publishedById'),
       },
       indexes: {
-        createdAt: {
-          spec: { createdAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
-        surveyPublished: {
-          spec: { surveyId: 1, publishedAt: 1 },
-          options: { typeHint: { publishedAt: TYPE_HINT_TIMESTAMP } },
-        },
-        snapshotId: {
-          spec: { snapshotId: 1, createdAt: -1 },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
-        stoppedAt: {
-          spec: {
-            surveyId: 1,
-            stoppedAt: -1,
-          },
-          options: { typeHint: { stoppedAt: TYPE_HINT_TIMESTAMP } },
-        },
+        createdAt: repib.desc('createdAt').timestamp(),
+        surveyPublished: repib
+          .asc('surveyId')
+          .asc('publishedAt')
+          .timestamp('publishedAt'),
+        snapshotId: repib
+          .asc('snapshotId')
+          .desc('createdAt')
+          .timestamp('createdAt'),
+        stoppedAt: repib
+          .asc('surveyId')
+          .desc('stoppedAt')
+          .timestamp('stoppedAt'),
       },
     })
   }

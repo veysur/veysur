@@ -1,5 +1,5 @@
 import { SurveyElementBase } from 'veysur-common/model/constructor'
-import { Repo, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
+import { Repo, repib } from '@datacapy/server'
 
 // The `surveyElement` schema persists both element kinds; on read,
 // `SurveyElementCollection.fromArray` / `SchemaSurveyElement.constructCollection`
@@ -14,26 +14,17 @@ export class RepoSurveyElement extends Repo<SurveyElementBase> {
       autoIndex: false,
       relations: {},
       indexes: {
-        createdAt: {
-          spec: { createdAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
-        updatedAt: {
-          spec: { updatedAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
-        createdById: {
-          spec: { createdById: 1, createdAt: -1 },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
-        sectionId: {
-          spec: {
-            sectionId: 1,
-            surveyId: 1,
-            createdAt: -1,
-          },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
+        createdAt: repib.desc('createdAt').timestamp(),
+        updatedAt: repib.desc('updatedAt').timestamp(),
+        createdById: repib
+          .asc('createdById')
+          .desc('createdAt')
+          .timestamp('createdAt'),
+        sectionId: repib
+          .asc('sectionId')
+          .asc('surveyId')
+          .desc('createdAt')
+          .timestamp('createdAt'),
       },
     })
   }

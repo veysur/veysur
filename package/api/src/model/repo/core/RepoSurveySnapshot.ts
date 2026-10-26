@@ -1,5 +1,5 @@
 import { SurveySnapshot } from 'veysur-common'
-import { Repo } from '@datacapy/server'
+import { Repo, repib } from '@datacapy/server'
 
 export class RepoSurveySnapshot extends Repo<SurveySnapshot> {
   constructor() {
@@ -9,12 +9,8 @@ export class RepoSurveySnapshot extends Repo<SurveySnapshot> {
       autoIndex: false,
       relations: {},
       indexes: {
-        snapshotId: { spec: { snapshotId: 1 } },
-        surveyId: {
-          spec: {
-            'survey._id': 1,
-          },
-        },
+        snapshotId: repib.asc('snapshotId'),
+        surveyId: repib.asc('survey._id'),
       },
     })
   }

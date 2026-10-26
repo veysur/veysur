@@ -1,4 +1,4 @@
-import { Repo, ServerErrorBadRequest, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
+import { Repo, ServerErrorBadRequest, relb, repib } from '@datacapy/server'
 import { Survey } from 'veysur-common'
 
 import { RepoSurveyElement, RepoSurveySection } from 'model'
@@ -10,50 +10,23 @@ export class RepoSurvey extends Repo<Survey> {
       dataSource: 'project', // Use project-specific dynamic datasource
       autoIndex: false,
       relations: {
-        elements: {
-          alias: 'elements',
-          type: 'hasMany',
-          repo: 'surveyElement',
-          key: 'surveyId',
-        },
-        sections: {
-          alias: 'sections',
-          type: 'hasMany',
-          repo: 'surveySection',
-          key: 'surveyId',
-        },
-        responses: {
-          alias: 'responses',
-          type: 'hasMany',
-          repo: 'surveyResponse',
-          key: 'surveyId',
-        },
-        createdBy: {
-          alias: 'createdBy',
-          type: 'belongsToOne',
-          repo: 'user',
-          key: 'createdById',
-          fields: {
-            _id: 1,
-            role: 1,
-            nameFirst: 1,
-            nameLast: 1,
-          },
-        },
+        elements: relb.hasMany('surveyElement').key('surveyId'),
+        sections: relb.hasMany('surveySection').key('surveyId'),
+        responses: relb.hasMany('surveyResponse').key('surveyId'),
+        createdBy: relb.belongsToOne('user').key('createdById').fields({
+          _id: 1,
+          role: 1,
+          nameFirst: 1,
+          nameLast: 1,
+        }),
       },
       indexes: {
-        createdAt: {
-          spec: { createdAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
-        updatedAt: {
-          spec: { updatedAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
-        createdById: {
-          spec: { createdById: 1, createdAt: -1 },
-          options: { typeHint: { createdAt: TYPE_HINT_TIMESTAMP } },
-        },
+        createdAt: repib.desc('createdAt').timestamp(),
+        updatedAt: repib.desc('updatedAt').timestamp(),
+        createdById: repib
+          .asc('createdById')
+          .desc('createdAt')
+          .timestamp('createdAt'),
       },
     })
   }

@@ -1,4 +1,4 @@
-import { Repo, TYPE_HINT_TIMESTAMP } from '@datacapy/server'
+import { Repo, repib } from '@datacapy/server'
 import { Project } from 'veysur-common'
 
 export class RepoProject extends Repo<Project> {
@@ -7,10 +7,7 @@ export class RepoProject extends Repo<Project> {
       name: 'project',
       autoIndex: false,
       indexes: {
-        createdAt: {
-          spec: { createdAt: -1 },
-          options: { typeHint: TYPE_HINT_TIMESTAMP },
-        },
+        createdAt: repib.desc('createdAt').timestamp(),
       },
     })
   }

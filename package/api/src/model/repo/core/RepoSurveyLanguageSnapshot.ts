@@ -1,4 +1,4 @@
-import { Repo } from '@datacapy/server'
+import { Repo, repib } from '@datacapy/server'
 import { SurveyLanguageSnapshot } from 'veysur-common'
 
 export class RepoSurveyLanguageSnapshot extends Repo<SurveyLanguageSnapshot> {
@@ -8,10 +8,7 @@ export class RepoSurveyLanguageSnapshot extends Repo<SurveyLanguageSnapshot> {
       dataSource: 'project',
       autoIndex: false,
       indexes: {
-        snapshotLanguage: {
-          spec: { snapshotId: 1, languageCode: 1 },
-          options: { unique: true },
-        },
+        snapshotLanguage: repib.asc('snapshotId').asc('languageCode').unique(),
       },
     })
   }
