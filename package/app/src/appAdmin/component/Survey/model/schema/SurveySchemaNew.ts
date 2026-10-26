@@ -1,18 +1,19 @@
 import { SCHEMA_LENGTH_MAX_INPUT } from 'veysur-common'
-import { Schema } from '@datacapy/schema'
+import { Schema, sb } from '@datacapy/schema'
 
 export class SurveySchemaNew extends Schema {
   constructor() {
-    super({
-      $strict: true,
-      name: {
-        $type: String,
-        $validate: {
-          notEmpty: { message: 'Name is required' },
-          valueLength: { max: SCHEMA_LENGTH_MAX_INPUT },
-        },
-      },
-    })
+    super(
+      sb
+        .schema()
+        .strict()
+        .shape({
+          name: sb
+            .string()
+            .notEmpty({ message: 'Name is required' })
+            .maxLength(SCHEMA_LENGTH_MAX_INPUT),
+        }),
+    )
   }
 }
 
