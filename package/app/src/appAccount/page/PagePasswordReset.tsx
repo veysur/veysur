@@ -38,8 +38,7 @@ const emailSchema = new Schema(
         .string()
         .required({ message: 'Email is required' })
         .email({ message: 'Invalid email address' }),
-    })
-    .build(),
+    }),
 )
 
 const resetSchema = new Schema(
@@ -61,8 +60,7 @@ const resetSchema = new Schema(
       passwordConfirm: sb
         .string()
         .required({ message: 'Please confirm your password' }),
-    })
-    .build(),
+    }),
 )
 
 type Step = 'request' | 'verify' | 'success'

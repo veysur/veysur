@@ -24,8 +24,7 @@ export class SchemaUserAccessToken extends Schema {
           }),
           createdAt: sb.date(),
           expiresAt: sb.date(),
-        })
-        .build(),
+        }),
     )
   }
 }

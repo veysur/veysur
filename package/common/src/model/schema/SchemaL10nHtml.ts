@@ -9,8 +9,7 @@ export class SchemaL10nHtml extends Schema {
         .schema('l10nHtml')
         .construct('L10n')
         .strict()
-        .matchAll(sb.string().maxLength(SCHEMA_LENGTH_MAX_TEXT).trim())
-        .build(),
+        .matchAll(sb.string().maxLength(SCHEMA_LENGTH_MAX_TEXT).trim()),
     )
   }
 }

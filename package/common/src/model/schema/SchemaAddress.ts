@@ -23,8 +23,7 @@ export class SchemaAddress extends Schema {
             type: sb.string(),
             coordinates: sb.array(Number),
           }),
-        })
-        .build(),
+        }),
     )
   }
 }

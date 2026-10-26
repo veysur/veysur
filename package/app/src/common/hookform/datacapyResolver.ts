@@ -78,7 +78,7 @@ function toFieldErrors<TFieldValues extends FieldValues = FieldValues>(errors: {
  *   sb.object().shape({
  *     email: sb.string().required().email(),
  *     password: sb.string().required()
- *   }).build()
+ *   })
  * )
  *
  * const form = useForm<LoginFormData>({

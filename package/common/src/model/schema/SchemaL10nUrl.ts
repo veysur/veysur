@@ -16,8 +16,7 @@ export class SchemaL10nUrl extends Schema {
             .stripHtml()
             .trim()
             .prependHttpIfMissing(),
-        )
-        .build(),
+        ),
     )
   }
 }

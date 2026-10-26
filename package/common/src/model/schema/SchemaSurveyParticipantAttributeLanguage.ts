@@ -25,8 +25,7 @@ export class SchemaSurveyParticipantAttributeLanguage extends Schema {
           data: sb.object().strict(false).default({}),
           createdAt: sb.date().default('now'),
           updatedAt: sb.date().default('now'),
-        })
-        .build(),
+        }),
     )
   }
 }

@@ -11,8 +11,7 @@ export class SchemaL10n extends Schema {
         .strict()
         .matchAll(
           sb.string().maxLength(SCHEMA_LENGTH_MAX_TEXT).stripHtml().trim(),
-        )
-        .build(),
+        ),
     )
   }
 }

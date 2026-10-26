@@ -25,8 +25,7 @@ export class SchemaEmailTemplate extends Schema {
           body: sb.string().required().default(null).trim(),
           createdAt: sb.date().default('now'),
           updatedAt: sb.date().default('now'),
-        })
-        .build(),
+        }),
     )
   }
 }

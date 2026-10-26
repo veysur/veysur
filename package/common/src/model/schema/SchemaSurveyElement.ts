@@ -92,8 +92,7 @@ export class SchemaSurveyElement extends Schema {
           conditionReferences: sb.array(sb.string()).nullable().default(null),
           createdAt: sb.date().default('now'),
           updatedAt: sb.date().default('now'),
-        })
-        .build(),
+        }),
     )
   }
 }

@@ -65,8 +65,7 @@ const createAccountSchema = new Schema(
         .validate((value, { root }) =>
           value === root?.password ? true : 'Passwords do not match',
         ),
-    })
-    .build(),
+    }),
 )
 
 export const PageTeamInviteAccept: React.FC = () => {

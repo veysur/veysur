@@ -44,8 +44,7 @@ export class SchemaNotification extends Schema {
           createdAt: sb.date().default('now'),
           readAt: sb.date().default(null),
           dismissedAt: sb.date().default(null),
-        })
-        .build(),
+        }),
     )
   }
 }

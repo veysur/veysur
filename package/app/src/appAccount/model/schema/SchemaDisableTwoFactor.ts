@@ -19,7 +19,6 @@ export function createSchemaDisableTwoFactor(
           .string()
           .notEmpty({ message: 'Password is required' })
           .validate(async (value) => validators.validatePasswordCurrent(value)),
-      })
-      .build(),
+      }),
   )
 }

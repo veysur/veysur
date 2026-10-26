@@ -67,8 +67,7 @@ export class SchemaUser extends Schema {
           deletionReminderSentAt: sb.date().default(null),
           anonymizedAt: sb.date().default(null),
           ...extraShape,
-        })
-        .build(),
+        }),
     )
   }
 }

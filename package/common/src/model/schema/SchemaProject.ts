@@ -19,8 +19,7 @@ export class SchemaProject extends Schema {
         .schema('project')
         .construct('Project')
         .strict()
-        .shape({ ...projectBaseShape })
-        .build(),
+        .shape({ ...projectBaseShape }),
     )
   }
 }

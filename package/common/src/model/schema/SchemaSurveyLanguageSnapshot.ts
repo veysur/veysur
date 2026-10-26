@@ -30,8 +30,7 @@ export class SchemaSurveyLanguageSnapshot extends Schema {
           data: sb.object().strict(false),
           createdAt: sb.date().default('now'),
           updatedAt: sb.date().default('now'),
-        })
-        .build(),
+        }),
     )
   }
 }

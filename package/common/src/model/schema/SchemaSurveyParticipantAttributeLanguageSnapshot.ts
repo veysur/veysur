@@ -29,8 +29,7 @@ export class SchemaSurveyParticipantAttributeLanguageSnapshot extends Schema {
           contentHash: sb.string().required().minLength(64).maxLength(64),
           createdAt: sb.date().default('now'),
           updatedAt: sb.date().default('now'),
-        })
-        .build(),
+        }),
     )
   }
 }

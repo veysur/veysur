@@ -24,8 +24,7 @@ const twoFactorSchema = new Schema(
         .required({ message: 'Code is required' })
         .minLength(6, { message: 'Code must be 6 digits' })
         .maxLength(6, { message: 'Code must be 6 digits' }),
-    })
-    .build(),
+    }),
 )
 
 type Props = {

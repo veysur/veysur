@@ -43,8 +43,7 @@ const confirmSchema = new Schema(
         .required({ message: 'Code is required' })
         .minLength(6, { message: 'Code must be 6 digits' })
         .maxLength(6, { message: 'Code must be 6 digits' }),
-    })
-    .build(),
+    }),
 )
 
 export const PageProfileSecurity: React.FC = () => {

@@ -68,6 +68,5 @@ export const SchemaUserProfilePassword = new Schema(
       confirmPassword: sb
         .string()
         .notEmpty({ message: 'Please confirm your password' }),
-    })
-    .build(),
+    }),
 )

@@ -35,8 +35,7 @@ export class SchemaUserClient extends Schema {
             .ofSchema('userAccessToken'),
           createdAt: sb.date().default('now'),
           updatedAt: sb.date().default('now'),
-        })
-        .build(),
+        }),
     )
   }
 }

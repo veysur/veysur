@@ -18,8 +18,7 @@ export class SchemaSurveyParticipantAttribute extends Schema {
           attributes: sb.array().default([]),
           createdAt: sb.date().default('now'),
           updatedAt: sb.date().default('now'),
-        })
-        .build(),
+        }),
     )
   }
 }

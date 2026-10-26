@@ -36,8 +36,7 @@ export class SchemaTaskExecution extends Schema {
           log: sb.string().default(null).maxLength(50000),
           error: sb.string().default(null).maxLength(10000),
           createdAt: sb.date().default('now'),
-        })
-        .build(),
+        }),
     )
   }
 }

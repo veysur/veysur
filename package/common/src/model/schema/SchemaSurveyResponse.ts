@@ -68,8 +68,7 @@ export class SchemaSurveyResponse extends Schema {
           startedAt: sb.date().default(null),
           createdAt: sb.date().default('now'),
           updatedAt: sb.date().default('now'),
-        })
-        .build(),
+        }),
     )
   }
 }

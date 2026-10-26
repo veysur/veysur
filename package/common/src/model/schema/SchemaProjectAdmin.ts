@@ -19,8 +19,7 @@ export class SchemaProjectAdmin extends Schema {
           code: sb.string().default(null),
           createdAt: sb.date().default('now'),
           updatedAt: sb.date().default('now'),
-        })
-        .build(),
+        }),
     )
   }
 }

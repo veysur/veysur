@@ -83,7 +83,7 @@ describe('composeModel', () => {
     // `user` schema therefore overrides core's without a dedicated seam.
     class ExtensionUserSchema extends Schema {
       constructor() {
-        super(sb.schema('user').shape({ _id: sb.string() }).build())
+        super(sb.schema('user').shape({ _id: sb.string() }))
       }
     }
 

@@ -25,8 +25,7 @@ export class SchemaSurveySnapshotPartial extends Schema {
           surveyPartial: { $schema: 'survey' },
           createdAt: sb.date().default('now'),
           updatedAt: sb.date().default('now'),
-        })
-        .build(),
+        }),
     )
   }
 }

@@ -29,8 +29,7 @@ const loginSchema = new Schema(
         .required({ message: 'Email is required' })
         .email({ message: 'Invalid email address' }),
       password: sb.string().required({ message: 'Password is required' }),
-    })
-    .build(),
+    }),
 )
 
 export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({

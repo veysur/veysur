@@ -106,8 +106,7 @@ export class SchemaFile extends Schema {
             })
             .nullable()
             .default(null),
-        })
-        .build(),
+        }),
     )
   }
 }

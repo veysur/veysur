@@ -17,6 +17,5 @@ export const SchemaUserProfileBasicInfo = new Schema(
         .string()
         .notEmpty({ message: 'Last name is required' })
         .maxLength(64, { message: 'Last name must be at most 64 characters' }),
-    })
-    .build(),
+    }),
 )

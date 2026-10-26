@@ -41,8 +41,7 @@ export class SchemaTask extends Schema {
           backedOffUntil: sb.date().default(null),
           createdAt: sb.date().default('now'),
           updatedAt: sb.date().default('now'),
-        })
-        .build(),
+        }),
     )
   }
 }

@@ -33,8 +33,7 @@ export function createSchemaUserProfileEmail(
           .string()
           .notEmpty({ message: 'Current password is required' })
           .validate(async (value) => validators.validatePasswordCurrent(value)),
-      })
-      .build(),
+      }),
   )
 }
 
@@ -51,6 +50,5 @@ export const SchemaUserProfileEmail = new Schema(
       currentPassword: sb
         .string()
         .notEmpty({ message: 'Current password is required' }),
-    })
-    .build(),
+    }),
 )

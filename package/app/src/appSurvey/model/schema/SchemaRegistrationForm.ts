@@ -32,7 +32,6 @@ export function buildRegistrationFormSchema(
           .email({ message: 'Please provide a valid email address' }),
         language: sb.string().notEmpty({ message: 'Please select a language' }),
         attributes: sb.object().shape(attributeShape),
-      })
-      .build(),
+      }),
   )
 }

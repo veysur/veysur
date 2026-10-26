@@ -34,8 +34,7 @@ const tokenSchema = new Schema(
         .required({ message: 'Verification code is required' })
         .minLength(6, { message: 'Code must be 6 digits' })
         .maxLength(6, { message: 'Code must be 6 digits' }),
-    })
-    .build(),
+    }),
 )
 
 type VerifyStatus = 'pending' | 'verifying' | 'success' | 'error'

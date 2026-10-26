@@ -56,8 +56,7 @@ export class SchemaDataTransferJob extends Schema {
           startedAt: sb.date().default(null),
           completedAt: sb.date().default(null),
           updatedAt: sb.date().default('now'),
-        })
-        .build(),
+        }),
     )
   }
 }

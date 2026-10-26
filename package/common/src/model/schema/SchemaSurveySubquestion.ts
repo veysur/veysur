@@ -26,8 +26,7 @@ export class SchemaSurveySubquestion extends Schema {
           attributes: sb.object().strict(false).matchAll(sb.mixed()),
           createdAt: sb.date().default('now'),
           updatedAt: sb.date().default('now'),
-        })
-        .build(),
+        }),
     )
   }
 }

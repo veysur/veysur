@@ -36,7 +36,6 @@ export function buildParticipantFormSchema(
           message: 'Token must be alphanumeric uppercase only',
         }),
         attributes: sb.object().shape(attributeShape),
-      })
-      .build(),
+      }),
   )
 }

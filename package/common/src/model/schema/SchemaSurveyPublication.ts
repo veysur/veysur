@@ -29,8 +29,7 @@ export class SchemaSurveyPublication extends Schema {
           stoppedAt: sb.date().default(null),
           createdAt: sb.date().default('now'),
           updatedAt: sb.date().default('now'),
-        })
-        .build(),
+        }),
     )
   }
 }

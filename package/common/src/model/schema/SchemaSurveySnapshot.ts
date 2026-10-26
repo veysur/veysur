@@ -16,8 +16,7 @@ export class SchemaSurveySnapshot extends Schema {
             .required()
             .maxLength(SCHEMA_LENGTH_MAX_INTERNAL_ID),
           survey: { $schema: 'survey' },
-        })
-        .build(),
+        }),
     )
   }
 }

@@ -175,8 +175,7 @@ export class SchemaSettingSurvey extends Schema {
           },
           createdAt: sb.date().default('now'),
           updatedAt: sb.date().default('now'),
-        })
-        .build(),
+        }),
     )
   }
 }

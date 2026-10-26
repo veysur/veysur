@@ -40,8 +40,7 @@ const loginSchema = new Schema(
         .required({ message: 'Email is required' })
         .email({ message: 'Invalid email address' }),
       password: sb.string().required({ message: 'Password is required' }),
-    })
-    .build(),
+    }),
 )
 
 const setupConfirmSchema = new Schema(
@@ -53,8 +52,7 @@ const setupConfirmSchema = new Schema(
         .required({ message: 'Code is required' })
         .minLength(6, { message: 'Code must be 6 digits' })
         .maxLength(6, { message: 'Code must be 6 digits' }),
-    })
-    .build(),
+    }),
 )
 
 export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
