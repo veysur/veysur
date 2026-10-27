@@ -15,7 +15,10 @@ export class SchemaL10nUrl extends Schema {
             .maxLength(SCHEMA_LENGTH_MAX_TEXT)
             .stripHtml()
             .trim()
-            .prependHttpIfMissing(),
+            .prependHttpIfMissing()
+            .regex(/^(https?:\/\/\S+)?$/i, {
+              message: 'url must use the http or https scheme',
+            }),
         ),
     )
   }
