@@ -39,8 +39,11 @@ export function stripHtml(value: string, allowedTags: string[] = []): string {
     'gi',
   )
 
-  // Replace all matched tags with an empty string
-  value = value.replace(tagsRegex, ' ')
+  // The regex needs a closing `>`, so nothing after the last one can match.
+  // Without the cut, every unclosed `<` rescans to the end of the string,
+  // which is quadratic on input such as `<<<<...`.
+  const cut = value.lastIndexOf('>') + 1
+  value = value.slice(0, cut).replace(tagsRegex, ' ') + value.slice(cut)
 
   // Remove extra whitespace and trim the result
   value = value.replace(/\s+/g, ' ').trim()
