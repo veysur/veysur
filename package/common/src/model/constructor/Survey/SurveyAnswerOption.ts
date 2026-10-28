@@ -34,8 +34,8 @@ export class SurveyAnswerOption {
     this.createdById = data?.createdById
     this.code = data?.code || ''
     this.label = new L10n(data?.label)
-    this.createdAt = new Date(data?.createdAt)
-    this.updatedAt = new Date(data?.updatedAt)
+    this.createdAt = new Date(data?.createdAt || Date.now())
+    this.updatedAt = new Date(data?.updatedAt || Date.now())
     this.image = data?.image ?? null
   }
 

@@ -36,8 +36,8 @@ class SurveySubquestionCore extends ImmutableEntity {
     this.text = new L10n(data?.text)
     this.detail = (data?.detail && new L10n(data?.detail)) || null
     this.attributes = data?.attributes || {}
-    this.createdAt = new Date(data?.createdAt)
-    this.updatedAt = new Date(data?.updatedAt)
+    this.createdAt = new Date(data?.createdAt || Date.now())
+    this.updatedAt = new Date(data?.updatedAt || Date.now())
   }
 
   updateText(

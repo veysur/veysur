@@ -93,8 +93,8 @@ class SurveySectionCore extends ImmutableEntity {
     this.config = data?.config ?? null
     this.condition = data?.condition ?? null
     this.conditionReferences = data?.conditionReferences ?? null
-    this.createdAt = new Date(data?.createdAt)
-    this.updatedAt = new Date(data?.updatedAt)
+    this.createdAt = new Date(data?.createdAt || Date.now())
+    this.updatedAt = new Date(data?.updatedAt || Date.now())
   }
 
   updateName(

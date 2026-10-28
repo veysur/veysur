@@ -27,6 +27,12 @@ describe('SurveyAnswerOption', () => {
     expect(answerOption.hasImage()).toBe(false)
   })
 
+  test('constructor defaults missing timestamps to a valid date', () => {
+    const option = new SurveyAnswerOption({ createdById: 'user1' })
+    expect(Number.isNaN(option.createdAt.getTime())).toBe(false)
+    expect(Number.isNaN(option.updatedAt.getTime())).toBe(false)
+  })
+
   test('constructor uses default labels when not provided', () => {
     const emptyAnswer = new SurveyAnswerOption({})
     expect(emptyAnswer._id).toBeDefined()
