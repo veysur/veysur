@@ -183,6 +183,12 @@ export class VsspImportPersister {
    * `uploadBinaryFiles` for the same pattern applied to template-level
    * images.
    */
+  /** A missing, empty or invalid archive timestamp becomes now, never an Invalid Date. */
+  private dateOrNow(value: unknown): Date {
+    const parsed = value ? new Date(value as string) : null
+    return parsed && !Number.isNaN(parsed.getTime()) ? parsed : new Date()
+  }
+
   private async uploadBinaryFiles(
     fileResolutions: FileResolution[],
     parsedData: EntityParsedData,
@@ -498,9 +504,7 @@ export class VsspImportPersister {
         label: snapshot?.label ?? null,
         notes: snapshot?.notes ?? null,
         surveyPartial: remappedSnapshotData.survey,
-        createdAt: snapshot?.createdAt
-          ? new Date(snapshot.createdAt as string)
-          : new Date(),
+        createdAt: this.dateOrNow(snapshot?.createdAt),
         updatedAt: new Date(),
       })
       await this.repoSurveySnapshotPartial.insertOne(snapshotRecord, {
@@ -582,9 +586,7 @@ export class VsspImportPersister {
     // Imports must never arrive live — an active publication can only be
     // created via an explicit publish/republish action. Preserve the archive's
     // stop time if it was already stopped; otherwise stamp it stopped now.
-    const importStopped = publication?.stoppedAt
-      ? new Date(publication.stoppedAt as string)
-      : new Date()
+    const importStopped = this.dateOrNow(publication?.stoppedAt)
 
     const pub = new SurveyPublication({
       ...publication,

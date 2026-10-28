@@ -184,6 +184,23 @@ describe('VsspImportPersister', () => {
     expect(pub.stoppedAt).toEqual(new Date(originalStopped))
   })
 
+  test.each(['', 'garbage', '2026-13-45'])(
+    'invalid stoppedAt %p is imported as a valid stopped-now date',
+    async (stoppedAt) => {
+      await persister.persist(
+        buildContext({
+          publishedAt: '2026-01-01T00:00:00.000Z',
+          stoppedAt,
+        }),
+        persistImportContext,
+      )
+
+      const pub = mockRepoSurveyPublication.insertOne.mock.calls[0][0]
+      expect(Number.isNaN(pub.stoppedAt.getTime())).toBe(false)
+      expect(pub.stoppedAt).toEqual(new Date('2026-07-09T12:00:00.000Z'))
+    },
+  )
+
   test('does not mutate any other publication records on the target survey', async () => {
     await persister.persist(
       buildContext({
