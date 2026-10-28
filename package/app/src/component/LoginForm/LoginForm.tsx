@@ -78,6 +78,14 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
 
   const [loginDefaults] = useState(() => getLoginDefaults()())
   const autoSubmitted = useRef(false)
+  // cspell:ignore lpignore bwignore
+  const passwordManagerOptOut = loginDefaults?.autoSubmit
+    ? {
+        'data-lpignore': 'true',
+        'data-1p-ignore': true,
+        'data-bwignore': 'true',
+      }
+    : {}
 
   const form = useForm<LoginFormData>({
     resolver: datacapyResolver(loginSchema),
@@ -364,6 +372,7 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
                   id="email"
                   type="email"
                   placeholder="m@example.com"
+                  {...passwordManagerOptOut}
                   {...form.register('email')}
                 />
                 {form.formState.errors.email && (
@@ -385,6 +394,7 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
                 <Input
                   id="password"
                   type="password"
+                  {...passwordManagerOptOut}
                   {...form.register('password')}
                 />
                 {form.formState.errors.password && (

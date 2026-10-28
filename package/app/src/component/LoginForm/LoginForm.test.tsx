@@ -163,6 +163,28 @@ describe('LoginForm', () => {
     expect(screen.getByLabelText(/password/i)).toHaveValue('demo-password')
   })
 
+  it('asks password managers to skip the fields only when auto-submitting', () => {
+    mockLoginDefaults.mockReturnValue({
+      email: 'demo@example.com',
+      password: 'demo-password',
+      autoSubmit: true,
+    })
+    const { unmount } = render(<LoginForm />)
+    expect(screen.getByLabelText(/email/i)).toHaveAttribute(
+      'data-lpignore',
+      'true',
+    )
+    expect(screen.getByLabelText(/password/i)).toHaveAttribute(
+      'data-lpignore',
+      'true',
+    )
+    unmount()
+
+    mockLoginDefaults.mockReturnValue(null)
+    render(<LoginForm />)
+    expect(screen.getByLabelText(/email/i)).not.toHaveAttribute('data-lpignore')
+  })
+
   it('points "Forgot password?" at the account app via AuthDomain.getAccountUrl, not an in-app route', () => {
     render(<LoginForm />)
 
