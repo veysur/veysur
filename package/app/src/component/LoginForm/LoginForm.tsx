@@ -172,6 +172,8 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
     if (!loginDefaults?.autoSubmit || autoSubmitted.current) return
     if (!botCheck.ready) return
     autoSubmitted.current = true
+    // A password manager may have autofilled saved credentials over the defaults
+    form.reset({ email: loginDefaults.email, password: loginDefaults.password })
     // eslint-disable-next-line react-hooks/set-state-in-effect -- one-shot sign-in once the bot check is ready, kicking off the async submit like a button press
     void submit()
   }, [botCheck.ready]) // eslint-disable-line react-hooks/exhaustive-deps

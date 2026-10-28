@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 
 import { LoginForm } from './LoginForm'
 
@@ -98,6 +98,35 @@ describe('LoginForm', () => {
       expect(screen.getByRole('button', { name: /login/i })).toBeEnabled(),
     )
     expect(mockLoginEmailPassword).toHaveBeenCalledTimes(1)
+  })
+
+  it('signs in with the defaults even when the browser autofilled other credentials', async () => {
+    mockBotCheckReady = false
+    mockLoginDefaults.mockReturnValue({
+      email: 'demo@example.com',
+      password: 'demo-password',
+      autoSubmit: true,
+    })
+
+    const { rerender } = render(<LoginForm />)
+    fireEvent.input(screen.getByLabelText('Email'), {
+      target: { value: 'admin@example.com' },
+    })
+    fireEvent.input(screen.getByLabelText('Password'), {
+      target: { value: 'admin-password' },
+    })
+
+    mockBotCheckReady = true
+    rerender(<LoginForm />)
+
+    await waitFor(() =>
+      expect(mockLoginEmailPassword).toHaveBeenCalledWith(
+        'demo@example.com',
+        'demo-password',
+        false,
+        { token: 'solved:1', honeypot: '' },
+      ),
+    )
   })
 
   it('shows the auto-submit message while signing in', async () => {
