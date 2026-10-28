@@ -25,7 +25,7 @@ export class SurveySnapshotPartial {
     this.notes = data?.notes || null
     this.surveyPartial = data?.surveyPartial && new Survey(data.surveyPartial)
     this.createdAt = (data?.createdAt && new Date(data.createdAt)) || new Date()
-    this.updatedAt = (data?.createdAt && new Date(data.updatedAt)) || new Date()
+    this.updatedAt = new Date(data?.updatedAt || Date.now())
     this.publications =
       data?.publications?.map((pub) => new SurveyPublication(pub)) || undefined
     this.responseCount = data?.responseCount

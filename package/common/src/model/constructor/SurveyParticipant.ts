@@ -50,7 +50,7 @@ export class SurveyParticipant {
     this.validTo = data?.validTo || null
     this.attributes = data?.attributes ?? {}
     this.createdAt = (data?.createdAt && new Date(data.createdAt)) || new Date()
-    this.updatedAt = (data?.createdAt && new Date(data.updatedAt)) || new Date()
+    this.updatedAt = new Date(data?.updatedAt || Date.now())
     this.surveyResponse = data?.surveyResponse ?? null
   }
 

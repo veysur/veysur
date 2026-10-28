@@ -24,7 +24,7 @@ export class SurveyPublication {
       (data?.publishedAt && new Date(data.publishedAt)) || new Date()
     this.stoppedAt = (data?.stoppedAt && new Date(data.stoppedAt)) || null
     this.createdAt = (data?.createdAt && new Date(data.createdAt)) || new Date()
-    this.updatedAt = (data?.createdAt && new Date(data.updatedAt)) || new Date()
+    this.updatedAt = new Date(data?.updatedAt || Date.now())
     this.responseCount = data?.responseCount
   }
 }

@@ -336,7 +336,7 @@ export class SettingSurveyBase {
     this.contentFormat = mergeDefined(this.contentFormat, data?.contentFormat)
 
     this.createdAt = (data?.createdAt && new Date(data.createdAt)) || new Date()
-    this.updatedAt = (data?.createdAt && new Date(data.updatedAt)) || new Date()
+    this.updatedAt = new Date(data?.updatedAt || Date.now())
   }
 
   newInstance(changes?: Partial<SettingSurveyData>): this {
