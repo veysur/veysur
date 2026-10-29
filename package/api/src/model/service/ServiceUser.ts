@@ -32,7 +32,6 @@ export interface ProfileExtension {
   update: Record<string, unknown>
   eventActions: string[]
 }
-const ERROR_DISPOSABLE_EMAIL_DOMAIN = 'ERROR_DISPOSABLE_EMAIL_DOMAIN'
 
 export class ServiceUser extends Service {
   constructor() {
@@ -92,17 +91,11 @@ export class ServiceUser extends Service {
       requireRecentAuth = true
       updateData.email = data.email
 
-      if (
-        await this.getService<ServiceEmailDomainCheck>(
-          'emailDomainCheck',
-        ).isDisposableEmailDomain(data.email)
-      ) {
-        throw new ServerErrorBadRequest({
-          ref: ERROR_DISPOSABLE_EMAIL_DOMAIN,
-          key: 'error.disposableEmailDomain',
-          userMessage: 'Please use a permanent email address',
-        })
-      }
+      await this.getService<ServiceEmailDomainCheck>(
+        'emailDomainCheck',
+      ).assertAcceptable(data.email, {
+        ERROR_DISPOSABLE_EMAIL_DOMAIN: 'Please use a permanent email address',
+      })
 
       // Ensure user with given email does not already exist
       const existingUser = await repoUser.findOne({ email: data.email })

@@ -54,3 +54,29 @@ describe('ServiceEmailDomainCheck.isDisposableEmailDomain', () => {
     expect(repoEmailDomainBlock.isBlocked).not.toHaveBeenCalled()
   })
 })
+
+describe('ServiceEmailDomainCheck.getRejectionRef / assertAcceptable', () => {
+  it('returns null for an acceptable address, including a plus address', async () => {
+    const { service } = makeService()
+    expect(await service.getRejectionRef('a+b@example.com')).toBeNull()
+    await expect(
+      service.assertAcceptable('a+b@example.com'),
+    ).resolves.toBeUndefined()
+  })
+
+  it('returns the disposable ref for a blocked domain', async () => {
+    const { service, repoEmailDomainBlock } = makeService()
+    repoEmailDomainBlock.isBlocked.mockResolvedValue(true)
+    expect(await service.getRejectionRef('a@mailinator.com')).toBe(
+      'ERROR_DISPOSABLE_EMAIL_DOMAIN',
+    )
+    await expect(
+      service.assertAcceptable('a@mailinator.com', {
+        ERROR_DISPOSABLE_EMAIL_DOMAIN: 'Use a permanent address',
+      }),
+    ).rejects.toMatchObject({
+      ref: 'ERROR_DISPOSABLE_EMAIL_DOMAIN',
+      userMessage: 'Use a permanent address',
+    })
+  })
+})

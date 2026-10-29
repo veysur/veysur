@@ -11,6 +11,7 @@ import { SystemEmailTemplateLoader } from 'model/common/EmailTemplateLoader'
 import { ServiceUser } from 'model'
 import { ServiceEmail } from './ServiceEmail'
 import { ServiceProject } from './ServiceProject'
+import { ServiceEmailDomainCheck } from './ServiceEmailDomainCheck'
 import { ServiceAuthEmailPassword } from './ServiceAuthEmailPassword'
 import { buildAppUrl } from 'config/buildAppUrl'
 
@@ -111,6 +112,10 @@ export class ServiceProjectAdmin extends Service {
     if (normalizedEmail === this.normalizeEmail(inviter.email)) {
       throw new ServerErrorForbidden('You cannot invite yourself')
     }
+
+    await this.getService<ServiceEmailDomainCheck>(
+      'emailDomainCheck',
+    ).assertAcceptable(normalizedEmail)
 
     const owner = await repoUser.findOne({ _id: project.ownerId })
     await this.assertNotAlreadyMember({

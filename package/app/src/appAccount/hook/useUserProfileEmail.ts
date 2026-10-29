@@ -23,7 +23,9 @@ export function useUserProfileEmail() {
   const errorMessage =
     error instanceof ErrorRest && error.ref === 'ERROR_DISPOSABLE_EMAIL_DOMAIN'
       ? 'Please use a permanent email address'
-      : (error?.message ?? null)
+      : error instanceof ErrorRest && error.ref === 'ERROR_EMAIL_PLUS_ADDRESS'
+        ? "Plus addresses aren't supported. Please use your plain email address."
+        : (error?.message ?? null)
 
   return {
     updateEmail: mutation.mutateAsync,

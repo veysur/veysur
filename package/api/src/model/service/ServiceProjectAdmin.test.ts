@@ -1,5 +1,6 @@
 import { ServerErrorForbidden, ServerErrorNotFound } from '@datacapy/server'
 import { ServiceProjectAdmin } from './ServiceProjectAdmin'
+import { ServiceEmailDomainCheck } from './ServiceEmailDomainCheck'
 import { AclContext } from 'model/entity'
 import { asPrivate } from 'test-utils/asPrivate'
 
@@ -15,6 +16,7 @@ describe('ServiceProjectAdmin', () => {
   let mockServiceEmail: { send: jest.Mock }
   let mockServiceUser: { createAccount: jest.Mock }
   let mockServiceAuthEmailPassword: { authenticate: jest.Mock }
+  let emailDomainCheck: ServiceEmailDomainCheck
 
   const projectId = 'project-1'
   const ownerId = 'owner-1'
@@ -74,6 +76,10 @@ describe('ServiceProjectAdmin', () => {
         email: 'newmember@example.com',
       }),
     }
+    emailDomainCheck = new ServiceEmailDomainCheck()
+    jest
+      .spyOn(emailDomainCheck, 'isDisposableEmailDomain')
+      .mockResolvedValue(false)
     mockServiceAuthEmailPassword = {
       authenticate: jest.fn().mockResolvedValue({ jwt: { token: 'signed' } }),
     }
@@ -92,6 +98,7 @@ describe('ServiceProjectAdmin', () => {
         project: mockServiceProject,
         user: mockServiceUser,
         authEmailPassword: mockServiceAuthEmailPassword,
+        emailDomainCheck,
       }
       return map[name] ?? {}
     }) as typeof service.getService)
@@ -103,6 +110,23 @@ describe('ServiceProjectAdmin', () => {
       nameFirst: 'Test',
       email,
       aclContext,
+    })
+
+    it('refuses an address an extension rule rejects, without inviting', async () => {
+      jest
+        .spyOn(emailDomainCheck, 'getRejectionRef')
+        .mockResolvedValue('ERROR_EMAIL_PLUS_ADDRESS')
+
+      await expect(
+        service.invite(inviteArgs('new+tag@example.com')),
+      ).rejects.toMatchObject({ ref: 'ERROR_EMAIL_PLUS_ADDRESS' })
+      expect(mockRepoProjectAdmin.insertOne).not.toHaveBeenCalled()
+      expect(mockServiceEmail.send).not.toHaveBeenCalled()
+    })
+
+    it('invites a plus address when no extension rule is registered', async () => {
+      await service.invite(inviteArgs('new+tag@example.com'))
+      expect(mockRepoProjectAdmin.insertOne).toHaveBeenCalled()
     })
 
     it('rejects a self-invite by the inviter', async () => {
