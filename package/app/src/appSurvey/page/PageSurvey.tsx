@@ -6,6 +6,7 @@ import {
   useLocation,
 } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useQueryClient } from '@tanstack/react-query'
 import i18next from '../i18n'
 
 import { Alert, AlertDescription, AlertTitle } from 'component/shadcn/alert'
@@ -22,7 +23,11 @@ import { usePageTitle } from 'hook'
 
 import { TokenEntryForm } from '../component/TokenEntryForm'
 import type { BotCheckConfig } from 'component/BotProtection/BotProtectionProvider'
-import { resolveUiLanguage } from '../common'
+import {
+  resolveUiLanguage,
+  KEY_STATE_SURVEY_AUTH,
+  KEY_STATE_SURVEY_RESPONSE,
+} from '../common'
 import { hasCompleted, markCompleted } from '../common/completedStorage'
 import { useSurveyParticipantSnapshotPublished } from '../hook/useSurveyParticipantSnapshotPublished'
 import { useSurveyParticipantMe } from '../hook/useSurveyParticipantMe'
@@ -42,6 +47,7 @@ export const PageSurvey: React.FC = () => {
   const { t } = useTranslation('app-survey')
   const { surveyId, token } = useParams<{ surveyId: string; token?: string }>()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [searchParams, setSearchParams] = useSearchParams()
   const location = useLocation()
   const initLanguage = searchParams.get('lang') || undefined
@@ -110,6 +116,27 @@ export const PageSurvey: React.FC = () => {
     authToken: authResult.jwt,
     enabled: !!authResult.jwt,
   })
+
+  // The cached anonymous JWT survives a reload, so its session still owns the
+  // completed response. When repeats are allowed, start a new session instead.
+  const restartedSession = useRef(false)
+  useEffect(() => {
+    if (
+      loadError?.ref === ERROR_SURVEY_COMPLETED &&
+      !!survey &&
+      !preventRepeat &&
+      !token &&
+      !restartedSession.current
+    ) {
+      restartedSession.current = true
+      void queryClient.resetQueries({
+        queryKey: [KEY_STATE_SURVEY_AUTH, surveyId],
+      })
+      void queryClient.resetQueries({
+        queryKey: [KEY_STATE_SURVEY_RESPONSE, surveyId],
+      })
+    }
+  }, [loadError, survey, preventRepeat, token, surveyId, queryClient])
 
   // The survey's content-language selector (rendered inside <Survey>, listing
   // survey.language.options) is the single language control on this page. It
