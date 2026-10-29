@@ -1,4 +1,5 @@
 import { ServerErrorBadRequest } from '@datacapy/server'
+import { ServiceEmailDomainCheck } from './ServiceEmailDomainCheck'
 import { ServiceUser } from './ServiceUser'
 import { asPrivate } from 'test-utils/asPrivate'
 import { buildMockServiceProject } from 'test-utils/buildMockServiceProject'
@@ -286,9 +287,10 @@ describe('ServiceUser.putProfile() — disposable email domain blocking', () => 
       findOne: jest.fn().mockResolvedValue(user),
       updateOne: jest.fn().mockResolvedValue(undefined),
     }
-    const serviceEmailDomainCheck = {
-      isDisposableEmailDomain: jest.fn().mockResolvedValue(false),
-    }
+    const serviceEmailDomainCheck = new ServiceEmailDomainCheck()
+    jest
+      .spyOn(serviceEmailDomainCheck, 'isDisposableEmailDomain')
+      .mockResolvedValue(false)
 
     const { service, mockEventLog } = makeService({
       repoUser,
@@ -298,9 +300,29 @@ describe('ServiceUser.putProfile() — disposable email domain blocking', () => 
     return { service, repoUser, serviceEmailDomainCheck, mockEventLog }
   }
 
+  it('rejects an address an extension rule refuses', async () => {
+    const { service, repoUser, serviceEmailDomainCheck } = setup()
+    jest
+      .spyOn(serviceEmailDomainCheck, 'getRejectionRef')
+      .mockResolvedValue('ERROR_EMAIL_PLUS_ADDRESS')
+
+    await expect(
+      service.putProfile({
+        data: { email: 'new+tag@example.com', passwordCurrent: '' },
+        aclContext,
+      }),
+    ).rejects.toMatchObject({
+      constructor: ServerErrorBadRequest,
+      ref: 'ERROR_EMAIL_PLUS_ADDRESS',
+    })
+    expect(repoUser.updateOne).not.toHaveBeenCalled()
+  })
+
   it('rejects updating to an email at a disposable domain', async () => {
     const { service, repoUser, serviceEmailDomainCheck } = setup()
-    serviceEmailDomainCheck.isDisposableEmailDomain.mockResolvedValue(true)
+    jest
+      .spyOn(serviceEmailDomainCheck, 'isDisposableEmailDomain')
+      .mockResolvedValue(true)
 
     await expect(
       service.putProfile({

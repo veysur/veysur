@@ -30,9 +30,17 @@ the existing 403 used for "account already exists":
 Each rejection carries `ref: 'ERROR_DISPOSABLE_EMAIL_DOMAIN'` so the frontend can show a
 specific message instead of a generic error.
 
-**Team invite** (`ServiceProjectAdmin.invite()`) is deliberately **not** checked — the
-inviter, not the invitee, supplies the email; blocking it would punish legitimate admins
-inviting colleagues, and it is not a self-registration/self-owned-email abuse vector.
+**Team invite** (`ServiceProjectAdmin.invite()`) runs the same check before creating the
+invite, so no invite can lead to an account the rules would refuse.
+
+## Rejection-ref seam
+
+`ServiceEmailDomainCheck.getRejectionRef(email)` returns the `ref` of the rule an address
+breaks, or `null`. Core returns only `ERROR_DISPOSABLE_EMAIL_DOMAIN`. An extension replaces the
+service (same name, `emailDomainCheck`) and overrides `getRejectionRef` to add its own rules.
+`assertAcceptable(email, messages)` calls it and throws the 400 with the `ref`, an
+`error.<ref>` key and a user message from `messages` (generic fallback otherwise). Call sites
+use `assertAcceptable` rather than mapping refs themselves.
 
 ## Frontend
 
