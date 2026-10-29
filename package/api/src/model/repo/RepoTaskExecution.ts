@@ -1,4 +1,4 @@
-import { Repo, ServerErrorBadRequest, repib } from '@datacapy/server'
+import { Repo, ServerErrorBadRequest, RepoIndexBuilder as repib } from '@datacapy/server'
 import { TaskExecution } from 'veysur-common'
 
 const TaskExecutionStatus = {

@@ -1,4 +1,4 @@
-import { Repo, relb, repib } from '@datacapy/server'
+import { Repo, RepoRelationBuilder as relb, RepoIndexBuilder as repib } from '@datacapy/server'
 import { ProjectAdmin } from 'veysur-common/model/constructor'
 
 export class RepoProjectAdmin extends Repo<ProjectAdmin> {

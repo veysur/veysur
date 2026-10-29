@@ -66,7 +66,7 @@ function toFieldErrors<TFieldValues extends FieldValues = FieldValues>(errors: {
  *
  * @example
  * ```typescript
- * import { Schema, sb } from '@datacapy/schema'
+ * import { Schema, SchemaBuilder as sb } from '@datacapy/schema'
  * import { datacapyResolver } from 'common/hookform/datacapyResolver'
  *
  * type LoginFormData = {

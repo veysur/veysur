@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { PASSWORD_MIN_LENGTH, validatePassword } from 'veysur-common'
-import { Schema, sb } from '@datacapy/schema'
+import { Schema, SchemaBuilder as sb } from '@datacapy/schema'
 
 import { useAuth } from 'hook'
 import { datacapyResolver } from 'common/hookform/datacapyResolver'

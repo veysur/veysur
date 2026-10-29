@@ -1,4 +1,4 @@
-import { Repo, repib } from '@datacapy/server'
+import { Repo, RepoIndexBuilder as repib } from '@datacapy/server'
 
 export interface EventLog {
   _id?: string

@@ -1,4 +1,4 @@
-import { Repo, ServerErrorBadRequest, relb, repib } from '@datacapy/server'
+import { Repo, ServerErrorBadRequest, RepoRelationBuilder as relb, RepoIndexBuilder as repib } from '@datacapy/server'
 import { Survey } from 'veysur-common'
 
 import { RepoSurveyElement, RepoSurveySection } from 'model'

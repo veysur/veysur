@@ -1,4 +1,4 @@
-import { Repo, ServerErrorBadRequest, repib } from '@datacapy/server'
+import { Repo, ServerErrorBadRequest, RepoIndexBuilder as repib } from '@datacapy/server'
 import { File } from 'veysur-common'
 
 const FILE_CONTEXT_SURVEY = 'survey'

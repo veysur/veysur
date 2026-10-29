@@ -1,5 +1,5 @@
 import { SurveyResponse } from 'veysur-common/model/constructor'
-import { Repo, relb, repib } from '@datacapy/server'
+import { Repo, RepoRelationBuilder as relb, RepoIndexBuilder as repib } from '@datacapy/server'
 
 export class RepoSurveyResponse extends Repo<SurveyResponse> {
   constructor() {

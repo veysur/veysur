@@ -1,4 +1,4 @@
-import { Schema, sb } from '@datacapy/schema'
+import { Schema, SchemaBuilder as sb } from '@datacapy/schema'
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'

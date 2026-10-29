@@ -1,4 +1,4 @@
-import { Schema, sb } from '@datacapy/schema'
+import { Schema, SchemaBuilder as sb } from '@datacapy/schema'
 import { useEffect, useRef, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { QRCodeSVG } from 'qrcode.react'

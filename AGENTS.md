@@ -67,6 +67,7 @@ conventions once it's added.
   boundary with no typed alternative.
 - **Formatting**: Prettier, 2 spaces, no semicolons, single quotes.
 - **Imports**: ES6 modules, prefer named imports.
+- **Builder aliases**: datacapy exports only `SchemaBuilder`, `RepoRelationBuilder` and `RepoIndexBuilder`. Alias them locally as `sb`, `relb` and `repib` (`import { SchemaBuilder as sb } from '@datacapy/schema'`).
 - **Comments**: default to none. Only add one when the reasoning behind the
   code isn't obvious from reading it: a hidden constraint, a workaround for
   a specific bug, behaviour that would surprise a reader. Don't explain what

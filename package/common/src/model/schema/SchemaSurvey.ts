@@ -1,4 +1,4 @@
-import { sb } from '@datacapy/schema'
+import { SchemaBuilder as sb } from '@datacapy/schema'
 
 import { SchemaSettingSurvey } from './SchemaSettingSurvey'
 import { SCHEMA_LENGTH_MAX_INPUT } from './constant'

@@ -1,4 +1,4 @@
-import { Schema, sb } from '@datacapy/schema'
+import { Schema, SchemaBuilder as sb } from '@datacapy/schema'
 
 import type { ModelConfig } from './config/types'
 

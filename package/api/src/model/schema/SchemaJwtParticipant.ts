@@ -1,4 +1,4 @@
-import { Schema, sb } from '@datacapy/schema'
+import { Schema, SchemaBuilder as sb } from '@datacapy/schema'
 
 export class SchemaJwtParticipant extends Schema {
   constructor() {

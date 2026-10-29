@@ -1,5 +1,5 @@
 import { SurveyElementBase } from 'veysur-common/model/constructor'
-import { Repo, repib } from '@datacapy/server'
+import { Repo, RepoIndexBuilder as repib } from '@datacapy/server'
 
 // The `surveyElement` schema persists both element kinds; on read,
 // `SurveyElementCollection.fromArray` / `SchemaSurveyElement.constructCollection`

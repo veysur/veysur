@@ -1,6 +1,6 @@
 // cspell:ignore sargable
 import { DataTransferJob } from 'veysur-common'
-import { Repo, repib } from '@datacapy/server'
+import { Repo, RepoIndexBuilder as repib } from '@datacapy/server'
 
 /**
  * Default (account) datasource, not project-scoped: processQueue() needs to

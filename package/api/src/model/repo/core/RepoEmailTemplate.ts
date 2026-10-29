@@ -1,4 +1,4 @@
-import { Repo, ServerErrorBadRequest, repib } from '@datacapy/server'
+import { Repo, ServerErrorBadRequest, RepoIndexBuilder as repib } from '@datacapy/server'
 import { EmailTemplate } from 'veysur-common'
 
 export class RepoEmailTemplate extends Repo<EmailTemplate> {

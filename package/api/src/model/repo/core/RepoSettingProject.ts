@@ -1,4 +1,4 @@
-import { Repo, ServerErrorBadRequest, repib } from '@datacapy/server'
+import { Repo, ServerErrorBadRequest, RepoIndexBuilder as repib } from '@datacapy/server'
 import { SettingProject } from 'veysur-common'
 
 export class RepoSettingProject extends Repo<SettingProject> {

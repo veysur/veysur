@@ -1,5 +1,5 @@
 import { SurveySnapshotPartial } from 'veysur-common'
-import { Repo, relb, repib } from '@datacapy/server'
+import { Repo, RepoRelationBuilder as relb, RepoIndexBuilder as repib } from '@datacapy/server'
 
 export class RepoSurveySnapshotPartial extends Repo<SurveySnapshotPartial> {
   constructor() {

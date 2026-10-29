@@ -1,5 +1,5 @@
 import { Notification } from 'veysur-common'
-import { Repo, relb, repib } from '@datacapy/server'
+import { Repo, RepoRelationBuilder as relb, RepoIndexBuilder as repib } from '@datacapy/server'
 
 /**
  * Default (account) datasource, not project-scoped - same reasoning as

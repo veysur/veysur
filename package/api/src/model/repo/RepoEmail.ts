@@ -1,5 +1,5 @@
-import { sb } from '@datacapy/schema'
-import { Repo, repib } from '@datacapy/server'
+import { SchemaBuilder as sb } from '@datacapy/schema'
+import { Repo, RepoIndexBuilder as repib } from '@datacapy/server'
 
 export interface Email {
   _id?: string

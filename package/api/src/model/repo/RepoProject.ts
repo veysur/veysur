@@ -1,4 +1,4 @@
-import { Repo, repib } from '@datacapy/server'
+import { Repo, RepoIndexBuilder as repib } from '@datacapy/server'
 import { Project } from 'veysur-common'
 
 export class RepoProject extends Repo<Project> {

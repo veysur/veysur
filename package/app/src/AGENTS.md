@@ -263,7 +263,7 @@ Reference: `appAdmin/component/SurveyEditor/SurveySaveStatus.tsx`, `appAdmin/com
 
 ```typescript
 // model/schema/SchemaEntityForm.ts
-import { Schema, sb } from 'veysur-common'
+import { Schema, SchemaBuilder as sb } from 'veysur-common'
 
 export type EntityFormData = {
   name: string

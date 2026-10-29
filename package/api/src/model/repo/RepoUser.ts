@@ -1,4 +1,4 @@
-import { Repo, relb, repib } from '@datacapy/server'
+import { Repo, RepoRelationBuilder as relb, RepoIndexBuilder as repib } from '@datacapy/server'
 import { User, ServiceVerifyEmail } from 'model'
 
 export class RepoUser extends Repo<User> {
