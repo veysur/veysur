@@ -102,9 +102,16 @@ export class ServiceEventLog extends Service {
     this.healthCheckTimer = null
 
     const flushAll = this.flushAllMemoryBuffers()
-    const timeout = new Promise<void>((resolve) => setTimeout(resolve, 30000))
+    let timeoutHandle: ReturnType<typeof setTimeout> | undefined
+    const timeout = new Promise<void>((resolve) => {
+      timeoutHandle = setTimeout(resolve, 30000)
+    })
 
-    await Promise.race([flushAll, timeout])
+    try {
+      await Promise.race([flushAll, timeout])
+    } finally {
+      clearTimeout(timeoutHandle)
+    }
 
     const remaining = this.getTotalBufferedEvents()
     if (remaining > 0) {
