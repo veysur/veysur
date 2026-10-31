@@ -1,7 +1,8 @@
 import { genUniqueId } from '@datacapy/id'
-import { PropsOf } from '@datacapy/schema'
+import { Infer, PropsOf } from '@datacapy/schema'
 
 import { L10n } from '../L10n'
+import { surveyOwnShape } from '../../schema/SchemaSurvey'
 import { ChartType, ChartValueMode } from '../SettingSurvey/SettingSurveyBase'
 import { SurveySectionCollection } from './SurveySectionCollection'
 import {
@@ -113,6 +114,8 @@ export interface SurveyData {
   }
 }
 
+export interface SurveyBase extends Infer<typeof surveyOwnShape> {}
+
 export class SurveyBase {
   // Base properties from SettingSurvey
   _id: string
@@ -120,14 +123,8 @@ export class SurveyBase {
   updatedAt: Date = new Date()
 
   // Survey-specific properties
-  createdById: string
-  name: string = ''
-  title: L10n = new L10n()
-  attributes: SurveyAttributes = {}
   sections: SurveySectionCollection = new SurveySectionCollection()
   elements: SurveyElementCollection = new SurveyElementCollection()
-  sectionIds: string[] = []
-  elementIds: string[] = []
 
   // Nullable inherited properties (stored as-is for persistence)
   language?: {
