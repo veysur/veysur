@@ -1,5 +1,6 @@
 import { genUniqueId } from '@datacapy/id'
-import { PropsOf } from '@datacapy/schema'
+import { Infer, PropsOf } from '@datacapy/schema'
+import { emailSuppressionShape } from '../schema/SchemaEmailSuppression'
 
 export interface EmailSuppressionEvent {
   occurredAt: Date
@@ -9,18 +10,6 @@ export interface EmailSuppressionEvent {
 }
 
 export class EmailSuppression {
-  _id: string
-  email: string
-  reason: 'hardBounce' | 'softBounce' | 'complaint' | 'unsubscribe'
-  hardBounceEvents: EmailSuppressionEvent[]
-  softBounceEvents: EmailSuppressionEvent[]
-  complaintEvents: EmailSuppressionEvent[]
-  unsubscribeEvents: EmailSuppressionEvent[]
-  expiresAt: Date | null
-  participantId: string | null
-  createdAt: Date
-  updatedAt: Date
-
   constructor(data: Partial<PropsOf<EmailSuppression>>) {
     this._id = data?._id || genUniqueId()
     this.email = data?.email
@@ -35,3 +24,5 @@ export class EmailSuppression {
     this.updatedAt = (data?.updatedAt && new Date(data.updatedAt)) || new Date()
   }
 }
+
+export interface EmailSuppression extends Infer<typeof emailSuppressionShape> {}
