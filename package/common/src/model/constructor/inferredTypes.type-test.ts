@@ -9,6 +9,7 @@ import type { File } from './File'
 import type { Notification } from './Notification'
 import type { Project } from './Project'
 import type { ProjectAdmin } from './ProjectAdmin'
+import type { SurveyElementBase } from './Survey/SurveyElementBase'
 import type { SurveyAnswerOption } from './Survey/SurveyAnswerOption'
 import type { SurveySection } from './Survey/SurveySection'
 import type { SurveySubquestion } from './Survey/SurveySubquestion'
@@ -41,6 +42,7 @@ type Migrated = {
   Project: Project
   ProjectAdmin: ProjectAdmin
   SurveyAnswerOption: SurveyAnswerOption
+  SurveyElementBase: SurveyElementBase
   SurveyLanguage: SurveyLanguage
   SurveyLanguageSnapshot: SurveyLanguageSnapshot
   SurveyParticipant: SurveyParticipant

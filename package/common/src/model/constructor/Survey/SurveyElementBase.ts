@@ -1,7 +1,8 @@
 import { genUniqueId } from '@datacapy/id'
-import { PropsOf } from '@datacapy/schema'
+import { Infer, PropsOf } from '@datacapy/schema'
 
 import { L10n, setL10nField } from '../L10n'
+import { surveyElementBaseShape } from '../../schema/SchemaSurveyElement'
 import { ImmutableEntity } from './ImmutableEntity'
 import { entityConditionMethods } from './mixin/entityConditionMethods'
 import { entityAttributeMethods } from './mixin/entityAttributeMethods'
@@ -35,21 +36,6 @@ export interface SurveyElementBaseData {
  * attribute mutators are layered on by the entity mixins in `SurveyElementBase`.
  */
 class SurveyElementCore extends ImmutableEntity {
-  _id: string
-  surveyId: string
-  createdById: string
-  kind: string
-  type: string
-  code: string
-  text: L10n
-  /** Parent section id. */
-  sectionId?: string
-  attributes: SurveyAttributes = {}
-  condition: string | null
-  conditionReferences: string[] | null
-  createdAt: Date
-  updatedAt: Date
-
   constructor(data: Partial<SurveyElementBaseData> = {}) {
     super()
     this._id = data?._id || genUniqueId()
@@ -81,6 +67,8 @@ class SurveyElementCore extends ImmutableEntity {
     return this.withChanges({ sectionId: newSectionId })
   }
 }
+
+interface SurveyElementCore extends Infer<typeof surveyElementBaseShape> {}
 
 /**
  * Shared immutable base for `SurveyQuestion` and `SurveyContent` — the common
