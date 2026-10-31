@@ -1,5 +1,7 @@
 import { genUniqueId } from '@datacapy/id'
+import { Infer } from '@datacapy/schema'
 
+import { notificationShape } from '../schema/SchemaNotification'
 import { DataTransferJob } from './DataTransferJob'
 
 /**
@@ -12,19 +14,7 @@ import { DataTransferJob } from './DataTransferJob'
  * `belongsToOne` relation on RepoNotification.
  */
 export class Notification {
-  _id: string
-  type: 'dataTransferJob'
-  projectId: string
-  recipientUserId: string
-  dataTransferJobId: string | null
   dataTransferJob: DataTransferJob | null
-  level: 'info' | 'success' | 'error'
-  title: string
-  message: string | null
-  status: 'unread' | 'read' | 'dismissed'
-  createdAt: Date
-  readAt: Date | null
-  dismissedAt: Date | null
 
   constructor(data: Partial<Notification> = {}) {
     this._id = data._id || genUniqueId()
@@ -33,7 +23,8 @@ export class Notification {
     this.recipientUserId = data.recipientUserId || ''
     this.dataTransferJobId = data.dataTransferJobId || null
     this.dataTransferJob =
-      (data.dataTransferJob && new DataTransferJob(data.dataTransferJob)) || null
+      (data.dataTransferJob && new DataTransferJob(data.dataTransferJob)) ||
+      null
     this.level = data.level || 'info'
     this.title = data.title || ''
     this.message = data.message || null
@@ -43,5 +34,7 @@ export class Notification {
     this.dismissedAt = data.dismissedAt || null
   }
 }
+
+export interface Notification extends Infer<typeof notificationShape> {}
 
 export default Notification

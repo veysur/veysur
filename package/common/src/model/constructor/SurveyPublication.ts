@@ -1,16 +1,8 @@
 import { genUniqueId } from '@datacapy/id'
+import { Infer } from '@datacapy/schema'
+import { surveyPublicationShape } from '../schema/SchemaSurveyPublication'
 
 export class SurveyPublication {
-  _id: string
-  snapshotId: string
-  surveyId: string
-  publishedById: string
-  label: string | null // Snapshot content description
-  notes: string | null // Technical notes about snapshot
-  publishedAt: Date | null
-  stoppedAt: Date | null
-  createdAt: Date
-  updatedAt: Date
   responseCount?: number // Populated relation - count of responses
 
   constructor(data) {
@@ -28,3 +20,7 @@ export class SurveyPublication {
     this.responseCount = data?.responseCount
   }
 }
+
+export interface SurveyPublication extends Infer<
+  typeof surveyPublicationShape
+> {}

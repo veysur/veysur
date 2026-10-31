@@ -1,16 +1,8 @@
 import { genUniqueId } from '@datacapy/id'
-import { PropsOf } from '@datacapy/schema'
+import { Infer, PropsOf } from '@datacapy/schema'
+import { emailTemplateShape } from '../schema/SchemaEmailTemplate'
 
 export class EmailTemplate {
-  _id: string
-  surveyId: string | null
-  type: string
-  lang: string
-  subject: string
-  body: string
-  createdAt: Date
-  updatedAt: Date
-
   constructor(data: Partial<PropsOf<EmailTemplate>>) {
     this._id = data?._id || genUniqueId()
     this.surveyId = data?.surveyId || null
@@ -22,3 +14,5 @@ export class EmailTemplate {
     this.updatedAt = (data?.updatedAt && new Date(data.updatedAt)) || new Date()
   }
 }
+
+export interface EmailTemplate extends Infer<typeof emailTemplateShape> {}

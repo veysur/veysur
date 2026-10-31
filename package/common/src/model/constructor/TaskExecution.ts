@@ -1,22 +1,11 @@
+import { Infer } from '@datacapy/schema'
+import { taskExecutionShape } from '../schema/SchemaTaskExecution'
+
 /**
  * TaskExecution Constructor
  * Represents a single execution run of a scheduled task
  */
 export class TaskExecution {
-  _id: string
-  taskId: string
-  taskName: string
-  status: 'running' | 'completed' | 'failed' | 'stopped'
-  startedAt: Date
-  stoppedAt: Date | null
-  completedAt: Date | null
-  duration: number | null // Milliseconds
-  managerPodName: string | null
-  managerHostname: string | null
-  log: string | null
-  error: string | null
-  createdAt: Date
-
   constructor(data: Partial<TaskExecution> = {}) {
     this._id = data._id || ''
     this.taskId = data.taskId || ''
@@ -33,3 +22,5 @@ export class TaskExecution {
     this.createdAt = data.createdAt || new Date()
   }
 }
+
+export interface TaskExecution extends Infer<typeof taskExecutionShape> {}
