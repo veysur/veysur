@@ -1,31 +1,10 @@
 import { genUniqueId } from '@datacapy/id'
-import { PropsOf } from '@datacapy/schema'
+import { Infer, PropsOf } from '@datacapy/schema'
 
 import { CompletionStatus } from './SurveyParticipant/completionStatus'
+import { surveyParticipantShape } from '../schema/SchemaSurveyParticipant'
 
 export class SurveyParticipant {
-  _id: string
-  surveyId: string
-  createdById: string
-  token: string | null
-  emailVerifyToken: string | null
-  nameFirst: string
-  nameLast: string
-  email: string
-  emailStatus: string
-  bounceType: 'hardBounce' | 'softBounce' | null
-  bounceAt: Date | null
-  complaintAt: Date | null
-  language: string
-  inviteSentAt: Date | null
-  reminderSentAt: Date | null
-  inviteQueuedAt: Date | null
-  reminderQueuedAt: Date | null
-  validFrom: Date | null
-  validTo: Date | null
-  attributes: Record<string, string>
-  createdAt: Date
-  updatedAt: Date
   surveyResponse?: { completed: boolean; completedAt: Date | null } | null
 
   constructor(data: Partial<PropsOf<SurveyParticipant>>) {
@@ -62,3 +41,7 @@ export class SurveyParticipant {
     return this.surveyResponse.completed ? 'completed' : 'inProgress'
   }
 }
+
+export interface SurveyParticipant extends Infer<
+  typeof surveyParticipantShape
+> {}

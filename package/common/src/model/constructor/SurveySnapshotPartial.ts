@@ -2,17 +2,11 @@ import { genUniqueId } from '@datacapy/id'
 
 import { Survey } from './Survey'
 import { SurveyPublication } from './SurveyPublication'
+import { Infer } from '@datacapy/schema'
+import { surveySnapshotPartialShape } from '../schema/SchemaSurveySnapshotPartial'
 
 export class SurveySnapshotPartial {
-  _id: string
-  surveyId: string
-  createdById: string
-  contentHash: string // SHA-256 hash of normalized survey content
-  label: string | null // Snapshot content description
-  notes: string | null // Technical notes about snapshot
-  surveyPartial: Survey
-  createdAt: Date
-  updatedAt: Date
+  surveyPartial: Survey // not inferred: the Survey schema is not typed yet
   publications?: SurveyPublication[] // Populated relation
   responseCount?: number // Populated relation - count of responses
 
@@ -31,3 +25,8 @@ export class SurveySnapshotPartial {
     this.responseCount = data?.responseCount
   }
 }
+
+export interface SurveySnapshotPartial extends Omit<
+  Infer<typeof surveySnapshotPartialShape>,
+  'surveyPartial'
+> {}

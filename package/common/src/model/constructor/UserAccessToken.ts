@@ -1,4 +1,6 @@
 import moment from 'moment-timezone'
+import { Infer } from '@datacapy/schema'
+import { userAccessTokenShape } from '../schema/SchemaUserAccessToken'
 
 type Interval =
   'weeks' | 'days' | 'hours' | 'minutes' | 'seconds' | 'milliseconds'
@@ -17,13 +19,6 @@ export interface GeoInfo {
 }
 
 export class UserAccessToken {
-  token: string
-  ttl: number
-  ip: string
-  createdAt: Date
-  expiresAt: Date
-  geo?: GeoInfo
-
   static alias: string
 
   constructor(data) {
@@ -60,5 +55,7 @@ export class UserAccessToken {
     return this.getAge(interval ? interval : 'minutes', now) > length
   }
 }
+
+export interface UserAccessToken extends Infer<typeof userAccessTokenShape> {}
 
 export default UserAccessToken

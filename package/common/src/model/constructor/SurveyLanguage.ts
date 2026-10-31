@@ -1,6 +1,8 @@
 import { genUniqueId } from '@datacapy/id'
 
 import { SurveyAnswerOptionImageValue } from './Survey/SurveyAnswerOption'
+import { Infer } from '@datacapy/schema'
+import { surveyLanguageShape } from '../schema/SchemaSurveyLanguage'
 
 export interface SurveyLanguageSectionEntry {
   name?: string
@@ -46,13 +48,6 @@ export interface SurveyLanguageData {
 }
 
 export class SurveyLanguage {
-  _id: string
-  surveyId: string
-  languageCode: string
-  data: SurveyLanguageData
-  createdAt: Date
-  updatedAt: Date
-
   constructor(data?) {
     this._id = data?._id || genUniqueId()
     this.surveyId = data?.surveyId
@@ -66,5 +61,7 @@ export class SurveyLanguage {
     return new SurveyLanguage({ ...this, ...data })
   }
 }
+
+export interface SurveyLanguage extends Infer<typeof surveyLanguageShape> {}
 
 export default SurveyLanguage

@@ -1,4 +1,6 @@
 import { genUniqueId } from '@datacapy/id'
+import { Infer } from '@datacapy/schema'
+import { dataTransferJobShape } from '../schema/SchemaDataTransferJob'
 
 /**
  * Cross-project queue-pointer row ServiceDataTransferJob.processQueue() drains
@@ -13,31 +15,11 @@ import { genUniqueId } from '@datacapy/id'
  *   across every project's own datasource in one query).
  */
 export class DataTransferJob {
-  _id: string
-  direction: 'import' | 'export'
-  entityType: string
-  entityId: string | null
-  label: string | null
-  format: string
-  options: Record<string, unknown>
-  sourceFileId: string | null
   /**
    * The uploaded import file's content hash - used to dedup a resubmission
    * of the same file while a prior job for it is still active. Unused for
    * export jobs.
    */
-  sourceFileHash: string | null
-  projectId: string
-  requestedByUserId: string
-  requestHost: string | null
-  requestProto: string | null
-  status: 'pending' | 'processing' | 'completed' | 'failed'
-  resultFileId: string | null
-  error: string | null
-  createdAt: Date
-  startedAt: Date | null
-  completedAt: Date | null
-  updatedAt: Date
 
   constructor(data: Partial<DataTransferJob> = {}) {
     this._id = data._id || genUniqueId()
@@ -62,5 +44,7 @@ export class DataTransferJob {
     this.updatedAt = data.updatedAt || new Date()
   }
 }
+
+export interface DataTransferJob extends Infer<typeof dataTransferJobShape> {}
 
 export default DataTransferJob

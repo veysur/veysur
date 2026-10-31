@@ -1,4 +1,6 @@
 import { genUniqueId } from '@datacapy/id'
+import { Infer } from '@datacapy/schema'
+import { surveyParticipantAttributeShape } from '../schema/SchemaSurveyParticipantAttribute'
 
 export interface SurveyParticipantAttributeDefinition {
   name: string
@@ -8,12 +10,6 @@ export interface SurveyParticipantAttributeDefinition {
 }
 
 export class SurveyParticipantAttribute {
-  _id: string
-  surveyId: string
-  attributes: SurveyParticipantAttributeDefinition[]
-  createdAt: Date
-  updatedAt: Date
-
   constructor(data?) {
     this._id = data?._id || genUniqueId()
     this.surveyId = data?.surveyId
@@ -28,5 +24,9 @@ export class SurveyParticipantAttribute {
     return new SurveyParticipantAttribute({ ...this, ...data })
   }
 }
+
+export interface SurveyParticipantAttribute extends Infer<
+  typeof surveyParticipantAttributeShape
+> {}
 
 export default SurveyParticipantAttribute

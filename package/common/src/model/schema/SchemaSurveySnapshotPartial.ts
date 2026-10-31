@@ -3,30 +3,28 @@ import { Schema, SchemaBuilder as sb } from '@datacapy/schema'
 import { SCHEMA_LENGTH_MAX_INTERNAL_ID } from './constant'
 import { SchemaSurvey } from './SchemaSurvey'
 
-export class SchemaSurveySnapshotPartial extends Schema {
+export const surveySnapshotPartialShape = {
+  _id: sb.string().required().maxLength(SCHEMA_LENGTH_MAX_INTERNAL_ID),
+  surveyId: sb.string().required().maxLength(SCHEMA_LENGTH_MAX_INTERNAL_ID),
+  createdById: sb.string().required().maxLength(SCHEMA_LENGTH_MAX_INTERNAL_ID),
+  contentHash: sb.string().required().minLength(64).maxLength(64),
+  label: sb.string().default(null),
+  notes: sb.string().default(null),
+  surveyPartial: sb.ref(() => new SchemaSurvey()),
+  createdAt: sb.date().default('now'),
+  updatedAt: sb.date().default('now'),
+}
+
+export class SchemaSurveySnapshotPartial extends Schema<
+  typeof surveySnapshotPartialShape
+> {
   constructor() {
     super(
       sb
         .schema('surveySnapshotPartial')
         .construct('SurveySnapshotPartial')
         .strict()
-        .shape({
-          _id: sb.string().required().maxLength(SCHEMA_LENGTH_MAX_INTERNAL_ID),
-          surveyId: sb
-            .string()
-            .required()
-            .maxLength(SCHEMA_LENGTH_MAX_INTERNAL_ID),
-          createdById: sb
-            .string()
-            .required()
-            .maxLength(SCHEMA_LENGTH_MAX_INTERNAL_ID),
-          contentHash: sb.string().required().minLength(64).maxLength(64),
-          label: sb.string().default(null),
-          notes: sb.string().default(null),
-          surveyPartial: sb.ref(() => new SchemaSurvey()),
-          createdAt: sb.date().default('now'),
-          updatedAt: sb.date().default('now'),
-        }),
+        .shape(surveySnapshotPartialShape),
     )
   }
 }

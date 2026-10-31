@@ -1,16 +1,8 @@
 import { genUniqueId } from '@datacapy/id'
-import { SurveyParticipantAttributeLanguageData } from './SurveyParticipantAttributeLanguage'
+import { Infer } from '@datacapy/schema'
+import { surveyParticipantAttributeLanguageSnapshotShape } from '../schema/SchemaSurveyParticipantAttributeLanguageSnapshot'
 
 export class SurveyParticipantAttributeLanguageSnapshot {
-  _id: string
-  snapshotId: string
-  surveyId: string
-  languageCode: string
-  data: Record<string, SurveyParticipantAttributeLanguageData>
-  contentHash: string
-  createdAt: Date
-  updatedAt: Date
-
   constructor(data?) {
     this._id = data?._id || genUniqueId()
     this.snapshotId = data?.snapshotId
@@ -22,5 +14,9 @@ export class SurveyParticipantAttributeLanguageSnapshot {
     this.updatedAt = (data?.updatedAt && new Date(data.updatedAt)) || new Date()
   }
 }
+
+export interface SurveyParticipantAttributeLanguageSnapshot extends Infer<
+  typeof surveyParticipantAttributeLanguageSnapshotShape
+> {}
 
 export default SurveyParticipantAttributeLanguageSnapshot

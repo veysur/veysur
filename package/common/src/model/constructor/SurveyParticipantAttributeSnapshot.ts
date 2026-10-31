@@ -1,15 +1,8 @@
 import { genUniqueId } from '@datacapy/id'
-import { SurveyParticipantAttributeDefinition } from './SurveyParticipantAttribute'
+import { Infer } from '@datacapy/schema'
+import { surveyParticipantAttributeSnapshotShape } from '../schema/SchemaSurveyParticipantAttributeSnapshot'
 
 export class SurveyParticipantAttributeSnapshot {
-  _id: string
-  snapshotId: string
-  surveyId: string
-  attributes: SurveyParticipantAttributeDefinition[]
-  contentHash: string
-  createdAt: Date
-  updatedAt: Date
-
   constructor(data?) {
     this._id = data?._id || genUniqueId()
     this.snapshotId = data?.snapshotId
@@ -20,5 +13,9 @@ export class SurveyParticipantAttributeSnapshot {
     this.updatedAt = (data?.updatedAt && new Date(data.updatedAt)) || new Date()
   }
 }
+
+export interface SurveyParticipantAttributeSnapshot extends Infer<
+  typeof surveyParticipantAttributeSnapshotShape
+> {}
 
 export default SurveyParticipantAttributeSnapshot

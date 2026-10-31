@@ -23,7 +23,11 @@ export class SchemaSurveySubquestion extends Schema {
             .default(''),
           code: sb.string().required().maxLength(12).default(''),
           text: sb.ref(() => new SchemaL10nHtml()),
-          detail: sb.object().nullable().default(null).schema(() => new SchemaL10nHtml()),
+          detail: sb
+            .object()
+            .nullable()
+            .default(null)
+            .schema(() => new SchemaL10nHtml()),
           attributes: sb.object().strict(false).matchAll(sb.mixed()),
           createdAt: sb.date().default('now'),
           updatedAt: sb.date().default('now'),
