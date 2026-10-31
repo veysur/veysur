@@ -2,6 +2,9 @@ import { SchemaBuilder as sb } from '@datacapy/schema'
 
 import { SchemaSettingSurvey } from './SchemaSettingSurvey'
 import { SCHEMA_LENGTH_MAX_INPUT } from './constant'
+import { SchemaL10n } from './SchemaL10n'
+import { SchemaSurveyElement } from './SchemaSurveyElement'
+import { SchemaSurveySection } from './SchemaSurveySection'
 
 export class SchemaSurvey extends SchemaSettingSurvey {
   constructor() {
@@ -20,7 +23,7 @@ export class SchemaSurvey extends SchemaSettingSurvey {
           name: sb.string().label('Name').default('').stripHtml().trim(),
           title: sb
             .object()
-            .schema('l10n')
+            .schema(() => new SchemaL10n())
             .matchAll(
               sb
                 .string()
@@ -32,8 +35,8 @@ export class SchemaSurvey extends SchemaSettingSurvey {
           attributes: sb.object().matchAll(sb.mixed()),
           sectionIds: sb.array(sb.string()),
           elementIds: sb.array(sb.string()),
-          sections: sb.array().ofSchema('surveySection'),
-          elements: sb.array().ofSchema('surveyElement'),
+          sections: sb.array().of(() => new SchemaSurveySection()),
+          elements: sb.array().of(() => new SchemaSurveyElement()),
         })
         .build(),
     )

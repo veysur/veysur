@@ -51,6 +51,10 @@ src/
 
 When adding a `Date`-typed field to a schema/constructor, follow the timestamp naming convention in the root `AGENTS.md` (`At`/`From`/`To`/`Start`/`End`/`Until` suffixes, or the bare lowercase form when nested).
 
+## Inferred model types
+
+Constructors take their field types from the schema shape: export the shape (`projectBaseShape`), type the schema class as `Schema<typeof shape>`, and merge `interface X extends Infer<typeof shape> {}` into the class. See `src/model/constructor/Project.ts`. Schema references are lazy, `sb.ref(() => new SchemaL10n())`, never name strings. Only `Project` is migrated so far. Details: root `docs/typing-discipline.md`.
+
 ## datacapy Dependencies
 
 `@datacapy/schema`, `@datacapy/om`, and `@datacapy/id` are workspace submodules at `external/datacapy/`. If you modify them, rebuild common afterwards: `pnpm build:common`.

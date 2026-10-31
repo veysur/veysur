@@ -1,6 +1,7 @@
 import { Schema, SchemaBuilder as sb } from '@datacapy/schema'
 
 import { SCHEMA_LENGTH_MAX_INTERNAL_ID } from './constant'
+import { SchemaSurvey } from './SchemaSurvey'
 
 export class SchemaSurveySnapshot extends Schema {
   constructor() {
@@ -15,7 +16,7 @@ export class SchemaSurveySnapshot extends Schema {
             .string()
             .required()
             .maxLength(SCHEMA_LENGTH_MAX_INTERNAL_ID),
-          survey: { $schema: 'survey' },
+          survey: sb.ref(() => new SchemaSurvey()),
         }),
     )
   }

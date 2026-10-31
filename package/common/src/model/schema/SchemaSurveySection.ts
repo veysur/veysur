@@ -6,6 +6,8 @@ import {
   SCHEMA_LENGTH_MAX_TEXT,
   ENTITY_CODE_PATTERN,
 } from './constant'
+import { SchemaL10n } from './SchemaL10n'
+import { SchemaL10nHtml } from './SchemaL10nHtml'
 
 export class SchemaSurveySection extends Schema {
   constructor() {
@@ -32,7 +34,7 @@ export class SchemaSurveySection extends Schema {
             }),
           name: sb
             .object()
-            .schema('l10n')
+            .schema(() => new SchemaL10n())
             .matchAll(
               sb
                 .string()
@@ -46,7 +48,7 @@ export class SchemaSurveySection extends Schema {
             .object()
             .nullable()
             .default(null)
-            .schema('l10nHtml')
+            .schema(() => new SchemaL10nHtml())
             .matchAll(
               sb
                 .string()

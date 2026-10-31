@@ -1,6 +1,7 @@
 import { Schema, SchemaBuilder as sb } from '@datacapy/schema'
 
 import { SCHEMA_LENGTH_MAX_INTERNAL_ID } from './constant'
+import { SchemaSurvey } from './SchemaSurvey'
 
 export class SchemaSurveySnapshotPartial extends Schema {
   constructor() {
@@ -22,7 +23,7 @@ export class SchemaSurveySnapshotPartial extends Schema {
           contentHash: sb.string().required().minLength(64).maxLength(64),
           label: sb.string().default(null),
           notes: sb.string().default(null),
-          surveyPartial: { $schema: 'survey' },
+          surveyPartial: sb.ref(() => new SchemaSurvey()),
           createdAt: sb.date().default('now'),
           updatedAt: sb.date().default('now'),
         }),

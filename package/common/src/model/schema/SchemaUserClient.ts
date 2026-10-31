@@ -1,4 +1,5 @@
 import Schema, { SchemaBuilder as sb } from '@datacapy/schema'
+import { SchemaUserAccessToken } from './SchemaUserAccessToken'
 
 export class SchemaUserClient extends Schema {
   constructor() {
@@ -32,7 +33,7 @@ export class SchemaUserClient extends Schema {
             .array()
             .construct('Collection')
             .private()
-            .ofSchema('userAccessToken'),
+            .of(() => new SchemaUserAccessToken()),
           createdAt: sb.date().default('now'),
           updatedAt: sb.date().default('now'),
         }),

@@ -12,7 +12,7 @@ export const projectBaseShape = {
   updatedAt: sb.date().default('now'),
 }
 
-export class SchemaProject extends Schema {
+export class SchemaProject extends Schema<typeof projectBaseShape> {
   constructor() {
     super(
       sb

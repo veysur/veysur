@@ -5,6 +5,7 @@ import {
   SCHEMA_LENGTH_MAX_INPUT,
   ENTITY_CODE_PATTERN,
 } from './constant'
+import { SchemaL10n } from './SchemaL10n'
 
 export class SchemaSurveyAnswerOption extends Schema {
   constructor() {
@@ -29,7 +30,7 @@ export class SchemaSurveyAnswerOption extends Schema {
             }),
           label: sb
             .object()
-            .schema('l10n')
+            .schema(() => new SchemaL10n())
             .matchAll(
               sb
                 .string()

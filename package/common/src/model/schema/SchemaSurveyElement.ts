@@ -7,6 +7,9 @@ import {
   SCHEMA_LENGTH_MAX_TEXT,
   ENTITY_CODE_PATTERN,
 } from './constant'
+import { SchemaL10nHtml } from './SchemaL10nHtml'
+import { SchemaSurveyAnswerOption } from './SchemaSurveyAnswerOption'
+import { SchemaSurveySubquestion } from './SchemaSurveySubquestion'
 
 export class SchemaSurveyElement extends Schema {
   constructor() {
@@ -44,7 +47,7 @@ export class SchemaSurveyElement extends Schema {
             }),
           text: sb
             .object()
-            .schema('l10nHtml')
+            .schema(() => new SchemaL10nHtml())
             .matchAll(
               sb
                 .string()
@@ -55,7 +58,7 @@ export class SchemaSurveyElement extends Schema {
             ),
           detail: sb
             .object()
-            .schema('l10nHtml')
+            .schema(() => new SchemaL10nHtml())
             .nullable()
             .default(null)
             .matchAll(
@@ -81,8 +84,8 @@ export class SchemaSurveyElement extends Schema {
           // Content-element config (e.g. { youtube: { url, videoId, startAt } }).
           // Null / absent for questions.
           config: sb.object().strict(false).nullable().default(null),
-          subquestions: sb.array().ofSchema('surveySubquestion'),
-          answerOptions: sb.array().ofSchema('surveyAnswerOption'),
+          subquestions: sb.array().of(() => new SchemaSurveySubquestion()),
+          answerOptions: sb.array().of(() => new SchemaSurveyAnswerOption()),
           condition: sb
             .string()
             .nullable()

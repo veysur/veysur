@@ -9,6 +9,7 @@ import {
   specVerifyTokenArray,
   specMetaHistoryVerifiable,
 } from './SchemaUserSpec'
+import { SchemaUserClient } from './SchemaUserClient'
 
 type SchemaShape = Parameters<ReturnType<typeof sb.schema>['shape']>[0]
 
@@ -56,7 +57,7 @@ export class SchemaUser extends Schema {
             .relation()
             .private()
             .construct('Collection')
-            .ofSchema('userClient'),
+            .of(() => new SchemaUserClient()),
           maxClients: sb.number().default(null).privateValue(),
           role: sb
             .string()
