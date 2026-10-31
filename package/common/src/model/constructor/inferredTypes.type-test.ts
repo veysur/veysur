@@ -19,6 +19,7 @@ import type { SurveyParticipantAttributeSnapshot } from './SurveyParticipantAttr
 import type { SurveyPublication } from './SurveyPublication'
 import type { Task } from './Task'
 import type { TaskExecution } from './TaskExecution'
+import type { User } from './User'
 import type { UserAccessToken } from './UserAccessToken'
 
 type IsAny<T> = 0 extends 1 & T ? true : false
@@ -46,6 +47,7 @@ type Migrated = {
   SurveyPublication: SurveyPublication
   Task: Task
   TaskExecution: TaskExecution
+  User: User
   UserAccessToken: UserAccessToken
 }
 

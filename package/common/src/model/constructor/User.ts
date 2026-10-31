@@ -1,34 +1,12 @@
 import { genUniqueId } from '@datacapy/id'
 
 import { UserClient, Project, ProjectAdmin } from 'model/constructor'
-import { MetaHistoryVerifiable, VerifyToken } from 'model/type'
-import { PropsOf } from '@datacapy/schema'
+import { Infer, PropsOf } from '@datacapy/schema'
+
+import { userShape } from '../schema/SchemaUser'
 
 export class User {
-  _id: string
-  nameFirst: string
-  nameLast: string
-  email: string
-  emailMeta: MetaHistoryVerifiable
-  password: string
-  passwordMeta: {
-    reset: {
-      token: VerifyToken[]
-    }
-  }
-  twoFactorSecret?: string
-  twoFactorMeta?: {
-    enabled: boolean
-    enabledAt: Date | null
-    prompt: { dismissed: boolean }
-  }
-  maxClients?: number | null
-  role: string
-  createdAt: Date
   updatedAt: Date
-  deletedAt?: Date | null // Timestamp when account was soft-deleted (null = active)
-  deletionReminderSentAt?: Date | null // Set once the pre-purge reminder email has been sent for the current deletedAt
-  anonymizedAt?: Date | null // Set once, permanently, when PII is scrubbed at the 1-month cutoff - the row is retained, never removed
 
   // relations
   projectOwn?: PropsOf<Project>[]
@@ -65,5 +43,7 @@ export class User {
     return roles.indexOf(this.role) !== -1
   }
 }
+
+export interface User extends Omit<Infer<typeof userShape>, 'client'> {}
 
 export default User

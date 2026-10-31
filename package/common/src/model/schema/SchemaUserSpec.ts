@@ -1,25 +1,25 @@
-import { SchemaSpec, SchemaBuilder as sb } from '@datacapy/schema'
+import { SchemaBuilder as sb } from '@datacapy/schema'
 
-export const specVerifyStatus: SchemaSpec = {
+export const verifyStatusShape = {
   isVerified: sb.boolean().required().default(false),
   isVerifiedAt: sb.date().required().default(null),
 }
 
-export const specMetaHistory: SchemaSpec = {
+export const metaHistoryShape = {
   history: sb
     .array()
     .private()
     .of(
       sb.object({
         prevValue: sb.string().required().trim(),
-        verifyStatus: specVerifyStatus,
+        verifyStatus: sb.object(verifyStatusShape),
         clientId: sb.string().required().trim().privateValue(),
         createdAt: sb.date().default('now'),
       }),
     ),
 }
 
-export const specVerifyTokenArray: SchemaSpec = sb
+export const verifyTokenArray = sb
   .array()
   .construct('Collection')
   .of(
@@ -31,16 +31,15 @@ export const specVerifyTokenArray: SchemaSpec = sb
       failCount: sb.number(),
     }),
   )
-  .build()
 
-export const specMetaVerify: SchemaSpec = {
-  verify: {
-    status: specVerifyStatus,
-    token: specVerifyTokenArray,
-  },
+export const metaVerifyShape = {
+  verify: sb.object({
+    status: sb.object(verifyStatusShape),
+    token: verifyTokenArray,
+  }),
 }
 
-export const specMetaHistoryVerifiable: SchemaSpec = {
-  ...specMetaVerify,
-  ...specMetaHistory,
+export const metaHistoryVerifiableShape = {
+  ...metaVerifyShape,
+  ...metaHistoryShape,
 }
