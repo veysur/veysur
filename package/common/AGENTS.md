@@ -53,7 +53,7 @@ When adding a `Date`-typed field to a schema/constructor, follow the timestamp n
 
 ## Inferred model types
 
-Constructors take their field types from the schema shape: export the shape (`projectBaseShape`), type the schema class as `Schema<typeof shape>`, and merge `interface X extends Infer<typeof shape> {}` into the class. See `src/model/constructor/Project.ts`. Schema references are lazy, `sb.ref(() => new SchemaL10n())`, never name strings. Migrated so far: `Project`, `Notification`, `TaskExecution`, `SurveyPublication`, `EmailTemplate`. A migrated constructor keeps its own defaulting constructor, drops the field list, and lists only relation fields it populates. Details: root `docs/typing-discipline.md`.
+Constructors take their field types from the schema shape: export the shape (`projectBaseShape`), type the schema class as `Schema<typeof shape>`, and merge `interface X extends Infer<typeof shape> {}` into the class. See `src/model/constructor/Project.ts`. Schema references are lazy, `sb.ref(() => new SchemaL10n())`, never name strings. Nearly every flat model is migrated, plus the Survey family's plain fields (`SurveyAnswerOption`, `SurveySubquestion`, `SurveySection`, `SurveyElementBase`, `Survey`'s own fields). The list is `Migrated` in `inferredTypes.type-test.ts`. Left hand-written because the class type is not the schema type: `SurveyResponse`, `SettingSurvey`, `SettingProject`, `L10n`, `SurveyQuestion`, `SurveyContent` and the collections. A migrated constructor keeps its own defaulting constructor, drops the field list, and lists only relation fields it populates. Details: root `docs/typing-discipline.md`.
 
 ## datacapy Dependencies
 
