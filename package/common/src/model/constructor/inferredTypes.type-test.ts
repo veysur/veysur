@@ -8,6 +8,7 @@ import type { EmailTemplate } from './EmailTemplate'
 import type { File } from './File'
 import type { Notification } from './Notification'
 import type { Project } from './Project'
+import type { ProjectAdmin } from './ProjectAdmin'
 import type { SurveyLanguage } from './SurveyLanguage'
 import type { SurveyLanguageSnapshot } from './SurveyLanguageSnapshot'
 import type { SurveyParticipant } from './SurveyParticipant'
@@ -34,6 +35,7 @@ type Migrated = {
   File: File
   Notification: Notification
   Project: Project
+  ProjectAdmin: ProjectAdmin
   SurveyLanguage: SurveyLanguage
   SurveyLanguageSnapshot: SurveyLanguageSnapshot
   SurveyParticipant: SurveyParticipant
