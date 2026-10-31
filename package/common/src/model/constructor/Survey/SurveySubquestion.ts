@@ -1,7 +1,8 @@
 import { genUniqueId } from '@datacapy/id'
-import { PropsOf } from '@datacapy/schema'
+import { Infer, PropsOf } from '@datacapy/schema'
 
 import { L10n, setL10nField } from '../L10n'
+import { surveySubquestionShape } from '../../schema/SchemaSurveySubquestion'
 import { ImmutableEntity } from './ImmutableEntity'
 import { entityAttributeMethods } from './mixin/entityAttributeMethods'
 import type { SurveyAttributes } from './attributeMeta'
@@ -18,16 +19,6 @@ export interface SurveySubquestionData {
 }
 
 class SurveySubquestionCore extends ImmutableEntity {
-  _id: string
-  type: string
-  code: string
-  text: L10n
-  detail: L10n | null
-  attributes: SurveyAttributes
-
-  createdAt: Date
-  updatedAt: Date
-
   constructor(data: Partial<SurveySubquestionData> = {}) {
     super()
     this._id = data?._id || genUniqueId()
@@ -64,6 +55,8 @@ class SurveySubquestionCore extends ImmutableEntity {
     return this.withChanges({ detail: null })
   }
 }
+
+interface SurveySubquestionCore extends Infer<typeof surveySubquestionShape> {}
 
 export class SurveySubquestion extends entityAttributeMethods(
   SurveySubquestionCore,

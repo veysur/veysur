@@ -1,7 +1,8 @@
 import { genUniqueId } from '@datacapy/id'
-import { PropsOf } from '@datacapy/schema'
+import { Infer, PropsOf } from '@datacapy/schema'
 
 import { L10n, setL10nField } from '../L10n'
+import { surveyAnswerOptionShape } from '../../schema/SchemaSurveyAnswerOption'
 
 export interface SurveyAnswerOptionImageValue {
   path: string
@@ -21,14 +22,6 @@ export interface SurveyAnswerOptionData {
 }
 
 export class SurveyAnswerOption {
-  _id: string
-  createdById: string
-  code: string
-  label: L10n
-  createdAt: Date
-  updatedAt: Date
-  image: Record<string, SurveyAnswerOptionImageValue | null> | null
-
   constructor(data: Partial<PropsOf<SurveyAnswerOptionData>> = {}) {
     this._id = data?._id || genUniqueId()
     this.createdById = data?.createdById
@@ -109,3 +102,6 @@ export class SurveyAnswerOption {
     return this.setImageLang(null, lang)
   }
 }
+
+export interface SurveyAnswerOption
+  extends Infer<typeof surveyAnswerOptionShape> {}

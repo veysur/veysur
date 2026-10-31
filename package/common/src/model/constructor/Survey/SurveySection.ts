@@ -1,7 +1,8 @@
 import { genUniqueId } from '@datacapy/id'
-import { PropsOf } from '@datacapy/schema'
+import { Infer, PropsOf } from '@datacapy/schema'
 
 import { L10n, setL10nField } from '../L10n'
+import { surveySectionShape } from '../../schema/SchemaSurveySection'
 import { ImmutableEntity } from './ImmutableEntity'
 import { entityConditionMethods } from './mixin/entityConditionMethods'
 import { entityAttributeMethods } from './mixin/entityAttributeMethods'
@@ -66,20 +67,6 @@ export interface SurveySectionData {
  * `entityAttributeMethods` (see the export below).
  */
 class SurveySectionCore extends ImmutableEntity {
-  _id: string
-  surveyId: string
-  createdById: string
-  kind: SectionKind = SECTION_KIND_GROUP
-  code: string
-  name: L10n = new L10n()
-  desc: L10n | null
-  attributes: SurveyAttributes = {}
-  config: SurveySectionConfig | null = null
-  condition: string | null
-  conditionReferences: string[] | null
-  createdAt: Date
-  updatedAt: Date
-
   constructor(data: Partial<SurveySectionData>) {
     super()
     this._id = data?._id || genUniqueId()
@@ -158,6 +145,8 @@ class SurveySectionCore extends ImmutableEntity {
     })
   }
 }
+
+interface SurveySectionCore extends Infer<typeof surveySectionShape> {}
 
 export class SurveySection extends entityConditionMethods(
   entityAttributeMethods(SurveySectionCore),

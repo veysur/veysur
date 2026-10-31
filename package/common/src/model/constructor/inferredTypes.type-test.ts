@@ -9,6 +9,9 @@ import type { File } from './File'
 import type { Notification } from './Notification'
 import type { Project } from './Project'
 import type { ProjectAdmin } from './ProjectAdmin'
+import type { SurveyAnswerOption } from './Survey/SurveyAnswerOption'
+import type { SurveySection } from './Survey/SurveySection'
+import type { SurveySubquestion } from './Survey/SurveySubquestion'
 import type { SurveyLanguage } from './SurveyLanguage'
 import type { SurveyLanguageSnapshot } from './SurveyLanguageSnapshot'
 import type { SurveyParticipant } from './SurveyParticipant'
@@ -37,6 +40,7 @@ type Migrated = {
   Notification: Notification
   Project: Project
   ProjectAdmin: ProjectAdmin
+  SurveyAnswerOption: SurveyAnswerOption
   SurveyLanguage: SurveyLanguage
   SurveyLanguageSnapshot: SurveyLanguageSnapshot
   SurveyParticipant: SurveyParticipant
@@ -45,6 +49,8 @@ type Migrated = {
   SurveyParticipantAttributeLanguageSnapshot: SurveyParticipantAttributeLanguageSnapshot
   SurveyParticipantAttributeSnapshot: SurveyParticipantAttributeSnapshot
   SurveyPublication: SurveyPublication
+  SurveySection: SurveySection
+  SurveySubquestion: SurveySubquestion
   Task: Task
   TaskExecution: TaskExecution
   User: User
