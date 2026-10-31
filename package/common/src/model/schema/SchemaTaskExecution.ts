@@ -13,7 +13,7 @@ export const taskExecutionShape = {
   _id: sb.string().default('').maxLength(SCHEMA_LENGTH_MAX_INTERNAL_ID),
   taskId: sb.string().required().maxLength(SCHEMA_LENGTH_MAX_INTERNAL_ID),
   taskName: sb.string().required().maxLength(SCHEMA_LENGTH_MAX_ENTITY_NAME),
-  status: sb.string().required(), // 'running' | 'completed' | 'failed' | 'stopped'
+  status: sb.string().required().default('running'), // 'running' | 'completed' | 'failed' | 'stopped'
   startedAt: sb.date().default('now'),
   stoppedAt: sb.date().default(null),
   completedAt: sb.date().default(null),
