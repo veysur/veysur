@@ -17,6 +17,7 @@ import {
 import { AclContext } from 'model/entity/AclContext'
 
 import { entityStamp } from '../util/entityStamp'
+import { importSectionFields } from '../util/importSectionFields'
 import { MarkdownResolvedContext } from './types'
 
 /**
@@ -56,7 +57,7 @@ export class MarkdownImportPersister {
 
       for (const sectionData of data.sections) {
         const section = new SurveySection({
-          ...sectionData,
+          ...importSectionFields(sectionData),
           ...entityStamp(userId),
         } as ConstructorParameters<typeof SurveySection>[0])
         await repoSection.insertOne(section, { context: dsContext })

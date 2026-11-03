@@ -51,6 +51,10 @@ src/
 
 When adding a `Date`-typed field to a schema/constructor, follow the timestamp naming convention in the root `AGENTS.md` (`At`/`From`/`To`/`Start`/`End`/`Until` suffixes, or the bare lowercase form when nested).
 
+## Inferred model types
+
+Constructors take their field types from the schema: define it as `class SchemaX extends Schema.from(sb.schema(...).shape({...})) {}` (the class is the only export; a plain spec such as `projectBaseSpec` is exported only when several schemas share it), and build the model with `class X extends SchemaConstructor.from(SchemaX, options) {}` (see `src/model/constructor/DataTransferJob.ts`); behaviour goes in the class body. Schema references are lazy, `sb.ref(() => new SchemaL10n())`, never name strings. Nearly every flat model is migrated, plus the Survey family's plain fields. The list is `Migrated` in `inferredTypes.type-test.ts`. Left hand-written because the class type is not the schema type: `SurveyResponse`, `SettingSurvey`, `SettingProject`, `L10n`, `SurveyQuestion`, `SurveyContent` and the collections. Still on the older `sb.defaultsFor` plus merged `interface X extends Infer<...>` recipe because they extend a base class or are typed by hand: `SurveyElementBase`, `SurveySection`, `SurveySubquestion`, `SurveySnapshotPartial`. `SchemaConstructor.from` types its input as raw data (plain objects, `null` for missing, `extras` keys), so `SurveyAnswerOption`, `SurveyParticipant`, `SurveyPublication` and `EmailTemplate` use it; see datacapy's `package/schema/docs/constructors.md`. Never convert a constructor without first committing a `*.equivalence.test.ts` snapshot of the old behaviour; see the ADR for the options and which models stay explicit. Details: root `docs/typing-discipline.md`.
+
 ## datacapy Dependencies
 
 `@datacapy/schema`, `@datacapy/om`, and `@datacapy/id` are workspace submodules at `external/datacapy/`. If you modify them, rebuild common afterwards: `pnpm build:common`.

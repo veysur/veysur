@@ -4,6 +4,9 @@ import {
   ALL_CHART_TYPES,
   ALL_CHART_VALUE_MODES,
 } from '../constructor/SettingSurvey/SettingSurveyBase'
+import { SchemaL10n } from './SchemaL10n'
+import { SchemaL10nHtml } from './SchemaL10nHtml'
+import { SchemaL10nUrl } from './SchemaL10nUrl'
 
 export class SchemaSettingSurvey extends Schema {
   constructor() {
@@ -15,13 +18,13 @@ export class SchemaSettingSurvey extends Schema {
         .shape({
           _id: sb.string().required(),
           welcome: {
-            message: { $schema: 'l10nHtml' },
+            message: sb.ref(() => new SchemaL10nHtml()),
           },
           thankYou: {
-            message: { $schema: 'l10nHtml' },
+            message: sb.ref(() => new SchemaL10nHtml()),
             link: {
-              url: { $schema: 'l10nUrl' },
-              text: { $schema: 'l10n' },
+              url: sb.ref(() => new SchemaL10nUrl()),
+              text: sb.ref(() => new SchemaL10n()),
             },
           },
           language: {
@@ -145,14 +148,14 @@ export class SchemaSettingSurvey extends Schema {
           dataPolicy: {
             show: sb.boolean().default(null),
             link: sb.boolean().default(null),
-            text: { $schema: 'l10nHtml' },
-            url: { $schema: 'l10nUrl' },
+            text: sb.ref(() => new SchemaL10nHtml()),
+            url: sb.ref(() => new SchemaL10nUrl()),
           },
           legalNotice: {
             show: sb.boolean().default(null),
             link: sb.boolean().default(null),
-            text: { $schema: 'l10nHtml' },
-            url: { $schema: 'l10nUrl' },
+            text: sb.ref(() => new SchemaL10nHtml()),
+            url: sb.ref(() => new SchemaL10nUrl()),
           },
           // Who to notify when participant completes survey
           notify: {

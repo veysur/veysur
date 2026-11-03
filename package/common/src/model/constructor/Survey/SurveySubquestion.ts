@@ -1,7 +1,7 @@
-import { genUniqueId } from '@datacapy/id'
-import { PropsOf } from '@datacapy/schema'
+import { Infer, PropsOf, SchemaBuilder as sb } from '@datacapy/schema'
 
 import { L10n, setL10nField } from '../L10n'
+import { surveySubquestionSpec } from '../../schema/SchemaSurveySubquestion'
 import { ImmutableEntity } from './ImmutableEntity'
 import { entityAttributeMethods } from './mixin/entityAttributeMethods'
 import type { SurveyAttributes } from './attributeMeta'
@@ -17,27 +17,15 @@ export interface SurveySubquestionData {
   updatedAt: Date
 }
 
+const fillDefaults = sb.defaultsFor(surveySubquestionSpec)
+
+/** Fields come from {@link surveySubquestionSpec}. */
+interface SurveySubquestionCore extends Infer<typeof surveySubquestionSpec> {}
+
 class SurveySubquestionCore extends ImmutableEntity {
-  _id: string
-  type: string
-  code: string
-  text: L10n
-  detail: L10n | null
-  attributes: SurveyAttributes
-
-  createdAt: Date
-  updatedAt: Date
-
   constructor(data: Partial<SurveySubquestionData> = {}) {
     super()
-    this._id = data?._id || genUniqueId()
-    this.type = data?.type || ''
-    this.code = data?.code || ''
-    this.text = new L10n(data?.text)
-    this.detail = (data?.detail && new L10n(data?.detail)) || null
-    this.attributes = data?.attributes || {}
-    this.createdAt = new Date(data?.createdAt || Date.now())
-    this.updatedAt = new Date(data?.updatedAt || Date.now())
+    fillDefaults(data, this)
   }
 
   updateText(

@@ -1,7 +1,7 @@
-import { genUniqueId } from '@datacapy/id'
-import { PropsOf } from '@datacapy/schema'
+import { Infer, PropsOf, SchemaBuilder as sb } from '@datacapy/schema'
 
 import { L10n, setL10nField } from '../L10n'
+import { surveySectionSpec } from '../../schema/SchemaSurveySection'
 import { ImmutableEntity } from './ImmutableEntity'
 import { entityConditionMethods } from './mixin/entityConditionMethods'
 import { entityAttributeMethods } from './mixin/entityAttributeMethods'
@@ -60,41 +60,20 @@ export interface SurveySectionData {
   updatedAt: Date
 }
 
+const fillDefaults = sb.defaultsFor(surveySectionSpec)
+
+/** Fields come from {@link surveySectionSpec}. */
+interface SurveySectionCore extends Infer<typeof surveySectionSpec> {}
+
 /**
  * Section fields plus the section-specific mutators. The shared visibility-
  * condition and attribute mutators come from `entityConditionMethods` /
  * `entityAttributeMethods` (see the export below).
  */
 class SurveySectionCore extends ImmutableEntity {
-  _id: string
-  surveyId: string
-  createdById: string
-  kind: SectionKind = SECTION_KIND_GROUP
-  code: string
-  name: L10n = new L10n()
-  desc: L10n | null
-  attributes: SurveyAttributes = {}
-  config: SurveySectionConfig | null = null
-  condition: string | null
-  conditionReferences: string[] | null
-  createdAt: Date
-  updatedAt: Date
-
   constructor(data: Partial<SurveySectionData>) {
     super()
-    this._id = data?._id || genUniqueId()
-    this.surveyId = data?.surveyId
-    this.createdById = data?.createdById
-    this.kind = data?.kind || SECTION_KIND_GROUP
-    this.code = data?.code || ''
-    this.name = new L10n(data?.name)
-    this.desc = (data?.desc && new L10n(data?.desc)) || null
-    this.attributes = data?.attributes
-    this.config = data?.config ?? null
-    this.condition = data?.condition ?? null
-    this.conditionReferences = data?.conditionReferences ?? null
-    this.createdAt = new Date(data?.createdAt || Date.now())
-    this.updatedAt = new Date(data?.updatedAt || Date.now())
+    fillDefaults(data, this)
   }
 
   updateName(

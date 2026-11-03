@@ -36,6 +36,10 @@
       "require": "./dist/cjs/model/schema/index.js",
       "types": "./dist/cjs/model/schema/index.d.ts"
     },
+    "./test-utils/constructorEquivalence": {
+      "require": "./dist/cjs/test-utils/constructorEquivalence.js",
+      "types": "./dist/cjs/test-utils/constructorEquivalence.d.ts"
+    },
     "./util/generateSurveyHash": {
       "import": "./dist/esm/util/generateSurveyHash.js",
       "require": "./dist/cjs/util/generateSurveyHash.js",

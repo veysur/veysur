@@ -34,6 +34,7 @@ import { StorageConfig } from 'model/service/core/ServiceFile/FileS3Config'
 
 import { EntityParsedData } from '../../EntityHandlerInterface'
 import { entityStamp } from '../util/entityStamp'
+import { importSectionFields } from '../util/importSectionFields'
 import {
   FileResolution,
   ResolvedEmailTemplate,
@@ -91,7 +92,7 @@ export class VsstImportPersister {
         // Format boundary: the parsed JSON is structurally a section but typed
         // loosely (`kind` is a plain string). The model constructor narrows it.
         const section = new SurveySection({
-          ...sectionData,
+          ...importSectionFields(sectionData),
           ...entityStamp(userId),
         } as ConstructorParameters<typeof SurveySection>[0])
         await repoSection.insertOne(section, { context: dsContext })

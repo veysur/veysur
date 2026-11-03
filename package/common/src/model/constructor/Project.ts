@@ -1,3 +1,7 @@
+import { Infer } from '@datacapy/schema'
+
+import { projectBaseSpec } from '../schema/SchemaProject'
+
 // Self-hosted is single-project by design — there is exactly one row, fixed
 // to DEFAULT_PROJECT_ID, persisted via `RepoProject` and cached in memory by
 // `ServiceProject` (see `package/api`). This is the shared base shape: the
@@ -5,15 +9,15 @@
 // with its own multi-project fields rather than redefining the fields below.
 export const DEFAULT_PROJECT_ID = 'default'
 
-export class Project {
-  _id: string = DEFAULT_PROJECT_ID
-  name: string
-  timezone: string
-  ownerId: string
-  createdAt: Date
-  updatedAt: Date
+/** Fields come from {@link projectBaseSpec}. */
+export interface Project extends Infer<typeof projectBaseSpec> {}
 
-  constructor(data) {
+export class Project {
+  constructor(data?: Partial<Infer<typeof projectBaseSpec>>) {
+    this._id = DEFAULT_PROJECT_ID
     if (typeof data == 'object') Object.assign(this, data)
   }
 }
+
+// The fields come from `projectBaseSpec` (schema/SchemaProject.ts); merging
+// the inferred type here keeps one definition.

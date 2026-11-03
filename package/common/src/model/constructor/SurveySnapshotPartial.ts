@@ -1,33 +1,21 @@
-import { genUniqueId } from '@datacapy/id'
-
 import { Survey } from './Survey'
 import { SurveyPublication } from './SurveyPublication'
+import { Infer, SchemaBuilder as sb } from '@datacapy/schema'
+import { surveySnapshotPartialSpec } from '../schema/SchemaSurveySnapshotPartial'
+
+const fillDefaults = sb.defaultsFor(surveySnapshotPartialSpec)
 
 export class SurveySnapshotPartial {
-  _id: string
-  surveyId: string
-  createdById: string
-  contentHash: string // SHA-256 hash of normalized survey content
-  label: string | null // Snapshot content description
-  notes: string | null // Technical notes about snapshot
-  surveyPartial: Survey
-  createdAt: Date
-  updatedAt: Date
+  surveyPartial: Survey // not inferred: the Survey schema is not typed yet
   publications?: SurveyPublication[] // Populated relation
   responseCount?: number // Populated relation - count of responses
 
   constructor(data) {
-    this._id = data?._id || genUniqueId()
-    this.surveyId = data?.surveyId
-    this.createdById = data?.createdById
-    this.contentHash = data?.contentHash
-    this.label = data?.label || null
-    this.notes = data?.notes || null
-    this.surveyPartial = data?.surveyPartial && new Survey(data.surveyPartial)
-    this.createdAt = (data?.createdAt && new Date(data.createdAt)) || new Date()
-    this.updatedAt = new Date(data?.updatedAt || Date.now())
-    this.publications =
-      data?.publications?.map((pub) => new SurveyPublication(pub)) || undefined
-    this.responseCount = data?.responseCount
+    fillDefaults(data, this)
   }
 }
+
+export interface SurveySnapshotPartial extends Omit<
+  Infer<typeof surveySnapshotPartialSpec>,
+  'surveyPartial' | 'publications' | 'responseCount'
+> {}

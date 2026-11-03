@@ -3,7 +3,7 @@ import { Schema, SchemaBuilder as sb } from '@datacapy/schema'
 // Base field shape shared with the extension package veysur-common-cloud's
 // own SchemaProject, which spreads this before adding its own multi-project
 // fields (and may override a validator, e.g. a stricter `ownerId`/`timezone`).
-export const projectBaseShape = {
+export const projectBaseSpec = {
   _id: sb.string().required(),
   name: sb.string().required(),
   timezone: sb.string().default('UTC'),
@@ -12,14 +12,14 @@ export const projectBaseShape = {
   updatedAt: sb.date().default('now'),
 }
 
-export class SchemaProject extends Schema {
+export class SchemaProject extends Schema<typeof projectBaseSpec> {
   constructor() {
     super(
       sb
         .schema('project')
         .construct('Project')
         .strict()
-        .shape({ ...projectBaseShape }),
+        .shape({ ...projectBaseSpec }),
     )
   }
 }

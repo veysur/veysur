@@ -780,7 +780,6 @@ function parseGroupSection(
     name,
     desc,
     config: null,
-    elementIds: elements.map((e) => e._id),
   }
 
   return { section, elements }
@@ -820,7 +819,6 @@ function parseThankYouSection(
     name: { [defaultLang]: THANK_YOU_HEADING },
     desc,
     config: link ? { link } : null,
-    elementIds: [],
   }
 }
 
@@ -864,7 +862,6 @@ export function parseMarkdownSurvey(
       name: { [defaultLang]: 'Welcome' },
       desc: welcomeMessage,
       config: null,
-      elementIds: [],
     })
   }
 

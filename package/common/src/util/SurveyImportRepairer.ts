@@ -74,26 +74,6 @@ export class SurveyImportRepairer {
             })
             section.surveyId = surveyId
           }
-        } else if (error.field === 'elementIds') {
-          // Remove invalid element reference from section
-          const section = data.sections.find((s) => s._id === error.entityId)
-          if (section && Array.isArray(section.elementIds)) {
-            const invalidEid = error.details?.invalidElementId
-            const oldValue = [...section.elementIds]
-            section.elementIds = section.elementIds.filter(
-              (eid: string) => eid !== invalidEid,
-            )
-
-            repairs.push({
-              entityType: 'section',
-              entityId: error.entityId,
-              action: 'fix',
-              field: 'elementIds',
-              oldValue,
-              newValue: section.elementIds,
-              reason: `Removed invalid element reference: ${invalidEid}`,
-            })
-          }
         }
       } else if (error.type === 'reference' && error.entityType === 'element') {
         if (error.field === 'surveyId') {
@@ -125,14 +105,6 @@ export class SurveyImportRepairer {
               reason: 'Fixed invalid sectionId by assigning to last section',
             })
             element.sectionId = lastSection._id
-
-            // Add element to last section's elementIds if not already there
-            if (
-              Array.isArray(lastSection.elementIds) &&
-              !lastSection.elementIds.includes(element._id)
-            ) {
-              lastSection.elementIds.push(element._id)
-            }
           }
         }
       } else if (error.type === 'reference' && error.entityType === 'survey') {
@@ -194,15 +166,6 @@ export class SurveyImportRepairer {
 
           // Remove from elements array
           data.elements.splice(elementIndex, 1)
-
-          // Remove from section's elementIds
-          for (const section of data.sections) {
-            if (Array.isArray(section.elementIds)) {
-              section.elementIds = section.elementIds.filter(
-                (eid: string) => eid !== element._id,
-              )
-            }
-          }
 
           // Remove from survey's elementIds
           if (Array.isArray(data.survey.elementIds)) {

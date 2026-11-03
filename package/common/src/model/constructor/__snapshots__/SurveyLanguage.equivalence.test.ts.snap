@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`SurveyLanguage behaves as recorded 1`] = `
+{
+  "_id: null": "{"$class":"SurveyLanguage","entries":[["_id","id1"],["data",{"$class":"Object","entries":[]}],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "_id: probe 0": "{"$class":"SurveyLanguage","entries":[["_id",""],["data",{"$class":"Object","entries":[]}],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "_id: probe 1": "{"$class":"SurveyLanguage","entries":[["_id","text"],["data",{"$class":"Object","entries":[]}],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "_id: undefined": "{"$class":"SurveyLanguage","entries":[["_id","id1"],["data",{"$class":"Object","entries":[]}],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "all null": "{"$class":"SurveyLanguage","entries":[["_id","id1"],["surveyId",null],["languageCode",null],["data",{"$class":"Object","entries":[]}],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "all typical": "{"$class":"SurveyLanguage","entries":[["_id","text"],["surveyId","text"],["languageCode","text"],["data",{"$class":"Object","entries":[["a",1]]}],["createdAt",{"$date":"2025-01-02T03:04:05.000Z"}],["updatedAt",{"$date":"2025-01-02T03:04:05.000Z"}]]}",
+  "createdAt: null": "{"$class":"SurveyLanguage","entries":[["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["_id","id1"],["data",{"$class":"Object","entries":[]}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "createdAt: probe 0": "{"$class":"SurveyLanguage","entries":[["createdAt",{"$date":"2025-01-02T03:04:05.000Z"}],["_id","id1"],["data",{"$class":"Object","entries":[]}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "createdAt: probe 1": "{"$class":"SurveyLanguage","entries":[["createdAt",{"$date":"2025-01-02T03:04:05.000Z"}],["_id","id1"],["data",{"$class":"Object","entries":[]}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "createdAt: probe 2": "{"$class":"SurveyLanguage","entries":[["createdAt",{"$date":"2025-01-02T03:04:05.000Z"}],["_id","id1"],["data",{"$class":"Object","entries":[]}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "createdAt: undefined": "{"$class":"SurveyLanguage","entries":[["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["_id","id1"],["data",{"$class":"Object","entries":[]}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "data: null": "{"$class":"SurveyLanguage","entries":[["data",{"$class":"Object","entries":[]}],["_id","id1"],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "data: probe 0": "{"$class":"SurveyLanguage","entries":[["data",{"$class":"Object","entries":[]}],["_id","id1"],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "data: probe 1": "{"$class":"SurveyLanguage","entries":[["data",{"$class":"Object","entries":[["a",1]]}],["_id","id1"],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "data: undefined": "{"$class":"SurveyLanguage","entries":[["data",{"$class":"Object","entries":[]}],["_id","id1"],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "empty": "{"$class":"SurveyLanguage","entries":[["_id","id1"],["data",{"$class":"Object","entries":[]}],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "languageCode: null": "{"$class":"SurveyLanguage","entries":[["languageCode",null],["_id","id1"],["data",{"$class":"Object","entries":[]}],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "languageCode: probe 0": "{"$class":"SurveyLanguage","entries":[["languageCode",""],["_id","id1"],["data",{"$class":"Object","entries":[]}],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "languageCode: probe 1": "{"$class":"SurveyLanguage","entries":[["languageCode","text"],["_id","id1"],["data",{"$class":"Object","entries":[]}],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "languageCode: undefined": "{"$class":"SurveyLanguage","entries":[["languageCode","$undefined"],["_id","id1"],["data",{"$class":"Object","entries":[]}],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "no argument": "{"$class":"SurveyLanguage","entries":[["_id","id1"],["data",{"$class":"Object","entries":[]}],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "surveyId: null": "{"$class":"SurveyLanguage","entries":[["surveyId",null],["_id","id1"],["data",{"$class":"Object","entries":[]}],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "surveyId: probe 0": "{"$class":"SurveyLanguage","entries":[["surveyId",""],["_id","id1"],["data",{"$class":"Object","entries":[]}],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "surveyId: probe 1": "{"$class":"SurveyLanguage","entries":[["surveyId","text"],["_id","id1"],["data",{"$class":"Object","entries":[]}],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "surveyId: undefined": "{"$class":"SurveyLanguage","entries":[["surveyId","$undefined"],["_id","id1"],["data",{"$class":"Object","entries":[]}],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "unknown key": "{"$class":"SurveyLanguage","entries":[["$unknown",1],["_id","id1"],["data",{"$class":"Object","entries":[]}],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "updatedAt: null": "{"$class":"SurveyLanguage","entries":[["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}],["_id","id1"],["data",{"$class":"Object","entries":[]}],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "updatedAt: probe 0": "{"$class":"SurveyLanguage","entries":[["updatedAt",{"$date":"2025-01-02T03:04:05.000Z"}],["_id","id1"],["data",{"$class":"Object","entries":[]}],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "updatedAt: probe 1": "{"$class":"SurveyLanguage","entries":[["updatedAt",{"$date":"2025-01-02T03:04:05.000Z"}],["_id","id1"],["data",{"$class":"Object","entries":[]}],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "updatedAt: probe 2": "{"$class":"SurveyLanguage","entries":[["updatedAt",{"$date":"2025-01-02T03:04:05.000Z"}],["_id","id1"],["data",{"$class":"Object","entries":[]}],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "updatedAt: undefined": "{"$class":"SurveyLanguage","entries":[["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}],["_id","id1"],["data",{"$class":"Object","entries":[]}],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+}
+`;

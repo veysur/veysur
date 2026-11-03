@@ -533,7 +533,7 @@ export class VsspImportPersister {
             _id: DatacapyId(),
             snapshotId: resolvedSnapshotId,
             surveyId: resolvedSurveyId,
-            languageCode: langData.languageCode,
+            languageCode: langData.languageCode as string,
             // Regenerate hash from imported data — do not trust archived hash
             // (only `.data` is read by generateSurveyLanguageHash)
             contentHash: generateSurveyLanguageHash({

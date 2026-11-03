@@ -1,45 +1,18 @@
-import { genUniqueId } from '@datacapy/id'
-import { PropsOf } from '@datacapy/schema'
+import { SchemaConstructor } from '@datacapy/schema'
 
-import { L10n, setL10nField } from '../L10n'
+import { setL10nField } from '../L10n'
+import { SchemaSurveyAnswerOption } from '../../schema/SchemaSurveyAnswerOption'
 
 export interface SurveyAnswerOptionImageValue {
   path: string
   fileId: string
 }
 
-export interface SurveyAnswerOptionData {
-  _id: string
-  createdById: string
-  code: string
-  label: PropsOf<L10n>
-  createdAt: Date
-  updatedAt: Date
-  // Per-language image map. A null value for a key means the image was explicitly
-  // cleared for that language (distinct from the key being absent).
-  image?: Record<string, SurveyAnswerOptionImageValue | null> | null
-}
-
-export class SurveyAnswerOption {
-  _id: string
-  createdById: string
-  code: string
-  label: L10n
-  createdAt: Date
-  updatedAt: Date
-  image: Record<string, SurveyAnswerOptionImageValue | null> | null
-
-  constructor(data: Partial<PropsOf<SurveyAnswerOptionData>> = {}) {
-    this._id = data?._id || genUniqueId()
-    this.createdById = data?.createdById
-    this.code = data?.code || ''
-    this.label = new L10n(data?.label)
-    this.createdAt = new Date(data?.createdAt || Date.now())
-    this.updatedAt = new Date(data?.updatedAt || Date.now())
-    this.image = data?.image ?? null
-  }
-
-  update(data: Partial<SurveyAnswerOptionData>): SurveyAnswerOption {
+/** Fields come from {@link SchemaSurveyAnswerOption}. */
+export class SurveyAnswerOption extends SchemaConstructor.from(
+  SchemaSurveyAnswerOption,
+) {
+  update(data: SurveyAnswerOptionData): SurveyAnswerOption {
     return new SurveyAnswerOption({ ...this, ...data })
   }
 
@@ -109,3 +82,8 @@ export class SurveyAnswerOption {
     return this.setImageLang(null, lang)
   }
 }
+
+/** Raw data a {@link SurveyAnswerOption} is built from, derived from its schema. */
+export type SurveyAnswerOptionData = NonNullable<
+  ConstructorParameters<typeof SurveyAnswerOption>[0]
+>

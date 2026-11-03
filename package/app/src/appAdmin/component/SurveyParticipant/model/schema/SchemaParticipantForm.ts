@@ -14,9 +14,9 @@ export type ParticipantFormData = {
 export function buildParticipantFormSchema(
   customAttributes: SurveyParticipantAttributeRow[] = [],
 ): Schema {
-  const attributeShape: Record<string, ReturnType<typeof sb.string>> = {}
+  const attributeSpec: Record<string, ReturnType<typeof sb.string>> = {}
   for (const attr of customAttributes) {
-    attributeShape[attr.name] = attr.required
+    attributeSpec[attr.name] = attr.required
       ? sb.string().notEmpty({ message: `${attr.label} is required` })
       : sb.string()
   }
@@ -35,7 +35,7 @@ export function buildParticipantFormSchema(
         token: sb.string().regex(/^[A-Z0-9]*$/, {
           message: 'Token must be alphanumeric uppercase only',
         }),
-        attributes: sb.object().shape(attributeShape),
+        attributes: sb.object().shape(attributeSpec),
       }),
   )
 }

@@ -1,6 +1,6 @@
-import { genUniqueId } from '@datacapy/id'
-
 import { SurveyAnswerOptionImageValue } from './Survey/SurveyAnswerOption'
+import { SchemaConstructor } from '@datacapy/schema'
+import { SchemaSurveyLanguage } from '../schema/SchemaSurveyLanguage'
 
 export interface SurveyLanguageSectionEntry {
   name?: string
@@ -45,23 +45,10 @@ export interface SurveyLanguageData {
   answerOptions?: Record<string, SurveyLanguageAnswerOptionEntry>
 }
 
-export class SurveyLanguage {
-  _id: string
-  surveyId: string
-  languageCode: string
-  data: SurveyLanguageData
-  createdAt: Date
-  updatedAt: Date
-
-  constructor(data?) {
-    this._id = data?._id || genUniqueId()
-    this.surveyId = data?.surveyId
-    this.languageCode = data?.languageCode
-    this.data = data?.data ?? {}
-    this.createdAt = (data?.createdAt && new Date(data.createdAt)) || new Date()
-    this.updatedAt = (data?.updatedAt && new Date(data.updatedAt)) || new Date()
-  }
-
+/** Fields come from {@link SchemaSurveyLanguage}. */
+export class SurveyLanguage extends SchemaConstructor.from(
+  SchemaSurveyLanguage,
+) {
   update(data: Partial<SurveyLanguage>): SurveyLanguage {
     return new SurveyLanguage({ ...this, ...data })
   }

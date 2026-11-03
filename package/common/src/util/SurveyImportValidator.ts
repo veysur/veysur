@@ -382,25 +382,6 @@ export class SurveyImportValidator {
           },
         })
       }
-
-      // Section elementIds must reference existing elements
-      if (Array.isArray(section.elementIds)) {
-        for (const eid of section.elementIds) {
-          if (!elementIds.has(eid)) {
-            errors.push({
-              type: 'reference',
-              entityType: 'section',
-              entityId: section._id,
-              field: 'elementIds',
-              message: `Section references non-existent element: ${eid}`,
-              repairable: true,
-              details: {
-                invalidElementId: eid,
-              },
-            })
-          }
-        }
-      }
     }
 
     // Validate elements

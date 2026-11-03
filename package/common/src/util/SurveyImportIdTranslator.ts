@@ -165,9 +165,6 @@ export class SurveyImportIdTranslator {
         ...section,
         _id: sectionId,
         surveyId,
-        elementIds: section.elementIds
-          ? section.elementIds.map((id: string) => getTranslatedId(id))
-          : [],
       }
     })
 
@@ -188,8 +185,6 @@ export class SurveyImportIdTranslator {
           ? element.subquestions.map((sq) => ({
               ...sq,
               _id: sq._id ? getTranslatedId(sq._id) : sq._id,
-              questionId: elementId,
-              surveyId,
             }))
           : [],
         // Translate answer option IDs if present
@@ -197,8 +192,6 @@ export class SurveyImportIdTranslator {
           ? element.answerOptions.map((ao) => ({
               ...ao,
               _id: ao._id ? getTranslatedId(ao._id) : ao._id,
-              questionId: elementId,
-              surveyId,
             }))
           : [],
       }

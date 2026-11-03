@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`SurveyParticipantAttribute behaves as recorded 1`] = `
+{
+  "_id: null": "{"$class":"SurveyParticipantAttribute","entries":[["_id","id1"],["attributes",[]],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "_id: probe 0": "{"$class":"SurveyParticipantAttribute","entries":[["_id",""],["attributes",[]],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "_id: probe 1": "{"$class":"SurveyParticipantAttribute","entries":[["_id","text"],["attributes",[]],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "_id: undefined": "{"$class":"SurveyParticipantAttribute","entries":[["_id","id1"],["attributes",[]],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "all null": "{"$class":"SurveyParticipantAttribute","entries":[["_id","id1"],["surveyId",null],["attributes",[]],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "all typical": "{"$class":"SurveyParticipantAttribute","entries":[["_id","text"],["surveyId","text"],["attributes",["x"]],["createdAt",{"$date":"2025-01-02T03:04:05.000Z"}],["updatedAt",{"$date":"2025-01-02T03:04:05.000Z"}]]}",
+  "attributes: null": "{"$class":"SurveyParticipantAttribute","entries":[["attributes",[]],["_id","id1"],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "attributes: probe 0": "{"$class":"SurveyParticipantAttribute","entries":[["attributes",[]],["_id","id1"],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "attributes: probe 1": "{"$class":"SurveyParticipantAttribute","entries":[["attributes",["x"]],["_id","id1"],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "attributes: undefined": "{"$class":"SurveyParticipantAttribute","entries":[["attributes",[]],["_id","id1"],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "createdAt: null": "{"$class":"SurveyParticipantAttribute","entries":[["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["_id","id1"],["attributes",[]],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "createdAt: probe 0": "{"$class":"SurveyParticipantAttribute","entries":[["createdAt",{"$date":"2025-01-02T03:04:05.000Z"}],["_id","id1"],["attributes",[]],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "createdAt: probe 1": "{"$class":"SurveyParticipantAttribute","entries":[["createdAt",{"$date":"2025-01-02T03:04:05.000Z"}],["_id","id1"],["attributes",[]],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "createdAt: probe 2": "{"$class":"SurveyParticipantAttribute","entries":[["createdAt",{"$date":"2025-01-02T03:04:05.000Z"}],["_id","id1"],["attributes",[]],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "createdAt: undefined": "{"$class":"SurveyParticipantAttribute","entries":[["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["_id","id1"],["attributes",[]],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "empty": "{"$class":"SurveyParticipantAttribute","entries":[["_id","id1"],["attributes",[]],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "no argument": "{"$class":"SurveyParticipantAttribute","entries":[["_id","id1"],["attributes",[]],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "surveyId: null": "{"$class":"SurveyParticipantAttribute","entries":[["surveyId",null],["_id","id1"],["attributes",[]],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "surveyId: probe 0": "{"$class":"SurveyParticipantAttribute","entries":[["surveyId",""],["_id","id1"],["attributes",[]],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "surveyId: probe 1": "{"$class":"SurveyParticipantAttribute","entries":[["surveyId","text"],["_id","id1"],["attributes",[]],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "surveyId: undefined": "{"$class":"SurveyParticipantAttribute","entries":[["surveyId","$undefined"],["_id","id1"],["attributes",[]],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "unknown key": "{"$class":"SurveyParticipantAttribute","entries":[["$unknown",1],["_id","id1"],["attributes",[]],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}],["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "updatedAt: null": "{"$class":"SurveyParticipantAttribute","entries":[["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}],["_id","id1"],["attributes",[]],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "updatedAt: probe 0": "{"$class":"SurveyParticipantAttribute","entries":[["updatedAt",{"$date":"2025-01-02T03:04:05.000Z"}],["_id","id1"],["attributes",[]],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "updatedAt: probe 1": "{"$class":"SurveyParticipantAttribute","entries":[["updatedAt",{"$date":"2025-01-02T03:04:05.000Z"}],["_id","id1"],["attributes",[]],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "updatedAt: probe 2": "{"$class":"SurveyParticipantAttribute","entries":[["updatedAt",{"$date":"2025-01-02T03:04:05.000Z"}],["_id","id1"],["attributes",[]],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+  "updatedAt: undefined": "{"$class":"SurveyParticipantAttribute","entries":[["updatedAt",{"$date":"2026-01-01T00:00:00.000Z"}],["_id","id1"],["attributes",[]],["createdAt",{"$date":"2026-01-01T00:00:00.000Z"}]]}",
+}
+`;

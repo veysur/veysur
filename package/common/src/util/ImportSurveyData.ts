@@ -26,6 +26,7 @@ export interface ImportSectionEntity extends ImportEntity {
   kind?: string
   surveyId?: string
   config?: Record<string, unknown>
+  /** Legacy: ignored on import (see importSectionFields). Nothing emits it any more. */
   elementIds?: string[]
 }
 

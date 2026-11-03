@@ -1,4 +1,8 @@
-import { Repo, ServerErrorBadRequest, RepoIndexBuilder as repib } from '@datacapy/server'
+import {
+  Repo,
+  ServerErrorBadRequest,
+  RepoIndexBuilder as repib,
+} from '@datacapy/server'
 import { File } from 'veysur-common'
 
 const FILE_CONTEXT_SURVEY = 'survey'
@@ -81,9 +85,8 @@ export class RepoFile extends Repo<File> {
     options?,
   ): Promise<{ file: File | null; contextMatches: boolean }> {
     // Build query for EXACT context match
-    const query: Pick<
-      File,
-      'hash' | 'surveyId' | 'responseId' | 'fileContext'
+    const query: Partial<
+      Pick<File, 'hash' | 'surveyId' | 'responseId' | 'fileContext'>
     > & {
       $or?: Array<Pick<File, 'fileContext'>>
     } = { hash }

@@ -13,9 +13,9 @@ export type RegistrationFormData = {
 export function buildRegistrationFormSchema(
   attributes: ParticipantAttributeDefinition[] = [],
 ): Schema {
-  const attributeShape: Record<string, BuilderBase<unknown>> = {}
+  const attributeSpec: Record<string, BuilderBase<unknown>> = {}
   for (const attr of attributes) {
-    attributeShape[attr.name] = attr.required
+    attributeSpec[attr.name] = attr.required
       ? sb.string().notEmpty({ message: `${attr.label} is required` })
       : sb.string()
   }
@@ -31,7 +31,7 @@ export function buildRegistrationFormSchema(
           .notEmpty({ message: 'Email address is required' })
           .email({ message: 'Please provide a valid email address' }),
         language: sb.string().notEmpty({ message: 'Please select a language' }),
-        attributes: sb.object().shape(attributeShape),
+        attributes: sb.object().shape(attributeSpec),
       }),
   )
 }

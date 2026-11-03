@@ -1,3 +1,5 @@
+import { genUniqueId } from '@datacapy/id'
+import type { SurveyParticipantAttributeLanguageData } from '../constructor/SurveyParticipantAttributeLanguage'
 import { Schema, SchemaBuilder as sb } from '@datacapy/schema'
 
 import {
@@ -5,27 +7,33 @@ import {
   SCHEMA_LENGTH_MAX_LANG,
 } from './constant'
 
-export class SchemaSurveyParticipantAttributeLanguage extends Schema {
+export const surveyParticipantAttributeLanguageSpec = {
+  _id: sb
+    .string()
+    .required()
+    .maxLength(SCHEMA_LENGTH_MAX_INTERNAL_ID)
+    .init(genUniqueId),
+  surveyId: sb.string().required().maxLength(SCHEMA_LENGTH_MAX_INTERNAL_ID),
+  languageCode: sb.string().required().maxLength(SCHEMA_LENGTH_MAX_LANG),
+  data: sb
+    .object()
+    .as<Record<string, SurveyParticipantAttributeLanguageData>>()
+    .strict(false)
+    .default({}),
+  createdAt: sb.date().default('now'),
+  updatedAt: sb.date().default('now'),
+}
+
+export class SchemaSurveyParticipantAttributeLanguage extends Schema<
+  typeof surveyParticipantAttributeLanguageSpec
+> {
   constructor() {
     super(
       sb
         .schema('surveyParticipantAttributeLanguage')
         .construct('SurveyParticipantAttributeLanguage')
         .strict()
-        .shape({
-          _id: sb.string().required().maxLength(SCHEMA_LENGTH_MAX_INTERNAL_ID),
-          surveyId: sb
-            .string()
-            .required()
-            .maxLength(SCHEMA_LENGTH_MAX_INTERNAL_ID),
-          languageCode: sb
-            .string()
-            .required()
-            .maxLength(SCHEMA_LENGTH_MAX_LANG),
-          data: sb.object().strict(false).default({}),
-          createdAt: sb.date().default('now'),
-          updatedAt: sb.date().default('now'),
-        }),
+        .shape(surveyParticipantAttributeLanguageSpec),
     )
   }
 }
