@@ -1,7 +1,4 @@
 // cspell:ignore Youtube
-import { PropsOf } from '@datacapy/schema'
-
-import { L10n } from '../L10n'
 import { SurveyElementBase, SurveyElementBaseData } from './SurveyElementBase'
 
 /**
@@ -30,8 +27,6 @@ export interface SurveyContentConfig {
 
 export interface SurveyContentData extends SurveyElementBaseData {
   kind: typeof ELEMENT_KIND_CONTENT
-  /** Rich-text body (contentText) or optional caption (YouTube). */
-  text: PropsOf<L10n>
   /** Content-element config (e.g. `{ youtube: { url, videoId, startAt } }`). */
   config: SurveyContentConfig | null
 }

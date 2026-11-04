@@ -26,6 +26,24 @@ export interface SettingProjectData {
   updatedAt: Date
 }
 
+/** Provider keys as the admin sees them: the secret is blanked and `hasSecret` says whether one is stored. */
+export type SettingProjectMaskedKeys = SettingProjectKeys & {
+  hasSecret: boolean
+}
+
+/**
+ * The project settings as the admin API returns them. Provider secret keys are
+ * write-only, so each provider carries {@link SettingProjectMaskedKeys}.
+ */
+export type SettingProjectView = Pick<SettingProject, '_id'> & {
+  maps?: Partial<SettingProject['maps']>
+  botProtection?: {
+    provider?: SettingProject['botProtection']['provider']
+    cloudflare?: Partial<SettingProjectMaskedKeys>
+    google?: Partial<SettingProjectMaskedKeys>
+  }
+}
+
 /**
  * The project settings as a participant may see them: the effective map
  * provider and key, and the bot check with no secret key.

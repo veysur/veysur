@@ -1,4 +1,4 @@
-import { EmailSuppression } from 'veysur-common'
+import { EmailSuppression } from 'veysur-common/server'
 import { RepoEmailSuppression } from 'model/repo'
 
 export async function findLiveSuppression(

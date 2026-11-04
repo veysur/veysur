@@ -1,11 +1,10 @@
-import { Infer, PropsOf, SchemaBuilder as sb } from '@datacapy/schema'
+import { PropsOf, SchemaConstructor } from '@datacapy/schema'
 
 import { L10n, setL10nField } from '../L10n'
-import { surveySectionSpec } from '../../schema/SchemaSurveySection'
-import { ImmutableEntity } from './ImmutableEntity'
+import { SchemaSurveySection } from '../../schema/SchemaSurveySection'
+import { immutableEntity } from './ImmutableEntity'
 import { entityConditionMethods } from './mixin/entityConditionMethods'
 import { entityAttributeMethods } from './mixin/entityAttributeMethods'
-import type { SurveyAttributes } from './attributeMeta'
 
 export const SECTION_KIND_WELCOME = 'welcome'
 export const SECTION_KIND_GROUP = 'group'
@@ -44,38 +43,10 @@ export interface SurveySectionConfig {
   [key: string]: unknown
 }
 
-export interface SurveySectionData {
-  _id: string
-  surveyId: string
-  createdById: string
-  kind: SectionKind
-  code: string
-  name: PropsOf<L10n>
-  desc: PropsOf<L10n> | null
-  attributes: SurveyAttributes
-  config: SurveySectionConfig | null
-  condition: string | null
-  conditionReferences: string[] | null
-  createdAt: Date
-  updatedAt: Date
-}
-
-const fillDefaults = sb.defaultsFor(surveySectionSpec)
-
-/** Fields come from {@link surveySectionSpec}. */
-interface SurveySectionCore extends Infer<typeof surveySectionSpec> {}
-
-/**
- * Section fields plus the section-specific mutators. The shared visibility-
- * condition and attribute mutators come from `entityConditionMethods` /
- * `entityAttributeMethods` (see the export below).
- */
-class SurveySectionCore extends ImmutableEntity {
-  constructor(data: Partial<SurveySectionData>) {
-    super()
-    fillDefaults(data, this)
-  }
-
+/** Fields come from {@link SchemaSurveySection}. */
+class SurveySectionCore extends immutableEntity(
+  SchemaConstructor.from(SchemaSurveySection),
+) {
   updateName(
     text: string,
     language: string = 'en',
@@ -141,3 +112,8 @@ class SurveySectionCore extends ImmutableEntity {
 export class SurveySection extends entityConditionMethods(
   entityAttributeMethods(SurveySectionCore),
 ) {}
+
+/** The raw data a section is built from. */
+export type SurveySectionData = NonNullable<
+  ConstructorParameters<typeof SurveySection>[0]
+>

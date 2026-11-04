@@ -20,6 +20,13 @@ const cloudPackageGroup = {
     '(extension code, not part of this repo).',
 }
 
+const serverOnlyGroup = {
+  group: ['veysur-common/server', 'veysur-common/server/**'],
+  message:
+    'veysur-common/server holds server-only models; the browser bundle ' +
+    'must not import it.',
+}
+
 const noSubAppGroup = {
   group: [
     '**/appAdmin',
@@ -39,12 +46,15 @@ const noSubAppGroup = {
 // imports and no extension code.
 const sharedImportRule = [
   'error',
-  { patterns: [noSubAppGroup, cloudPackageGroup] },
+  { patterns: [noSubAppGroup, cloudPackageGroup, serverOnlyGroup] },
 ]
 
 // appAdmin / appSurvey ship in the self-hosted build — they may not import
 // extension code (veysur-app-cloud, veysur-common-cloud).
-const selfHostedAppImportRule = ['error', { patterns: [cloudPackageGroup] }]
+const selfHostedAppImportRule = [
+  'error',
+  { patterns: [cloudPackageGroup, serverOnlyGroup] },
+]
 
 export default [
   {
@@ -107,7 +117,7 @@ export default [
     // no-restricted-imports rule does not inspect).
     files: ['src/appAccount/**'],
     rules: {
-      'no-restricted-imports': ['error', { patterns: [cloudPackageGroup] }],
+      'no-restricted-imports': ['error', { patterns: [cloudPackageGroup, serverOnlyGroup] }],
     },
   },
   {

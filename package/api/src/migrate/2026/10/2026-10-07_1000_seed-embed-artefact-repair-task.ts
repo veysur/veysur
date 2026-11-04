@@ -1,6 +1,6 @@
 import { DatabasePatchInterface } from '@datacapy/migrate'
 import { ModelManager } from '@datacapy/om'
-import { Task } from 'veysur-common'
+import { Task } from 'veysur-common/server'
 
 /**
  * Seed the embed artefact repair task: rewrites missing artefacts and stale

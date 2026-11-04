@@ -36,6 +36,21 @@
       "require": "./dist/cjs/model/schema/index.js",
       "types": "./dist/cjs/model/schema/index.d.ts"
     },
+    "./server": {
+      "import": "./dist/esm/server/index.js",
+      "require": "./dist/cjs/server/index.js",
+      "types": "./dist/cjs/server/index.d.ts"
+    },
+    "./server/constructor": {
+      "import": "./dist/esm/server/constructor/index.js",
+      "require": "./dist/cjs/server/constructor/index.js",
+      "types": "./dist/cjs/server/constructor/index.d.ts"
+    },
+    "./server/schema": {
+      "import": "./dist/esm/server/schema/index.js",
+      "require": "./dist/cjs/server/schema/index.js",
+      "types": "./dist/cjs/server/schema/index.d.ts"
+    },
     "./test-utils/constructorEquivalence": {
       "require": "./dist/cjs/test-utils/constructorEquivalence.js",
       "types": "./dist/cjs/test-utils/constructorEquivalence.d.ts"

@@ -1,12 +1,9 @@
+import type { Infer } from '@datacapy/schema'
 import { Repo, RepoIndexBuilder as repib } from '@datacapy/server'
 
-export interface EventLogSystem {
-  _id?: string
-  action: string
-  userId?: string
-  metadata?: Record<string, unknown>
-  createdAt: Date
-}
+import type { SchemaEventLogSystem } from '../schema/SchemaEventLogSystem'
+
+export type EventLogSystem = Infer<SchemaEventLogSystem>
 
 export class RepoEventLogSystem extends Repo<EventLogSystem> {
   constructor() {

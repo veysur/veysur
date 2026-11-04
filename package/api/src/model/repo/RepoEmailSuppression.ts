@@ -1,5 +1,5 @@
 import { Repo, RepoIndexBuilder as repib } from '@datacapy/server'
-import { EmailSuppression } from 'veysur-common'
+import { EmailSuppression } from 'veysur-common/server'
 
 export class RepoEmailSuppression extends Repo<EmailSuppression> {
   constructor() {

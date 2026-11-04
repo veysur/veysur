@@ -3,7 +3,7 @@
 // infers `any`, so a schema can compile while a field silently loses its type.
 // Add each model migrated to inferred types to `Migrated`.
 import type { DataTransferJob } from './DataTransferJob'
-import type { EmailSuppression } from './EmailSuppression'
+import type { EmailSuppression } from '../../server/constructor/EmailSuppression'
 import type { EmailTemplate } from './EmailTemplate'
 import type { File } from './File'
 import type { Notification } from './Notification'
@@ -14,6 +14,7 @@ import type { SurveyElementBase } from './Survey/SurveyElementBase'
 import type { SurveyAnswerOption } from './Survey/SurveyAnswerOption'
 import type { SurveySection } from './Survey/SurveySection'
 import type { SurveySubquestion } from './Survey/SurveySubquestion'
+import type { SurveySnapshotPartial } from './SurveySnapshotPartial'
 import type { SurveyLanguage } from './SurveyLanguage'
 import type { SurveyLanguageSnapshot } from './SurveyLanguageSnapshot'
 import type { SurveyParticipant } from './SurveyParticipant'
@@ -22,8 +23,8 @@ import type { SurveyParticipantAttributeLanguage } from './SurveyParticipantAttr
 import type { SurveyParticipantAttributeLanguageSnapshot } from './SurveyParticipantAttributeLanguageSnapshot'
 import type { SurveyParticipantAttributeSnapshot } from './SurveyParticipantAttributeSnapshot'
 import type { SurveyPublication } from './SurveyPublication'
-import type { Task } from './Task'
-import type { TaskExecution } from './TaskExecution'
+import type { Task } from '../../server/constructor/Task'
+import type { TaskExecution } from '../../server/constructor/TaskExecution'
 import type { User } from './User'
 import type { UserAccessToken } from './UserAccessToken'
 
@@ -55,6 +56,7 @@ type Migrated = {
   SurveyPublication: SurveyPublication
   SurveySection: SurveySection
   SurveySubquestion: SurveySubquestion
+  SurveySnapshotPartial: SurveySnapshotPartial
   Task: Task
   TaskExecution: TaskExecution
   User: User

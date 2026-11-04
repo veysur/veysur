@@ -1,25 +1,14 @@
-/**
- * TaskLock Constructor
- * Represents a distributed lock for task concurrency control
- */
-export class TaskLock {
-  _id: string
-  lockKey: string // Unique identifier (e.g., "export-project-abc123")
-  resourceType: string // Type of resource ("project", "survey", etc.)
-  resourceId: string // ID of the resource being locked
-  executionId: string // TaskExecution ID holding the lock
-  lockedAt: Date // When lock was acquired
-  expiresAt: Date // When lock expires (TTL)
-  note: string | null // Optional context/debugging info
+import { SchemaConstructor } from '@datacapy/schema'
 
-  constructor(data: Partial<TaskLock> = {}) {
-    this._id = data._id || ''
-    this.lockKey = data.lockKey || ''
-    this.resourceType = data.resourceType || ''
-    this.resourceId = data.resourceId || ''
-    this.executionId = data.executionId || ''
-    this.lockedAt = data.lockedAt || new Date()
-    this.expiresAt = data.expiresAt || new Date()
-    this.note = data.note || null
-  }
-}
+import { SchemaTaskLock } from '../schema/SchemaTaskLock'
+
+/**
+ * Fields come from {@link SchemaTaskLock}.
+ *
+ * A distributed lock for task concurrency control. `lockKey` is the unique
+ * identifier (for example "export-project-abc123"), `executionId` the
+ * TaskExecution holding it, and `expiresAt` its TTL.
+ */
+export class TaskLock extends SchemaConstructor.from(SchemaTaskLock) {}
+
+export default TaskLock

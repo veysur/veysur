@@ -1,13 +1,11 @@
+import type { DataTransferJob, Notification } from 'veysur-common'
+
 import { Api, ErrorRest } from 'model'
 
-export type NotificationType = 'dataTransferJob'
-export type NotificationLevel = 'info' | 'success' | 'error'
-export type NotificationStatus = 'unread' | 'read' | 'dismissed'
-export type DataTransferJobStatus =
-  | 'pending'
-  | 'processing'
-  | 'completed'
-  | 'failed'
+export type NotificationType = Notification['type']
+export type NotificationLevel = Notification['level']
+export type NotificationStatus = Notification['status']
+export type DataTransferJobStatus = DataTransferJob['status']
 
 export type NotificationListItem = {
   notificationId: string

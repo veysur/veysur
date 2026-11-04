@@ -3,7 +3,7 @@ import { Schema, SchemaBuilder as sb } from '@datacapy/schema'
 import {
   SCHEMA_LENGTH_MAX_INTERNAL_ID,
   SCHEMA_LENGTH_MAX_ENTITY_NAME,
-} from './constant'
+} from '../../model/schema/constant'
 
 /**
  * TaskExecution Schema

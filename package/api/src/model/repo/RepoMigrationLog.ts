@@ -35,7 +35,7 @@ export class RepoMigrationLog extends Repo<MigrationLogEntry> {
    */
   async seedRun(
     runId: string,
-    dataSourceName: string,
+    dataSourceName: MigrationLogEntry['dataSourceName'],
     contextKeys: string[],
   ): Promise<void> {
     const existing = await this.find({ runId })

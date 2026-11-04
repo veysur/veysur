@@ -68,6 +68,11 @@ export const surveyElementBaseSpec = {
   updatedAt: sb.date().default('now'),
 }
 
+/** Unregistered: only gives `SurveyElementBase` a schema to build its constructor from. */
+export class SchemaSurveyElementBase extends Schema.from(
+  sb.schema('surveyElementBase').shape(surveyElementBaseSpec),
+) {}
+
 export const surveyElementSpec = {
   ...surveyElementBaseSpec,
   detail: sb

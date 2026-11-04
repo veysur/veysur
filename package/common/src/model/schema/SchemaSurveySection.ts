@@ -85,15 +85,11 @@ export const surveySectionSpec = {
   updatedAt: sb.date().default('now'),
 }
 
-export class SchemaSurveySection extends Schema<typeof surveySectionSpec> {
-  constructor() {
-    super(
-      sb
-        .schema('surveySection')
-        .construct('SurveySection')
-        .constructCollection('SurveySectionCollection')
-        .strict()
-        .shape(surveySectionSpec),
-    )
-  }
-}
+export class SchemaSurveySection extends Schema.from(
+  sb
+    .schema('surveySection')
+    .construct('SurveySection')
+    .constructCollection('SurveySectionCollection')
+    .strict()
+    .shape(surveySectionSpec),
+) {}

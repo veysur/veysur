@@ -1,6 +1,6 @@
 import { DatabasePatchInterface } from '@datacapy/migrate'
 import { ModelManager } from '@datacapy/om'
-import { Task } from 'veysur-common'
+import { Task } from 'veysur-common/server'
 
 /**
  * Seed the core background scheduled tasks in their final configuration.

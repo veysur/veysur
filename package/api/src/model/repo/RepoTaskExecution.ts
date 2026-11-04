@@ -1,5 +1,5 @@
 import { Repo, ServerErrorBadRequest, RepoIndexBuilder as repib } from '@datacapy/server'
-import { TaskExecution } from 'veysur-common'
+import { TaskExecution } from 'veysur-common/server'
 
 const TaskExecutionStatus = {
   RUNNING: 'running',

@@ -1,3 +1,5 @@
+import type { Constructor } from '../../type/Constructor'
+
 /**
  * Minimal immutable-value base for the small survey leaf classes
  * (`SurveyElementBase`, `SurveySection`, `SurveySubquestion`).
@@ -12,5 +14,21 @@ export class ImmutableEntity {
   withChanges(patch: Record<string, unknown>): this {
     const Ctor = this.constructor as new (data: Record<string, unknown>) => this
     return new Ctor({ ...this, ...patch })
+  }
+}
+
+/**
+ * Adds `withChanges` to a base class that is not itself an `ImmutableEntity`,
+ * such as one built by `SchemaConstructor.from`. The result satisfies the same
+ * structural constraint as `ImmutableEntity`, so the entity mixins accept it.
+ */
+export function immutableEntity<T extends Constructor>(Base: T) {
+  return class extends Base {
+    withChanges(patch: Record<string, unknown>): this {
+      const Ctor = this.constructor as new (
+        data: Record<string, unknown>,
+      ) => this
+      return new Ctor({ ...this, ...patch })
+    }
   }
 }

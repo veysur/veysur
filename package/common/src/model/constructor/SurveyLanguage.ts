@@ -23,14 +23,6 @@ export interface SurveyLanguageAnswerOptionEntry {
 
 export interface SurveyLanguageData {
   title?: string
-  /** @deprecated Superseded by {@link welcomeSectionDesc} (phase 1c slice 4). No longer written or read; kept so stored rows still type-check. */
-  welcomeMessage?: string
-  /** @deprecated Superseded by {@link thankYouSectionDesc}. */
-  thankYouMessage?: string
-  /** @deprecated Superseded by {@link thankYouSectionLinkUrl}. */
-  thankYouLinkUrl?: string
-  /** @deprecated Superseded by {@link thankYouSectionLinkText}. */
-  thankYouLinkText?: string
   /** Welcome / thank-you singleton section text (phase 1c). */
   welcomeSectionDesc?: string
   thankYouSectionDesc?: string

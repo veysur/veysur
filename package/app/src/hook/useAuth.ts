@@ -1,7 +1,7 @@
 import momentTimezone from 'moment-timezone'
 import { useEffect } from 'react'
 import { useIsRestoring, useQuery, useQueryClient } from '@tanstack/react-query'
-import { BotCheck, Project, ProjectAdmin } from 'veysur-common'
+import { BotCheck, Project, ProjectAdmin, User } from 'veysur-common'
 import { PropsOf } from '@datacapy/schema'
 
 import {
@@ -20,24 +20,10 @@ import { authRefreshWithRetry as authRefreshWithRetryUtil } from './useAuth/auth
  * The authenticated user as the client sees it. An extension adds its own fields by
  * declaration merging, so core carries none of them.
  */
-export interface AuthUser {
-  nameFirst: string
-  nameLast: string
-  email: string
-  emailMeta?: {
-    verify: {
-      status: {
-        isVerified: boolean
-        isVerifiedAt: Date | null
-      }
-    }
-  }
-  twoFactorMeta?: {
-    enabled: boolean
-    enabledAt?: Date | null
-    prompt?: { dismissed: boolean }
-  }
-  deletedAt?: Date | null
+export interface AuthUser
+  extends
+    Pick<User, 'nameFirst' | 'nameLast' | 'email'>,
+    Partial<Pick<User, 'emailMeta' | 'twoFactorMeta' | 'deletedAt'>> {
   projectOwn: Array<PropsOf<Project>>
   projectAdmin: Array<PropsOf<ProjectAdmin>>
 }

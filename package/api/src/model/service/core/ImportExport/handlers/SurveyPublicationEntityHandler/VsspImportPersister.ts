@@ -189,6 +189,10 @@ export class VsspImportPersister {
     return parsed && !Number.isNaN(parsed.getTime()) ? parsed : new Date()
   }
 
+  private stringOrNull(value: unknown): string | null {
+    return typeof value === 'string' ? value : null
+  }
+
   private async uploadBinaryFiles(
     fileResolutions: FileResolution[],
     parsedData: EntityParsedData,
@@ -496,25 +500,24 @@ export class VsspImportPersister {
     }
 
     if (createSnapshot) {
+      const snapshotDataRecord = new SurveySnapshot({
+        _id: DatacapyId(),
+        snapshotId: resolvedSnapshotId,
+        survey: remappedSnapshotData.survey,
+      })
       const snapshotRecord = new SurveySnapshotPartial({
         _id: resolvedSnapshotId,
         surveyId: resolvedSurveyId,
         createdById: userId,
-        contentHash: snapshot?.contentHash ?? null,
-        label: snapshot?.label ?? null,
-        notes: snapshot?.notes ?? null,
-        surveyPartial: remappedSnapshotData.survey,
+        contentHash: this.stringOrNull(snapshot?.contentHash),
+        label: this.stringOrNull(snapshot?.label),
+        notes: this.stringOrNull(snapshot?.notes),
+        surveyPartial: snapshotDataRecord.survey,
         createdAt: this.dateOrNow(snapshot?.createdAt),
         updatedAt: new Date(),
       })
       await this.repoSurveySnapshotPartial.insertOne(snapshotRecord, {
         context: dsContext,
-      })
-
-      const snapshotDataRecord = new SurveySnapshot({
-        _id: DatacapyId(),
-        snapshotId: resolvedSnapshotId,
-        survey: remappedSnapshotData.survey,
       })
       await this.repoSurveySnapshot.insertOne(snapshotDataRecord, {
         context: dsContext,

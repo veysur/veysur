@@ -1,5 +1,5 @@
 import { Service } from '@datacapy/server'
-import { Task } from 'veysur-common'
+import { Task } from 'veysur-common/server'
 
 import { RepoTask, RepoTaskExecution, RepoTaskLock } from 'model/repo'
 import { errorMessage, errorStack, withCapturedConsole } from 'common'

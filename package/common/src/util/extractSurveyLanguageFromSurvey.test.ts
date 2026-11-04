@@ -72,7 +72,7 @@ describe('extractSurveyLanguageFromSurvey', () => {
     const extracted = extractSurveyLanguageFromSurvey(survey, 's1', 'fr')
 
     expect(extracted.data.title).not.toBe('My Survey')
-    expect(extracted.data.welcomeMessage).not.toBe('Welcome')
+    expect(extracted.data.welcomeSectionDesc).not.toBe('Welcome')
   })
 
   it('extracts content-element text for the requested language only', () => {

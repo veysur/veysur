@@ -1,7 +1,7 @@
 import { RepoTask } from './RepoTask'
 import { DataSourceMysql } from '@datacapy/server'
-import { SchemaTask } from 'veysur-common/model/schema'
-import { Task } from 'veysur-common'
+import { SchemaTask } from 'veysur-common/server'
+import { Task } from 'veysur-common/server'
 
 /**
  * Integration test against the real MySQL test datasource (NODE_ENV=test).

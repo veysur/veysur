@@ -6,12 +6,13 @@ import { genUniqueId } from '@datacapy/id'
 
 import { composition, modelManager } from 'model-manager'
 import { RepoMigrationLog } from 'model/repo'
+import type { MigrationLogEntry } from 'model/constructor'
 
 interface CliArgs {
   dryRun: boolean
   verbose: boolean
   targetVersion?: string
-  datasource: string
+  datasource: MigrationLogEntry['dataSourceName']
   context?: Record<string, string>
   contextLookup?: string
   concurrency: number
@@ -50,7 +51,12 @@ function parseArgs(): CliArgs {
     } else if (arg === '--target-version') {
       cliArgs.targetVersion = args[++i]
     } else if (arg === '--datasource' || arg === '-d') {
-      cliArgs.datasource = args[++i]
+      const datasource = args[++i]
+      if (datasource !== 'account' && datasource !== 'project') {
+        console.error('Error: --datasource must be "account" or "project"')
+        process.exit(1)
+      }
+      cliArgs.datasource = datasource
     } else if (arg === '--context') {
       const contextArg = args[++i]
       if (!contextArg) {

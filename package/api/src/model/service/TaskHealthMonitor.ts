@@ -1,4 +1,4 @@
-import { Task } from 'veysur-common'
+import { Task } from 'veysur-common/server'
 
 import { RepoTask } from 'model/repo'
 import { captureWithFingerprint, errorMessage } from 'common'

@@ -41,17 +41,11 @@ export const surveySubquestionSpec = {
   updatedAt: sb.date().default('now'),
 }
 
-export class SchemaSurveySubquestion extends Schema<
-  typeof surveySubquestionSpec
-> {
-  constructor() {
-    super(
-      sb
-        .schema('surveySubquestion')
-        .construct('SurveySubquestion')
-        .constructCollection('SurveyElementCollection')
-        .strict()
-        .shape(surveySubquestionSpec),
-    )
-  }
-}
+export class SchemaSurveySubquestion extends Schema.from(
+  sb
+    .schema('surveySubquestion')
+    .construct('SurveySubquestion')
+    .constructCollection('SurveySubquestionCollection')
+    .strict()
+    .shape(surveySubquestionSpec),
+) {}

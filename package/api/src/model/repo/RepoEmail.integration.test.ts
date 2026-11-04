@@ -1,6 +1,8 @@
 import { RepoEmail } from './RepoEmail'
 import { DataSourceMysql } from '@datacapy/server'
 
+import { SchemaEmail } from '../schema'
+
 /**
  * Integration test against the real MySQL test datasource (NODE_ENV=test).
  *
@@ -37,6 +39,7 @@ describe('RepoEmail (MySQL integration)', () => {
 
     repo = new RepoEmail()
     repo.dataSource = dataSource
+    repo.schema = new SchemaEmail()
 
     try {
       await repo.drop()

@@ -1,22 +1,14 @@
+import type {
+  SettingProjectMaskedKeys,
+  SettingProjectView,
+} from 'veysur-common'
+
 import { Api } from 'model/api/Api'
 import { ErrorRest } from 'model/api/ErrorRest'
 
-export type MaskedKeys = {
-  siteKey: string
-  secretKey: string
-  hasSecret: boolean
-}
+export type MaskedKeys = SettingProjectMaskedKeys
 
-// Provider secret keys are write-only: the API blanks them and says whether one is stored
-export interface SettingProjectView {
-  _id: string
-  maps?: { googleApiKey?: string; provider?: string }
-  botProtection?: {
-    provider?: string
-    cloudflare?: Partial<MaskedKeys>
-    google?: Partial<MaskedKeys>
-  }
-}
+export type { SettingProjectView }
 
 export type BotProtectionKeysInput = { siteKey: string; secretKey: string }
 

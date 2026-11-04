@@ -83,13 +83,13 @@ describe('SurveyLanguage', () => {
       const original = new SurveyLanguage({
         surveyId: 's1',
         languageCode: 'en',
-        data: { title: 'Hello', welcomeMessage: 'Welcome' },
+        data: { title: 'Hello', welcomeSectionDesc: 'Welcome' },
       })
 
       const updatedAt = original.update({ data: { title: 'Hi' } })
 
       expect(updatedAt.data).toEqual({ title: 'Hi' })
-      expect(updatedAt.data.welcomeMessage).toBeUndefined()
+      expect(updatedAt.data.welcomeSectionDesc).toBeUndefined()
     })
   })
 })

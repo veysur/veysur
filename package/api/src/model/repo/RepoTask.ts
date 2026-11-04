@@ -1,5 +1,5 @@
 import { Repo, ServerErrorBadRequest, RepoIndexBuilder as repib } from '@datacapy/server'
-import { Task } from 'veysur-common'
+import { Task } from 'veysur-common/server'
 
 const MINUTE_MS = 60 * 1000
 

@@ -2,8 +2,8 @@ import { ServiceTaskManager } from './ServiceTaskManager'
 import { RepoTask } from 'model/repo'
 import { DataSourceMysql } from '@datacapy/server'
 import { asPrivate } from 'test-utils/asPrivate'
-import { SchemaTask } from 'veysur-common/model/schema'
-import { Task } from 'veysur-common'
+import { SchemaTask } from 'veysur-common/server'
+import { Task } from 'veysur-common/server'
 
 jest.mock('@sentry/node', () => ({
   captureException: jest.fn(),

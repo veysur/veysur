@@ -1,6 +1,6 @@
 import { DatabasePatchInterface } from '@datacapy/migrate'
 import { ModelManager } from '@datacapy/om'
-import { Task } from 'veysur-common'
+import { Task } from 'veysur-common/server'
 
 /**
  * Seed the async export job queue processing task. Idempotent - skips if a
