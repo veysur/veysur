@@ -283,162 +283,166 @@ export class ServicePublication extends Service {
       'surveySnapshotPartial',
     )
 
-    let publication: SurveyPublication
-    let snapshot: SurveySnapshotPartial
-    let snapshotData: SurveySnapshot
-    let wasReused = false
-    let contentHash: string
+    // The body's state is local to it and returned: a deadlock retry re-runs it, and anything
+    // left over from the rolled-back attempt would make the retry skip creating the snapshot.
+    const { publication, snapshot, snapshotData, wasReused, contentHash } =
+      await repoSurveySnapshotPartial.transaction(context, async (context) => {
+        let snapshot: SurveySnapshotPartial | undefined
+        let snapshotData: SurveySnapshot | undefined
+        let wasReused = false
 
-    await repoSurveySnapshotPartial.transaction(context, async (context) => {
-      let survey = await repoSurvey.findOne(
-        {
-          _id: surveyId,
-        },
-        {
-          context,
-          populate: {
-            elements: true,
-            sections: true,
+        let survey = await repoSurvey.findOne(
+          {
+            _id: surveyId,
           },
-        },
-      )
-      if (!survey) {
-        throw new ServerErrorNotFound('Survey not found')
-      }
-      // Populated questions/groups come back in unsorted DB row order -
-      // realise the actual editor-configured order (survey.elementIds)
-      // before validation, or position-dependent checks (e.g. forward-
-      // reference conditions) compare against the wrong order.
-      survey = survey.applySortOrder()
-
-      const settingSurvey = await repoSettingSurvey.findOne({}, { context })
-      if (!settingSurvey) {
-        throw new ServerErrorInternal('Setting survey not found')
-      }
-
-      // 1. LOAD ALL SURVEY LANGUAGES
-      const allLanguageCodes = survey.language?.options ?? []
-      const allLanguages = allLanguageCodes.length
-        ? await repoSurveyLanguage.find(
-            { surveyId, languageCode: { $in: allLanguageCodes } },
-            { context },
-          )
-        : []
-
-      // 1b. LOAD PARTICIPANT ATTRIBUTES
-      const repoSurveyParticipantAttribute =
-        this.getRepo<RepoSurveyParticipantAttribute>(
-          'surveyParticipantAttribute',
+          {
+            context,
+            populate: {
+              elements: true,
+              sections: true,
+            },
+          },
         )
-      const repoSurveyParticipantAttributeLanguage =
-        this.getRepo<RepoSurveyParticipantAttributeLanguage>(
-          'surveyParticipantAttributeLanguage',
-        )
-
-      const [surveyParticipantAttributeDoc, attributeLanguageDocs] =
-        await Promise.all([
-          repoSurveyParticipantAttribute.findOne({ surveyId }, { context }),
-          repoSurveyParticipantAttributeLanguage.find(
-            { surveyId },
-            { context },
-          ),
-        ])
-
-      // 2. MERGE LANGUAGES FOR VALIDATION
-      const surveyMerged = allLanguages.length
-        ? mergeSurveyLanguageIntoSurvey(survey, allLanguages)
-        : survey
-
-      const surveyPublish = surveyMerged.publishPrep(settingSurvey)
-      const participantVariableNames = new Set<string>([
-        ...SURVEY_PARTICIPANT_SYSTEM_ATTRIBUTE_NAMES,
-        ...(surveyParticipantAttributeDoc?.attributes.map((a) => a.name) ?? []),
-      ])
-      const validator = new SurveyValidation()
-      const validationResult = await validator.validate(
-        surveyPublish,
-        settingSurvey,
-        participantVariableNames,
-      )
-      if (!validationResult.isValid) {
-        throw new ServerErrorBadRequest({
-          message: 'Survey validation failed',
-          errors: validationResult.errors,
-        })
-      }
-
-      // 3. GENERATE COMPOSITE CONTENT HASH
-      const sortedLanguages = [...allLanguages].sort((a, b) =>
-        a.languageCode.localeCompare(b.languageCode),
-      )
-      const sortedAttrLangs = [...attributeLanguageDocs].sort((a, b) =>
-        a.languageCode.localeCompare(b.languageCode),
-      )
-      const {
-        contentHash: computedContentHash,
-        langHashes,
-        attributeStructureHash,
-        sortedAttributeLangHashes,
-      } = this.computeContentHash(
-        survey,
-        settingSurvey,
-        allLanguages,
-        surveyParticipantAttributeDoc,
-        attributeLanguageDocs,
-      )
-      contentHash = computedContentHash
-
-      // 4. LOOKUP EXISTING SNAPSHOT BY HASH (unless forced)
-      if (!forceNewSnapshot) {
-        const serviceSurveySnapshot =
-          this.getService<ServiceSurveySnapshot>('surveySnapshot')
-        const existing = await serviceSurveySnapshot.findByContentHash(
-          surveyId,
-          contentHash,
-          projectId,
-        )
-
-        if (existing) {
-          // REUSE EXISTING SNAPSHOT
-          snapshot = existing.snapshot
-          snapshotData = existing.snapshotData
-          wasReused = true
+        if (!survey) {
+          throw new ServerErrorNotFound('Survey not found')
         }
-      }
+        // Populated questions/groups come back in unsorted DB row order -
+        // realise the actual editor-configured order (survey.elementIds)
+        // before validation, or position-dependent checks (e.g. forward-
+        // reference conditions) compare against the wrong order.
+        survey = survey.applySortOrder()
 
-      // 5. CREATE NEW SNAPSHOT if not found or forced
-      if (!snapshot) {
-        const created = await this.createSnapshot(
-          surveyId,
+        const settingSurvey = await repoSettingSurvey.findOne({}, { context })
+        if (!settingSurvey) {
+          throw new ServerErrorInternal('Setting survey not found')
+        }
+
+        // 1. LOAD ALL SURVEY LANGUAGES
+        const allLanguageCodes = survey.language?.options ?? []
+        const allLanguages = allLanguageCodes.length
+          ? await repoSurveyLanguage.find(
+              { surveyId, languageCode: { $in: allLanguageCodes } },
+              { context },
+            )
+          : []
+
+        // 1b. LOAD PARTICIPANT ATTRIBUTES
+        const repoSurveyParticipantAttribute =
+          this.getRepo<RepoSurveyParticipantAttribute>(
+            'surveyParticipantAttribute',
+          )
+        const repoSurveyParticipantAttributeLanguage =
+          this.getRepo<RepoSurveyParticipantAttributeLanguage>(
+            'surveyParticipantAttributeLanguage',
+          )
+
+        const [surveyParticipantAttributeDoc, attributeLanguageDocs] =
+          await Promise.all([
+            repoSurveyParticipantAttribute.findOne({ surveyId }, { context }),
+            repoSurveyParticipantAttributeLanguage.find(
+              { surveyId },
+              { context },
+            ),
+          ])
+
+        // 2. MERGE LANGUAGES FOR VALIDATION
+        const surveyMerged = allLanguages.length
+          ? mergeSurveyLanguageIntoSurvey(survey, allLanguages)
+          : survey
+
+        const surveyPublish = surveyMerged.publishPrep(settingSurvey)
+        const participantVariableNames = new Set<string>([
+          ...SURVEY_PARTICIPANT_SYSTEM_ATTRIBUTE_NAMES,
+          ...(surveyParticipantAttributeDoc?.attributes.map((a) => a.name) ??
+            []),
+        ])
+        const validator = new SurveyValidation()
+        const validationResult = await validator.validate(
+          surveyPublish,
+          settingSurvey,
+          participantVariableNames,
+        )
+        if (!validationResult.isValid) {
+          throw new ServerErrorBadRequest({
+            message: 'Survey validation failed',
+            errors: validationResult.errors,
+          })
+        }
+
+        // 3. GENERATE COMPOSITE CONTENT HASH
+        const sortedLanguages = [...allLanguages].sort((a, b) =>
+          a.languageCode.localeCompare(b.languageCode),
+        )
+        const sortedAttrLangs = [...attributeLanguageDocs].sort((a, b) =>
+          a.languageCode.localeCompare(b.languageCode),
+        )
+        const {
+          contentHash: computedContentHash,
+          langHashes,
+          attributeStructureHash,
+          sortedAttributeLangHashes,
+        } = this.computeContentHash(
           survey,
           settingSurvey,
-          sortedLanguages,
-          langHashes,
-          contentHash,
+          allLanguages,
           surveyParticipantAttributeDoc,
-          sortedAttrLangs,
-          sortedAttributeLangHashes,
-          attributeStructureHash,
-          snapshotLabel,
-          snapshotNotes,
+          attributeLanguageDocs,
+        )
+        const contentHash = computedContentHash
+
+        // 4. LOOKUP EXISTING SNAPSHOT BY HASH (unless forced)
+        if (!forceNewSnapshot) {
+          const serviceSurveySnapshot =
+            this.getService<ServiceSurveySnapshot>('surveySnapshot')
+          const existing = await serviceSurveySnapshot.findByContentHash(
+            surveyId,
+            contentHash,
+            projectId,
+          )
+
+          if (existing) {
+            // REUSE EXISTING SNAPSHOT
+            snapshot = existing.snapshot
+            snapshotData = existing.snapshotData
+            wasReused = true
+          }
+        }
+
+        // 5. CREATE NEW SNAPSHOT if not found or forced
+        if (!snapshot) {
+          const created = await this.createSnapshot(
+            surveyId,
+            survey,
+            settingSurvey,
+            sortedLanguages,
+            langHashes,
+            contentHash,
+            surveyParticipantAttributeDoc,
+            sortedAttrLangs,
+            sortedAttributeLangHashes,
+            attributeStructureHash,
+            snapshotLabel,
+            snapshotNotes,
+            aclContext.jwt._id,
+            context,
+          )
+          snapshot = created.snapshot
+          snapshotData = created.snapshotData
+          wasReused = false
+        }
+
+        // 6. REPLACE ACTIVE PUBLICATION
+        const publication = await this.replacePublication(
+          surveyId,
+          snapshot._id,
+          label || null,
+          notes || null,
           aclContext.jwt._id,
           context,
         )
-        snapshot = created.snapshot
-        snapshotData = created.snapshotData
-        wasReused = false
-      }
 
-      // 6. REPLACE ACTIVE PUBLICATION
-      publication = await this.replacePublication(
-        surveyId,
-        snapshot._id,
-        label || null,
-        notes || null,
-        aclContext.jwt._id,
-        context,
-      )
-    })
+        return { publication, snapshot, snapshotData, wasReused, contentHash }
+      })
 
     await this.modelManager.services.eventLog.log({
       projectId,
@@ -823,6 +827,9 @@ export class ServicePublication extends Service {
     const orphanedSnapshotIds: string[] = []
 
     await repoPublication.transaction(context, async (context) => {
+      // A deadlock retry re-runs this body, so drop what a rolled-back attempt collected.
+      orphanedSnapshotIds.length = 0
+
       // Verify all publications exist and belong to the project
       const publications = await repoPublication.find(
         {

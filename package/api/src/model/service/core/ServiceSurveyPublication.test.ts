@@ -287,6 +287,32 @@ describe('ServicePublication.publish — snapshot settings resolution', () => {
     expect(storedSurvey.data.timestamp).toBe(false)
   })
 
+  test('creates the snapshot again when a deadlock rolls the first attempt back', async () => {
+    const repoPartial = service.getRepo('surveySnapshotPartial') as unknown as {
+      transaction: jest.Mock
+    }
+    const transactionOnce = repoPartial.transaction
+    // Run the body, roll it back as a deadlock victim would be, then let the retry run it again.
+    let attempts = 0
+    repoPartial.transaction = jest.fn(async (context, fn) => {
+      attempts += 1
+      if (attempts === 1) {
+        await transactionOnce(context, async (ctx: unknown, tx: unknown) => {
+          await fn(ctx, tx)
+          throw Object.assign(new Error('Deadlock found'), { errno: 1213 })
+        }).catch(() => undefined)
+      }
+      return transactionOnce(context, fn)
+    })
+
+    await service.publish(publishArgs)
+
+    const repoSnapshot = service.getRepo('surveySnapshot') as unknown as {
+      insertOne: jest.Mock
+    }
+    expect(repoSnapshot.insertOne).toHaveBeenCalledTimes(2)
+  })
+
   test('writes the embed artefact after publishing', async () => {
     await service.publish(publishArgs)
 
@@ -530,6 +556,33 @@ describe('ServicePublication.deleteMany', () => {
       projectId: 'project-1',
     })
     expect(mockEmbedRemoveSnapshots).not.toHaveBeenCalled()
+  })
+
+  test('lists each orphaned snapshot once when a deadlock makes the transaction run twice', async () => {
+    repoPublication.count.mockResolvedValue(0)
+    repoPublication.find.mockResolvedValue([
+      makePublication({ stoppedAt: new Date() }),
+    ])
+    const transactionOnce = repoPublication.transaction
+    let attempts = 0
+    repoPublication.transaction = jest.fn(async (context, fn) => {
+      attempts += 1
+      if (attempts === 1) {
+        await transactionOnce(context, async (ctx: unknown, tx: unknown) => {
+          await fn(ctx, tx)
+          throw Object.assign(new Error('Deadlock found'), { errno: 1213 })
+        }).catch(() => undefined)
+      }
+      return transactionOnce(context, fn)
+    })
+
+    await service.deleteMany(deleteArgs(['publication-1']))
+
+    expect(mockEmbedRemoveSnapshots).toHaveBeenCalledWith({
+      surveyId: 'survey-1',
+      projectId: 'project-1',
+      snapshotIds: [expect.any(String)],
+    })
   })
 
   test('removes the embed artefacts of snapshots that become orphaned', async () => {

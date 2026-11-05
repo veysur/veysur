@@ -187,7 +187,11 @@ export class ServiceResponseMerge extends Service {
     if (options.dryRun) {
       await processAndScale()
     } else {
-      await repoSurveyResponse.transaction(context, processAndScale)
+      // `stats` and `preview` are filled in place, so a deadlock retry would count the rolled-back
+      // attempt twice.
+      await repoSurveyResponse.transaction(context, processAndScale, {
+        maxAttempts: 1,
+      })
     }
 
     // Build result
