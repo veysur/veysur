@@ -124,31 +124,36 @@ export class VsspImportPersister {
     let hadResponseIdCollision: boolean
     let unrestoredResponseFileNames: string[]
 
-    await this.repoSurveyResponse.transaction(dsContext, async (dsContext) => {
-      ;({ hadResponseIdCollision, unrestoredResponseFileNames } =
-        await this.runTransaction(
-          {
-            createSurvey,
-            surveyDataForCreate,
-            createSnapshot,
-            publication,
-            snapshot,
-            surveyLanguageSnapshots,
-            surveyParticipantAttributeSnapshot,
-            surveyParticipantAttributeLanguageSnapshots,
-            responseBatchKeys,
-            resolvedSurveyId,
-            resolvedSnapshotId,
-            resolvedPublicationId,
-            fileResolutions,
-            remappedSnapshotData,
-            responseFileEntries,
-            parsedData,
-            unrestoredFileIds,
-          },
-          { userId, dsContext, projectId },
-        ))
-    })
+    await this.repoSurveyResponse.transaction(
+      dsContext,
+      async (dsContext) => {
+        ;({ hadResponseIdCollision, unrestoredResponseFileNames } =
+          await this.runTransaction(
+            {
+              createSurvey,
+              surveyDataForCreate,
+              createSnapshot,
+              publication,
+              snapshot,
+              surveyLanguageSnapshots,
+              surveyParticipantAttributeSnapshot,
+              surveyParticipantAttributeLanguageSnapshots,
+              responseBatchKeys,
+              resolvedSurveyId,
+              resolvedSnapshotId,
+              resolvedPublicationId,
+              fileResolutions,
+              remappedSnapshotData,
+              responseFileEntries,
+              parsedData,
+              unrestoredFileIds,
+            },
+            { userId, dsContext, projectId },
+          ))
+      },
+      // Response files are copied to storage inside the body; a re-run would orphan the first copies.
+      { maxAttempts: 1 },
+    )
 
     const warnings: unknown[] = []
     if (unrestoredFileIds.size > 0) {
