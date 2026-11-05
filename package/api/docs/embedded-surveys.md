@@ -44,7 +44,10 @@ removed with their snapshot (`removeSnapshots`) or survey (`removeSurvey`).
 ## Keeping files correct
 
 - `refreshProject({ projectId })` rewrites the pointers of live embed-enabled surveys. `ServiceSettingSurvey.patch`
-  calls it; an extension calls it when `isNoBrandAvailable` can change.
+  and `ServiceSettingProject` call it; an extension calls it when `isNoBrandAvailable` can change. It runs inside
+  the request, so it is kept cheap: it rewrites pointers only (snapshot data and language files cannot have
+  changed, and a missing one is left to `repairAll`), computes the project-wide settings once, and writes five
+  pointers at a time. Per-survey write failures are logged and do not stop the others.
 - Scheduled task `surveyEmbedArtefact` / `repairAll` (daily, seeded by migration `2026-10-07_1000`) rewrites missing
   files and stale pointers, including surveys published before embedding existed. It reports `failed` for
   `failOnErrorCount`.

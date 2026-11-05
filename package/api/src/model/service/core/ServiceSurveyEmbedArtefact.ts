@@ -1,3 +1,4 @@
+import { DataSourceContext } from '@datacapy/om'
 import { Service } from '@datacapy/server'
 import { DEFAULT_PROJECT_ID } from 'veysur-common'
 
@@ -24,6 +25,13 @@ import { isSelfHosted } from 'config/edition'
 import { getStorageConfig } from './ServiceFile/FileS3Config'
 
 const POINTER_VERSION = 1
+const REFRESH_CONCURRENCY = 5
+
+interface ProjectPointerSettings {
+  settingSurveyData: unknown
+  settingProjectData: unknown
+  noBrandAvailable: boolean
+}
 
 export class ServiceSurveyEmbedArtefact extends Service {
   constructor() {
@@ -108,14 +116,56 @@ export class ServiceSurveyEmbedArtefact extends Service {
       })
     }
 
+    await this.putPointer({
+      surveyId,
+      projectId,
+      publication,
+      snapshot,
+      languages,
+      projectSettings: await this.getProjectSettings(projectId, context),
+    })
+  }
+
+  // Settings every pointer of a project carries, which are the same for each survey.
+  private async getProjectSettings(
+    projectId: string,
+    context: DataSourceContext,
+  ): Promise<ProjectPointerSettings> {
     const participantSnapshot =
       this.modelManager.services.surveyParticipantSnapshot
-    const [settingSurveyData, settingProjectData] = await Promise.all([
-      participantSnapshot.getGatedSettingSurvey(projectId, context),
-      participantSnapshot.getGatedSettingProject(context),
-    ])
+    const [settingSurveyData, settingProjectData, noBrandAvailable] =
+      await Promise.all([
+        participantSnapshot.getGatedSettingSurvey(projectId, context),
+        participantSnapshot.getGatedSettingProject(context),
+        participantSnapshot.isNoBrandAllowed(projectId),
+      ])
+    return { settingSurveyData, settingProjectData, noBrandAvailable }
+  }
 
-    await adaptor.putObject({
+  private async putPointer({
+    surveyId,
+    projectId,
+    publication,
+    snapshot,
+    languages,
+    projectSettings,
+  }: {
+    surveyId: string
+    projectId: string
+    publication: { _id: string }
+    snapshot: {
+      _id: string
+      surveyPartial?: {
+        language?: { default?: string | null }
+        access?: unknown
+        schedule?: unknown
+      }
+    }
+    languages: string[]
+    projectSettings: ProjectPointerSettings
+  }) {
+    const { publicBucket } = getStorageConfig(this.config)
+    await createStorageAdaptor(getStorageConfig(this.config)).putObject({
       Bucket: publicBucket,
       Key: embedPointerKey(projectId, surveyId),
       Body: JSON.stringify({
@@ -125,12 +175,10 @@ export class ServiceSurveyEmbedArtefact extends Service {
         publicationId: publication._id,
         writtenAt: new Date(),
         languages,
-        defaultLanguage,
+        defaultLanguage: snapshot.surveyPartial?.language?.default ?? null,
         access: snapshot.surveyPartial?.access,
         schedule: snapshot.surveyPartial?.schedule,
-        noBrandAvailable: await participantSnapshot.isNoBrandAllowed(projectId),
-        settingSurveyData,
-        settingProjectData,
+        ...projectSettings,
       }),
       ContentType: 'application/json',
     })
@@ -148,8 +196,8 @@ export class ServiceSurveyEmbedArtefact extends Service {
     }
   }
 
-  // Live surveys of the project whose snapshot allows embedding.
-  private async getEmbeddedSurveyIds(projectId: string): Promise<string[]> {
+  // Live publications of the project, with the snapshot, whose snapshot allows embedding.
+  private async getLiveEmbedded(projectId: string) {
     const context = contextForProject(projectId)
     const publications = await this.getRepo<RepoSurveyPublication>(
       'surveyPublication',
@@ -161,24 +209,70 @@ export class ServiceSurveyEmbedArtefact extends Service {
     const snapshots = await this.getRepo<RepoSurveySnapshotPartial>(
       'surveySnapshotPartial',
     ).find({ _id: { $in: publications.map((p) => p.snapshotId) } }, { context })
-    const embeddedSnapshotIds = new Set(
+    const snapshotById = new Map(
       snapshots
         .filter((snapshot) => snapshot.surveyPartial?.access?.embed)
-        .map((snapshot) => snapshot._id),
+        .map((snapshot) => [snapshot._id, snapshot]),
     )
 
-    return publications
-      .filter((publication) => embeddedSnapshotIds.has(publication.snapshotId))
-      .map((publication) => publication.surveyId)
+    return publications.flatMap((publication) => {
+      const snapshot = snapshotById.get(publication.snapshotId)
+      return snapshot ? [{ publication, snapshot }] : []
+    })
+  }
+
+  private async getEmbeddedSurveyIds(projectId: string): Promise<string[]> {
+    return (await this.getLiveEmbedded(projectId)).map(
+      ({ publication }) => publication.surveyId,
+    )
   }
 
   // The pointer carries the project's live survey settings and branding
-  // entitlement, so it goes stale when either changes. Only live, embed-enabled
-  // surveys are touched.
+  // entitlement, so it goes stale when either changes. Only the pointers are
+  // rewritten: the snapshot and language artefacts cannot have changed, so the
+  // snapshot data is not reloaded, and the project-wide settings are computed
+  // once and the writes run a few at a time.
   async refreshProject({ projectId }: { projectId: string }) {
     try {
-      for (const surveyId of await this.getEmbeddedSurveyIds(projectId)) {
-        await this.refresh({ surveyId, projectId })
+      const live = await this.getLiveEmbedded(projectId)
+      if (live.length === 0) {
+        return
+      }
+
+      const context = contextForProject(projectId)
+      const languageRows = await this.getRepo<RepoSurveyLanguageSnapshot>(
+        'surveyLanguageSnapshot',
+      ).find(
+        { snapshotId: { $in: live.map(({ snapshot }) => snapshot._id) } },
+        { context, fields: { snapshotId: 1, languageCode: 1 } },
+      )
+      const languagesBySnapshot = new Map<string, string[]>()
+      for (const row of languageRows) {
+        const codes = languagesBySnapshot.get(row.snapshotId) ?? []
+        codes.push(row.languageCode)
+        languagesBySnapshot.set(row.snapshotId, codes)
+      }
+      const projectSettings = await this.getProjectSettings(projectId, context)
+
+      for (let i = 0; i < live.length; i += REFRESH_CONCURRENCY) {
+        await Promise.all(
+          live.slice(i, i + REFRESH_CONCURRENCY).map(async (entry) => {
+            try {
+              await this.putPointer({
+                surveyId: entry.publication.surveyId,
+                projectId,
+                publication: entry.publication,
+                snapshot: entry.snapshot,
+                languages: languagesBySnapshot.get(entry.snapshot._id) ?? [],
+                projectSettings,
+              })
+            } catch (error) {
+              this.logger.warn(
+                `Failed to refresh embed pointer for survey ${entry.publication.surveyId}: ${error.message}`,
+              )
+            }
+          }),
+        )
       }
     } catch (error) {
       this.logger.warn(

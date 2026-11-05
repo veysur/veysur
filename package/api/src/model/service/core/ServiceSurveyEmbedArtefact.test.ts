@@ -255,14 +255,24 @@ describe('ServiceSurveyEmbedArtefact', () => {
     })
   })
 
+  let findSnapshotData: jest.Mock
+
   const mockProjectRepos = (
     publications: Array<{ surveyId: string; snapshotId: string }>,
     embeddedSnapshotIds: string[],
   ) => {
     const original = (service.getRepo as jest.Mock).getMockImplementation()
+    findSnapshotData = jest.fn()
     jest.spyOn(service, 'getRepo').mockImplementation(((name: string) => {
       if (name === 'surveyPublication') {
-        return { find: jest.fn().mockResolvedValue(publications) }
+        return {
+          find: jest.fn().mockResolvedValue(
+            publications.map((p) => ({
+              _id: `pub_${p.surveyId}`,
+              ...p,
+            })),
+          ),
+        }
       }
       if (name === 'surveySnapshotPartial') {
         return {
@@ -270,9 +280,24 @@ describe('ServiceSurveyEmbedArtefact', () => {
             publications.map((p) => ({
               _id: p.snapshotId,
               surveyPartial: {
+                language: { default: 'en' },
                 access: { embed: embeddedSnapshotIds.includes(p.snapshotId) },
+                schedule: { start: null },
               },
             })),
+          ),
+        }
+      }
+      if (name === 'surveySnapshot') {
+        return { findOne: findSnapshotData }
+      }
+      if (name === 'surveyLanguageSnapshot') {
+        return {
+          find: jest.fn().mockResolvedValue(
+            publications.flatMap((p) => [
+              { snapshotId: p.snapshotId, languageCode: 'en' },
+              { snapshotId: p.snapshotId, languageCode: 'de' },
+            ]),
           ),
         }
       }
@@ -280,8 +305,11 @@ describe('ServiceSurveyEmbedArtefact', () => {
     }) as typeof service.getRepo)
   }
 
+  const pointerKeys = () =>
+    mockPutObject.mock.calls.map(([params]) => params.Key as string)
+
   describe('refreshProject', () => {
-    test('refreshes only the live surveys whose snapshot allows embedding', async () => {
+    test('rewrites the pointer of only the live surveys whose snapshot allows embedding', async () => {
       mockProjectRepos(
         [
           { surveyId: 'a', snapshotId: 'snap_a' },
@@ -289,21 +317,104 @@ describe('ServiceSurveyEmbedArtefact', () => {
         ],
         ['snap_b'],
       )
-      const refresh = jest.spyOn(service, 'refresh').mockResolvedValue()
 
       await service.refreshProject({ projectId })
 
-      expect(refresh).toHaveBeenCalledTimes(1)
-      expect(refresh).toHaveBeenCalledWith({ surveyId: 'b', projectId })
+      expect(pointerKeys()).toEqual([
+        'project-proj_1/survey/b/embed/current.json',
+      ])
+    })
+
+    test('writes the same pointer fields as a full write', async () => {
+      mockProjectRepos([{ surveyId: 'b', snapshotId: 'snap_b' }], ['snap_b'])
+
+      await service.refreshProject({ projectId })
+
+      const body = JSON.parse(mockPutObject.mock.calls[0][0].Body)
+      expect(body).toMatchObject({
+        version: 1,
+        surveyId: 'b',
+        snapshotId: 'snap_b',
+        publicationId: 'pub_b',
+        languages: ['en', 'de'],
+        defaultLanguage: 'en',
+        access: { embed: true },
+        noBrandAvailable: false,
+        settingSurveyData: { gated: true },
+        settingProjectData: { maps: { provider: 'osm' } },
+      })
+    })
+
+    test('loads no snapshot data and writes no language artefacts', async () => {
+      mockProjectRepos(
+        [
+          { surveyId: 'a', snapshotId: 'snap_a' },
+          { surveyId: 'b', snapshotId: 'snap_b' },
+        ],
+        ['snap_a', 'snap_b'],
+      )
+
+      await service.refreshProject({ projectId })
+
+      expect(findSnapshotData).not.toHaveBeenCalled()
+      expect(mockObjectExists).not.toHaveBeenCalled()
+      expect(pointerKeys().every((key) => key.endsWith('/current.json'))).toBe(
+        true,
+      )
+    })
+
+    test('computes the project settings once however many surveys it refreshes', async () => {
+      const publications = ['a', 'b', 'c', 'd', 'e', 'f', 'g'].map((id) => ({
+        surveyId: id,
+        snapshotId: `snap_${id}`,
+      }))
+      mockProjectRepos(
+        publications,
+        publications.map((p) => p.snapshotId),
+      )
+
+      await service.refreshProject({ projectId })
+
+      expect(mockPutObject).toHaveBeenCalledTimes(7)
+      expect(
+        mockParticipantSnapshot.getGatedSettingSurvey,
+      ).toHaveBeenCalledTimes(1)
+      expect(
+        mockParticipantSnapshot.getGatedSettingProject,
+      ).toHaveBeenCalledTimes(1)
+      expect(mockParticipantSnapshot.isNoBrandAllowed).toHaveBeenCalledTimes(1)
+    })
+
+    test('keeps going when one survey fails to write', async () => {
+      mockProjectRepos(
+        [
+          { surveyId: 'a', snapshotId: 'snap_a' },
+          { surveyId: 'b', snapshotId: 'snap_b' },
+        ],
+        ['snap_a', 'snap_b'],
+      )
+      mockPutObject.mockImplementation(async ({ Key }) => {
+        if (Key.includes('/survey/a/')) throw new Error('storage down')
+      })
+
+      await allowConsole(/Failed to refresh embed pointer/, async () => {
+        await service.refreshProject({ projectId })
+      })
+
+      expect(pointerKeys()).toContain(
+        'project-proj_1/survey/b/embed/current.json',
+      )
     })
 
     test('does nothing for a project with no live publications', async () => {
       mockProjectRepos([], [])
-      const refresh = jest.spyOn(service, 'refresh').mockResolvedValue()
 
       await service.refreshProject({ projectId })
 
-      expect(refresh).not.toHaveBeenCalled()
+      expect(mockPutObject).not.toHaveBeenCalled()
+      expect(
+        mockParticipantSnapshot.getGatedSettingProject,
+      ).not.toHaveBeenCalled()
     })
 
     test('does not throw when the lookup fails', async () => {
