@@ -23,7 +23,11 @@ function setHtml(
     parent = parent[pathElement] as Record<string, unknown>
     if (x == pathElements.length - 1) {
       // Final element
-      parent[filename] = Handlebars.compile(html)
+      // `-text` templates are sent as text/plain, so HTML-escaping would
+      // corrupt URLs (`&` becomes `&amp;`)
+      parent[filename] = Handlebars.compile(html, {
+        noEscape: filename.endsWith('-text'),
+      })
     }
   }
 }
