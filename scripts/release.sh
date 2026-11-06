@@ -60,7 +60,14 @@ fi
 
 # The image build installs with a frozen lockfile; a stale one only fails there otherwise.
 echo "Checking pnpm-lock.yaml is current..."
-pnpm install --frozen-lockfile --lockfile-only --ignore-scripts >/dev/null
+if ! lockfile_output=$(pnpm install --frozen-lockfile --lockfile-only --ignore-scripts 2>&1); then
+  echo "$lockfile_output" >&2
+  echo >&2
+  echo "pnpm-lock.yaml is out of date. Refresh it, commit and push it, then re-run:" >&2
+  echo "  pnpm install --lockfile-only --ignore-scripts --no-frozen-lockfile" >&2
+  echo "  git add pnpm-lock.yaml && git commit -m 'chore(deps): refresh lockfile' && git push" >&2
+  exit 1
+fi
 
 # Newest run id of a workflow on a ref, or 0.
 latest_run() {
