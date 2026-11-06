@@ -118,6 +118,7 @@ const {
   MYSQL_PASSWORD,
   MYSQL_DATABASE,
   MYSQL_ENSURE_DATABASE,
+  MYSQL_CONNECTION_LIMIT,
   // Redis
   REDIS_ENABLED,
   REDIS_HOST,
@@ -447,6 +448,10 @@ const mysqlAccountConfig = {
   database: MYSQL_DATABASE,
   password: MYSQL_PASSWORD,
   ensureDatabase: MYSQL_ENSURE_DATABASE === 'true',
+  // Unset keeps mysql2's pool default of 10 per API process.
+  ...(MYSQL_CONNECTION_LIMIT
+    ? { connectionLimit: Number(MYSQL_CONNECTION_LIMIT) }
+    : {}),
 }
 
 const cacheDbDataSource =
