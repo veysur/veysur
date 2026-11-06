@@ -1,5 +1,19 @@
 # veysur-app
 
+## 0.13.0
+
+### Minor Changes
+
+- b032e38: Move the server-only models (`Task`, `TaskExecution`, `EmailSuppression` and their schemas) from the main `veysur-common` index to the new `veysur-common/server` entry point, which `app` may not import. Build the survey leaf models, email documents and event log documents from the schema, and validate them in the API. Remove the deprecated `SurveyLanguage` message fields.
+
+### Patch Changes
+
+- Updated dependencies [9fed09b]
+- Updated dependencies [9fed09b]
+- Updated dependencies [b032e38]
+  - veysur-common@0.13.0
+  - veysur-theme@0.13.0
+
 ## 0.12.0
 
 ### Minor Changes

@@ -1,5 +1,13 @@
 # veysur-common
 
+## 0.13.0
+
+### Minor Changes
+
+- 9fed09b: Build model constructors from the schema: ids, defaults and relation fields now come from `SchemaConstructor.from`, and the removed `applyDefaults` options no longer exist. Remove the vestigial section `questionIds` field, with a patch (`2026-11-03_1000_remove-section-question-ids`) that deletes the stored copies from each project database.
+- 9fed09b: Remove the unused `MetaVerify`, `VerifyStatus`, `VerifyToken`, `MetaHistoryItem` and `MetaHistoryVerifiable` type exports.
+- b032e38: Move the server-only models (`Task`, `TaskExecution`, `EmailSuppression` and their schemas) from the main `veysur-common` index to the new `veysur-common/server` entry point, which `app` may not import. Build the survey leaf models, email documents and event log documents from the schema, and validate them in the API. Remove the deprecated `SurveyLanguage` message fields.
+
 ## 0.12.0
 
 No changes in this release.
