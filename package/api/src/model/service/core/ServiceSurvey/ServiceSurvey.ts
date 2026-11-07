@@ -384,6 +384,11 @@ export class ServiceSurvey extends Service {
       metadata: { surveyId },
     })
 
+    await this.modelManager.services.surveyParticipantCache.invalidateSurvey(
+      projectId,
+      surveyId,
+    )
+
     await this.modelManager.services.surveyEmbedArtefact.removeSurvey({
       surveyId,
       projectId,

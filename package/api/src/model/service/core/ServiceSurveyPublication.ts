@@ -455,6 +455,11 @@ export class ServicePublication extends Service {
       },
     })
 
+    await this.modelManager.services.surveyParticipantCache.invalidateSurvey(
+      projectId,
+      surveyId,
+    )
+
     await this.modelManager.services.surveyEmbedArtefact.refresh({
       surveyId,
       projectId,
@@ -515,6 +520,11 @@ export class ServicePublication extends Service {
       metadata: { surveyId, snapshotId, publicationId: publication._id },
     })
 
+    await this.modelManager.services.surveyParticipantCache.invalidateSurvey(
+      projectId,
+      surveyId,
+    )
+
     await this.modelManager.services.surveyEmbedArtefact.refresh({
       surveyId,
       projectId,
@@ -549,6 +559,11 @@ export class ServicePublication extends Service {
       action: 'survey.unpublished',
       metadata: { surveyId },
     })
+
+    await this.modelManager.services.surveyParticipantCache.invalidateSurvey(
+      projectId,
+      surveyId,
+    )
 
     await this.modelManager.services.surveyEmbedArtefact.refresh({
       surveyId,
@@ -924,6 +939,11 @@ export class ServicePublication extends Service {
         metadata: { surveyId },
       })
     }
+
+    await this.modelManager.services.surveyParticipantCache.invalidateSurvey(
+      projectId,
+      surveyId,
+    )
 
     const embedArtefact = this.modelManager.services.surveyEmbedArtefact
     if (orphanedSnapshotIds.length > 0) {

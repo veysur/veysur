@@ -1,5 +1,6 @@
 // cspell:ignore Bonjour
 import { ServerErrorForbidden, ServerErrorBadRequest } from '@datacapy/server'
+import { passthroughParticipantCache } from 'test-utils/passthroughParticipantCache'
 import { resolveBotProtection } from 'veysur-common'
 import { ServiceAuthParticipant } from './ServiceAuthParticipant'
 
@@ -91,8 +92,10 @@ const makeService = (
     throw new Error(`Unexpected repo: ${name}`)
   })
 
+  const participantCache = passthroughParticipantCache()
   service.getService = jest.fn((name: string) => {
     if (name === 'botProtection') return botProtectionService
+    if (name === 'surveyParticipantCache') return participantCache
     throw new Error(`Unexpected service: ${name}`)
   })
 

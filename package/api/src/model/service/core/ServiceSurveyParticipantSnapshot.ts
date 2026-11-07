@@ -12,6 +12,7 @@ import {
 } from 'model'
 import { mergeSurveyLanguageSnapshots } from 'model/common'
 import { contextForProject } from 'common'
+import type { ServiceSurveyParticipantCache } from './ServiceSurveyParticipantCache'
 
 export class ServiceSurveyParticipantSnapshot extends Service {
   constructor() {
@@ -51,60 +52,76 @@ export class ServiceSurveyParticipantSnapshot extends Service {
     lang: string | null
     withData: boolean
     resumeSnapshotId?: string
-  }) {
+  }): Promise<Partial<Awaited<ReturnType<typeof this.loadView>>>> {
     const context = contextForProject(projectId)
-    const repoPublication =
-      this.getRepo<RepoSurveyPublication>('surveyPublication')
-    const repoSurveySnapshotPartial = this.getRepo<RepoSurveySnapshotPartial>(
-      'surveySnapshotPartial',
-    )
-    const repoSurveySnapshot =
-      this.getRepo<RepoSurveySnapshot>('surveySnapshot')
-    const repoSurveyLanguageSnapshot = this.getRepo<RepoSurveyLanguageSnapshot>(
-      'surveyLanguageSnapshot',
-    )
+
+    if (!withData) {
+      const live = await this.getLive(surveyId, projectId, context)
+      return { snapshot: live.snapshot }
+    }
 
     // A resumed participant must see the exact snapshot their in-progress
     // response is tagged against (see ServiceAuthParticipant.auth()) rather
     // than whatever is currently live — otherwise the questions they answer
     // don't match the snapshot their save() records them against.
-    let snapshotId = resumeSnapshotId
+    const snapshotId =
+      resumeSnapshotId ??
+      (await this.getLive(surveyId, projectId, context)).publication.snapshotId
 
-    if (!snapshotId) {
-      const publication = await repoPublication.findOne(
-        {
-          surveyId,
-          stoppedAt: null,
-        },
-        { context },
-      )
+    return this.getParticipantCache().getView(projectId, snapshotId, lang, () =>
+      this.loadView(snapshotId, projectId, lang, context),
+    )
+  }
+
+  private getParticipantCache(): ServiceSurveyParticipantCache {
+    return this.getService<ServiceSurveyParticipantCache>(
+      'surveyParticipantCache',
+    )
+  }
+
+  private async getLive(
+    surveyId: string,
+    projectId: string,
+    context: DataSourceContext,
+  ) {
+    return this.getParticipantCache().getLive(projectId, surveyId, async () => {
+      const publication = await this.getRepo<RepoSurveyPublication>(
+        'surveyPublication',
+      ).findOne({ surveyId, stoppedAt: null }, { context })
 
       if (!publication) {
         throw new ServerErrorNotFound('Survey not published')
       }
 
-      snapshotId = publication.snapshotId
-    }
+      const snapshot = await this.getRepo<RepoSurveySnapshotPartial>(
+        'surveySnapshotPartial',
+      ).findOne({ _id: publication.snapshotId }, { context })
 
-    const snapshot = await repoSurveySnapshotPartial.findOne(
-      {
-        _id: snapshotId,
-      },
-      { context },
-    )
+      if (!snapshot) {
+        throw new ServerErrorNotFound('Snapshot not found')
+      }
+
+      return { publication, snapshot }
+    })
+  }
+
+  private async loadView(
+    snapshotId: string,
+    projectId: string,
+    lang: string | null,
+    context: DataSourceContext,
+  ) {
+    const snapshot = await this.getRepo<RepoSurveySnapshotPartial>(
+      'surveySnapshotPartial',
+    ).findOne({ _id: snapshotId }, { context })
 
     if (!snapshot) {
       throw new ServerErrorNotFound('Snapshot not found')
     }
 
-    if (!withData) {
-      return { snapshot }
-    }
-
-    const snapshotData = await repoSurveySnapshot.findOne(
-      { snapshotId: snapshot._id },
-      { context },
-    )
+    const snapshotData = await this.getRepo<RepoSurveySnapshot>(
+      'surveySnapshot',
+    ).findOne({ snapshotId: snapshot._id }, { context })
 
     if (!snapshotData) {
       throw new ServerErrorNotFound('Snapshot data not found')
@@ -117,7 +134,7 @@ export class ServiceSurveyParticipantSnapshot extends Service {
     )
     const survey = await this.getGatedSurveyPresentation(
       await mergeSurveyLanguageSnapshots(
-        repoSurveyLanguageSnapshot,
+        this.getRepo<RepoSurveyLanguageSnapshot>('surveyLanguageSnapshot'),
         snapshotData.survey,
         snapshot._id,
         langCodes,

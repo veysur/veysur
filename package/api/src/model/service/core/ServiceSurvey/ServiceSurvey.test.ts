@@ -2,6 +2,11 @@ import { Survey } from 'veysur-common'
 
 import { ServiceSurvey } from './ServiceSurvey'
 
+const participantCache = {
+  invalidateSurvey: jest.fn().mockResolvedValue(undefined),
+  invalidateProject: jest.fn().mockResolvedValue(undefined),
+}
+
 jest.mock('model', () => ({}))
 
 describe('ServiceSurvey.create section seeding', () => {
@@ -218,7 +223,13 @@ describe('ServiceSurvey.delete embed artefacts', () => {
       bulkDeleteForSurvey: jest.fn().mockResolvedValue(undefined),
     })) as typeof service.getService)
     Object.defineProperty(service, 'modelManager', {
-      value: { services: { eventLog, surveyEmbedArtefact: { removeSurvey } } },
+      value: {
+        services: {
+          eventLog,
+          surveyEmbedArtefact: { removeSurvey },
+          surveyParticipantCache: participantCache,
+        },
+      },
       writable: true,
     })
 
@@ -233,5 +244,6 @@ describe('ServiceSurvey.delete embed artefacts', () => {
       surveyId: 's1',
       projectId: 'p1',
     })
+    expect(participantCache.invalidateSurvey).toHaveBeenCalledWith('p1', 's1')
   })
 })

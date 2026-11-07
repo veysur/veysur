@@ -1,5 +1,10 @@
 import { ServiceSettingProject } from './ServiceSettingProject'
 
+const participantCache = {
+  invalidateSurvey: jest.fn().mockResolvedValue(undefined),
+  invalidateProject: jest.fn().mockResolvedValue(undefined),
+}
+
 jest.mock('model', () => ({}))
 
 describe('ServiceSettingProject', () => {
@@ -31,7 +36,10 @@ describe('ServiceSettingProject', () => {
     Object.defineProperty(service, 'modelManager', {
       value: {
         config: { encryptionService: withEncryption ? {} : undefined },
-        services: { surveyEmbedArtefact: { refreshProject } },
+        services: {
+          surveyEmbedArtefact: { refreshProject },
+          surveyParticipantCache: participantCache,
+        },
       },
       writable: true,
     })
@@ -72,6 +80,7 @@ describe('ServiceSettingProject', () => {
     const [, update] = repo.updateOne.mock.calls[0]
     expect(update.$set.maps).toEqual({ googleApiKey: 'new-key' })
     expect(refreshProject).toHaveBeenCalledWith({ projectId: 'proj_1' })
+    expect(participantCache.invalidateProject).toHaveBeenCalledWith('proj_1')
   })
 
   test('updateBotProtection keeps the stored secret when the form leaves it blank', async () => {

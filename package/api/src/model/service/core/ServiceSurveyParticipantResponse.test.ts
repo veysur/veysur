@@ -671,4 +671,117 @@ describe('ServiceSurveyParticipantResponse', () => {
       ).toHaveBeenCalled()
     })
   })
+
+  describe('snapshot cache', () => {
+    const snapshot = { survey: { elements: [], sections: [], data: {} } }
+
+    test('loads a snapshot once across saves and sessions', async () => {
+      mockRepoSurveyResponse.findOne.mockResolvedValue(null)
+      mockRepoSurveySnapshot.findOne.mockResolvedValue(snapshot)
+
+      for (const sessionId of ['s1', 's2', 's3']) {
+        await service.save({
+          response: { answers: { q1: 'a' }, completedAt: false },
+          aclContext: { ...baseAclContext(), participantId: null, sessionId },
+        })
+      }
+
+      expect(mockRepoSurveySnapshot.findOne).toHaveBeenCalledTimes(1)
+    })
+
+    test('keeps snapshots of different projects apart', async () => {
+      mockRepoSurveyResponse.findOne.mockResolvedValue(null)
+      mockRepoSurveySnapshot.findOne.mockResolvedValue(snapshot)
+
+      for (const projectId of ['proj_1', 'proj_2']) {
+        await service.save({
+          response: { answers: {}, completedAt: false },
+          aclContext: { ...baseAclContext(), projectId },
+        })
+      }
+
+      expect(mockRepoSurveySnapshot.findOne).toHaveBeenCalledTimes(2)
+    })
+
+    test('does not cache a missing snapshot', async () => {
+      mockRepoSurveyResponse.findOne.mockResolvedValue(null)
+      mockRepoSurveySnapshot.findOne.mockResolvedValue(null)
+
+      for (let i = 0; i < 2; i++) {
+        await service.save({
+          response: { answers: {}, completedAt: false },
+          aclContext: baseAclContext(),
+        })
+      }
+
+      expect(mockRepoSurveySnapshot.findOne).toHaveBeenCalledTimes(2)
+    })
+
+    test('a second pod reads the snapshot from shared Redis, as plain JSON', async () => {
+      const stored = new Map<string, string>()
+      const redis = {
+        connected: true,
+        createIndex: jest.fn(),
+        subscribe: jest.fn(),
+        publish: jest.fn(),
+        findOne: jest.fn(async (_c: string, q: { _id: string }) =>
+          stored.has(q._id) ? JSON.parse(stored.get(q._id)) : null,
+        ),
+        insertOne: jest.fn(async (_c: string, doc: { _id: string }) => {
+          stored.set(doc._id, JSON.stringify(doc))
+        }),
+      }
+      const questionSnapshot = {
+        survey: {
+          elements: [{ code: 'q1', type: 'text', attributes: {} }],
+          sections: [],
+          data: { timestamp: true },
+        },
+      }
+      mockRepoSurveyResponse.findOne.mockResolvedValue(null)
+      mockRepoSurveySnapshot.findOne.mockResolvedValue(questionSnapshot)
+
+      const otherPod = new ServiceSurveyParticipantResponse()
+      for (const pod of [service, otherPod]) {
+        jest.spyOn(pod, 'getRepo').mockImplementation(
+          ((name: string) =>
+            ({
+              surveyResponse: mockRepoSurveyResponse,
+              surveySnapshot: mockRepoSurveySnapshot,
+            })[name]) as typeof service.getRepo,
+        )
+        jest.spyOn(pod, 'getService').mockImplementation((() => ({
+          sendCompletionEmails: jest.fn(),
+        })) as unknown as typeof service.getService)
+        asPrivate<ServiceSurveyParticipantResponse, ServicePrivateOverrides>(
+          pod,
+        ).modelManager = {
+          services: { eventLog: mockEventLog },
+          dataSources: { cacheDb: redis },
+        }
+        jest
+          .spyOn(
+            pod as unknown as {
+              onResponseFirstAnswerGuard: () => Promise<void>
+            },
+            'onResponseFirstAnswerGuard',
+          )
+          .mockResolvedValue(undefined)
+        jest
+          .spyOn(
+            pod as unknown as {
+              onResponseFirstAnswerRecorded: () => Promise<void>
+            },
+            'onResponseFirstAnswerRecorded',
+          )
+          .mockResolvedValue(undefined)
+        await pod.save({
+          response: { answers: { q1: 'a' }, completedAt: true },
+          aclContext: baseAclContext(),
+        })
+      }
+
+      expect(mockRepoSurveySnapshot.findOne).toHaveBeenCalledTimes(1)
+    })
+  })
 })

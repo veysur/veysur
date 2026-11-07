@@ -203,6 +203,10 @@ Server-to-client push (socket.io, Redis required when deployed) for hint events 
 
 Publishing writes static, cacheable files so an embedded survey makes no API call until its first answer (`ServiceSurveyEmbedArtefact`). Anything that changes what those files contain must call `refresh`/`refreshProject`, and removing a snapshot or survey must remove its files. See `docs/embedded-surveys.md`.
 
+## Participant Read Caching
+
+Snapshot bodies on the response save path and the live publication, survey view and bot-protection reads on participant auth are cached (per-pod L1, shared Redis L2). Any write that changes them must call `surveyParticipantCache.invalidateSurvey` or `invalidateProject`. See `docs/participant-caching.md`.
+
 ## Pagination
 When implementing pagination in service methods:
 - Use `skip` (not `offset`) in repo.find() options - this maps to MongoDB's native skip

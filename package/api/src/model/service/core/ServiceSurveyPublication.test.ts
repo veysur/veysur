@@ -8,6 +8,11 @@ import {
 import { ServicePublication } from './ServiceSurveyPublication'
 import { mockRepoTransaction } from '../../../test-utils/mockRepoTransaction'
 
+const participantCache = {
+  invalidateSurvey: jest.fn().mockResolvedValue(undefined),
+  invalidateProject: jest.fn().mockResolvedValue(undefined),
+}
+
 // cspell:ignore settingsurvey
 
 jest.mock('model', () => ({}))
@@ -242,6 +247,7 @@ describe('ServicePublication.publish — snapshot settings resolution', () => {
         services: {
           eventLog: mockEventLog,
           surveyEmbedArtefact: { refresh: mockEmbedRefresh },
+          surveyParticipantCache: participantCache,
         },
       },
       writable: true,
@@ -320,6 +326,10 @@ describe('ServicePublication.publish — snapshot settings resolution', () => {
       surveyId: publishArgs.surveyId,
       projectId: publishArgs.projectId,
     })
+    expect(participantCache.invalidateSurvey).toHaveBeenCalledWith(
+      publishArgs.projectId,
+      publishArgs.surveyId,
+    )
   })
 
   test('stored snapshot survey has no null settings', async () => {
@@ -487,6 +497,7 @@ describe('ServicePublication.deleteMany', () => {
             refresh: mockEmbedRefresh,
             removeSnapshots: mockEmbedRemoveSnapshots,
           },
+          surveyParticipantCache: participantCache,
         },
       },
       writable: true,
@@ -583,6 +594,10 @@ describe('ServicePublication.deleteMany', () => {
       projectId: 'project-1',
       snapshotIds: [expect.any(String)],
     })
+    expect(participantCache.invalidateSurvey).toHaveBeenCalledWith(
+      'project-1',
+      'survey-1',
+    )
   })
 
   test('removes the embed artefacts of snapshots that become orphaned', async () => {

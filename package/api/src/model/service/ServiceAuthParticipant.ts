@@ -30,6 +30,7 @@ import {
 } from 'model'
 import { ERROR_BOT_CHECK_FAILED } from './botProtection/assertBotVerified'
 import type { ServiceBotProtection } from './ServiceBotProtection'
+import type { ServiceSurveyParticipantCache } from './core/ServiceSurveyParticipantCache'
 import { findLiveSuppression } from 'model/common'
 import { Jwt } from 'acl/util/Jwt'
 import type { GeoServiceContract } from 'model/common'
@@ -74,36 +75,44 @@ export class ServiceAuthParticipant extends Service {
       'surveySnapshotPartial',
     )
 
-    const publication = await repoPublication.findOne(
-      {
-        surveyId,
-        stoppedAt: null,
+    const { publication, snapshot } = await this.getParticipantCache().getLive(
+      projectId,
+      surveyId,
+      async () => {
+        const publication = await repoPublication.findOne(
+          {
+            surveyId,
+            stoppedAt: null,
+          },
+          { context },
+        )
+
+        if (!publication) {
+          throw new ServerErrorNotFound({
+            ref: ERROR_SURVEY_NOT_STARTED,
+            key: 'error.surveyUnavailable',
+            userMessage: 'Survey is not available',
+          })
+        }
+
+        const snapshot = await repoSurveySnapshot.findOne(
+          {
+            _id: publication.snapshotId,
+          },
+          { context },
+        )
+
+        if (!snapshot) {
+          throw new ServerErrorNotFound({
+            ref: ERROR_SNAPSHOT_NOT_FOUND,
+            key: 'error.surveySnapshotNotFound',
+            userMessage: 'Survey snapshot not found',
+          })
+        }
+
+        return { publication, snapshot }
       },
-      { context },
     )
-
-    if (!publication) {
-      throw new ServerErrorNotFound({
-        ref: ERROR_SURVEY_NOT_STARTED,
-        key: 'error.surveyUnavailable',
-        userMessage: 'Survey is not available',
-      })
-    }
-
-    const snapshot = await repoSurveySnapshot.findOne(
-      {
-        _id: publication.snapshotId,
-      },
-      { context },
-    )
-
-    if (!snapshot) {
-      throw new ServerErrorNotFound({
-        ref: ERROR_SNAPSHOT_NOT_FOUND,
-        key: 'error.surveySnapshotNotFound',
-        userMessage: 'Survey snapshot not found',
-      })
-    }
 
     const survey = snapshot.surveyPartial
 
@@ -154,7 +163,11 @@ export class ServiceAuthParticipant extends Service {
 
       if (survey.access.open) {
         // fully open, no registration required — issue anonymous JWT
-        const botProtection = await this.resolveBotProtection(survey, context)
+        const botProtection = await this.resolveBotProtection(
+          survey,
+          projectId,
+          context,
+        )
         const jwtParticipant = new JwtParticipant({
           participantId: null,
           surveyId,
@@ -251,7 +264,11 @@ export class ServiceAuthParticipant extends Service {
     }
 
     // A participant who already saved answers has passed the check before
-    const botProtection = await this.resolveBotProtection(survey, context)
+    const botProtection = await this.resolveBotProtection(
+      survey,
+      projectId,
+      context,
+    )
     const jwtParticipant = new JwtParticipant({
       ...this.botClaims(botProtection, hasPartialAnswers),
       // An anonymous survey must never link a response to a participant, so the
@@ -300,7 +317,7 @@ export class ServiceAuthParticipant extends Service {
     const survey = await this.loadSnapshotSurvey(aclContext.snapshotId, context)
     const botProtection = this.getBotProtectionService()
     const verified = await botProtection.verify({
-      setting: await this.loadProjectBotProtection(context, true),
+      setting: await this.loadProjectBotProtection(projectId, context, true),
       surveyId,
       token,
       honeypot,
@@ -339,6 +356,12 @@ export class ServiceAuthParticipant extends Service {
     return this.getBotProtectionService().issueChallenge(surveyId)
   }
 
+  private getParticipantCache(): ServiceSurveyParticipantCache {
+    return this.getService<ServiceSurveyParticipantCache>(
+      'surveyParticipantCache',
+    )
+  }
+
   private getBotProtectionService(): ServiceBotProtection {
     return this.getService<ServiceBotProtection>('botProtection')
   }
@@ -356,23 +379,30 @@ export class ServiceAuthParticipant extends Service {
   /** The check this survey applies, with nothing a participant must not see. */
   private async resolveBotProtection(
     survey: Survey,
+    projectId: string,
     context: DataSourceContext,
   ) {
     return this.getBotProtectionService().resolve(
-      await this.loadProjectBotProtection(context),
+      await this.loadProjectBotProtection(projectId, context),
       survey.access.botProtection,
     )
   }
 
-  /** Secret keys stay encrypted unless `decrypt` is set: only verification needs them. */
+  /** Secret keys stay encrypted unless `decrypt` is set: only verification needs them, and that read is never cached. */
   private async loadProjectBotProtection(
+    projectId: string,
     context: DataSourceContext,
     decrypt = false,
   ) {
-    const setting = await this.getRepo<RepoSettingProject>(
-      'settingProject',
-    ).findOne({}, { context, decrypt })
-    return setting?.botProtection
+    const load = async () => {
+      const setting = await this.getRepo<RepoSettingProject>(
+        'settingProject',
+      ).findOne({}, { context, decrypt })
+      return setting?.botProtection
+    }
+    return decrypt
+      ? load()
+      : this.getParticipantCache().getBotProtection(projectId, load)
   }
 
   private botClaims(

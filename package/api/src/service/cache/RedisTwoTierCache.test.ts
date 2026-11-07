@@ -208,4 +208,117 @@ describe('RedisTwoTierCache', () => {
       'both keys should miss L1 after pattern clear',
     )
   })
+
+  describe('getOrLoad', () => {
+    it('loads once, then serves from L1', async () => {
+      const cache = makeCache(new MockRedis())
+      await cache.init()
+      const load = jest.fn().mockResolvedValue('v')
+
+      assert.equal(await cache.getOrLoad('k', load), 'v')
+      assert.equal(await cache.getOrLoad('k', load), 'v')
+      assert.equal(load.mock.calls.length, 1)
+    })
+
+    it('serves a second pod from L2 without loading', async () => {
+      const redis = new MockRedis()
+      const podA = makeCache(redis)
+      const podB = makeCache(redis)
+      await podA.init()
+      await podB.init()
+      await podA.getOrLoad('k', async () => 'v')
+      const load = jest.fn().mockResolvedValue('other')
+
+      assert.equal(await podB.getOrLoad('k', load), 'v')
+      assert.equal(load.mock.calls.length, 0)
+    })
+
+    it('shares one load between concurrent misses', async () => {
+      const cache = makeCache(new MockRedis())
+      await cache.init()
+      let resolve: (value: string) => void = () => undefined
+      const load = jest.fn().mockReturnValue(
+        new Promise<string>((r) => {
+          resolve = r
+        }),
+      )
+
+      const first = cache.getOrLoad('k', load)
+      const second = cache.getOrLoad('k', load)
+      for (let i = 0; i < 10; i++) await Promise.resolve()
+      resolve('v')
+
+      assert.equal(await first, 'v')
+      assert.equal(await second, 'v')
+      assert.equal(load.mock.calls.length, 1)
+    })
+
+    it('does not cache null results or failed loads', async () => {
+      const cache = makeCache(new MockRedis())
+      await cache.init()
+      const load = jest
+        .fn()
+        .mockResolvedValueOnce(null)
+        .mockRejectedValueOnce(new Error('db down'))
+        .mockResolvedValueOnce('v')
+
+      assert.equal(await cache.getOrLoad('k', load), null)
+      await expect(cache.getOrLoad('k', load)).rejects.toThrow('db down')
+      assert.equal(await cache.getOrLoad('k', load), 'v')
+      assert.equal(load.mock.calls.length, 3)
+    })
+
+    it('works with no Redis (L1 only)', async () => {
+      const cache = new RedisTwoTierCache<string>({
+        redis: null,
+        collectionName: 'test',
+        l1TtlMs: 60_000,
+        l2TtlSeconds: 600,
+        invalidationChannel: 'chan',
+      })
+      await cache.init()
+      const load = jest.fn().mockResolvedValue('v')
+
+      await cache.getOrLoad('k', load)
+      await cache.getOrLoad('k', load)
+      assert.equal(load.mock.calls.length, 1)
+    })
+  })
+
+  describe('maxEntries', () => {
+    it('evicts the oldest L1 entry beyond the limit', async () => {
+      const cache = new RedisTwoTierCache<string>({
+        redis: null,
+        collectionName: 'test',
+        l1TtlMs: 60_000,
+        l2TtlSeconds: 600,
+        maxEntries: 2,
+        invalidationChannel: 'chan',
+      })
+      await cache.set('a', '1')
+      await cache.set('b', '2')
+      await cache.set('c', '3')
+
+      assert.equal(cache.getStats().l1Size, 2)
+      assert.equal(await cache.get('a'), null)
+      assert.equal(await cache.get('c'), '3')
+    })
+
+    it('keeps the evicted entry in L2', async () => {
+      const redis = new MockRedis()
+      const cache = new RedisTwoTierCache<string>({
+        redis: redis as unknown as DataSourceRedis,
+        collectionName: 'test',
+        l1TtlMs: 60_000,
+        l2TtlSeconds: 600,
+        maxEntries: 1,
+        invalidationChannel: 'chan',
+      })
+      await cache.init()
+      await cache.set('a', '1')
+      await cache.set('b', '2')
+
+      assert.equal(await cache.get('a'), '1')
+    })
+  })
 })

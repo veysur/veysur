@@ -1,5 +1,10 @@
 import { ServiceSurveySnapshot } from './ServiceSurveySnapshot'
 
+const participantCache = {
+  invalidateSurvey: jest.fn().mockResolvedValue(undefined),
+  invalidateProject: jest.fn().mockResolvedValue(undefined),
+}
+
 jest.mock('model', () => ({}))
 
 describe('ServiceSurveySnapshot.deleteMany embed artefacts', () => {
@@ -26,7 +31,12 @@ describe('ServiceSurveySnapshot.deleteMany embed artefacts', () => {
       delete: jest.fn(),
     })) as typeof service.getService)
     Object.defineProperty(service, 'modelManager', {
-      value: { services: { surveyEmbedArtefact: { removeSnapshots } } },
+      value: {
+        services: {
+          surveyEmbedArtefact: { removeSnapshots },
+          surveyParticipantCache: participantCache,
+        },
+      },
       writable: true,
     })
 
@@ -42,6 +52,7 @@ describe('ServiceSurveySnapshot.deleteMany embed artefacts', () => {
       projectId: 'p1',
       snapshotIds,
     })
+    expect(participantCache.invalidateSurvey).toHaveBeenCalledWith('p1', 's1')
     expect(repo.deleteMany.mock.invocationCallOrder[0]).toBeLessThan(
       removeSnapshots.mock.invocationCallOrder[0],
     )

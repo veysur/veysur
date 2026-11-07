@@ -1,5 +1,10 @@
 import { ServiceSettingSurvey } from './ServiceSettingSurvey'
 
+const participantCache = {
+  invalidateSurvey: jest.fn().mockResolvedValue(undefined),
+  invalidateProject: jest.fn().mockResolvedValue(undefined),
+}
+
 jest.mock('model', () => ({}))
 
 describe('ServiceSettingSurvey.patch', () => {
@@ -11,7 +16,12 @@ describe('ServiceSettingSurvey.patch', () => {
       .spyOn(service, 'getRepo')
       .mockImplementation((() => ({ updateOne })) as typeof service.getRepo)
     Object.defineProperty(service, 'modelManager', {
-      value: { services: { surveyEmbedArtefact: { refreshProject } } },
+      value: {
+        services: {
+          surveyEmbedArtefact: { refreshProject },
+          surveyParticipantCache: participantCache,
+        },
+      },
       writable: true,
     })
 
@@ -28,5 +38,6 @@ describe('ServiceSettingSurvey.patch', () => {
 
     expect(updateOne).toHaveBeenCalled()
     expect(refreshProject).toHaveBeenCalledWith({ projectId: 'proj_1' })
+    expect(participantCache.invalidateProject).toHaveBeenCalledWith('proj_1')
   })
 })

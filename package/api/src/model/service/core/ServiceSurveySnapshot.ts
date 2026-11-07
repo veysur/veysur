@@ -232,6 +232,11 @@ export class ServiceSurveySnapshot extends Service {
       }
     }
 
+    await this.modelManager.services.surveyParticipantCache.invalidateSurvey(
+      projectId,
+      surveyId,
+    )
+
     await this.modelManager.services.surveyEmbedArtefact.removeSnapshots({
       surveyId,
       projectId,

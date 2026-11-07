@@ -84,6 +84,9 @@ export class ServiceSettingProject extends Service {
     projectId: string,
     context: DataSourceContext,
   ) {
+    await this.modelManager.services.surveyParticipantCache.invalidateProject(
+      projectId,
+    )
     await this.modelManager.services.surveyEmbedArtefact.refreshProject({
       projectId,
     })
@@ -100,7 +103,10 @@ export class ServiceSettingProject extends Service {
 
   /** The secret keys are encrypted fields, which need an encryption key. */
   private assertCanStoreSecrets(botProtection: BotProtectionSetting) {
-    if (hasBotProtectionSecret(botProtection) &&!this.modelManager.config.encryptionService) {
+    if (
+      hasBotProtectionSecret(botProtection) &&
+      !this.modelManager.config.encryptionService
+    ) {
       throw new ServerErrorBadRequest({
         message:
           'Bot protection secret keys need an encryption key. Set API_ENCRYPTION_PUBLIC_KEY and API_ENCRYPTION_PRIVATE_KEY first.',

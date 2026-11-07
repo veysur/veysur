@@ -1,3 +1,4 @@
+import { DataSourceRedis } from '@datacapy/om'
 import {
   Service,
   ServerErrorForbidden,
@@ -19,8 +20,16 @@ import {
 import { truncateIp } from 'model/common'
 import { assertBotVerified } from 'model/service/botProtection'
 import { contextForProject } from 'common'
+import type { RedisTwoTierCache } from 'service/cache/RedisTwoTierCache'
+import { createRedisTwoTierCache } from 'service/cache/createRedisTwoTierCache'
+
+const SNAPSHOT_CACHE_TTL_MS = 10 * 60 * 1000
+const SNAPSHOT_CACHE_TTL_SECONDS = 10 * 60
+const SNAPSHOT_CACHE_MAX_ENTRIES = 50
 
 export class ServiceSurveyParticipantResponse extends Service {
+  private snapshotCache?: Promise<RedisTwoTierCache<SurveySnapshot>>
+
   constructor() {
     super({
       name: 'surveyParticipantResponse',
@@ -98,11 +107,12 @@ export class ServiceSurveyParticipantResponse extends Service {
     }
 
     const repoSnapshotData = this.getRepo<RepoSurveySnapshot>('surveySnapshot')
-    // Load the snapshot up front on every save — its settings (anonymous, ip,
-    // referrerUrl, timestamp) all gate what may be written to the response.
-    const snapshotData: SurveySnapshot | null = await repoSnapshotData.findOne(
-      { snapshotId },
-      { context },
+    // Needed on every save: its settings (anonymous, ip, referrerUrl,
+    // timestamp) gate what may be written to the response.
+    const snapshotData = await (
+      await this.getSnapshotCache()
+    ).getOrLoad(`${projectId}:${snapshotId}`, () =>
+      repoSnapshotData.findOne({ snapshotId }, { context }),
     )
     const anonymous = !!snapshotData?.survey?.access?.anonymous
 
@@ -260,6 +270,31 @@ export class ServiceSurveyParticipantResponse extends Service {
     }
 
     return response
+  }
+
+  /**
+   * A published snapshot never changes, so the cache only bounds memory and how
+   * long a deleted snapshot keeps being served. L1 is per pod; L2 in Redis
+   * (the shared `cacheDb` datasource) spares each pod a database load.
+   */
+  private getSnapshotCache() {
+    return (this.snapshotCache ??= this.createSnapshotCache())
+  }
+
+  private createSnapshotCache() {
+    const redis =
+      (this.modelManager?.dataSources?.['cacheDb'] as DataSourceRedis) ?? null
+    return createRedisTwoTierCache<SurveySnapshot>(
+      {
+        collectionName: 'surveySnapshotCache',
+        l1TtlMs: SNAPSHOT_CACHE_TTL_MS,
+        l2TtlSeconds: SNAPSHOT_CACHE_TTL_SECONDS,
+        maxEntries: SNAPSHOT_CACHE_MAX_ENTRIES,
+        invalidationChannel: 'surveySnapshotCache:invalidate',
+      },
+      redis,
+      this.logger,
+    )
   }
 
   getIdData(aclContext) {

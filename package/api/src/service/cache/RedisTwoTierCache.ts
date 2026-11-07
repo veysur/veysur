@@ -6,6 +6,7 @@ export interface RedisTwoTierCacheOptions {
   collectionName: string // Redis collection name for L2 document storage
   l1TtlMs: number // L1 cache TTL in milliseconds
   l2TtlSeconds: number // L2 (Redis) cache TTL in seconds
+  maxEntries?: number // L1 size limit, oldest entry out first (unbounded when unset)
   keyPrefix?: string // Prefix for L1 Map keys (defaults to empty — collectionName already namespaces)
   invalidationChannel: string // Pub/sub channel for cluster-wide invalidation
   logger?: LoggerLike
@@ -35,6 +36,7 @@ interface CacheEntry<T> {
  */
 export class RedisTwoTierCache<T = unknown> {
   private l1Cache = new Map<string, CacheEntry<T>>()
+  private loading = new Map<string, Promise<T | null | undefined>>()
   private redis: DataSourceRedis | null
   private options: RedisTwoTierCacheOptions
   private logger: LoggerLike
@@ -134,10 +136,7 @@ export class RedisTwoTierCache<T = unknown> {
           this.stats.l2Hits++
 
           // Populate L1 cache with L2 value
-          this.l1Cache.set(fullKey, {
-            value: doc.data as T,
-            timestamp: Date.now(),
-          })
+          this.setL1(fullKey, doc.data as T)
 
           return doc.data as T
         }
@@ -159,10 +158,7 @@ export class RedisTwoTierCache<T = unknown> {
     const fullKey = `${this.options.keyPrefix ?? ''}${key}`
 
     // Set in L1 cache
-    this.l1Cache.set(fullKey, {
-      value,
-      timestamp: Date.now(),
-    })
+    this.setL1(fullKey, value)
 
     // Set in L2 cache (Redis) if available
     if (this.redis && this.redis.connected) {
@@ -176,6 +172,47 @@ export class RedisTwoTierCache<T = unknown> {
         this.logger.error(`Error setting L2 cache for key ${fullKey}:`, error)
         // Continue anyway - L1 cache is set
       }
+    }
+  }
+
+  /**
+   * Return the cached value, or run `load` on a miss and cache its result.
+   * Concurrent misses for one key share a single load. A null or undefined
+   * result, or a thrown error, is not cached.
+   */
+  async getOrLoad(
+    key: string,
+    load: () => Promise<T | null | undefined>,
+  ): Promise<T | null | undefined> {
+    const cached = await this.get(key)
+    if (cached !== null) return cached
+
+    const fullKey = `${this.options.keyPrefix ?? ''}${key}`
+    const inFlight = this.loading.get(fullKey)
+    if (inFlight) return inFlight
+
+    const promise = (async () => {
+      try {
+        const value = await load()
+        if (value !== null && value !== undefined) await this.set(key, value)
+        return value
+      } finally {
+        this.loading.delete(fullKey)
+      }
+    })()
+    this.loading.set(fullKey, promise)
+    return promise
+  }
+
+  private setL1(fullKey: string, value: T): void {
+    // Deleting first moves a refreshed key to the end of insertion order.
+    this.l1Cache.delete(fullKey)
+    this.l1Cache.set(fullKey, { value, timestamp: Date.now() })
+
+    const { maxEntries } = this.options
+    if (maxEntries === undefined) return
+    while (this.l1Cache.size > maxEntries) {
+      this.l1Cache.delete(this.l1Cache.keys().next().value)
     }
   }
 

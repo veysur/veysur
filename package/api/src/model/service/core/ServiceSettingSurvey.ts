@@ -63,6 +63,9 @@ export class ServiceSettingSurvey extends Service {
 
     await patcher.applyAll(patches)
 
+    await this.modelManager.services.surveyParticipantCache.invalidateProject(
+      projectId,
+    )
     await this.modelManager.services.surveyEmbedArtefact.refreshProject({
       projectId,
     })

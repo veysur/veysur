@@ -1,4 +1,5 @@
 import { asPrivate } from 'test-utils/asPrivate'
+import { passthroughParticipantCache } from 'test-utils/passthroughParticipantCache'
 
 import { ServiceSurveyParticipantSnapshot } from './ServiceSurveyParticipantSnapshot'
 
@@ -65,6 +66,13 @@ describe('ServiceSurveyParticipantSnapshot.get()', () => {
       }
       return map[name] ?? {}
     }) as typeof service.getRepo)
+
+    jest
+      .spyOn(service, 'getService')
+      .mockImplementation(((name: string) =>
+        name === 'surveyParticipantCache'
+          ? passthroughParticipantCache()
+          : {}) as typeof service.getService)
 
     // Drive the (platform-only) NOBRAND gate through the core seam; the
     // guarded subclass and its own tests cover consulting the real plan.
