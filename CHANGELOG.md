@@ -5,6 +5,12 @@ released together under a single version number (see `.changeset/README.md`). Th
 the canonical release history; the identical entry is duplicated into each package's own
 `CHANGELOG.md` by [Changesets](https://github.com/changesets/changesets).
 
+## 0.13.1
+
+### Patch Changes
+
+- b6a1920: Cache the published snapshot on the response save path, and the live publication, survey view and bot-protection reads on participant auth, in a per-pod cache backed by shared Redis. This cuts database and ORM work per participant under load. Publishing, unpublishing and settings writes invalidate the cached entries.
+
 ## 0.13.0
 
 ### Minor Changes
