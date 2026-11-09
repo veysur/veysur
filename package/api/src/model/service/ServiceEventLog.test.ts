@@ -1,3 +1,4 @@
+// cspell:ignore zsets zset zremrangebyscore
 import { ServiceEventLog } from './ServiceEventLog'
 import { asPrivate } from 'test-utils/asPrivate'
 
@@ -28,6 +29,7 @@ function makeService() {
     redisBatchSize: 200,
     maxMemoryBufferSizePerProject: 100,
     redisBackupTtlSeconds: 86400,
+    dlqTtlSeconds: 604800,
     maxRetriesBeforeDlq: 5,
     globalMaxEvents: 10000,
     maxBacklogQueueSize: 500,
@@ -74,6 +76,7 @@ describe('ServiceEventLog.log() — works without start() having run', () => {
             redisBatchSize: 200,
             maxMemoryBufferSizePerProject: 100,
             redisBackupTtlSeconds: 86400,
+            dlqTtlSeconds: 604800,
             maxRetriesBeforeDlq: 5,
             globalMaxEvents: 10000,
             maxBacklogQueueSize: 500,
@@ -230,5 +233,240 @@ describe('ServiceEventLog.listProjectEvents()', () => {
     const result = await service.listProjectEvents({ projectId: 'proj_1' })
 
     expect(result).toEqual({ events: [{ _id: 'evt_1' }], total: 1 })
+  })
+})
+
+class FakeRedis {
+  store = new Map<string, string>()
+  expiry = new Map<string, number>()
+  zsets = new Map<string, Map<string, number>>()
+  getdelCalls = 0
+
+  private zset(key: string) {
+    const z = this.zsets.get(key) ?? new Map<string, number>()
+    this.zsets.set(key, z)
+    return z
+  }
+
+  async set(key: string, value: string, _ex?: string, ttl?: number) {
+    this.store.set(key, value)
+    if (ttl) this.expiry.set(key, ttl)
+    return 'OK'
+  }
+  async get(key: string) {
+    return this.store.get(key) ?? null
+  }
+  async getdel(key: string) {
+    this.getdelCalls++
+    const v = this.store.get(key) ?? null
+    this.store.delete(key)
+    return v
+  }
+  async del(key: string) {
+    return this.store.delete(key) ? 1 : 0
+  }
+  async zadd(key: string, score: number, member: string) {
+    this.zset(key).set(member, score)
+    return 1
+  }
+  async zrem(key: string, member: string) {
+    return this.zset(key).delete(member) ? 1 : 0
+  }
+  async zcard(key: string) {
+    return this.zset(key).size
+  }
+  async zrangebyscore(
+    key: string,
+    _min: string,
+    _max: string,
+    _limit: string,
+    offset: number,
+    count: number,
+  ) {
+    return [...this.zset(key).entries()]
+      .sort((a, b) => a[1] - b[1])
+      .map(([m]) => m)
+      .slice(offset, offset + count)
+  }
+  async zremrangebyscore(key: string, _min: string, max: number) {
+    const z = this.zset(key)
+    let removed = 0
+    for (const [m, score] of z) {
+      if (score <= max) {
+        z.delete(m)
+        removed++
+      }
+    }
+    return removed
+  }
+  pipeline() {
+    const ops: Array<() => Promise<unknown>> = []
+    const chain = {
+      del: (k: string) => (ops.push(() => this.del(k)), chain),
+      zrem: (k: string, m: string) => (ops.push(() => this.zrem(k, m)), chain),
+      exec: async () => Promise.all(ops.map((op) => op())),
+    }
+    return chain
+  }
+  scan = jest.fn()
+}
+
+type WalPrivates = ServicePrivateOverrides & {
+  writeToRedisWal: (entry: unknown) => Promise<void>
+  flushRedisWal: () => Promise<void>
+  recoverFromRedis: () => Promise<void>
+  moveToDlq: (entries: unknown[], reason: string) => Promise<void>
+  getRedisClient: () => FakeRedis
+  writeEntriesToDb: jest.Mock
+}
+
+function makeWalService() {
+  const service = makeService()
+  const p = asPrivate<ServiceEventLog, WalPrivates>(service)
+  const redis = new FakeRedis()
+  jest.restoreAllMocks()
+  p.getRedisClient = () => redis
+  p.writeEntriesToDb = jest.fn().mockResolvedValue(undefined)
+  return { service, p, redis }
+}
+
+function entry(id: string, overrides: Record<string, unknown> = {}) {
+  return {
+    id,
+    bufferKey: 'proj1',
+    projectId: 'proj1',
+    action: 'response.submitted',
+    createdAt: new Date(),
+    failureCount: 0,
+    ...overrides,
+  }
+}
+
+describe('ServiceEventLog Redis WAL index', () => {
+  it('indexes each WAL entry and never scans the keyspace', async () => {
+    const { p, redis } = makeWalService()
+
+    await p.writeToRedisWal(entry('a'))
+
+    expect(redis.store.has('wal:proj1:a')).toBe(true)
+    expect(await redis.zcard('wal:index')).toBe(1)
+    expect(redis.scan).not.toHaveBeenCalled()
+  })
+
+  it('flushes indexed entries to the database and clears key and index', async () => {
+    const { p, redis } = makeWalService()
+    await p.writeToRedisWal(entry('a'))
+    await p.writeToRedisWal(entry('b'))
+
+    await p.flushRedisWal()
+
+    expect(p.writeEntriesToDb).toHaveBeenCalledWith(
+      'proj1',
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'a' }),
+        expect.objectContaining({ id: 'b' }),
+      ]),
+    )
+    expect(redis.store.size).toBe(0)
+    expect(await redis.zcard('wal:index')).toBe(0)
+    expect(redis.scan).not.toHaveBeenCalled()
+  })
+
+  it('drops index members whose key has expired', async () => {
+    const { p, redis } = makeWalService()
+    await redis.zadd('wal:index', Date.now(), 'proj1:gone')
+
+    await p.flushRedisWal()
+
+    expect(p.writeEntriesToDb).not.toHaveBeenCalled()
+    expect(await redis.zcard('wal:index')).toBe(0)
+  })
+
+  it('moves a failing entry to the back of the index so it cannot starve others', async () => {
+    const { p, redis } = makeWalService()
+    const first = entry('a')
+    await p.writeToRedisWal(first)
+    const original = Date.now() - 60000
+    redis.zsets.get('wal:index')!.set('proj1:a', original)
+    p.writeEntriesToDb.mockRejectedValueOnce(new Error('db down'))
+
+    await p.flushRedisWal()
+
+    const score = redis.zsets.get('wal:index')!.get('proj1:a')!
+    expect(score).toBeGreaterThan(original)
+    expect(JSON.parse(redis.store.get('wal:proj1:a')!).failureCount).toBe(1)
+  })
+
+  it('reads at most redisBatchSize members per flush', async () => {
+    const { p, redis } = makeWalService()
+    asPrivate<ServiceEventLog, ServicePrivateOverrides>(
+      p as unknown as ServiceEventLog,
+    ).eventLogConfig = {
+      ...(p.eventLogConfig as object),
+      redisBatchSize: 2,
+    }
+    for (const id of ['a', 'b', 'c']) await p.writeToRedisWal(entry(id))
+
+    await p.flushRedisWal()
+
+    expect(await redis.zcard('wal:index')).toBe(1)
+  })
+
+  it('prunes index members older than the WAL TTL', async () => {
+    const { p, redis } = makeWalService()
+    await redis.zadd('wal:index', Date.now() - 86400 * 1000 - 5000, 'proj1:old')
+
+    await p.flushRedisWal()
+
+    expect(await redis.zcard('wal:index')).toBe(0)
+  })
+
+  it('recovers every indexed entry on startup, in more than one batch', async () => {
+    const { p, redis } = makeWalService()
+    ;(p.eventLogConfig as { redisBatchSize: number }).redisBatchSize = 2
+    for (const id of ['a', 'b', 'c', 'd', 'e'])
+      await p.writeToRedisWal(entry(id))
+
+    await p.recoverFromRedis()
+
+    expect(p.writeEntriesToDb).toHaveBeenCalledTimes(5)
+    expect(redis.store.size).toBe(0)
+    expect(await redis.zcard('wal:index')).toBe(0)
+    expect(redis.scan).not.toHaveBeenCalled()
+  })
+
+  it('does nothing on startup when the index is empty', async () => {
+    const { p, redis } = makeWalService()
+
+    await p.recoverFromRedis()
+
+    expect(redis.getdelCalls).toBe(0)
+    expect(p.writeEntriesToDb).not.toHaveBeenCalled()
+  })
+})
+
+describe('ServiceEventLog dead-letter queue expiry', () => {
+  it('stores DLQ entries with the configured TTL and removes the WAL entry', async () => {
+    const { p, redis } = makeWalService()
+    await p.writeToRedisWal(entry('a'))
+
+    await p.moveToDlq([entry('a')], 'max_retries_exceeded')
+
+    expect(redis.expiry.get('dlq:entry:a')).toBe(604800)
+    expect(await redis.zcard('dlq:index')).toBe(1)
+    expect(redis.store.has('wal:proj1:a')).toBe(false)
+    expect(await redis.zcard('wal:index')).toBe(0)
+  })
+
+  it('prunes DLQ index members older than the DLQ TTL', async () => {
+    const { p, redis } = makeWalService()
+    await redis.zadd('dlq:index', Date.now() - 604800 * 1000 - 5000, 'old')
+    await redis.zadd('dlq:index', Date.now(), 'fresh')
+
+    await p.flushRedisWal()
+
+    expect(
+      await redis.zrangebyscore('dlq:index', '-inf', '+inf', 'LIMIT', 0, 10),
+    ).toEqual(['fresh'])
   })
 })

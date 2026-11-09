@@ -1,3 +1,4 @@
+// cspell:ignore zremrangebyscore
 import { Service } from '@datacapy/server'
 import { DataSourceContext, DataSourceRedis } from '@datacapy/om'
 import { genUniqueId } from '@datacapy/id'
@@ -10,6 +11,8 @@ import { RepoEventLogSystem } from 'model/repo/RepoEventLogSystem'
 
 const SYSTEM_BUFFER_KEY = '__system__'
 const MONGO_DUPLICATE_KEY_ERROR = 11000
+const WAL_INDEX_KEY = 'wal:index'
+const DLQ_INDEX_KEY = 'dlq:index'
 
 interface EventEntry {
   id: string
@@ -35,6 +38,7 @@ interface EventLogConfig {
   redisBatchSize: number
   maxMemoryBufferSizePerProject: number
   redisBackupTtlSeconds: number
+  dlqTtlSeconds: number
   maxRetriesBeforeDlq: number
   globalMaxEvents: number
   maxBacklogQueueSize: number
@@ -337,15 +341,19 @@ export class ServiceEventLog extends Service {
     if (!client) return
 
     const config = this.getConfig()
-    const walKeys = await this.scanRedisKeys(client, 'wal:*')
-    if (walKeys.length === 0) return
+    await this.pruneExpiredIndexes(client)
+    const members = await this.nextWalMembers(client, config.redisBatchSize)
+    if (members.length === 0) return
 
     const entriesByKey = new Map<string, EventEntry[]>()
     await Promise.all(
-      walKeys.map(async (key) => {
+      members.map(async (member) => {
         try {
-          const raw = await client.get(key)
-          if (!raw) return
+          const raw = await client.get(`wal:${member}`)
+          if (!raw) {
+            await client.zrem(WAL_INDEX_KEY, member)
+            return
+          }
           const entry = JSON.parse(raw) as EventEntry
           const group = entriesByKey.get(entry.bufferKey) ?? []
           group.push(entry)
@@ -387,11 +395,12 @@ export class ServiceEventLog extends Service {
             retryEntries.map(async (e) => {
               e.failureCount++
               await client.set(
-                `wal:${e.bufferKey}:${e.id}`,
+                `wal:${this.walMember(e)}`,
                 JSON.stringify(e),
                 'EX',
                 config.redisBackupTtlSeconds,
               )
+              await client.zadd(WAL_INDEX_KEY, Date.now(), this.walMember(e))
             }),
           )
         }
@@ -403,29 +412,35 @@ export class ServiceEventLog extends Service {
     const client = this.getRedisClient()
     if (!client) return
 
-    const walKeys = await this.scanRedisKeys(client, 'wal:*')
-    if (walKeys.length === 0) return
-
+    const config = this.getConfig()
     let recoveredCount = 0
     let failedCount = 0
 
-    await Promise.allSettled(
-      walKeys.map(async (key) => {
-        try {
-          const raw = await client.getdel(key)
-          if (!raw) return // another pod already claimed this entry
-          const entry = JSON.parse(raw) as EventEntry
-          await this.writeEntriesToDb(entry.bufferKey, [entry])
-          recoveredCount++
-        } catch {
-          failedCount++
-        }
-      }),
-    )
+    for (;;) {
+      const members = await this.nextWalMembers(client, config.redisBatchSize)
+      if (members.length === 0) break
 
-    this.logger.info(
-      `[EventLog] Startup recovery complete: ${recoveredCount} recovered, ${failedCount} left in WAL`,
-    )
+      await Promise.allSettled(
+        members.map(async (member) => {
+          try {
+            const raw = await client.getdel(`wal:${member}`)
+            await client.zrem(WAL_INDEX_KEY, member)
+            if (!raw) return // another pod already claimed this entry
+            const entry = JSON.parse(raw) as EventEntry
+            await this.writeEntriesToDb(entry.bufferKey, [entry])
+            recoveredCount++
+          } catch {
+            failedCount++
+          }
+        }),
+      )
+    }
+
+    if (recoveredCount > 0 || failedCount > 0) {
+      this.logger.info(
+        `[EventLog] Startup recovery complete: ${recoveredCount} recovered, ${failedCount} failed`,
+      )
+    }
   }
 
   private async writeToRedisWal(entry: EventEntry) {
@@ -433,24 +448,36 @@ export class ServiceEventLog extends Service {
     if (!client) return
     const config = this.getConfig()
     await client.set(
-      `wal:${entry.bufferKey}:${entry.id}`,
+      `wal:${this.walMember(entry)}`,
       JSON.stringify(entry),
       'EX',
       config.redisBackupTtlSeconds,
     )
+    await client.zadd(WAL_INDEX_KEY, Date.now(), this.walMember(entry))
+  }
+
+  private walMember(entry: EventEntry) {
+    return `${entry.bufferKey}:${entry.id}`
   }
 
   private async deleteWalKeys(entries: EventEntry[]) {
     const client = this.getRedisClient()
     if (!client || entries.length === 0) return
     await Promise.allSettled(
-      entries.map((e) => client.del(`wal:${e.bufferKey}:${e.id}`)),
+      entries.map((e) =>
+        client
+          .pipeline()
+          .del(`wal:${this.walMember(e)}`)
+          .zrem(WAL_INDEX_KEY, this.walMember(e))
+          .exec(),
+      ),
     )
   }
 
   private async moveToDlq(entries: EventEntry[], reason: string) {
     const client = this.getRedisClient()
     if (!client) return
+    const config = this.getConfig()
     const now = Date.now()
     await Promise.allSettled(
       entries.map(async (e) => {
@@ -459,31 +486,45 @@ export class ServiceEventLog extends Service {
           failureReason: reason,
           movedToDlqAt: new Date(now).toISOString(),
         }
-        await client.set(`dlq:entry:${e.id}`, JSON.stringify(dlqEntry))
-        await client.zadd('dlq:index', now, e.id)
-        await client.del(`wal:${e.bufferKey}:${e.id}`)
+        await client.set(
+          `dlq:entry:${e.id}`,
+          JSON.stringify(dlqEntry),
+          'EX',
+          config.dlqTtlSeconds,
+        )
+        await client.zadd(DLQ_INDEX_KEY, now, e.id)
+        await client.del(`wal:${this.walMember(e)}`)
+        await client.zrem(WAL_INDEX_KEY, this.walMember(e))
       }),
     )
   }
 
-  private async scanRedisKeys(
-    client: Redis,
-    pattern: string,
-  ): Promise<string[]> {
-    const keys: string[] = []
-    let cursor = '0'
-    do {
-      const [nextCursor, batch] = await client.scan(
-        cursor,
-        'MATCH',
-        pattern,
-        'COUNT',
-        100,
-      )
-      cursor = nextCursor
-      keys.push(...batch)
-    } while (cursor !== '0')
-    return keys
+  private async pruneExpiredIndexes(client: Redis) {
+    const config = this.getConfig()
+    const now = Date.now()
+    await Promise.all([
+      client.zremrangebyscore(
+        WAL_INDEX_KEY,
+        '-inf',
+        now - config.redisBackupTtlSeconds * 1000,
+      ),
+      client.zremrangebyscore(
+        DLQ_INDEX_KEY,
+        '-inf',
+        now - config.dlqTtlSeconds * 1000,
+      ),
+    ])
+  }
+
+  private async nextWalMembers(client: Redis, limit: number) {
+    return client.zrangebyscore(
+      WAL_INDEX_KEY,
+      '-inf',
+      '+inf',
+      'LIMIT',
+      0,
+      limit,
+    )
   }
 
   private dropOldestEvents() {
@@ -544,7 +585,7 @@ export class ServiceEventLog extends Service {
     let dlqCount = 0
     if (client) {
       try {
-        dlqCount = await client.zcard('dlq:index')
+        dlqCount = await client.zcard(DLQ_INDEX_KEY)
       } catch {
         // non-critical
       }
@@ -574,9 +615,9 @@ export class ServiceEventLog extends Service {
     const perPageNum = perPage ?? 20
     const offset = (pageNum - 1) * perPageNum
 
-    const total = await client.zcard('dlq:index')
+    const total = await client.zcard(DLQ_INDEX_KEY)
     const ids = await client.zrangebyscore(
-      'dlq:index',
+      DLQ_INDEX_KEY,
       '-inf',
       '+inf',
       'LIMIT',
@@ -658,7 +699,7 @@ export class ServiceEventLog extends Service {
     this.memoryBuffer.set(entry.bufferKey, buffer)
 
     await client.del(`dlq:entry:${id}`)
-    await client.zrem('dlq:index', id)
+    await client.zrem(DLQ_INDEX_KEY, id)
 
     return { retried: true }
   }

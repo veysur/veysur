@@ -59,6 +59,8 @@ log()
 
 **Crash recovery:** If the process dies, the in-memory buffer is lost but Redis WAL survives. On next startup, WAL entries are replayed to the database before the server begins accepting requests. Each WAL key is claimed atomically via `GETDEL`, so in a multi-pod deployment only one pod processes each entry — concurrent startups do not produce duplicate events.
 
+**WAL index:** every WAL entry is also a member of the `wal:index` sorted set (member `<bufferKey>:<id>`, score the time written). The flush and startup recovery read the oldest `REDIS_BATCH_SIZE` members from the index, never scanning the keyspace: a `SCAN` costs time proportional to every key in Redis, and ran on every pod every few seconds. Do not add a `SCAN` or `KEYS` over this keyspace. A failed entry is re-scored to the back so it cannot starve newer ones, and members older than the TTL are pruned. Entries written before the index existed are not indexed and expire on their own TTL.
+
 **Redis unavailable:** WAL writes are silently skipped. The memory buffer continues operating and events flush directly to the database. No action needed when Redis recovers.
 
 **Both unavailable:** `log()` returns HTTP 503 (fail closed). No events are accepted until at least one tier is available.
@@ -77,6 +79,7 @@ All values are set via environment variables.
 | `GLOBAL_MAX_EVENTS` | `10000` | Total in-memory cap across all buffers; oldest events dropped first |
 | `MAX_BACKLOG_QUEUE_SIZE` | `500` | Per-project backoff queue limit; excess moves directly to DLQ |
 | `REDIS_BACKUP_TTL_SECONDS` | `86400` | TTL for Redis WAL entries (24 hours) |
+| `DLQ_TTL_SECONDS` | `604800` | TTL for dead-letter entries (7 days) |
 | `MAX_RETRIES_BEFORE_DLQ` | `5` | Consecutive flush failures before an event moves to the DLQ |
 | `MEMORY_WARNING_THRESHOLD` | `0.7` | Log a warning when global buffer reaches this fraction of the limit |
 
@@ -133,7 +136,7 @@ Events land in the DLQ when:
 - They have failed `MAX_RETRIES_BEFORE_DLQ` consecutive flush attempts
 - The per-project backlog queue overflows (`MAX_BACKLOG_QUEUE_SIZE` exceeded)
 
-DLQ entries are stored in Redis with no TTL — they persist until retried or Redis is flushed.
+DLQ entries are stored in Redis with a TTL (`DLQ_TTL_SECONDS`, default 7 days) and expire if not retried first. Without an expiry a long database outage, or a deleted project, leaves entries in Redis for good.
 
 The core edition exposes no endpoint to inspect or retry DLQ entries. `ServiceEventLog` provides the
 health and DLQ methods, and a deployment can expose them over HTTP through an extension.
