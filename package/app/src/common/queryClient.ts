@@ -6,6 +6,7 @@ import {
   KEY_STATE_SURVEY_AUTH,
   KEY_STATE_COOKIE_CONSENT,
   KEY_STATE_REMEMBER_ME,
+  KEY_STATE_SIGNUP_REMEMBER_PENDING,
   KEY_STORAGE_AUTH_HANDOFF,
 } from 'common/keyState'
 import { BrowserPersister } from './BrowserPersister'
@@ -33,6 +34,11 @@ queryClient.setQueryDefaults([KEY_STATE_REMEMBER_ME], {
   meta: { persistence: { enabled: true, storageType: 'local' } },
 })
 
+queryClient.setQueryDefaults([KEY_STATE_SIGNUP_REMEMBER_PENDING], {
+  staleTime: Infinity,
+  meta: { persistence: { enabled: true, storageType: 'local' } },
+})
+
 // Exported so each app's root can mount <PersistQueryClientProvider persistOptions={{ persister:
 // browserPersister }}>. Restoration must gate rendering (via useIsRestoring()) rather than run
 // as a fire-and-forget side effect here — a bare persistQueryClient() call lets any query with a
@@ -53,6 +59,7 @@ export const browserPersister = new BrowserPersister(
       KEY_STATE_SURVEY_AUTH,
       KEY_STATE_COOKIE_CONSENT,
       KEY_STATE_REMEMBER_ME,
+      KEY_STATE_SIGNUP_REMEMBER_PENDING,
     ],
     // Only the auth session follows the "remember me" choice into localStorage. Application
     // data always stays in sessionStorage (cleared on browser close), so a remembered login

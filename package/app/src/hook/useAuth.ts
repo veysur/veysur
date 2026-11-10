@@ -7,6 +7,7 @@ import { PropsOf } from '@datacapy/schema'
 import {
   KEY_STATE_AUTH,
   KEY_STATE_REMEMBER_ME,
+  KEY_STATE_SIGNUP_REMEMBER_PENDING,
   KEY_STATE_2FA_PROMPTED,
 } from 'common/keyState'
 import { stripFunctions } from 'common'
@@ -173,6 +174,11 @@ export function useAuth() {
   }) => {
     const result = await getApiAuth().signup(data)
     if (result?.client && result?.user && result?.accessToken && result?.jwt) {
+      // Hold auth in localStorage until email verification, so the verification link
+      // opened in a new tab is still signed in. Remember-me must be set before auth.
+      clearPersistedCache()
+      queryClient.setQueryData([KEY_STATE_REMEMBER_ME], true)
+      queryClient.setQueryData([KEY_STATE_SIGNUP_REMEMBER_PENDING], false)
       setAuth(result)
       return true
     }
@@ -182,6 +188,7 @@ export function useAuth() {
   const logout = () => {
     clearPersistedCache()
     queryClient.removeQueries({ queryKey: [KEY_STATE_REMEMBER_ME] })
+    queryClient.removeQueries({ queryKey: [KEY_STATE_SIGNUP_REMEMBER_PENDING] })
     queryClient.removeQueries({ queryKey: [KEY_STATE_2FA_PROMPTED] })
     setAuth(null)
     const client = auth?.client

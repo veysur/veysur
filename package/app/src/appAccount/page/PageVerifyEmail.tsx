@@ -18,6 +18,11 @@ import { usePageTitle } from 'hook'
 import { getRestClient } from 'registry'
 import { ErrorRest } from 'model/api'
 import { RedirectPending } from 'model'
+import { queryClient } from 'common/queryClient'
+import {
+  KEY_STATE_REMEMBER_ME,
+  KEY_STATE_SIGNUP_REMEMBER_PENDING,
+} from 'common/keyState'
 import { Registry, KEY_REGISTRY_EMAIL_VERIFIED_HANDLER } from 'common'
 
 const RESEND_SUCCESS_MESSAGE_TIMEOUT_MS = 5000
@@ -45,6 +50,16 @@ const errorMessages: Record<string, string> = {
     'Too many failed attempts. Please request a new verification code.',
   EMAIL_FREQUENCY_LIMIT:
     'Too many emails sent recently. Please wait a few minutes and try again.',
+}
+
+/** Signup held auth in localStorage; now apply the real remember-me choice (moves the blob). */
+const applySignupRememberChoice = () => {
+  const pending = queryClient.getQueryData<boolean>([
+    KEY_STATE_SIGNUP_REMEMBER_PENDING,
+  ])
+  if (pending === undefined) return
+  queryClient.setQueryData([KEY_STATE_REMEMBER_ME], pending)
+  queryClient.removeQueries({ queryKey: [KEY_STATE_SIGNUP_REMEMBER_PENDING] })
 }
 
 const StatusMessage: React.FC<{
@@ -98,6 +113,7 @@ export const PageVerifyEmail: React.FC = () => {
       })
       // Refresh auth data to get updated email verification status
       const refreshed = await authRefresh(true)
+      if (refreshed) applySignupRememberChoice()
       Registry.getInstance().get<(() => void) | null>(
         KEY_REGISTRY_EMAIL_VERIFIED_HANDLER,
         () => null,
