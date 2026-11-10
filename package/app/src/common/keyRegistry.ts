@@ -19,4 +19,6 @@ export const KEY_REGISTRY_PROFILE_EDIT_GUARD = 'profileEditGuard'
 export const KEY_REGISTRY_ACCOUNT_NAV_PROVIDER = 'accountNavProvider'
 export const KEY_REGISTRY_SINGLE_PROJECT_REDIRECT_RESOLVER =
   'singleProjectRedirectResolver'
+/** Optional `() => void` an extension sets; called once after the user's email is verified. */
+export const KEY_REGISTRY_EMAIL_VERIFIED_HANDLER = 'emailVerifiedHandler'
 export const KEY_REGISTRY_SOCKET_CLIENT = 'socketClient'

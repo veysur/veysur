@@ -154,6 +154,15 @@ export default defineConfig({
       'process.env.PUBLIC_GOOGLE_ADS_SIGNUP_CONVERSION': JSON.stringify(
         process.env.PUBLIC_GOOGLE_ADS_SIGNUP_CONVERSION ?? '',
       ),
+      'process.env.PUBLIC_GOOGLE_ADS_VERIFIED_CONVERSION': JSON.stringify(
+        process.env.PUBLIC_GOOGLE_ADS_VERIFIED_CONVERSION ?? '',
+      ),
+      'process.env.PUBLIC_GOOGLE_ADS_PROJECT_CONVERSION': JSON.stringify(
+        process.env.PUBLIC_GOOGLE_ADS_PROJECT_CONVERSION ?? '',
+      ),
+      'process.env.PUBLIC_GOOGLE_ADS_PLAN_CONVERSION': JSON.stringify(
+        process.env.PUBLIC_GOOGLE_ADS_PLAN_CONVERSION ?? '',
+      ),
     },
   },
   output: {
