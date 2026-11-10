@@ -79,8 +79,8 @@ export class ApiAuth extends Api {
   }
 
   async signup(data: {
-    nameFirst: string
-    nameLast: string
+    nameFirst?: string
+    nameLast?: string
     email: string
     password: string
     botCheck?: BotCheck

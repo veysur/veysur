@@ -166,8 +166,8 @@ export function useAuth() {
   }
 
   const signupEmailPassword = async (data: {
-    nameFirst: string
-    nameLast: string
+    nameFirst?: string
+    nameLast?: string
     email: string
     password: string
     botCheck?: BotCheck

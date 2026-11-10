@@ -1,6 +1,6 @@
 {{#> layout-email title="Email Verification" }} {{#*inline "content"}}
 <div>
-  Hello {{user.nameFirst}},
+  Hello{{#if user.nameFirst}} {{user.nameFirst}}{{/if}},
   <br />
   Thank you for registering.<br /><br />
   <table
