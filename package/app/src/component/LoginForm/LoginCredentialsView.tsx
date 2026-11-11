@@ -1,12 +1,12 @@
 import type { UseFormReturn } from 'react-hook-form'
 
-import { cn } from 'common/cn'
 import { Button } from 'component/shadcn/button'
 import { Checkbox } from 'component/shadcn/checkbox'
 import { Input } from 'component/shadcn/input'
 import { Label } from 'component/shadcn/label'
 import { Alert, AlertDescription } from 'component/shadcn/alert'
 import { Spinner } from 'component/shadcn/spinner'
+import { AuthFormLayout } from 'component/AuthFormLayout'
 import { FieldError } from 'component/Form'
 import { AuthDomain } from 'model'
 
@@ -55,85 +55,76 @@ export const LoginCredentialsView: React.FC<Props> = ({
         )}
       </div>
     )}
-    <form
-      className={cn(
-        'flex items-center justify-center p-6 md:p-8 min-h-[400px]',
-        autoSigningIn && 'hidden',
-      )}
+    <AuthFormLayout
+      title="Welcome back"
+      description="Login to your account"
       onSubmit={onSubmit}
+      className={autoSigningIn ? 'hidden' : undefined}
     >
-      <div className="flex flex-col gap-6 w-full max-w-sm">
-        <div className="flex flex-col items-center text-center">
-          <h1 className="text-2xl font-bold">Welcome back</h1>
-          <p className="text-balance text-muted-foreground">
-            Login to your account
-          </p>
-        </div>
-        <div className="grid gap-1">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="m@example.com"
-            {...passwordManagerOptOut}
-            {...form.register('email')}
-          />
-          {form.formState.errors.email && (
-            <FieldError className="mt-1">
-              {form.formState.errors.email.message}
-            </FieldError>
-          )}
-        </div>
-        <div className="grid gap-1">
-          <div className="flex items-center">
-            <Label htmlFor="password">Password</Label>
-            <a
-              href={AuthDomain.getAccountUrl('password-reset')}
-              className="ml-auto text-sm underline-offset-4 hover:underline"
-            >
-              Forgot password?
-            </a>
-          </div>
-          <Input
-            id="password"
-            type="password"
-            {...passwordManagerOptOut}
-            {...form.register('password')}
-          />
-          {form.formState.errors.password && (
-            <FieldError className="mt-1">
-              {form.formState.errors.password.message}
-            </FieldError>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          <Checkbox
-            id="rememberMe"
-            checked={rememberMe}
-            onCheckedChange={(checked) => onRememberMeChange(checked === true)}
-          />
-          <Label
-            htmlFor="rememberMe"
-            className="font-normal cursor-pointer leading-none mb-0"
-          >
-            Remember me
-          </Label>
-        </div>
-        {formError && (
-          <Alert variant="destructive">
-            <AlertDescription>{formError}</AlertDescription>
-          </Alert>
+      <div className="grid gap-1">
+        <Label htmlFor="email">Email</Label>
+        <Input
+          id="email"
+          type="email"
+          placeholder="m@example.com"
+          {...passwordManagerOptOut}
+          {...form.register('email')}
+        />
+        {form.formState.errors.email && (
+          <FieldError className="mt-1">
+            {form.formState.errors.email.message}
+          </FieldError>
         )}
-        {botCheckElement}
-        <Button
-          type="submit"
-          disabled={formIsLoading || !botCheckReady}
-          className="w-full"
-        >
-          {formIsLoading && <Spinner size="sm" className="mr-2" />}
-          Login
-        </Button>
       </div>
-    </form>
+      <div className="grid gap-1">
+        <div className="flex items-center">
+          <Label htmlFor="password">Password</Label>
+          <a
+            href={AuthDomain.getAccountUrl('password-reset')}
+            className="ml-auto text-sm underline-offset-4 hover:underline"
+          >
+            Forgot password?
+          </a>
+        </div>
+        <Input
+          id="password"
+          type="password"
+          {...passwordManagerOptOut}
+          {...form.register('password')}
+        />
+        {form.formState.errors.password && (
+          <FieldError className="mt-1">
+            {form.formState.errors.password.message}
+          </FieldError>
+        )}
+      </div>
+      <div className="flex items-center gap-2">
+        <Checkbox
+          id="rememberMe"
+          checked={rememberMe}
+          onCheckedChange={(checked) => onRememberMeChange(checked === true)}
+        />
+        <Label
+          htmlFor="rememberMe"
+          className="font-normal cursor-pointer leading-none mb-0"
+        >
+          Remember me
+        </Label>
+      </div>
+      {formError && (
+        <Alert variant="destructive">
+          <AlertDescription>{formError}</AlertDescription>
+        </Alert>
+      )}
+      {botCheckElement}
+      <Button
+        type="submit"
+        disabled={formIsLoading || !botCheckReady}
+        className="w-full"
+      >
+        {formIsLoading && <Spinner size="sm" className="mr-2" />}
+        Login
+      </Button>
+    </AuthFormLayout>
   </>
 )

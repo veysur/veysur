@@ -9,6 +9,7 @@ import { Input } from 'component/shadcn/input'
 import { Label } from 'component/shadcn/label'
 import { Alert, AlertDescription } from 'component/shadcn/alert'
 import { Spinner } from 'component/shadcn/spinner'
+import { AuthFormLayout } from 'component/AuthFormLayout'
 import { OtpInput } from 'component/OtpInput'
 import { FieldError } from 'component/Form'
 import { useAuth } from 'hook'
@@ -112,124 +113,110 @@ export const TwoFactorSetupForm: React.FC<Props> = ({
 
   if (step === 'confirm') {
     return (
-      <form
-        className="flex items-center justify-center p-6 md:p-8 min-h-[400px]"
+      <AuthFormLayout
+        title="Two-Factor Authentication"
+        description="Enter the 6-digit code from your authenticator app to confirm
+              setup"
         onSubmit={(e) => {
           e.preventDefault()
           submitSetupConfirm()
         }}
       >
-        <div className="flex flex-col gap-6 w-full max-w-sm">
-          <div className="flex flex-col items-center text-center">
-            <h1 className="text-2xl font-bold">Two-Factor Authentication</h1>
-            <p className="text-balance text-muted-foreground">
-              Enter the 6-digit code from your authenticator app to confirm
-              setup
-            </p>
-          </div>
-          <div className="grid gap-1">
-            <OtpInput
-              value={confirmFormCode}
-              onChange={(val) =>
-                confirmForm.setValue('code', val, {
-                  shouldValidate: confirmForm.formState.isSubmitted,
-                })
-              }
-              onComplete={submitSetupConfirm}
-              autoFocus
-              disabled={isEnabling}
-            />
-            {confirmForm.formState.errors.code && (
-              <div className="flex justify-center">
-                <FieldError className="mt-1">
-                  {confirmForm.formState.errors.code.message}
-                </FieldError>
-              </div>
-            )}
-          </div>
-          {enableError && (
-            <Alert variant="destructive">
-              <AlertDescription>{enableError}</AlertDescription>
-            </Alert>
+        <div className="grid gap-1">
+          <OtpInput
+            value={confirmFormCode}
+            onChange={(val) =>
+              confirmForm.setValue('code', val, {
+                shouldValidate: confirmForm.formState.isSubmitted,
+              })
+            }
+            onComplete={submitSetupConfirm}
+            autoFocus
+            disabled={isEnabling}
+          />
+          {confirmForm.formState.errors.code && (
+            <div className="flex justify-center">
+              <FieldError className="mt-1">
+                {confirmForm.formState.errors.code.message}
+              </FieldError>
+            </div>
           )}
-          <Button type="submit" disabled={isEnabling} className="w-full">
-            {isEnabling && <Spinner size="sm" className="mr-2" />}
-            Verify and Enable
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => setStep('qr')}
-            className="w-full"
-          >
-            Back
-          </Button>
         </div>
-      </form>
+        {enableError && (
+          <Alert variant="destructive">
+            <AlertDescription>{enableError}</AlertDescription>
+          </Alert>
+        )}
+        <Button type="submit" disabled={isEnabling} className="w-full">
+          {isEnabling && <Spinner size="sm" className="mr-2" />}
+          Verify and Enable
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={() => setStep('qr')}
+          className="w-full"
+        >
+          Back
+        </Button>
+      </AuthFormLayout>
     )
   }
 
   return (
-    <div className="flex items-center justify-center p-6 md:p-8 min-h-[400px]">
-      <div className="flex flex-col gap-6 w-full max-w-sm">
-        <div className="flex flex-col items-center text-center">
-          <h1 className="text-2xl font-bold">
-            Set Up Two-Factor Authentication
-          </h1>
-          <p className="text-balance text-muted-foreground">
-            Your account requires 2FA. Scan the QR code with your authenticator
-            app.
-          </p>
+    <AuthFormLayout
+      title="Set Up Two-Factor Authentication"
+      description="Your account requires 2FA. Scan the QR code with your authenticator
+            app."
+    >
+      {setupIsLoading && (
+        <div className="flex justify-center py-4">
+          <Spinner />
         </div>
-        {setupIsLoading && (
-          <div className="flex justify-center py-4">
-            <Spinner />
+      )}
+      {setupLoadError && (
+        <Alert variant="destructive">
+          <AlertDescription>{setupLoadError}</AlertDescription>
+        </Alert>
+      )}
+      {setupData && (
+        <>
+          <div className="flex justify-center">
+            <div className="bg-white p-4 rounded-lg">
+              <QRCodeSVG value={setupData.otpauthUri} size={180} />
+            </div>
           </div>
-        )}
-        {setupLoadError && (
-          <Alert variant="destructive">
-            <AlertDescription>{setupLoadError}</AlertDescription>
-          </Alert>
-        )}
-        {setupData && (
-          <>
-            <div className="flex justify-center">
-              <div className="bg-white p-4 rounded-lg">
-                <QRCodeSVG value={setupData.otpauthUri} size={180} />
-              </div>
+          <div className="grid gap-1">
+            <Label>Secret Key (manual entry)</Label>
+            <div className="flex gap-2">
+              <Input
+                value={setupData.secret}
+                readOnly
+                className="font-mono text-sm"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCopySecret}
+                className="shrink-0"
+              >
+                {secretCopied ? 'Copied!' : 'Copy'}
+              </Button>
             </div>
-            <div className="grid gap-1">
-              <Label>Secret Key (manual entry)</Label>
-              <div className="flex gap-2">
-                <Input
-                  value={setupData.secret}
-                  readOnly
-                  className="font-mono text-sm"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleCopySecret}
-                  className="shrink-0"
-                >
-                  {secretCopied ? 'Copied!' : 'Copy'}
-                </Button>
-              </div>
-            </div>
-            <Button onClick={() => setStep('confirm')} className="w-full">
-              Continue
-            </Button>
-          </>
-        )}
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={onCancel}
-          className="w-full"
-        >
-          Back to login
-        </Button>
-      </div>
-    </div>
+          </div>
+          <Button onClick={() => setStep('confirm')} className="w-full">
+            Continue
+          </Button>
+        </>
+      )}
+      <Button
+        type="button"
+        variant="ghost"
+        onClick={onCancel}
+        className="w-full"
+      >
+        Back to login
+      </Button>
+    </AuthFormLayout>
   )
 }

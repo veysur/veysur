@@ -10,6 +10,7 @@ import { Input } from 'component/shadcn/input'
 import { Label } from 'component/shadcn/label'
 import { Alert, AlertDescription } from 'component/shadcn/alert'
 import { Spinner } from 'component/shadcn/spinner'
+import { AuthFormLayout } from 'component/AuthFormLayout'
 import { FieldError } from 'component/Form'
 import { useAuth } from 'hook'
 import { ErrorRest } from 'model/api'
@@ -21,15 +22,13 @@ type LoginFormData = {
 }
 
 const loginSchema = new Schema(
-  sb
-    .object()
-    .shape({
-      email: sb
-        .string()
-        .required({ message: 'Email is required' })
-        .email({ message: 'Invalid email address' }),
-      password: sb.string().required({ message: 'Password is required' }),
-    }),
+  sb.object().shape({
+    email: sb
+      .string()
+      .required({ message: 'Email is required' })
+      .email({ message: 'Invalid email address' }),
+    password: sb.string().required({ message: 'Password is required' }),
+  }),
 )
 
 export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
@@ -80,57 +79,50 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
   return (
     <div className={cn('flex flex-col', className)} {...props}>
       <Card className="overflow-hidden p-0">
-        <form
-          className="flex items-center justify-center p-6 md:p-8 min-h-[400px]"
+        <AuthFormLayout
+          title="Welcome back"
+          description="Login to your account"
           onSubmit={onSubmit}
         >
-          <div className="flex flex-col gap-6 w-full max-w-sm">
-            <div className="flex flex-col items-center text-center">
-              <h1 className="text-2xl font-bold">Welcome back</h1>
-              <p className="text-balance text-muted-foreground">
-                Login to your account
-              </p>
-            </div>
-            <div className="grid gap-1">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                {...form.register('email')}
-              />
-              {form.formState.errors.email && (
-                <FieldError className="mt-1">
-                  {form.formState.errors.email.message}
-                </FieldError>
-              )}
-            </div>
-            <div className="grid gap-1">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-              </div>
-              <Input
-                id="password"
-                type="password"
-                {...form.register('password')}
-              />
-              {form.formState.errors.password && (
-                <FieldError className="mt-1">
-                  {form.formState.errors.password.message}
-                </FieldError>
-              )}
-            </div>
-            {formError && (
-              <Alert variant="destructive">
-                <AlertDescription>{formError}</AlertDescription>
-              </Alert>
+          <div className="grid gap-1">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="m@example.com"
+              {...form.register('email')}
+            />
+            {form.formState.errors.email && (
+              <FieldError className="mt-1">
+                {form.formState.errors.email.message}
+              </FieldError>
             )}
-            <Button type="submit" disabled={formIsLoading} className="w-full">
-              {formIsLoading && <Spinner size="sm" className="mr-2" />}
-              Login
-            </Button>
           </div>
-        </form>
+          <div className="grid gap-1">
+            <div className="flex items-center">
+              <Label htmlFor="password">Password</Label>
+            </div>
+            <Input
+              id="password"
+              type="password"
+              {...form.register('password')}
+            />
+            {form.formState.errors.password && (
+              <FieldError className="mt-1">
+                {form.formState.errors.password.message}
+              </FieldError>
+            )}
+          </div>
+          {formError && (
+            <Alert variant="destructive">
+              <AlertDescription>{formError}</AlertDescription>
+            </Alert>
+          )}
+          <Button type="submit" disabled={formIsLoading} className="w-full">
+            {formIsLoading && <Spinner size="sm" className="mr-2" />}
+            Login
+          </Button>
+        </AuthFormLayout>
       </Card>
     </div>
   )
