@@ -1,4 +1,6 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+
+import { ErrorRest } from 'model/api'
 
 import { LoginForm } from './LoginForm'
 
@@ -16,9 +18,11 @@ jest.mock('model', () => ({
 
 const mockLoginDefaults = jest.fn()
 const mockLoginEmailPassword = jest.fn()
+const mockSetupAndLogin = jest.fn()
+const mockGetSetupDataForced = jest.fn()
 
 jest.mock('registry', () => ({
-  getApiAuth: jest.fn(),
+  getApiAuth: () => ({ getSetupDataForced: mockGetSetupDataForced }),
   getLoginDefaults: () => mockLoginDefaults,
 }))
 
@@ -33,7 +37,7 @@ jest.mock('hook', () => ({
   }),
   useAuth: () => ({
     loginEmailPassword: mockLoginEmailPassword,
-    setupAndLogin: jest.fn(),
+    setupAndLogin: mockSetupAndLogin,
   }),
 }))
 
@@ -43,6 +47,11 @@ describe('LoginForm', () => {
     mockLoginDefaults.mockReturnValue(null)
     mockLoginEmailPassword.mockResolvedValue(true)
     mockBotCheckReady = true
+    mockSetupAndLogin.mockResolvedValue(undefined)
+    mockGetSetupDataForced.mockResolvedValue({
+      secret: 'SECRET123',
+      otpauthUri: 'otpauth://totp/test?secret=SECRET123',
+    })
     mockTake.mockReturnValue({ token: 'solved:1', honeypot: '' })
   })
 
@@ -233,5 +242,109 @@ describe('LoginForm', () => {
       'href',
       'https://account.example.com/password-reset',
     )
+  })
+  describe('two-factor setup', () => {
+    const startSetup = async () => {
+      mockLoginEmailPassword.mockResolvedValue({
+        requiresTwoFactorSetup: true,
+        preAuthToken: 'pre-token',
+      })
+      render(<LoginForm />)
+      fireEvent.input(screen.getByLabelText('Email'), {
+        target: { value: 'a@b.test' },
+      })
+      fireEvent.input(screen.getByLabelText('Password'), {
+        target: { value: 'pw' },
+      })
+      fireEvent.click(screen.getByRole('button', { name: 'Login' }))
+      await screen.findByText('Set Up Two-Factor Authentication')
+      await act(async () => {})
+    }
+
+    const enterCode = (code: string) =>
+      fireEvent.paste(screen.getAllByRole('textbox')[0], {
+        clipboardData: { getData: () => code },
+      })
+
+    it('loads the setup data with the pre-auth token and shows the secret', async () => {
+      await startSetup()
+
+      expect(await screen.findByDisplayValue('SECRET123')).toBeInTheDocument()
+      expect(mockGetSetupDataForced).toHaveBeenCalledWith('pre-token')
+    })
+
+    it('shows the load error when the setup data cannot be fetched', async () => {
+      mockGetSetupDataForced.mockRejectedValue(
+        new ErrorRest({ userMessage: 'Setup unavailable' }),
+      )
+      await startSetup()
+
+      expect(await screen.findByText('Setup unavailable')).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Continue' })).toBeNull()
+    })
+
+    it('returns to the credentials form from "Back to login"', async () => {
+      await startSetup()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Back to login' }))
+
+      expect(screen.getByLabelText('Email')).toBeInTheDocument()
+    })
+
+    it('goes to the confirm step and back to the QR step', async () => {
+      await startSetup()
+      fireEvent.click(await screen.findByRole('button', { name: 'Continue' }))
+
+      expect(screen.getByText('Two-Factor Authentication')).toBeInTheDocument()
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'Back' }))
+      })
+      expect(
+        screen.getByText('Set Up Two-Factor Authentication'),
+      ).toBeInTheDocument()
+      expect(mockGetSetupDataForced).toHaveBeenCalledTimes(2)
+    })
+
+    it('enables 2FA with the code, secret and token when the code is complete', async () => {
+      await startSetup()
+      fireEvent.click(await screen.findByRole('button', { name: 'Continue' }))
+
+      enterCode('123456')
+
+      await waitFor(() =>
+        expect(mockSetupAndLogin).toHaveBeenCalledWith(
+          'pre-token',
+          '123456',
+          'SECRET123',
+          false,
+        ),
+      )
+    })
+
+    it('shows the error message when enabling fails', async () => {
+      mockSetupAndLogin.mockRejectedValue(
+        new ErrorRest({ userMessage: 'Wrong code' }),
+      )
+      await startSetup()
+      fireEvent.click(await screen.findByRole('button', { name: 'Continue' }))
+
+      enterCode('123456')
+
+      expect(await screen.findByText('Wrong code')).toBeInTheDocument()
+    })
+
+    it('copies the secret to the clipboard', async () => {
+      const writeText = jest.fn().mockResolvedValue(undefined)
+      Object.assign(navigator, { clipboard: { writeText } })
+      await startSetup()
+
+      fireEvent.click(await screen.findByRole('button', { name: 'Copy' }))
+
+      expect(writeText).toHaveBeenCalledWith('SECRET123')
+      expect(
+        await screen.findByRole('button', { name: 'Copied!' }),
+      ).toBeInTheDocument()
+    })
   })
 })
