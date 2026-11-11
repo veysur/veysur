@@ -32,27 +32,23 @@ type SetupConfirmFormData = {
 type LoginView = 'credentials' | 'two-factor' | 'setup-qr' | 'setup-confirm'
 
 const loginSchema = new Schema(
-  sb
-    .object()
-    .shape({
-      email: sb
-        .string()
-        .required({ message: 'Email is required' })
-        .email({ message: 'Invalid email address' }),
-      password: sb.string().required({ message: 'Password is required' }),
-    }),
+  sb.object().shape({
+    email: sb
+      .string()
+      .required({ message: 'Email is required' })
+      .email({ message: 'Invalid email address' }),
+    password: sb.string().required({ message: 'Password is required' }),
+  }),
 )
 
 const setupConfirmSchema = new Schema(
-  sb
-    .object()
-    .shape({
-      code: sb
-        .string()
-        .required({ message: 'Code is required' })
-        .minLength(6, { message: 'Code must be 6 digits' })
-        .maxLength(6, { message: 'Code must be 6 digits' }),
-    }),
+  sb.object().shape({
+    code: sb
+      .string()
+      .required({ message: 'Code is required' })
+      .minLength(6, { message: 'Code must be 6 digits' })
+      .maxLength(6, { message: 'Code must be 6 digits' }),
+  }),
 )
 
 export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
@@ -78,6 +74,7 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
 
   const [loginDefaults] = useState(() => getLoginDefaults()())
   const autoSubmitted = useRef(false)
+  const autoSigningIn = !!loginDefaults?.autoSubmit && !formError
   // cspell:ignore lpignore bwignore
   const passwordManagerOptOut = loginDefaults?.autoSubmit
     ? {
@@ -355,88 +352,103 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
             </div>
           </form>
         ) : (
-          <form
-            className="flex items-center justify-center p-6 md:p-8 min-h-[400px]"
-            onSubmit={onSubmit}
-          >
-            <div className="flex flex-col gap-6 w-full max-w-sm">
-              <div className="flex flex-col items-center text-center">
-                <h1 className="text-2xl font-bold">Welcome back</h1>
-                <p className="text-balance text-muted-foreground">
-                  Login to your account
-                </p>
-              </div>
-              <div className="grid gap-1">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  {...passwordManagerOptOut}
-                  {...form.register('email')}
-                />
-                {form.formState.errors.email && (
-                  <FieldError className="mt-1">
-                    {form.formState.errors.email.message}
-                  </FieldError>
-                )}
-              </div>
-              <div className="grid gap-1">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                  <a
-                    href={AuthDomain.getAccountUrl('password-reset')}
-                    className="ml-auto text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot password?
-                  </a>
-                </div>
-                <Input
-                  id="password"
-                  type="password"
-                  {...passwordManagerOptOut}
-                  {...form.register('password')}
-                />
-                {form.formState.errors.password && (
-                  <FieldError className="mt-1">
-                    {form.formState.errors.password.message}
-                  </FieldError>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="rememberMe"
-                  checked={rememberMe}
-                  onCheckedChange={(checked) => setRememberMe(checked === true)}
-                />
-                <Label
-                  htmlFor="rememberMe"
-                  className="font-normal cursor-pointer leading-none mb-0"
-                >
-                  Remember me
-                </Label>
-              </div>
-              {formIsLoading && loginDefaults?.autoSubmitMessage && (
-                <p role="status" className="text-center text-muted-foreground">
-                  {loginDefaults.autoSubmitMessage}
-                </p>
-              )}
-              {formError && (
-                <Alert variant="destructive">
-                  <AlertDescription>{formError}</AlertDescription>
-                </Alert>
-              )}
-              {botCheck.element}
-              <Button
-                type="submit"
-                disabled={formIsLoading || !botCheck.ready}
-                className="w-full"
+          <>
+            {autoSigningIn && (
+              <div
+                role="status"
+                className="flex flex-col items-center justify-center gap-4 p-6 md:p-8 min-h-[400px]"
               >
-                {formIsLoading && <Spinner size="sm" className="mr-2" />}
-                Login
-              </Button>
-            </div>
-          </form>
+                <Spinner size="lg" />
+                {loginDefaults?.autoSubmitMessage && (
+                  <p className="text-muted-foreground">
+                    {loginDefaults.autoSubmitMessage}
+                  </p>
+                )}
+              </div>
+            )}
+            <form
+              className={cn(
+                'flex items-center justify-center p-6 md:p-8 min-h-[400px]',
+                autoSigningIn && 'hidden',
+              )}
+              onSubmit={onSubmit}
+            >
+              <div className="flex flex-col gap-6 w-full max-w-sm">
+                <div className="flex flex-col items-center text-center">
+                  <h1 className="text-2xl font-bold">Welcome back</h1>
+                  <p className="text-balance text-muted-foreground">
+                    Login to your account
+                  </p>
+                </div>
+                <div className="grid gap-1">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="m@example.com"
+                    {...passwordManagerOptOut}
+                    {...form.register('email')}
+                  />
+                  {form.formState.errors.email && (
+                    <FieldError className="mt-1">
+                      {form.formState.errors.email.message}
+                    </FieldError>
+                  )}
+                </div>
+                <div className="grid gap-1">
+                  <div className="flex items-center">
+                    <Label htmlFor="password">Password</Label>
+                    <a
+                      href={AuthDomain.getAccountUrl('password-reset')}
+                      className="ml-auto text-sm underline-offset-4 hover:underline"
+                    >
+                      Forgot password?
+                    </a>
+                  </div>
+                  <Input
+                    id="password"
+                    type="password"
+                    {...passwordManagerOptOut}
+                    {...form.register('password')}
+                  />
+                  {form.formState.errors.password && (
+                    <FieldError className="mt-1">
+                      {form.formState.errors.password.message}
+                    </FieldError>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="rememberMe"
+                    checked={rememberMe}
+                    onCheckedChange={(checked) =>
+                      setRememberMe(checked === true)
+                    }
+                  />
+                  <Label
+                    htmlFor="rememberMe"
+                    className="font-normal cursor-pointer leading-none mb-0"
+                  >
+                    Remember me
+                  </Label>
+                </div>
+                {formError && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{formError}</AlertDescription>
+                  </Alert>
+                )}
+                {botCheck.element}
+                <Button
+                  type="submit"
+                  disabled={formIsLoading || !botCheck.ready}
+                  className="w-full"
+                >
+                  {formIsLoading && <Spinner size="sm" className="mr-2" />}
+                  Login
+                </Button>
+              </div>
+            </form>
+          </>
         )}
       </Card>
     </div>

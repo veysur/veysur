@@ -144,6 +144,46 @@ describe('LoginForm', () => {
     await waitFor(() => expect(mockLoginEmailPassword).toHaveBeenCalled())
   })
 
+  it('hides the form behind a status spinner while auto-signing in', async () => {
+    mockLoginEmailPassword.mockReturnValue(new Promise(() => undefined))
+    mockLoginDefaults.mockReturnValue({
+      email: 'demo@example.com',
+      password: 'demo-password',
+      autoSubmit: true,
+    })
+
+    render(<LoginForm />)
+
+    expect(screen.getByRole('status')).toBeInTheDocument()
+    expect(screen.getByLabelText('Email').closest('form')).toHaveClass('hidden')
+    await waitFor(() => expect(mockLoginEmailPassword).toHaveBeenCalled())
+  })
+
+  it('shows the form and the error when auto sign-in fails', async () => {
+    mockLoginEmailPassword.mockRejectedValue(new Error('boom'))
+    mockLoginDefaults.mockReturnValue({
+      email: 'demo@example.com',
+      password: 'demo-password',
+      autoSubmit: true,
+    })
+
+    render(<LoginForm />)
+
+    expect(
+      await screen.findByText('An unexpected error occurred'),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Email').closest('form')).not.toHaveClass(
+      'hidden',
+    )
+  })
+
+  it('does not show the spinner for a plain login', () => {
+    render(<LoginForm />)
+
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+  })
+
   it('leaves the fields empty when no login defaults are registered', () => {
     render(<LoginForm />)
 
