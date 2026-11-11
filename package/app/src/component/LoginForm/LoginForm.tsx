@@ -18,7 +18,11 @@ import {
 } from './LoginCredentialsView'
 import { useLoginAutoSubmit } from './useLoginAutoSubmit'
 
-type LoginView = 'credentials' | 'two-factor' | 'setup'
+type LoginStep =
+  | { view: 'credentials' }
+  | { view: 'two-factor' | 'setup'; preAuthToken: string }
+
+const CREDENTIALS_STEP: LoginStep = { view: 'credentials' }
 
 const loginSchema = new Schema(
   sb.object().shape({
@@ -39,8 +43,7 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
   const [formIsLoading, setFormIsLoading] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [rememberMe, setRememberMe] = useState(false)
-  const [view, setView] = useState<LoginView>('credentials')
-  const [preAuthToken, setPreAuthToken] = useState<string | null>(null)
+  const [step, setStep] = useState<LoginStep>(CREDENTIALS_STEP)
   const [loginDefaults] = useState(() => getLoginDefaults()())
   const form = useForm<LoginFormData>({
     resolver: datacapyResolver(loginSchema),
@@ -75,15 +78,16 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
         'requiresTwoFactor' in loginResult &&
         loginResult.requiresTwoFactor
       ) {
-        setPreAuthToken(loginResult.preAuthToken)
-        setView('two-factor')
+        setStep({
+          view: 'two-factor',
+          preAuthToken: loginResult.preAuthToken,
+        })
       } else if (
         loginResult !== true &&
         'requiresTwoFactorSetup' in loginResult &&
         loginResult.requiresTwoFactorSetup
       ) {
-        setPreAuthToken(loginResult.preAuthToken)
-        setView('setup')
+        setStep({ view: 'setup', preAuthToken: loginResult.preAuthToken })
       }
     } catch (error) {
       AuthDomain.clearLoginSubmitted()
@@ -109,29 +113,29 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
     submit,
   })
 
-  return (
-    <div className={cn('flex flex-col', className)} {...props}>
-      <Card className="overflow-hidden p-0">
-        {view === 'two-factor' && preAuthToken ? (
+  const backToCredentials = () => setStep(CREDENTIALS_STEP)
+
+  const renderStep = () => {
+    switch (step.view) {
+      case 'two-factor':
+        return (
           <TwoFactorVerifyForm
-            preAuthToken={preAuthToken}
+            preAuthToken={step.preAuthToken}
             rememberMe={rememberMe}
             onSuccess={() => {}}
-            onCancel={() => {
-              setView('credentials')
-              setPreAuthToken(null)
-            }}
+            onCancel={backToCredentials}
           />
-        ) : view === 'setup' && preAuthToken ? (
+        )
+      case 'setup':
+        return (
           <TwoFactorSetupForm
-            preAuthToken={preAuthToken}
+            preAuthToken={step.preAuthToken}
             rememberMe={rememberMe}
-            onCancel={() => {
-              setView('credentials')
-              setPreAuthToken(null)
-            }}
+            onCancel={backToCredentials}
           />
-        ) : (
+        )
+      case 'credentials':
+        return (
           <LoginCredentialsView
             form={form}
             onSubmit={onSubmit}
@@ -145,8 +149,13 @@ export const LoginForm: React.FC<React.ComponentProps<'div'>> = ({
             botCheckElement={botCheck.element}
             botCheckReady={botCheck.ready}
           />
-        )}
-      </Card>
+        )
+    }
+  }
+
+  return (
+    <div className={cn('flex flex-col', className)} {...props}>
+      <Card className="overflow-hidden p-0">{renderStep()}</Card>
     </div>
   )
 }
