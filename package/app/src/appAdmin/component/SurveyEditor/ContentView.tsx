@@ -1,25 +1,15 @@
-// cspell:ignore youtu nocookie
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { Suspense, useCallback, useMemo, useState } from 'react'
 import { GitBranch, Trash2 } from 'lucide-react'
-import {
-  ATTRIBUTE_CONDITION,
-  CONTENT_TYPE_YOUTUBE,
-  SurveyContent,
-  parseYoutubeUrl,
-} from 'veysur-common'
+import { ATTRIBUTE_CONDITION, SurveyContent } from 'veysur-common'
 
 import { cn } from 'common/cn'
 import { stripHtml } from 'common/stripHtml'
 import { Button } from 'component/shadcn/button'
-import { Input } from 'component/shadcn/input'
-import { Label } from 'component/shadcn/label'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from 'component/shadcn/tooltip'
-import { ContentEditor } from 'appAdmin/component/ContentEditor'
-import { FieldError } from 'component/Form'
 import {
   DialogConfirmClickable,
   ConfirmDialog,
@@ -32,11 +22,9 @@ import {
   useSurveyEditorFocus,
   useSurveyEditorStore,
   useStructuralChangeGuard,
-  useTextExpressionVariablePicker,
-  useSurveyContentFormat,
 } from './hook'
 import { MoveNav } from './MoveNav'
-import { useSurveyEditorValidation } from './validation'
+import { getContentTypeEditByName } from './ContentTypeEdit/getContentTypeEdit'
 
 interface ContentViewProps {
   isFirst: boolean
@@ -51,7 +39,6 @@ const ContentViewComponent: React.FC<ContentViewProps> = ({
 }) => {
   const [isConditionOpen, setIsConditionOpen] = useState(false)
   const { surveyFocus, setSurveyFocus } = useSurveyEditorFocus()
-  const { getFieldError } = useSurveyEditorValidation()
   const langEditing = useSurveyEditorStore((state) => state.langEditing)
   const langDefault = useSurveyEditorStore((state) => state.langDefault)
 
@@ -66,12 +53,6 @@ const ContentViewComponent: React.FC<ContentViewProps> = ({
     })
   }, [setSurveyFocus, element._id])
 
-  const updateContentText = useSurveyEditorStore(
-    (state) => state.operations?.updateContentText,
-  )
-  const setContentYoutubeUrl = useSurveyEditorStore(
-    (state) => state.operations?.setContentYoutubeUrl,
-  )
   const updateContentCondition = useSurveyEditorStore(
     (state) => state.operations?.updateContentCondition,
   )
@@ -84,9 +65,6 @@ const ContentViewComponent: React.FC<ContentViewProps> = ({
   const moveContentDown = useSurveyEditorStore(
     (state) => state.operations?.moveContentDown,
   )
-
-  const { variablePickerGroups } = useTextExpressionVariablePicker(element)
-  const { format: contentFormat } = useSurveyContentFormat()
 
   const {
     guardQuestionMoveUp,
@@ -103,13 +81,6 @@ const ContentViewComponent: React.FC<ContentViewProps> = ({
     guardQuestionMoveDown(element._id, () => moveContentDown?.(element._id))
   }, [guardQuestionMoveDown, moveContentDown, element._id])
 
-  const handleTextChange = useCallback(
-    (text: string) => {
-      updateContentText?.(element._id, text, langEditing, langDefault)
-    },
-    [updateContentText, element._id, langEditing, langDefault],
-  )
-
   const handleDelete = useCallback(() => {
     deleteContent?.(element._id)
   }, [deleteContent, element._id])
@@ -125,21 +96,7 @@ const ContentViewComponent: React.FC<ContentViewProps> = ({
     [updateContentCondition, element._id],
   )
 
-  const textValue = useMemo(
-    () => element.text?.getLang(langEditing, '') ?? '',
-    [element.text, langEditing],
-  )
-  const textErrors =
-    getFieldError('content', element._id, `text.${langEditing}`) ?? []
-
-  const isYoutube = element.type === CONTENT_TYPE_YOUTUBE
-  const youtube = element.config?.youtube ?? null
-  const parsed = youtube?.url ? parseYoutubeUrl(youtube.url) : null
-  const embedSrc = parsed
-    ? `https://www.youtube-nocookie.com/embed/${encodeURIComponent(
-        parsed.videoId,
-      )}` + (parsed.startAt ? `?start=${Math.floor(parsed.startAt)}` : '')
-    : null
+  const ContentTypeEdit = getContentTypeEditByName(element.type)
 
   const shortText = stripHtml(
     element.text?.getLang(langEditing, langDefault) || '',
@@ -189,78 +146,11 @@ const ContentViewComponent: React.FC<ContentViewProps> = ({
               </div>
             )}
 
-            {isYoutube ? (
-              <div className="space-y-2">
-                <div>
-                  <Label htmlFor={`yt-url-${element._id}`} className="text-sm">
-                    YouTube URL
-                  </Label>
-                  <Input
-                    id={`yt-url-${element._id}`}
-                    value={youtube?.url ?? ''}
-                    placeholder="https://www.youtube.com/watch?v=..."
-                    onFocus={handleOnFocus}
-                    onChange={(e) =>
-                      setContentYoutubeUrl?.(element._id, e.target.value)
-                    }
-                  />
-                  {youtube?.url && !parsed && (
-                    <FieldError
-                      errors={['That does not look like a YouTube video URL.']}
-                    />
-                  )}
-                </div>
-                {embedSrc && (
-                  <div
-                    className="relative w-full overflow-hidden rounded-md bg-muted"
-                    style={{ aspectRatio: '16 / 9' }}
-                  >
-                    <iframe
-                      className="absolute inset-0 h-full w-full border-0"
-                      src={embedSrc}
-                      title="YouTube preview"
-                      loading="lazy"
-                      sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
-                      referrerPolicy="strict-origin-when-cross-origin"
-                    />
-                  </div>
-                )}
-                <div>
-                  <Label className="text-sm">Caption (optional)</Label>
-                  <ContentEditor
-                    key={langEditing}
-                    value={textValue}
-                    variant="inline"
-                    placeholder="Caption shown below the video"
-                    withToolbar={true}
-                    format={contentFormat}
-                    variablePickerGroups={variablePickerGroups}
-                    onChange={handleTextChange}
-                    onFocus={handleOnFocus}
-                    onClick={handleOnFocus}
-                    testId={`content-editor-${element._id}`}
-                  />
-                  <FieldError errors={textErrors} />
-                </div>
-              </div>
-            ) : (
-              <div>
-                <ContentEditor
-                  key={langEditing}
-                  value={textValue}
-                  variant="inline"
-                  placeholder="Your text here"
-                  withToolbar={true}
-                  toolbarExtra={true}
-                  format={contentFormat}
-                  variablePickerGroups={variablePickerGroups}
-                  onChange={handleTextChange}
-                  onFocus={handleOnFocus}
-                  onClick={handleOnFocus}
-                  testId={`content-editor-${element._id}`}
-                />
-                <FieldError errors={textErrors} />
-              </div>
+            {ContentTypeEdit && (
+              <Suspense fallback={null}>
+                {/* eslint-disable-next-line react-hooks/static-components -- stable registry-provided reference, not created during render */}
+                <ContentTypeEdit element={element} onFocus={handleOnFocus} />
+              </Suspense>
             )}
           </div>
 

@@ -1,10 +1,9 @@
 import React from 'react'
-import { GripVertical, Type, Video } from 'lucide-react'
+import { GripVertical, Type } from 'lucide-react'
 import {
   SurveySection,
   SurveyElementBase,
   isSurveyContent,
-  CONTENT_TYPE_YOUTUBE,
 } from 'veysur-common'
 
 import { Badge } from 'component/shadcn/badge'
@@ -17,6 +16,8 @@ import {
   SURVEY_ENTITY_TYPE_ELEMENT,
   SURVEY_ENTITY_TYPE_CONTENT,
 } from 'appAdmin/component/SurveyEditor'
+
+import { contentTypeOptions } from 'appAdmin/component/SurveyAttribute/contentAttributeConfig'
 
 import { SortableItem } from './SortableItem'
 import { toQuestionDndId } from './hook/dndId'
@@ -57,7 +58,8 @@ export const QuestionItemView: React.FC<QuestionItemViewProps> = React.memo(
     const focused =
       surveyFocus?.entityType == entityType && surveyFocus?.id == question._id
 
-    const ContentIcon = question.type === CONTENT_TYPE_YOUTUBE ? Video : Type
+    const ContentIcon =
+      contentTypeOptions.find((o) => o.type === question.type)?.icon ?? Type
 
     return (
       <SortableItem

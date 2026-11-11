@@ -1,9 +1,10 @@
 // cspell:ignore youtu nocookie
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import { SurveyContent, ExpressionContextBuilder } from 'veysur-common'
 
 import { SurveyContentRenderer } from './SurveyContentRenderer'
+import { allowConsole } from '../../../tests/consoleGuard'
 import type { SurveyContentFormatConfig } from './SurveyTypes'
 
 const contentFormat: SurveyContentFormatConfig = {
@@ -14,22 +15,28 @@ const contentFormat: SurveyContentFormatConfig = {
 const emptyContext = () =>
   ExpressionContextBuilder.build({}, [], [], { language: 'en' })
 
-const renderElement = (
+// The content type components are lazy, so flush their dynamic import.
+const renderElement = async (
   element: SurveyContent,
   getExpressionContext = () => emptyContext(),
-) =>
-  render(
-    <SurveyContentRenderer
-      element={element}
-      contentFormat={contentFormat}
-      lang="en"
-      langDefault="en"
-      getExpressionContext={getExpressionContext}
-    />,
-  )
+) => {
+  let result!: ReturnType<typeof render>
+  await act(async () => {
+    result = render(
+      <SurveyContentRenderer
+        element={element}
+        contentFormat={contentFormat}
+        lang="en"
+        langDefault="en"
+        getExpressionContext={getExpressionContext}
+      />,
+    )
+  })
+  return result
+}
 
 describe('SurveyContentRenderer', () => {
-  it('renders contentText as sanitised HTML with no script tags', () => {
+  it('renders contentText as sanitised HTML with no script tags', async () => {
     const element = new SurveyContent({
       _id: 'c1',
       code: 'C001',
@@ -37,13 +44,13 @@ describe('SurveyContentRenderer', () => {
       text: { en: '**bold** <script>alert(1)</script> text' },
     })
 
-    const { container } = renderElement(element)
+    const { container } = await renderElement(element)
 
     expect(screen.getByText('bold')).toBeInTheDocument()
     expect(container.querySelector('script')).toBeNull()
   })
 
-  it('resolves {{answers.*}} expressions in contentText', () => {
+  it('resolves {{answers.*}} expressions in contentText', async () => {
     const element = new SurveyContent({
       _id: 'c1',
       code: 'C001',
@@ -58,12 +65,12 @@ describe('SurveyContentRenderer', () => {
         { language: 'en' },
       )
 
-    renderElement(element, getExpressionContext)
+    await renderElement(element, getExpressionContext)
 
     expect(screen.getByText('You picked blue.')).toBeInTheDocument()
   })
 
-  it('renders a youtube-nocookie iframe from config.youtube.videoId', () => {
+  it('renders a youtube-nocookie iframe from config.youtube.videoId', async () => {
     const element = new SurveyContent({
       _id: 'c1',
       code: 'C001',
@@ -71,7 +78,7 @@ describe('SurveyContentRenderer', () => {
       config: { youtube: { videoId: 'dQw4w9WgXcQ', startAt: 30 } },
     })
 
-    const { container } = renderElement(element)
+    const { container } = await renderElement(element)
     const iframe = container.querySelector('iframe')
 
     expect(iframe).not.toBeNull()
@@ -82,7 +89,7 @@ describe('SurveyContentRenderer', () => {
     expect(container.querySelector('script')).toBeNull()
   })
 
-  it('falls back to parsing config.youtube.url when no videoId is set', () => {
+  it('falls back to parsing config.youtube.url when no videoId is set', async () => {
     const element = new SurveyContent({
       _id: 'c1',
       code: 'C001',
@@ -90,13 +97,15 @@ describe('SurveyContentRenderer', () => {
       config: { youtube: { url: 'https://youtu.be/dQw4w9WgXcQ' } },
     })
 
-    const iframe = renderElement(element).container.querySelector('iframe')
+    const iframe = (await renderElement(element)).container.querySelector(
+      'iframe',
+    )
     expect(iframe?.getAttribute('src')).toBe(
       'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ',
     )
   })
 
-  it('renders nothing for a youtube element with no resolvable video', () => {
+  it('renders nothing for a youtube element with no resolvable video', async () => {
     const element = new SurveyContent({
       _id: 'c1',
       code: 'C001',
@@ -104,10 +113,10 @@ describe('SurveyContentRenderer', () => {
       config: { youtube: { url: 'not a url' } },
     })
 
-    expect(renderElement(element).container).toBeEmptyDOMElement()
+    expect((await renderElement(element)).container).toBeEmptyDOMElement()
   })
 
-  it('renders a caption below the youtube iframe', () => {
+  it('renders a caption below the youtube iframe', async () => {
     const element = new SurveyContent({
       _id: 'c1',
       code: 'C001',
@@ -116,11 +125,11 @@ describe('SurveyContentRenderer', () => {
       config: { youtube: { videoId: 'dQw4w9WgXcQ' } },
     })
 
-    renderElement(element)
+    await renderElement(element)
     expect(screen.getByText('Watch this first')).toBeInTheDocument()
   })
 
-  it('renders nothing for an unknown content type', () => {
+  it('renders nothing for an unknown content type', async () => {
     const element = new SurveyContent({
       _id: 'c1',
       code: 'C001',
@@ -128,6 +137,11 @@ describe('SurveyContentRenderer', () => {
       text: { en: 'x' },
     })
 
-    expect(renderElement(element).container).toBeEmptyDOMElement()
+    const { container } = await allowConsole(
+      /No component found for content type/,
+      () => renderElement(element),
+    )
+
+    expect(container).toBeEmptyDOMElement()
   })
 })

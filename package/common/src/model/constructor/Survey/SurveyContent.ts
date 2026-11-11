@@ -25,6 +25,24 @@ export interface SurveyContentConfig {
   [key: string]: unknown
 }
 
+export interface ContentTypeConfig {
+  /** Key in SurveyContentConfig this type owns, or null if it stores none */
+  configKey: keyof SurveyContentConfig | null
+}
+
+export const CONTENT_TYPE_CONFIG: Record<ContentType, ContentTypeConfig> = {
+  [CONTENT_TYPE_TEXT]: { configKey: null },
+  [CONTENT_TYPE_YOUTUBE]: { configKey: 'youtube' },
+}
+
+export function getContentTypeConfig(
+  type: string,
+): ContentTypeConfig | undefined {
+  return Object.prototype.hasOwnProperty.call(CONTENT_TYPE_CONFIG, type)
+    ? CONTENT_TYPE_CONFIG[type as ContentType]
+    : undefined
+}
+
 export interface SurveyContentData extends SurveyElementBaseData {
   kind: typeof ELEMENT_KIND_CONTENT
   /** Content-element config (e.g. `{ youtube: { url, videoId, startAt } }`). */

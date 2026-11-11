@@ -58,7 +58,7 @@ Supports three presentation formats:
 - **`group`**: One group per page (`SurveyFormatGroup`)
 - **`question`**: One question per page (`SurveyFormatQuestion`)
 
-Content elements (`SurveyContent.tsx`, `SurveyContentRenderer.tsx`) sit in the same ordered element list as questions. They collect no answer, so they carry no `answers` entry and are excluded from question numbering and the progress count.
+Content elements (`SurveyContent.tsx`, `SurveyContentRenderer.tsx`) sit in the same ordered element list as questions. `SurveyContentRenderer` resolves expressions, then renders the per-type component from the lazy registry in `component/SurveyContentType/getContentType.ts` (the editor equivalent is `SurveyEditor/ContentTypeEdit/getContentTypeEdit.ts`). They collect no answer, so they carry no `answers` entry and are excluded from question numbering and the progress count.
 
 ### Key Features
 

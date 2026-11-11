@@ -5,8 +5,7 @@ import {
   BUFFERED_PATCH_ACTION_UPDATE,
   BUFFERED_PATCH_ACTION_DELETE,
   schemaManager,
-  parseYoutubeUrl,
-  CONTENT_TYPE_YOUTUBE,
+  getContentTypeConfig,
 } from 'veysur-common'
 
 import { OperationDependencies } from './type'
@@ -142,26 +141,25 @@ export const createContentOperations = ({
 
     /**
      * Change a content element's type (e.g. Text content ↔ Video (YouTube)).
-     * Switching away from YouTube also clears `config` so a stale
-     * `config.youtube` can't linger on a text element. One `content` UPDATE patch.
+     * `config` keeps only the key the new type owns (`CONTENT_TYPE_CONFIG`), so
+     * nothing stale lingers after a switch. One `content` UPDATE patch.
      */
     updateContentType: (elementId: string, type: string) =>
       updateSurveyState((s) => {
-        const clearConfig = type !== CONTENT_TYPE_YOUTUBE
-        s = s.updateContent(elementId, {
-          type,
-          ...(clearConfig ? { config: null } : {}),
-        })
+        const configKey = getContentTypeConfig(type)?.configKey
+        const existing = contentEl(s, elementId)?.config
+        const config: SurveyContentConfig | null =
+          configKey && existing?.[configKey] != null
+            ? { [configKey]: existing[configKey] }
+            : null
+        s = s.updateContent(elementId, { type, config })
         validateAndBuffer({
           patches: [
             {
               type: SURVEY_ENTITY_TYPE_CONTENT,
               action: BUFFERED_PATCH_ACTION_UPDATE,
               id: elementId,
-              data: {
-                type,
-                ...(clearConfig ? { config: null } : {}),
-              },
+              data: { type, config },
             },
           ],
         })
@@ -187,32 +185,6 @@ export const createContentOperations = ({
     setContentConfig: (elementId: string, config: SurveyContentConfig | null) =>
       updateSurveyState((s) => {
         s = s.setContentConfig(elementId, config)
-        validateAndBuffer({
-          patches: [
-            {
-              type: SURVEY_ENTITY_TYPE_CONTENT,
-              action: BUFFERED_PATCH_ACTION_UPDATE,
-              id: elementId,
-              data: { config: contentEl(s, elementId)?.config ?? null },
-            },
-          ],
-        })
-        return s
-      }),
-
-    /**
-     * Parse a pasted YouTube URL and store the derived `{ url, videoId, startAt }`
-     * as `config.youtube`. An unparseable URL still stores the raw `url` (with
-     * `videoId` cleared) so the editor can show an inline error.
-     */
-    setContentYoutubeUrl: (elementId: string, url: string) =>
-      updateSurveyState((s) => {
-        const parsed = parseYoutubeUrl(url)
-        const existing = contentEl(s, elementId)?.config?.youtube ?? {}
-        const youtube = parsed
-          ? { url, videoId: parsed.videoId, startAt: parsed.startAt }
-          : { ...existing, url, videoId: undefined }
-        s = s.setContentConfig(elementId, { youtube })
         validateAndBuffer({
           patches: [
             {

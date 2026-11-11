@@ -105,22 +105,6 @@ describe('contentOperations', () => {
     })
   })
 
-  describe('setContentYoutubeUrl', () => {
-    it('parses the URL into config.youtube and emits one patch', () => {
-      jest.spyOn(Survey, 'genContentId').mockReturnValue('c1')
-      operations.addContent('g1', { type: CONTENT_TYPE_YOUTUBE })
-      patchBuffer = []
-
-      operations.setContentYoutubeUrl('c1', 'https://youtu.be/dQw4w9WgXcQ?t=30')
-
-      expect(patchBuffer).toHaveLength(1)
-      expect(surveyState.contents[0].config?.youtube).toMatchObject({
-        videoId: 'dQw4w9WgXcQ',
-        startAt: 30,
-      })
-    })
-  })
-
   describe('updateContentType', () => {
     it('emits one content UPDATE with the new type', () => {
       jest.spyOn(Survey, 'genContentId').mockReturnValue('c1')
@@ -137,12 +121,41 @@ describe('contentOperations', () => {
         data: { type: CONTENT_TYPE_YOUTUBE },
       })
       expect(surveyState.contents[0].type).toBe(CONTENT_TYPE_YOUTUBE)
+      expect(surveyState.contents[0].config).toBeNull()
+    })
+
+    it('keeps the config the new type owns', () => {
+      jest.spyOn(Survey, 'genContentId').mockReturnValue('c1')
+      operations.addContent('g1', { type: CONTENT_TYPE_YOUTUBE })
+      operations.setContentConfig('c1', {
+        youtube: {
+          url: 'https://youtu.be/dQw4w9WgXcQ',
+          videoId: 'dQw4w9WgXcQ',
+        },
+        other: 1,
+      })
+      patchBuffer = []
+
+      operations.updateContentType('c1', CONTENT_TYPE_YOUTUBE)
+
+      expect(patchBuffer).toHaveLength(1)
+      expect(surveyState.contents[0].config).toEqual({
+        youtube: {
+          url: 'https://youtu.be/dQw4w9WgXcQ',
+          videoId: 'dQw4w9WgXcQ',
+        },
+      })
     })
 
     it('clears config when switching away from YouTube', () => {
       jest.spyOn(Survey, 'genContentId').mockReturnValue('c1')
       operations.addContent('g1', { type: CONTENT_TYPE_YOUTUBE })
-      operations.setContentYoutubeUrl('c1', 'https://youtu.be/dQw4w9WgXcQ')
+      operations.setContentConfig('c1', {
+        youtube: {
+          url: 'https://youtu.be/dQw4w9WgXcQ',
+          videoId: 'dQw4w9WgXcQ',
+        },
+      })
       patchBuffer = []
 
       operations.updateContentType('c1', CONTENT_TYPE_TEXT)

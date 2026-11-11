@@ -296,8 +296,10 @@ const RichContentEditorComponent: React.FC<ContentEditorProps> = ({
     ],
   )
 
+  // A Suspense boundary re-showing hidden content re-runs these effects after
+  // TipTap destroyed the editor (its extensionManager is then null).
   useEffect(() => {
-    if (!editor) return
+    if (!editor || editor.isDestroyed) return
     const ext = editor.extensionManager.extensions.find(
       (e) => e.name === 'placeholder',
     )
@@ -312,13 +314,13 @@ const RichContentEditorComponent: React.FC<ContentEditorProps> = ({
   }, [editor])
 
   useEffect(() => {
-    if (editor && focus && !editorState.isFocused) {
+    if (editor && !editor.isDestroyed && focus && !editorState.isFocused) {
       editor.commands.focus()
     }
   }, [editor, focus, editorState.isFocused])
 
   useEffect(() => {
-    if (editor && !editorState.isFocused) {
+    if (editor && !editor.isDestroyed && !editorState.isFocused) {
       const currentContent = getEditorContent(editor)
       if (currentContent !== value) {
         editor.commands.setContent(value)
@@ -327,7 +329,7 @@ const RichContentEditorComponent: React.FC<ContentEditorProps> = ({
   }, [editor, value, editorState.isFocused, getEditorContent])
 
   useEffect(() => {
-    if (editor) {
+    if (editor && !editor.isDestroyed) {
       editor.setEditable(!disabled)
     }
   }, [editor, disabled])

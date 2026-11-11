@@ -6,6 +6,8 @@ import { generateSurveyStructuralHash } from '../../../util/generateSurveyHash'
 import {
   CONTENT_TYPE_TEXT,
   CONTENT_TYPE_YOUTUBE,
+  CONTENT_TYPES,
+  getContentTypeConfig,
   SurveyContent,
 } from './SurveyContent'
 
@@ -301,5 +303,25 @@ describe('SurveyCompare — content element diffs', () => {
     const result = new SurveyCompare().compare(a, b)
     expect(result.isEquivalent).toBe(false)
     expect(result.isCompatible).toBe(true)
+  })
+})
+
+describe('content type config', () => {
+  it('has an entry for every content type', () => {
+    for (const type of CONTENT_TYPES) {
+      expect(getContentTypeConfig(type)).toBeDefined()
+    }
+  })
+
+  it('names the config key each type owns', () => {
+    expect(getContentTypeConfig(CONTENT_TYPE_TEXT)?.configKey).toBeNull()
+    expect(getContentTypeConfig(CONTENT_TYPE_YOUTUBE)?.configKey).toBe(
+      'youtube',
+    )
+  })
+
+  it('returns undefined for an unknown type', () => {
+    expect(getContentTypeConfig('contentUnknown')).toBeUndefined()
+    expect(getContentTypeConfig('toString')).toBeUndefined()
   })
 })
