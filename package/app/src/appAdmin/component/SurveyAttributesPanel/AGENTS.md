@@ -60,6 +60,8 @@ All attributes now use `getValue` functions for consistent data access:
 
 ### Element Entity (`SURVEY_ENTITY_TYPE_ELEMENT`)
 
+A question element. Content elements have their own entity type below.
+
 - **Code** - Unique identifier with regex validation
 - **Type** - Dropdown (Text, Number, Multiple Choice)
 - **Input Type** - For multiple choice questions (Checkbox, Dropdown, Image)
@@ -71,9 +73,18 @@ All attributes now use `getValue` functions for consistent data access:
 - **Range** - Min/max numeric limits for number questions
 - **Negative** - Allow negative numbers toggle
 
+### Content Entity (`SURVEY_ENTITY_TYPE_CONTENT`)
+
+- **Code** - Unique identifier with regex validation
+- **Content Type** (`ATTRIBUTE_CONTENT_TYPE`) - Text content or Video (YouTube); labels live in `SurveyAttribute/contentAttributeConfig.ts`
+
 ### Section Entity (`SURVEY_ENTITY_TYPE_SECTION`)
 
 - **Code** - Unique identifier with regex validation
+
+### Thank You Entity (`SURVEY_ENTITY_TYPE_THANK_YOU`)
+
+- **Link URL**, **Link Text**, **Show Link** and **Redirect at End** (`ATTRIBUTE_SURVEY_THANK_YOU_LINK_*`, `ATTRIBUTE_SURVEY_THANK_YOU_REDIRECT_END`)
 
 ## Key Features
 

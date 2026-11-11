@@ -1,13 +1,13 @@
 ---
 title: Conditional Questions
-description: How to apply conditions to questions and groups in VeySur so they appear only when specific criteria are met.
+description: How to apply conditions to questions, content elements and groups in VeySur so they appear only when specific criteria are met.
 ---
 
-Conditions let you show or hide a question or group based on how a participant has answered an earlier question. This keeps surveys focused by only presenting questions that are relevant to each participant.
+Conditions let you show or hide a question, content element or group based on how a participant has answered an earlier question. This keeps surveys focused by only presenting questions that are relevant to each participant.
 
 ## Where conditions can be applied
 
-A condition on a question controls whether that question is visible. A condition on a group controls whether the entire group, including all questions within it, is visible. A question or group without a condition is always shown.
+A condition on a question controls whether that question is visible. A content element can carry a condition in the same way. A condition on a group controls whether the entire group, including all questions within it, is visible. A question, content element or group without a condition is always shown.
 
 ## Restrictions
 

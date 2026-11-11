@@ -30,7 +30,7 @@ getSurveyWithLanguages(survey, projectId, lang, defaultLang)
   → returns survey with L10n fields populated for those two languages
 ```
 
-`mergeSurveyLanguageIntoSurvey()` iterates each returned `SurveyLanguage` record and calls `L10n.setLang(text, languageCode)` for every translatable field (title, group descriptions, question text, answer option labels, etc.).
+`mergeSurveyLanguageIntoSurvey()` iterates each returned `SurveyLanguage` record and calls `L10n.setLang(text, languageCode)` for every translatable field (title, section descriptions including welcome and thank-you text, question text, content text, answer option labels, etc.).
 
 When `lang === defaultLang`, only one language record is fetched and the L10n objects contain a single variant.
 

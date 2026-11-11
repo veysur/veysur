@@ -11,7 +11,7 @@ To add a group, click the **+** button between existing groups in the structure 
 
 To add a question, click the **+** button at the bottom of a group and select **Add Question**. A type selector opens: choose a category (Simple, Choice, Date and Time, Matrix, or Multi-Part), then a specific type. The question is added at the bottom of the group.
 
-The same **+** button offers **Text content** and **Video (YouTube)** for adding content.
+To add content, select **Add Content** from the same **+** button, then choose **Text content** or **Video (YouTube)**.
 
 ## Editing
 

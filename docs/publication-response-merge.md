@@ -737,7 +737,7 @@ ServiceResponseMerge private methods:
 
 Snapshot mapping relies on code-based lookups:
 
-- `SurveyQuestionCollection.getByCode()` - Find questions by code
+- `SurveyElementCollection.getByCode()` - Find elements by code (`getQuestionByCode()` for questions only)
 - `SurveyAnswerOptionCollection.getByCode()` - Find answer options by code
 - `SurveySubquestionCollection.getByCode()` - Find subquestions by code
 

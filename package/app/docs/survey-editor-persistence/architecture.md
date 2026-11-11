@@ -65,11 +65,11 @@ When multiple patches target the same entity, they're automatically merged:
 
 ```typescript
 // User updates question text twice before batch fires
-buffer.addPatch({ type: 'question', id: '123', data: { text: 'Hello' } })
-buffer.addPatch({ type: 'question', id: '123', data: { text: 'Hello World' } })
+buffer.addPatch({ type: 'element', id: '123', data: { text: 'Hello' } })
+buffer.addPatch({ type: 'element', id: '123', data: { text: 'Hello World' } })
 
 // Only one patch is sent with the latest value
-buffer.getPatches() // [{ type: 'question', id: '123', data: { text: 'Hello World' } }]
+buffer.getPatches() // [{ type: 'element', id: '123', data: { text: 'Hello World' } }]
 ```
 
 This reduces payload size and prevents redundant updates.

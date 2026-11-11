@@ -58,6 +58,8 @@ Supports three presentation formats:
 - **`group`**: One group per page (`SurveyFormatGroup`)
 - **`question`**: One question per page (`SurveyFormatQuestion`)
 
+Content elements (`SurveyContent.tsx`, `SurveyContentRenderer.tsx`) sit in the same ordered element list as questions. They collect no answer, so they carry no `answers` entry and are excluded from question numbering and the progress count.
+
 ### Key Features
 
 - **Multi-language Support**: Independent language selector and state

@@ -95,6 +95,7 @@ allowlist) — not just a dotted-path lookup:
 
 - Group name/description (`SurveyGroupHeader.tsx`)
 - Question text/detail (`SurveyQuestionRenderer.tsx`)
+- Content element text (`SurveyContentRenderer.tsx`)
 - Subquestion text (matrix/multi-part question types, e.g. `QuestionTypeMatrix.tsx`)
 - Answer-option labels (choice question types, e.g. `MultipleChoiceButtons.tsx`,
   `MultipleChoiceCheckbox.tsx`, `MultipleChoiceDropdown.tsx`)

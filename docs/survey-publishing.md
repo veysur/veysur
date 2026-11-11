@@ -18,7 +18,7 @@ The publishing system uses three separate but related entities. Note the naming 
 
 ### SurveySnapshotPartial ("the snapshot")
 The entity referred to as "the snapshot" everywhere else in this document. Immutable metadata + structure capture of a survey at a point in time. Contains:
-- Survey structure (questions, answer options, subquestions) — no embedded translations
+- Survey structure: sections, elements (questions and content), answer options and subquestions, with no embedded translations
 - Optional label and notes
 - Creation timestamp
 - **contentHash** - SHA-256 composite hash of structural content + all language hashes, for deduplication
@@ -29,7 +29,7 @@ A second, differently-scoped entity holding the complete denormalized survey doc
 
 ### Survey Language Snapshots
 Immutable captures of language translation content, frozen at publication time alongside the structural snapshot. One record is created per configured language per snapshot. Each record contains:
-- All translated text for that language (title, questions, answer options, groups, etc.)
+- All translated text for that language (title, section names and descriptions, welcome and thank-you text, question text, content text, answer options, etc.)
 - **Content hash** - SHA-256 hash of the language text, for per-language deduplication
 
 Changes to live language content after publishing do not affect existing `SurveyLanguageSnapshot` records.
@@ -446,7 +446,7 @@ refetchOnMount: 'always'  // Always fetch fresh comparison when modal opens
 4. Each autosave's success invalidates `useHasUnpublishedChanges`'s query, which refetches
    `has-unpublished-changes` and recomputes the live content hash
 5. The recomputed hash matches the published snapshot's `contentHash` (the reorder net out to
-   the original `questionIds` order) → sidebar dot and `PublishButton` correctly revert to
+   the original `elementIds` order) → sidebar dot and `PublishButton` correctly revert to
    "Published", without a full page reload
 6. If the user opens the publish modal anyway, `SurveyCompare` independently confirms
    `isEquivalent: true` — the badge and the modal agree

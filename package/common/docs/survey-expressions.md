@@ -4,7 +4,7 @@
 expression engine shared by two features that need to evaluate admin-authored
 expressions against the same participant/answers/response data:
 
-- **Display conditions** (question/group visibility) — see
+- **Display conditions** (question, content element and group visibility), see
   [survey-conditions.md](survey-conditions.md#available-variables) for the full semantic
   write-up of `answers`/`participant`/`response` and condition-specific behaviour
   (forward-reference rules, fail-safe display, structural change detection).

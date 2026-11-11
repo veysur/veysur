@@ -16,7 +16,9 @@ Preview reflects the current state of the survey in the editor. It includes:
 - The survey title and welcome message (if configured to show)
 - All question groups and their descriptions
 - All questions with their configured type, text, and answer options
-- Conditional visibility rules: questions and groups that are hidden by a condition will not appear unless the condition is met
+- Content elements (text and video)
+- The thank you message
+- Conditional visibility rules: questions, content elements and groups that are hidden by a condition will not appear unless the condition is met
 
 ## Interacting with the survey in Preview
 

@@ -1,6 +1,6 @@
 # Survey Conditions
 
-Conditions control the visibility of survey questions and groups based on JavaScript expressions that evaluate to true or false.
+Conditions control the visibility of survey elements (questions and content elements) and sections based on JavaScript expressions that evaluate to true or false.
 
 ## Condition Syntax
 
@@ -230,7 +230,8 @@ for the full allowlist (permitted roots/operators/methods) and why every path to
 - **Empty condition**: Element is always shown
 - **Evaluation error**: Element is shown (fail-safe)
 - **Structurally invalid condition**: Element is shown (fail-safe) — see below
-- **Group condition**: Hides all questions in that group when false
+- **Section condition**: Hides every element in that section (a group) when false
+- **Content element condition**: A content element is conditioned like a question
 
 ## Structural Change Detection
 
@@ -241,7 +242,7 @@ the condition itself. The following structural edits are checked before they com
 - Removing a subquestion that a matrix-cell condition references (`answers.Q001.S001.A001`)
 - Changing a question's type in a way that makes its answer options or subquestions no
   longer referenceable (e.g. changing a choice question to a text question)
-- Reordering a question, or a whole question group, past a question/group whose
+- Reordering an element, or a whole group section, past an element or section whose
   condition references it — this would create a disallowed forward reference
 
 If an edit is detected as impacted, the admin is warned and asked to confirm before the
@@ -264,7 +265,7 @@ see `ConditionEvaluator.evaluateIfValid`.
 ### `conditionReferences` cache field
 
 `conditionReferences: string[] | null` sits alongside `condition` on both
-`SurveyQuestion` and `SurveyQuestionGroup`. It caches the raw codes a condition
+`SurveyElementBase` (so questions and content elements) and `SurveySection`. It caches the raw codes a condition
 references, **stored without their container prefix** (e.g. `['Q001', 'Q001.A002']`, not
 `['answers.Q001', 'answers.Q001.A002']`), so building the reverse lookup doesn't
 require re-parsing every condition's JavaScript string.

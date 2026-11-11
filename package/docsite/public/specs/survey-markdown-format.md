@@ -60,6 +60,8 @@ document format implies it. Full reconciliation is in §5.
 
 ### 2.1 Survey-level fields in scope
 
+The `welcome.*` and `thankYou.*` names below are this document's own field names. In the model, that text lives on the singleton welcome and thank-you sections (`desc`, with the link on `config.link`).
+
 | Field | Type | Notes |
 |---|---|---|
 | `title` | `L10n` | Survey title |
@@ -709,8 +711,8 @@ later without requiring a v1 document rewrite:
   rejection (§4) rather than a grammar collision.
 - **`condition`/branching.** Slots in as a `- condition: <expression>` attribute
   bullet under the same flat attribute list already used for `required`/`choiceMinMax`
-  etc. (§3.4), evaluated the same way `SurveyQuestionGroup.condition`/
-  `SurveyQuestion.condition` are evaluated today via `ConditionParser`. No new block
+  etc. (§3.4), evaluated the same way `SurveySection.condition`/
+  `SurveyElementBase.condition` are evaluated today via `ConditionParser`. No new block
   type needed: the attribute-bullet mechanism already generalizes to any
   `attributeId: value` pair; `condition` merely needs to move from the "rejected
   attribute ID" list in §4's import-strictness table to the "recognised" list in a v2
@@ -747,11 +749,11 @@ Before this spec is treated as final and implementation begins, run through:
    `createSurveyOperations.ts`'s factories consume (`{ type, action, id, data }` via
    `validateAndBuffer`: see `questionOperations.ts`'s `addQuestion` for the reference
    shape) and confirm every field the grammar claims to carry maps onto an existing
-   `SurveyQuestion`/`SurveyQuestionGroup`/`SurveyAnswerOption` constructor field with no
+   `SurveyQuestion`/`SurveyContent`/`SurveySection`/`SurveyAnswerOption` constructor field with no
    new model getters required.
 2. Confirm the reverse direction: for each v1 field, confirm a getter/property already
-   exists on `Survey`'s collections (`survey.groups`, `survey.questions`,
-   `question.answerOptions`) sufficient to read back every value the exporter needs:
+   exists on `Survey`'s collections (`survey.sections.groups()`, `survey.elements.questionList()`,
+   `survey.contents`, `question.answerOptions`) sufficient to read back every value the exporter needs:
    no new `Survey` model methods required for v1.
 3. Confirm the new format fits `EntityHandlerRegistry`/`format/` as a
    `MarkdownFormatHandler` implementing `FormatHandlerInterface` (`serialize`/`parse`

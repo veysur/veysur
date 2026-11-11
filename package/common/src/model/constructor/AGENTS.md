@@ -153,7 +153,7 @@ Mixins are composed from inside-out, with Base at the core and specialized behav
 Consider using the mixin pattern when:
 
 1. **Size threshold** - Constructor exceeds ~500 lines
-2. **Distinct behavioural domains** - Clear separation of concerns (groups, questions, settings, etc.)
+2. **Distinct behavioural domains** - Clear separation of concerns (sections, elements, settings, etc.)
 3. **Immutability requirements** - Need sophisticated state management
 4. **Team development** - Multiple developers working on different aspects
 

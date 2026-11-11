@@ -24,7 +24,7 @@ When a survey is published, the system:
 4. **Stores hash** with the snapshot for future lookups
 
 **Fields Included in Hash** (content that affects survey behaviour):
-- Questions, groups, question/group IDs
+- Sections (including the welcome and thank-you sections) and elements (questions and content), and their IDs
 - All settings (language, presentation, participant, access, etc.)
 - Data policy, legal notice, publish settings
 - Notification settings

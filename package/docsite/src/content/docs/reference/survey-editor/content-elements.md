@@ -3,7 +3,7 @@ title: Content Elements
 description: Add non-interactive text content and embedded YouTube videos between questions in a survey.
 ---
 
-A content element presents information or media to participants. It sits among the questions in a group but, unlike a question, collects no participant data. Content elements are never required, never appear in exports or statistics, and are not valid targets for conditional logic or text expressions.
+A content element presents information or media to participants. It sits among the questions in a group but, unlike a question, collects no participant data. Content elements are never required, never appear in response exports or statistics, and are not valid targets for conditional logic or text expressions.
 
 ## Available types
 
@@ -16,7 +16,7 @@ Videos are embedded through the privacy-enhanced YouTube domain and load only af
 
 ## Adding a content element
 
-In the editor area, click the **+** button at the bottom of a question group, then select **Text content** or **Video (YouTube)**. The element is added at the end of that group. A content element always belongs to a group, in the same way a question does.
+In the editor area, click the **+** button at the bottom of a question group, select **Add Content**, then choose **Text content** or **Video (YouTube)** in the dialog that opens. The element is added at the end of that group. A content element always belongs to a group, in the same way a question does.
 
 ## Editing
 

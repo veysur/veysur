@@ -29,7 +29,7 @@ VeySur suits surveys where you know, or want to control, who answers:
   video), with live preview of what participants see.
 - Text, number, checkbox, dropdown, button, yes/no, star and point-scale, image select, ranking, and
   date and time questions, plus matrix grids and multi-part questions for structured answers.
-- Conditional questions and groups that appear only when earlier answers call for them.
+- Conditional questions, content elements and groups that appear only when earlier answers call for them.
 - Text expressions that insert a participant detail or an earlier answer into question wording.
 - Multi-language surveys, with per-language text and images, and optional randomised answer order.
 

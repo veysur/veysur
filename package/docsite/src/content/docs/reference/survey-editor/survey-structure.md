@@ -14,9 +14,9 @@ A survey has:
 - One or more **groups**, each holding **questions** and, optionally, **content**
 - An optional **thank you message** shown after the survey is submitted
 
-Every question belongs to exactly one group. Within a group, questions and content items share a single ordered list.
+Every question and content item belongs to exactly one group. Within a group, questions and content items share a single ordered list.
 
-**Content** presents information or media without collecting a response: formatted text or an embedded YouTube video. See [Content Elements](/reference/survey-editor/content-elements/). The welcome and thank you messages can also hold content items.
+**Content** presents information or media without collecting a response: formatted text or an embedded YouTube video. See [Content Elements](/reference/survey-editor/content-elements/).
 
 ## Terminology
 
@@ -50,6 +50,14 @@ Click an item to focus it. Edit it inline by clicking its title or description, 
 | Question type | The response format. Click to change it. |
 | Required | Participants cannot proceed without answering. |
 | Code | Short identifier used in exports and conditional logic. `OTHER`, `OTHER_TEXT`, and `ORDER` are reserved. |
+| Condition | Visibility rule. See [Conditional Questions](/reference/survey-editor/conditional-questions/). |
+
+### Content attributes
+
+| Attribute | Description |
+|-----------|-------------|
+| Content type | Text content or Video (YouTube). |
+| Code | Short identifier, unique across the survey. |
 | Condition | Visibility rule. See [Conditional Questions](/reference/survey-editor/conditional-questions/). |
 
 ### Question sub-parts

@@ -525,7 +525,7 @@ const questionTextSchema = new Schema({
 
 // In operation
 validateAndBuffer({
-  patches: [{ type: 'question', id, data: { text } }],
+  patches: [{ type: 'element', id, data: { text } }],
   validation: {
     schema: questionTextSchema,
     path: `text.eng`,

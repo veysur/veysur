@@ -7,7 +7,7 @@ Survey text can reference an earlier answer or a participant detail, so a questi
 
 ## What can contain an expression
 
-The welcome message, group names and descriptions, question text and detail, subquestion text, answer option labels, and the thank-you message accept `{{ }}` tokens.
+The welcome message, group names and descriptions, question text and detail, content element text, subquestion text, answer option labels, and the thank-you message accept `{{ }}` tokens.
 
 ## Step 1: Place the cursor in a text field
 

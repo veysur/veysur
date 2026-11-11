@@ -357,7 +357,7 @@ Changes to localized content:
 
 ### Collection Differences
 
-Changes to questions, groups, answer options, subquestions:
+Changes to sections (`groups[...]` paths), questions, content elements (`contents[...]` paths), answer options, subquestions:
 
 ```typescript
 {
@@ -396,7 +396,7 @@ Changes to participant attribute localization:
 
 ### Reordering Detection
 
-Detection of reordered groups or questions:
+Detection of reordered groups or questions (content elements are compared separately by `compareContents`):
 
 ```typescript
 {
@@ -463,7 +463,7 @@ The `SurveyCompare` service uses a composition-based architecture with specialis
 
 - **L10nComparator** - Compares localised fields
 - **FieldComparator** - Compares primitive and nested object fields
-- **CollectionComparator** - Compares collections (questions, groups, etc.)
+- **CollectionComparator** - Compares collections (sections, questions, content elements, answer options, etc.)
 - **ReorderingDetector** - Detects reordering of collections
 - **ParticipantAttributeComparator** - Compares participant attribute definitions and their localized labels/descriptions
 - **CompatibilityChecker** - Validates response merge compatibility

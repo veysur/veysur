@@ -83,8 +83,8 @@ Each request flows through multiple layers to resolve the correct project databa
 The following VeySur repos use project-specific databases (configured with `dataSource: 'project'`):
 
 - `survey`
-- `surveyQuestion`
-- `surveyQuestionGroup`
+- `surveyElement`
+- `surveySection`
 - `surveyParticipant`
 - `surveyResponse`
 - `surveySnapshot`
@@ -198,7 +198,7 @@ async getOne({ projectId, surveyId }) {
 }
 ```
 
-Note: `core/` documents (survey, question, group, participant, response, etc.) do not store a `projectId` field — every row in a project's database already belongs to that project by construction, so the field would be redundant. `context.projectId` above is only used to select which project database to connect to.
+Note: `core/` documents (survey, section, element, participant, response, etc.) do not store a `projectId` field. Every row in a project's database already belongs to that project by construction, so the field would be redundant. `context.projectId` above is only used to select which project database to connect to.
 
 ## Configuration
 

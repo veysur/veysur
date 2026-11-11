@@ -23,15 +23,22 @@ export function createSurveyOperations({
     // Survey operations
     ...createSurveyOps({ updateSurveyState, validateAndBuffer }),
 
-    // Question group operations
-    ...createQuestionGroupOps({
+    // Section (group) operations
+    ...createGroupOperations({
       updateSurveyState,
       validateAndBuffer,
       setSurveyFocus,
     }),
 
     // Question operations
-    ...createQuestionOps({
+    ...createQuestionOperations({
+      updateSurveyState,
+      validateAndBuffer,
+      setSurveyFocus,
+    }),
+
+    // Content element operations
+    ...createContentOperations({
       updateSurveyState,
       validateAndBuffer,
       setSurveyFocus,
@@ -80,8 +87,10 @@ Each entity type has its own operation module for better organization:
 **Core Entity Operations:**
 
 - `surveyOperations.ts` - Survey-level updates (name, title, description, status)
-- `questionGroupOperations.ts` - Group CRUD (create, update, delete, reorder)
+- `groupOperations.ts` - Section CRUD (create, update, delete, `moveSection`)
 - `questionOperations.ts` - Question CRUD and configuration
+- `contentOperations.ts` - Content element CRUD and configuration
+- `surveyWelcomeOperations.ts` / `surveyThankYouOperations.ts` - Welcome and thank-you text, stored on the singleton sections
 - `answerOptionOperations.ts` - Answer options for choice questions
 
 **Supporting Entity Operations:**
@@ -128,14 +137,14 @@ updateQuestionText: (questionId: string, text: string, lang: LangKey = 'en') =>
     survey = survey.mutateQuestion(questionId, (q) => q.updateText(text, lang))
 
     // 2. Create Patch (minimal data)
-    const question = survey.questions.getById(questionId)
+    const question = survey.elements.getQuestionById(questionId)
 
     // 3. Validate and Buffer
     validateAndBuffer({
       patches: [
         {
-          type: 'question',
-          action: 'update',
+          type: SURVEY_ENTITY_TYPE_ELEMENT,
+          action: BUFFERED_PATCH_ACTION_UPDATE,
           id: questionId,
           data: { text: question?.text }, // Full text object for all languages
         },
@@ -210,97 +219,111 @@ return survey
 ### Create Operation
 
 ```typescript
-createQuestion: (groupId: string, type: QuestionType) =>
+addQuestion: (sectionId: string, options?: { afterId?: string; lang?: string; type?: string }) => {
+  const id = Survey.genElementId()
   updateSurveyState((survey) => {
-    const newQuestion = Question.create({ type, groupId })
-    survey = survey.addQuestion(newQuestion)
+    const { afterId, lang, type } = options || {}
+    survey = survey.addQuestion(sectionId, { _id: id, type }, { afterId, lang })
+    const created = survey.elements.getQuestionById(id)!
 
     validateAndBuffer({
       patches: [
         {
-          type: 'question',
-          action: 'create',
-          id: newQuestion.id,
-          data: newQuestion.toJSON(), // Full object for creation
+          type: SURVEY_ENTITY_TYPE_ELEMENT,
+          action: BUFFERED_PATCH_ACTION_CREATE,
+          id,
+          data: created, // Full object for creation
+        },
+        {
+          // The element's position lives on the survey
+          type: SURVEY_ENTITY_TYPE_SURVEY,
+          action: BUFFERED_PATCH_ACTION_UPDATE,
+          id: survey._id,
+          data: { elementIds: survey.elementIds },
         },
       ],
-      validation: {
-        schema: questionCreateSchema,
-        path: '', // Validate entire object
-        value: newQuestion.toJSON(),
-        entityType: 'question',
-        entityId: newQuestion.id,
-        field: 'all',
-      },
     })
-
-    setSurveyFocus({ type: 'question', id: newQuestion.id })
     return survey
   })
+  setSurveyFocus({ entityType: SURVEY_ENTITY_TYPE_ELEMENT, id })
+}
 ```
 
 **Notes:**
 
-- Creates a new Question instance
-- Sets focus to the new question
-- Sends full object data (required for creation)
+- The id is generated up front so focus can be set to the new element
+- Creation sends the full object plus a survey patch for the new `elementIds` order
+- Content elements follow the same shape through `addContent` in `contentOperations.ts`
 
 ### Delete Operation
 
 ```typescript
-deleteQuestion: (questionId: string) =>
+deleteQuestion: (questionId: string) => {
   updateSurveyState((survey) => {
-    survey = survey.removeQuestion(questionId)
+    survey = survey.deleteQuestion(questionId)
 
     validateAndBuffer({
       patches: [
         {
-          type: 'question',
-          action: 'delete',
+          type: SURVEY_ENTITY_TYPE_ELEMENT,
+          action: BUFFERED_PATCH_ACTION_DELETE,
           id: questionId,
-          data: {}, // No data needed for deletion
+          data: null, // No data needed for deletion
+        },
+        {
+          type: SURVEY_ENTITY_TYPE_SURVEY,
+          action: BUFFERED_PATCH_ACTION_UPDATE,
+          id: survey._id,
+          data: { elementIds: survey.elementIds },
         },
       ],
-      validation: null, // No validation needed for deletion
     })
-
-    setSurveyFocus(null) // Clear focus
     return survey
   })
+  setSurveyFocus(null) // Clear focus
+}
 ```
 
 **Notes:**
 
-- No data in patch (just ID is enough)
+- No data in the delete patch (just the ID is enough)
+- The survey patch keeps `elementIds` in step
 - No validation needed
 - Clears focus state
 
 ### Reorder Operation
 
 ```typescript
-reorderQuestions: (groupId: string, questionIds: string[]) =>
+moveQuestion: (questionId: string, targetSectionId: string, newIndex: number) =>
   updateSurveyState((survey) => {
-    survey = survey.reorderQuestionsInGroup(groupId, questionIds)
+    survey = survey.moveQuestion(questionId, targetSectionId, newIndex)
+    const sectionId = survey.elements.getById(questionId)?.sectionId
 
     validateAndBuffer({
-      patches: questionIds.map((id, index) => ({
-        type: 'question',
-        action: 'update',
-        id,
-        data: { order: index, groupId },
-      })),
-      validation: null, // Order validation not needed (client controls)
+      patches: [
+        {
+          type: SURVEY_ENTITY_TYPE_ELEMENT,
+          action: BUFFERED_PATCH_ACTION_UPDATE,
+          id: questionId,
+          data: { sectionId },
+        },
+        {
+          type: SURVEY_ENTITY_TYPE_SURVEY,
+          action: BUFFERED_PATCH_ACTION_UPDATE,
+          id: survey._id,
+          data: { elementIds: survey.elementIds },
+        },
+      ],
     })
-
     return survey
   })
 ```
 
 **Notes:**
 
-- Creates multiple patches (one per question)
-- Updates order and groupId for each
-- Buffer will merge these efficiently
+- Order is not stored per element: the survey holds one global `elementIds` array, and each element holds its parent `sectionId`
+- A move therefore sends one element patch (`sectionId`) and one survey patch (`elementIds`)
+- `moveSection(sectionId, newIndex)` sends a single survey patch with `{ sectionIds, elementIds }`
 
 ## Using Operations in Components
 
@@ -312,7 +335,7 @@ import { useSurveyEditorStore } from '../hook/useSurveyEditorStore'
 function QuestionEditor({ questionId }: Props) {
   const operations = useSurveyEditorStore((s) => s.operations)
   const question = useSurveyEditorStore((s) =>
-    s.survey?.questions.getById(questionId)
+    s.survey?.elements.getQuestionById(questionId)
   )
 
   const handleTextChange = (text: string) => {
@@ -364,7 +387,7 @@ To add a new operation:
 
 ### 1. Identify the Entity
 
-Determine which entity you're modifying (survey, question, group, etc.).
+Determine which entity you're modifying (survey, section, element (question or content), etc.).
 
 ### 2. Choose the Module
 
