@@ -1,11 +1,9 @@
 import { genUniqueId } from '@datacapy/id'
 
 import { Survey } from './Survey'
-import { Infer } from '@datacapy/schema'
-import { surveySnapshotSpec } from '../schema/SchemaSurveySnapshot'
 
 export class SurveySnapshot {
-  survey: Survey // not inferred: the Survey schema is not typed yet
+  survey: Survey
 
   constructor(data) {
     this._id = data?._id || genUniqueId()
@@ -14,7 +12,7 @@ export class SurveySnapshot {
   }
 }
 
-export interface SurveySnapshot extends Omit<
-  Infer<typeof surveySnapshotSpec>,
-  'survey'
-> {}
+export interface SurveySnapshot {
+  _id: string
+  snapshotId: string
+}

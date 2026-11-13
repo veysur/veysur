@@ -4,11 +4,14 @@ jest.mock('@datacapy/id', () => ({
 }))
 
 import { constructorBehaviour } from '../../test-utils/constructorEquivalence'
-import { surveyLanguageSnapshotSpec } from '../schema/SchemaSurveyLanguageSnapshot'
+import { SchemaSurveyLanguageSnapshot } from './SurveyLanguageSnapshot.schema'
 import { SurveyLanguageSnapshot } from './SurveyLanguageSnapshot'
 
 it('SurveyLanguageSnapshot behaves as recorded', () => {
   expect(
-    constructorBehaviour(SurveyLanguageSnapshot, surveyLanguageSnapshotSpec),
+    constructorBehaviour(
+      SurveyLanguageSnapshot,
+      new SchemaSurveyLanguageSnapshot().builderFields(),
+    ),
   ).toMatchSnapshot()
 })

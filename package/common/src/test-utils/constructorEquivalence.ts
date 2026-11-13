@@ -74,9 +74,20 @@ export function constructorBehaviour(
   Ctor: Constructor,
   shape: SpecInput,
 ): Record<string, unknown> {
+  return constructorCases(Ctor, buildCases(shape))
+}
+
+/**
+ * Same as `constructorBehaviour`, for a hand-written case list: used when the
+ * schema has nested groups, so no field-by-field matrix can be derived.
+ */
+export function constructorCases(
+  Ctor: Constructor,
+  cases: Record<string, unknown[]>,
+): Record<string, unknown> {
   jest.setSystemTime(FIXED_NOW)
   const out: Record<string, unknown> = {}
-  for (const [name, args] of Object.entries(buildCases(shape))) {
+  for (const [name, args] of Object.entries(cases)) {
     let counter = 0
     if (jest.isMockFunction(genUniqueId)) {
       jest.mocked(genUniqueId).mockImplementation(() => `id${++counter}`)

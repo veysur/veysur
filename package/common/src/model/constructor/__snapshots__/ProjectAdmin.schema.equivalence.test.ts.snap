@@ -1,0 +1,96 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`SchemaProjectAdmin validates as recorded and rejects unknown keys 1`] = `
+{
+  "name": "projectAdmin",
+  "spec": {
+    "$construct": "ProjectAdmin",
+    "$name": "projectAdmin",
+    "$strict": true,
+    "_id": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+      },
+    },
+    "code": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+    },
+    "createdAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+    "createdById": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+      },
+    },
+    "email": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+    },
+    "nameFirst": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+    },
+    "nameLast": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+    },
+    "projectId": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+      },
+    },
+    "status": {
+      "$filter": {
+        "defaultValue": "active",
+      },
+      "$type": "$fn:String",
+    },
+    "updatedAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+    "userId": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+    },
+  },
+  "unknownKey": {
+    "ok": true,
+    "result": {
+      "errors": {
+        "$unknown": [
+          "Field not specified",
+        ],
+      },
+      "isValid": false,
+    },
+  },
+  "valid": {
+    "ok": true,
+    "result": {
+      "errors": {},
+      "isValid": true,
+    },
+  },
+}
+`;

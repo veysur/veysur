@@ -1,25 +1,5 @@
-import { SurveyBase } from './Survey/SurveyBase'
-import { GetterMethods } from './Survey/mixin/GetterMethods'
-import { SurveyCoreMethods } from './Survey/mixin/SurveyCoreMethods'
-import { SettingSurveyCoreMethods } from './SettingSurvey/mixin/SettingSurveyCoreMethods'
-import { SectionMethods } from './Survey/mixin/SectionMethods'
-import { PublishPrepMethods } from './Survey/mixin/PublishPrepMethods'
-import { QuestionMethods } from './Survey/mixin/QuestionMethods'
-import { ContentMethods } from './Survey/mixin/ContentMethods'
-import { SubquestionMethods } from './Survey/mixin/SubquestionMethods'
-import { AnswerOptionMethods } from './Survey/mixin/AnswerOptionMethods'
-import { LanguageMethods } from './SettingSurvey/mixin/LanguageMethods'
-import { PresentationMethods } from './SettingSurvey/mixin/PresentationMethods'
-import { StatsMethods } from './SettingSurvey/mixin/StatsMethods'
-import { ParticipantMethods } from './SettingSurvey/mixin/ParticipantMethods'
-import { DataMethods } from './SettingSurvey/mixin/DataMethods'
-import { AccessMethods } from './SettingSurvey/mixin/AccessMethods'
-import { DataPolicyMethods } from './SettingSurvey/mixin/DataPolicyMethods'
-import { LegalNoticeMethods } from './SettingSurvey/mixin/LegalNoticeMethods'
-import { ScheduleMethods } from './SettingSurvey/mixin/ScheduleMethods'
-import { NotifyMethods } from './SettingSurvey/mixin/NotifyMethods'
-import { ContentFormatMethods } from './SettingSurvey/mixin/ContentFormatMethods'
-import { WelcomeThankYouSectionMethods } from './Survey/mixin/WelcomeThankYouSectionMethods'
+import { SurveyStructureBundle } from './SurveyStructureBundle'
+import { SurveySettingsBundle } from './SurveySettingsBundle'
 import { SurveySection } from './Survey/SurveySection'
 import { SurveyQuestion } from './Survey/SurveyQuestion'
 import { SurveyContent } from './Survey/SurveyContent'
@@ -37,28 +17,8 @@ export * from './Survey/index'
  * from multiple sources while maintaining immutability. Each mixin function takes
  * a base class and returns an extended class with additional methods.
  *
- * Mixins used:
- * - Base - Core data structure and immutable instance creation
- * - CoreMethods - Basic survey operations (update, sort)
- * - SectionMethods - Section management operations
- * - PublishPrepMethods - Publish preparation operations
- * - QuestionMethods - Question management operations
- * - SubquestionMethods - Subquestion management operations
- * - AnswerOptionMethods - Answer option management operations
- * - LanguageMethods - Language configuration operations
- * - PresentationMethods - Presentation settings operations
- * - StatsMethods - Stats chart preferences operations
- * - ParticipantMethods - Participant settings operations
- * - DataMethods - Data tracking settings operations
- * - DataPolicyMethods - Data policy settings operations
- * - LegalNoticeMethods - Legal notice settings operations
- * - ScheduleMethods - Publish schedule settings operations
- * - NotifyMethods - Notification settings operations
- * - WelcomeThankYouSectionMethods - Welcome / thank-you section operations
- *   (plus @deprecated updateWelcomeMessage / updateThankYou* aliases)
- * - AccessMethods - Access control settings operations
- * - ContentFormatMethods - Content format/sanitization settings operations
- * - ContentMethods - Content element (kind: 'content') management operations
+ * The mixins are grouped into bundles (see SurveyCoreBundle, SurveyStructureBundle
+ * and SurveySettingsBundle), each a `mix(...).with(...)` chain in application order.
  *
  * IMMUTABILITY PATTERN:
  *
@@ -76,47 +36,7 @@ export * from './Survey/index'
  * → calls newInstance() with { title: newL10n }
  * → returns new Survey instance with updated title, reusing all other objects
  */
-const SurveyImpl = ContentFormatMethods(
-  AccessMethods(
-    WelcomeThankYouSectionMethods(
-      NotifyMethods(
-        ScheduleMethods(
-          LegalNoticeMethods(
-            DataPolicyMethods(
-              DataMethods(
-                ParticipantMethods(
-                  StatsMethods(
-                    PresentationMethods(
-                      LanguageMethods(
-                        AnswerOptionMethods(
-                          SubquestionMethods(
-                            ContentMethods(
-                              QuestionMethods(
-                                PublishPrepMethods(
-                                  SectionMethods(
-                                    SurveyCoreMethods(
-                                      GetterMethods(
-                                        SettingSurveyCoreMethods(SurveyBase),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    ),
-  ),
-)
+const SurveyImpl = SurveySettingsBundle(SurveyStructureBundle)
 
 /**
  * Survey class - Immutable survey data structure with composed functionality

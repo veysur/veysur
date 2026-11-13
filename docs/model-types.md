@@ -1,7 +1,56 @@
 # Model types and constructor defaults
 
-A model's TypeScript type and its starting values both come from its DataCapy schema spec. The
-fields are listed once, in `package/common/src/model/schema/`, never again on the class.
+A model's TypeScript type and its starting values both come from one place, so the fields are
+listed once and never again on the class: the tagged interface for a generated model, the
+DataCapy schema spec for the rest.
+
+There are two directions. A model is on one of them, never both:
+
+- **Interface first.** Every model listed in `package/common/datacapy.config.json` has a tagged TypeScript interface as its source, and `pnpm gen` writes the schema beside it (see below). This covers every flat model.
+- **Schema first.** The rest are written with the builder and typed with `Infer` (the sections after this one): `SurveySection`, `SurveyElement`, `SurveyResponse`, `L10n` and the collections, where the class type is not the schema type. The `settingSurvey`, `survey` and `surveySnapshot` schemas are generated (interface first) from `SettingSurveyDocument`, `SurveyDocument` and `SurveySnapshotDocument`.
+
+## Interface-first models
+
+Write the interface and mark it in its JSDoc. Tags from `@datacapy/schema` on the property types describe what the builder would otherwise say:
+
+```ts
+import type { tags as t } from '@datacapy/schema'
+
+/** @schema task construct=Task strict */
+export interface TaskData {
+  _id: (string & t.MaxLength<17>) & t.Default<''>
+  name: string & t.Required & t.Init<''> & t.Trim & t.MaxLength<255>
+  options: Record<string, unknown> & t.NonStrict & t.Default<t.EmptyObject>
+  lastRunAt: (Date & t.Default<null>) | null
+}
+
+export class Task extends SchemaConstructor.from(SchemaTask) {}
+```
+
+Run `pnpm gen` in the package. It writes `<Model>.schema.ts` (the schema class and an `AssertSchema` check that fails typechecking if the two drift) and `pnpm lint` runs `pnpm gen:check`, as does the pre-commit hook, so a stale generated file fails. Never edit a `*.schema.ts` file. Add the interface's file to `include` in `datacapy.config.json`.
+
+Tags that need care:
+
+- `Required` keeps `required()` beside `Default` or `Init`, which otherwise stand in for it. `NotNull` adds `notNull()`, because `required()` alone accepts `null`.
+- A free-form JSON field is `Opaque` or `Record<string, unknown>`, plus `NonStrict`. Strictness is inherited by nested objects, so without `NonStrict` an opaque object in a strict schema rejects every key it holds. `Opaque` also works on a property inside an array of objects.
+- `Default` and `Init` take a literal, `EmptyObject`, `EmptyArray` or an object of literals such as `Init<{ period: 'month'; day: 1 }>`.
+- Array items are always required, so a `null` entry is rejected where a hand-written `sb.array(Number)` allowed it.
+- An object field with a `null` default is generated with `nullable()`, which keeps a `null` from becoming `{}`.
+- The generated class takes its name from the registered schema name (`sb.schema('subscriptionPlan')` gives `SchemaSubscriptionPlan`).
+
+A schema that extends a generated one spreads its fields into a schema of the same name:
+
+```ts
+export class SchemaUserExtended extends Schema.from(
+  sb
+    .schema('user')
+    .construct('User')
+    .strict()
+    .shape({ ...new SchemaUser().builderFields(), ...extraFields }),
+) {}
+```
+
+Convert a hand-written model only behind two committed snapshots recorded on the old code. The constructor snapshot (`*.equivalence.test.ts`) keeps jest's fake timers, which pin `now`. The schema snapshot goes in its own `*.schema.equivalence.test.ts`, starts with `jest.useRealTimers()`, and ends each case with `expectValidAndStrict(behaviour)`: under fake timers every `Date` field fails to cast, so a valid document is reported invalid and the check proves nothing. Include a rejected document for each constraint the model relies on (`notNull`, `inArray`, a missing required key).
 
 ## Type
 
@@ -26,7 +75,7 @@ export class Project {
 }
 ```
 
-Export a plain spec of builders (`projectBaseSpec`) only when several schemas share it, and then pass it to `Schema<typeof projectBaseSpec>` and `Infer<typeof projectBaseSpec>`. `Infer` and `sb.defaultsFor` accept a schema class, a schema instance or a spec.
+Export a plain spec of builders  only when several schemas share it, and then pass it to `Schema<typeof spec>` and `Infer<typeof spec>`. `Infer` and `sb.defaultsFor` accept a schema class, a schema instance or a spec.
 
 - `required()` or `default()` makes the key non-optional. Add `.optional()` where callers build partial objects.
 - A bare `sb.object()` or `sb.array()` infers `any`. State the type with `.shape()`, `.of()` or `.as<T>()`, put `.as<T>()` last, and add the model to `Migrated` in `inferredTypes.type-test.ts` so `pnpm typecheck` fails on any `any`.

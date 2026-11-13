@@ -1,0 +1,53 @@
+{
+  "include": [
+    "src/model/constructor/EmailTemplate.ts",
+    "src/model/constructor/DataTransferJob.ts",
+    "src/model/constructor/UserClient.ts",
+    "src/model/constructor/ProjectAdmin.ts",
+    "src/model/constructor/SettingProject.ts",
+    "src/model/constructor/SurveyParticipantAttribute.ts",
+    "src/model/constructor/SurveyParticipantAttributeSnapshot.ts",
+    "src/model/constructor/SurveyParticipantAttributeLanguage.ts",
+    "src/model/constructor/SurveyParticipantAttributeLanguageSnapshot.ts",
+    "src/model/constructor/SurveyLanguage.ts",
+    "src/model/constructor/SurveyLanguageSnapshot.ts",
+    "src/model/constructor/SurveyPublication.ts",
+    "src/model/constructor/Notification.ts",
+    "src/model/constructor/File.ts",
+    "src/model/constructor/Project.ts",
+    "src/server/constructor/Task.ts",
+    "src/server/constructor/TaskExecution.ts",
+    "src/server/constructor/EmailSuppression.ts",
+    "src/model/constructor/User.ts",
+    "src/model/constructor/SettingSurveyDocument.ts",
+    "src/model/constructor/SurveyDocument.ts",
+    "src/model/constructor/SurveySnapshotDocument.ts"
+  ],
+  "registry": "src/model/schema/registry.ts",
+  "importMap": {
+    "UserAccessTokenData": {
+      "schema": "../schema/SchemaUserAccessToken",
+      "type": "./UserAccessToken"
+    },
+    "L10nData": {
+      "schema": "../schema/SchemaL10n",
+      "type": "./EmbeddedSchemaData"
+    },
+    "L10nHtmlData": {
+      "schema": "../schema/SchemaL10nHtml",
+      "type": "./EmbeddedSchemaData"
+    },
+    "L10nUrlData": {
+      "schema": "../schema/SchemaL10nUrl",
+      "type": "./EmbeddedSchemaData"
+    },
+    "SurveySectionDocument": {
+      "schema": "../schema/SchemaSurveySection",
+      "type": "./EmbeddedSchemaData"
+    },
+    "SurveyElementDocument": {
+      "schema": "../schema/SchemaSurveyElement",
+      "type": "./EmbeddedSchemaData"
+    }
+  }
+}

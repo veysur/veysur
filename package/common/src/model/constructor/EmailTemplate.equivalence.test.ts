@@ -4,11 +4,14 @@ jest.mock('@datacapy/id', () => ({
 }))
 
 import { constructorBehaviour } from '../../test-utils/constructorEquivalence'
-import { emailTemplateSpec } from '../schema/SchemaEmailTemplate'
+import { SchemaEmailTemplate } from './EmailTemplate.schema'
 import { EmailTemplate } from './EmailTemplate'
 
 it('EmailTemplate behaves as recorded', () => {
   expect(
-    constructorBehaviour(EmailTemplate, emailTemplateSpec),
+    constructorBehaviour(
+      EmailTemplate,
+      new SchemaEmailTemplate().builderFields(),
+    ),
   ).toMatchSnapshot()
 })

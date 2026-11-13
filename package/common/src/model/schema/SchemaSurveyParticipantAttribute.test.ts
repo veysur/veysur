@@ -1,4 +1,4 @@
-import { SchemaSurveyParticipantAttribute } from './SchemaSurveyParticipantAttribute'
+import { SchemaSurveyParticipantAttribute } from '../constructor/SurveyParticipantAttribute.schema'
 
 describe('SchemaSurveyParticipantAttribute', () => {
   jest.useRealTimers()

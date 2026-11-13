@@ -1,9 +1,9 @@
 import { genUniqueId } from '@datacapy/id'
-import { Infer, PropsOf } from '@datacapy/schema'
+import { PropsOf } from '@datacapy/schema'
 
 import { L10n } from '../L10n'
-import { surveyOwnSpec } from '../../schema/SchemaSurvey'
 import { ChartType, ChartValueMode } from '../SettingSurvey/SettingSurveyBase'
+import type { SettingSurveyMixinBase } from '../SettingSurvey/mixin/SettingSurveyMixinBase'
 import { SurveySectionCollection } from './SurveySectionCollection'
 import {
   SurveyElementCollection,
@@ -12,7 +12,18 @@ import {
 import { SurveySectionData, SurveySection } from './SurveySection'
 import type { SurveyAttributes } from './attributeMeta'
 
-export interface SurveyData {
+/** The settings groups are derived from {@link SettingSurveyDocument}. */
+export interface SurveyData extends Pick<
+  SettingSurveyMixinBase,
+  | 'language'
+  | 'presentation'
+  | 'participant'
+  | 'data'
+  | 'access'
+  | 'schedule'
+  | 'notify'
+  | 'contentFormat'
+> {
   // Base properties from SettingSurvey
   _id: string
   createdAt: Date
@@ -29,56 +40,6 @@ export interface SurveyData {
   elementIds?: string[]
 
   // Inherited properties that can now have nullable individual properties
-  language?: {
-    default?: string | null
-    options?: string[] | null
-  }
-  presentation?: {
-    format?: 'group' | 'question' | 'all' | null
-    noAnswer?: boolean | null
-    title?: boolean | null
-    welcomeMessage?: boolean | null
-    progressBar?: boolean | null
-    questionCount?: boolean | null
-    groupName?: boolean | null
-    groupDesc?: boolean | null
-    questionNum?: boolean | null
-    questionCode?: boolean | null
-    questionIndex?: boolean | null
-    backNav?: boolean | null
-    redirectEnd?: boolean | null
-    navDelay?: number | null
-    print?: boolean | null
-    stats?: boolean | null
-    noBrand?: boolean | null
-    thankYouLink?: boolean | null
-  }
-  participant?: {
-    htmlEmail?: boolean | null
-    thankYouEmail?: boolean | null
-    tokenLength?: number | null
-  }
-  data?: {
-    timestamp?: boolean | null
-    ip?: boolean | null
-    anonymiseIp?: boolean | null
-    referrerUrl?: boolean | null
-    timings?: boolean | null
-    assessment?: boolean | null
-  }
-  access?: {
-    anonymous?: boolean | null
-    open?: boolean | null
-    publicReg?: boolean | null
-    index?: boolean | null
-    tokenPersist?: boolean | null
-    multiple?: boolean | null
-    preventRepeat?: boolean | null
-    resumeLink?: boolean | null
-    botProtection?: boolean | null
-    embed?: boolean | null
-    embedDomains?: string[] | null
-  }
   dataPolicy?: {
     show?: boolean | null
     link?: boolean | null
@@ -91,14 +52,6 @@ export interface SurveyData {
     text?: PropsOf<L10n> | null
     url?: PropsOf<L10n> | null
   }
-  schedule?: {
-    start?: Date | null
-    end?: Date | null
-  }
-  notify?: {
-    basic?: string | null
-    detailed?: string | null
-  }
   stats?: {
     questions?: {
       [questionCode: string]: {
@@ -107,15 +60,17 @@ export interface SurveyData {
       }
     } | null
   }
-  contentFormat?: {
-    htmlAllowed?: boolean | null
-    markdownAllowed?: boolean | null
-    scriptTagsAllowed?: boolean | null
-  }
 }
 
-/** Fields come from {@link surveyOwnSpec}. */
-export interface SurveyBase extends Infer<typeof surveyOwnSpec> {}
+/** The plain fields {@link SurveyDocument} adds to the settings. */
+export interface SurveyBase {
+  createdById: string
+  name: string
+  title: L10n
+  attributes: SurveyAttributes
+  sectionIds: string[]
+  elementIds: string[]
+}
 
 export class SurveyBase {
   // Base properties from SettingSurvey

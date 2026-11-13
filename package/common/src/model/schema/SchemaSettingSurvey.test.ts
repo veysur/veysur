@@ -4,7 +4,7 @@ import {
   ALL_CHART_TYPES,
   ALL_CHART_VALUE_MODES,
 } from '../constructor/SettingSurvey/SettingSurveyBase'
-import { SchemaSettingSurvey } from './SchemaSettingSurvey'
+import { SchemaSettingSurvey } from '../constructor/SettingSurveyDocument.schema'
 
 describe('SchemaSettingSurvey stats whitelist', () => {
   const schema = new SchemaSettingSurvey()

@@ -1,6 +1,8 @@
 import { SurveyAnswerOptionImageValue } from './Survey/SurveyAnswerOption'
 import { SchemaConstructor } from '@datacapy/schema'
-import { SchemaSurveyLanguage } from '../schema/SchemaSurveyLanguage'
+import type { tags as t } from '@datacapy/schema'
+
+import { SchemaSurveyLanguage } from './SurveyLanguage.schema'
 
 export interface SurveyLanguageSectionEntry {
   name?: string
@@ -37,7 +39,19 @@ export interface SurveyLanguageData {
   answerOptions?: Record<string, SurveyLanguageAnswerOptionEntry>
 }
 
-/** Fields come from {@link SchemaSurveyLanguage}. */
+type InternalId = string & t.MaxLength<17>
+
+/** @schema surveyLanguage construct=SurveyLanguage strict */
+export interface SurveyLanguageFields {
+  _id: InternalId & t.Required & t.InitFn<'genUniqueId'>
+  surveyId: InternalId & t.Required
+  languageCode: string & t.Required & t.MaxLength<2>
+  data: SurveyLanguageData & t.Required & t.Init<t.EmptyObject> & t.NonStrict & t.Opaque
+  createdAt: Date & t.Default<'now'>
+  updatedAt: Date & t.Default<'now'>
+}
+
+/** Fields come from the generated {@link SchemaSurveyLanguage}. */
 export class SurveyLanguage extends SchemaConstructor.from(
   SchemaSurveyLanguage,
 ) {

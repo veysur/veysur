@@ -1,0 +1,173 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`SchemaTask validates as recorded and rejects unknown keys 1`] = `
+{
+  "name": "task",
+  "spec": {
+    "$construct": "Task",
+    "$name": "task",
+    "$strict": true,
+    "_id": {
+      "$filter": {
+        "defaultValue": "",
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "action": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 100,
+        },
+      },
+    },
+    "backedOffUntil": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:Date",
+    },
+    "concurrency": {
+      "$filter": {
+        "defaultValue": 1,
+      },
+      "$type": "$fn:Number",
+    },
+    "consecutiveFailures": {
+      "$filter": {
+        "defaultValue": 0,
+      },
+      "$type": "$fn:Number",
+    },
+    "createdAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+    "description": {
+      "$filter": {
+        "defaultValue": "",
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 1000,
+        },
+      },
+    },
+    "enabled": {
+      "$filter": {
+        "defaultValue": true,
+      },
+      "$type": "$fn:Boolean",
+    },
+    "failOnErrorCount": {
+      "$filter": {
+        "defaultValue": false,
+      },
+      "$type": "$fn:Boolean",
+    },
+    "interval": {
+      "$type": "$fn:Number",
+      "$validate": {
+        "required": true,
+      },
+    },
+    "lastFailureAt": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:Date",
+    },
+    "lastRunAt": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:Date",
+    },
+    "lastScheduledAt": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:Date",
+    },
+    "name": {
+      "$filter": {
+        "trim": true,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 255,
+        },
+      },
+    },
+    "options": {
+      "$filter": {
+        "defaultValue": {},
+      },
+      "$strict": false,
+      "$type": "$fn:Object",
+    },
+    "staleSinceAt": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:Date",
+    },
+    "start": {
+      "$type": "$fn:Date",
+      "$validate": {
+        "required": true,
+      },
+    },
+    "task": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 100,
+        },
+      },
+    },
+    "timeout": {
+      "$filter": {
+        "defaultValue": 10,
+      },
+      "$type": "$fn:Number",
+    },
+    "updatedAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+  },
+  "unknownKey": {
+    "ok": true,
+    "result": {
+      "errors": {
+        "$unknown": [
+          "Field not specified",
+        ],
+      },
+      "isValid": false,
+    },
+  },
+  "valid": {
+    "ok": true,
+    "result": {
+      "errors": {},
+      "isValid": true,
+    },
+  },
+}
+`;

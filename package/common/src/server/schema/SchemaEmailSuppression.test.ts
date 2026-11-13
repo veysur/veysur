@@ -1,4 +1,4 @@
-import { SchemaEmailSuppression } from './SchemaEmailSuppression'
+import { SchemaEmailSuppression } from '../constructor/EmailSuppression.schema'
 
 describe('SchemaEmailSuppression', () => {
   jest.useRealTimers()

@@ -1,0 +1,1263 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`SchemaSurveySnapshot validates as recorded and rejects unknown keys 1`] = `
+{
+  "name": "surveySnapshot",
+  "spec": {
+    "$construct": "SurveySnapshot",
+    "$name": "surveySnapshot",
+    "$strict": true,
+    "_id": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "snapshotId": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "survey": {
+      "$construct": "Survey",
+      "$name": "survey",
+      "$strict": true,
+      "_id": {
+        "$type": "$fn:String",
+        "$validate": {
+          "required": true,
+        },
+      },
+      "access": {
+        "$type": "$fn:Object",
+        "anonymous": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "botProtection": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "embed": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "embedDomains": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$spec": {
+            "$type": "$fn:String",
+            "$validate": {
+              "required": true,
+            },
+          },
+          "$type": "$fn:Array",
+        },
+        "index": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "multiple": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "open": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "preventRepeat": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "publicReg": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "resumeLink": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "tokenPersist": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+      },
+      "attributes": {
+        "$filter": {
+          "defaultValue": {},
+        },
+        "$type": "$fn:Object",
+      },
+      "contentFormat": {
+        "$type": "$fn:Object",
+        "htmlAllowed": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "markdownAllowed": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "scriptTagsAllowed": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+      },
+      "createdAt": {
+        "$filter": {
+          "defaultValue": "now",
+        },
+        "$type": "$fn:Date",
+      },
+      "createdById": {
+        "$type": "$fn:String",
+        "$validate": {
+          "required": true,
+        },
+      },
+      "data": {
+        "$type": "$fn:Object",
+        "anonymiseIp": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "assessment": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "ip": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "referrerUrl": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "timestamp": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "timings": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+      },
+      "dataPolicy": {
+        "$type": "$fn:Object",
+        "link": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "show": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "text": {
+          "$construct": "L10n",
+          "$name": "l10nHtml",
+          "$strict": true,
+          "*": {
+            "$filter": {
+              "trim": true,
+            },
+            "$type": "$fn:String",
+            "$validate": {
+              "valueLength": {
+                "max": 100000,
+              },
+            },
+          },
+        },
+        "url": {
+          "$construct": "L10n",
+          "$name": "l10nUrl",
+          "$strict": true,
+          "*": {
+            "$filter": {
+              "prependHttp": {
+                "$if": {
+                  "$not": {
+                    "$regex": "$re:/^[a-zA-Z][a-zA-Z\\d+\\-.]*:/",
+                  },
+                },
+              },
+              "stripHtml": true,
+              "trim": true,
+            },
+            "$type": "$fn:String",
+            "$validate": {
+              "regex": {
+                "message": "url must use the http or https scheme",
+                "pattern": "$re:/^(https?:\\/\\/\\S+)?$/i",
+              },
+              "valueLength": {
+                "max": 100000,
+              },
+            },
+          },
+        },
+      },
+      "elementIds": {
+        "$filter": {
+          "defaultValue": [],
+        },
+        "$spec": {
+          "$type": "$fn:String",
+          "$validate": {
+            "required": true,
+          },
+        },
+        "$type": "$fn:Array",
+      },
+      "elements": {
+        "$spec": {
+          "$constructCollection": "SurveyElementCollection",
+          "$name": "surveyElement",
+          "$strict": true,
+          "$validate": {
+            "required": true,
+          },
+          "_id": {
+            "$type": "$fn:String",
+            "$validate": {
+              "required": true,
+              "valueLength": {
+                "max": 17,
+              },
+            },
+          },
+          "answerOptions": {
+            "$spec": {
+              "$construct": "SurveyAnswerOption",
+              "$constructCollection": "SurveyAnswerOptionCollection",
+              "$name": "surveyAnswerOption",
+              "$strict": true,
+              "_id": {
+                "$type": "$fn:String",
+                "$validate": {
+                  "required": true,
+                  "valueLength": {
+                    "max": 17,
+                  },
+                },
+              },
+              "code": {
+                "$filter": {
+                  "defaultValue": "",
+                  "trim": true,
+                },
+                "$type": "$fn:String",
+                "$validate": {
+                  "regex": {
+                    "message": "Code must start with a letter and contain only letters, numbers, and underscores",
+                    "pattern": "$re:/^[A-Za-z][A-Za-z0-9_]*$/",
+                  },
+                  "required": true,
+                  "valueLength": {
+                    "max": 12,
+                  },
+                },
+              },
+              "createdAt": {
+                "$filter": {
+                  "defaultValue": "now",
+                },
+                "$type": "$fn:Date",
+              },
+              "createdById": {
+                "$type": "$fn:String",
+                "$validate": {
+                  "required": true,
+                },
+              },
+              "image": {
+                "$filter": {
+                  "defaultValue": null,
+                },
+                "$nullable": true,
+                "$type": "$fn:Object",
+                "*": {
+                  "$nullable": true,
+                  "$type": "$fn:Object",
+                  "fileId": {
+                    "$type": "$fn:String",
+                    "$validate": {
+                      "valueLength": {
+                        "max": 17,
+                      },
+                    },
+                  },
+                  "path": {
+                    "$type": "$fn:String",
+                    "$validate": {
+                      "valueLength": {
+                        "max": 500,
+                      },
+                    },
+                  },
+                },
+              },
+              "label": {
+                "$construct": "$fn:L10n",
+                "$filter": {
+                  "defaultValue": {},
+                },
+                "$name": "l10n",
+                "$strict": true,
+                "$type": "$fn:Object",
+                "*": {
+                  "$filter": {
+                    "stripHtml": true,
+                  },
+                  "$label": "Answer option label",
+                  "$type": "$fn:String",
+                  "$validate": {
+                    "notEmpty": true,
+                    "valueLength": {
+                      "max": 255,
+                    },
+                  },
+                },
+              },
+              "updatedAt": {
+                "$filter": {
+                  "defaultValue": "now",
+                },
+                "$type": "$fn:Date",
+              },
+            },
+            "$type": "$fn:Array",
+          },
+          "attributes": {
+            "$filter": {
+              "defaultValue": {},
+            },
+            "$strict": false,
+            "$type": "$fn:Object",
+            "*": {
+              "$type": "$fn:Mixed",
+            },
+          },
+          "code": {
+            "$filter": {
+              "defaultValue": "",
+              "trim": true,
+            },
+            "$type": "$fn:String",
+            "$validate": {
+              "regex": {
+                "message": "Code must start with a letter and contain only letters, numbers, and underscores",
+                "pattern": "$re:/^[A-Za-z][A-Za-z0-9_]*$/",
+              },
+              "required": true,
+              "valueLength": {
+                "max": 12,
+              },
+            },
+          },
+          "condition": {
+            "$filter": {
+              "defaultValue": null,
+              "trim": true,
+            },
+            "$nullable": true,
+            "$type": "$fn:String",
+            "$validate": {
+              "valueLength": {
+                "max": 2000,
+              },
+            },
+          },
+          "conditionReferences": {
+            "$filter": {
+              "defaultValue": null,
+            },
+            "$nullable": true,
+            "$spec": {
+              "$type": "$fn:String",
+            },
+            "$type": "$fn:Array",
+          },
+          "config": {
+            "$filter": {
+              "defaultValue": null,
+            },
+            "$nullable": true,
+            "$strict": false,
+            "$type": "$fn:Object",
+          },
+          "createdAt": {
+            "$filter": {
+              "defaultValue": "now",
+            },
+            "$type": "$fn:Date",
+          },
+          "createdById": {
+            "$type": "$fn:String",
+            "$validate": {
+              "required": true,
+            },
+          },
+          "detail": {
+            "$construct": "L10n",
+            "$filter": {
+              "defaultValue": null,
+            },
+            "$name": "l10nHtml",
+            "$nullable": true,
+            "$strict": true,
+            "$type": "$fn:Object",
+            "*": {
+              "$filter": {
+                "trim": true,
+              },
+              "$label": "Detail",
+              "$type": "$fn:String",
+              "$validate": {
+                "notEmpty": true,
+                "valueLength": {
+                  "max": 100000,
+                },
+              },
+            },
+          },
+          "groupId": {
+            "$filter": {
+              "defaultValue": null,
+            },
+            "$nullable": true,
+            "$type": "$fn:String",
+            "$validate": {
+              "valueLength": {
+                "max": 17,
+              },
+            },
+          },
+          "kind": {
+            "$filter": {
+              "defaultValue": "question",
+            },
+            "$type": "$fn:String",
+            "$validate": {
+              "valueLength": {
+                "max": 16,
+              },
+            },
+          },
+          "sectionId": {
+            "$type": "$fn:String",
+            "$validate": {
+              "notEmpty": true,
+              "required": true,
+              "valueLength": {
+                "max": 17,
+              },
+            },
+          },
+          "subquestions": {
+            "$spec": {
+              "$construct": "SurveySubquestion",
+              "$constructCollection": "SurveySubquestionCollection",
+              "$name": "surveySubquestion",
+              "$strict": true,
+              "_id": {
+                "$type": "$fn:String",
+                "$validate": {
+                  "required": true,
+                  "valueLength": {
+                    "max": 17,
+                  },
+                },
+              },
+              "attributes": {
+                "$filter": {
+                  "defaultValue": {},
+                },
+                "$strict": false,
+                "$type": "$fn:Object",
+                "*": {
+                  "$type": "$fn:Mixed",
+                },
+              },
+              "code": {
+                "$filter": {
+                  "defaultValue": "",
+                },
+                "$type": "$fn:String",
+                "$validate": {
+                  "required": true,
+                  "valueLength": {
+                    "max": 12,
+                  },
+                },
+              },
+              "createdAt": {
+                "$filter": {
+                  "defaultValue": "now",
+                },
+                "$type": "$fn:Date",
+              },
+              "detail": {
+                "$construct": "$fn:L10n",
+                "$filter": {
+                  "defaultValue": null,
+                },
+                "$name": "l10nHtml",
+                "$nullable": true,
+                "$strict": true,
+                "$type": "$fn:Object",
+                "*": {
+                  "$filter": {
+                    "trim": true,
+                  },
+                  "$type": "$fn:String",
+                  "$validate": {
+                    "valueLength": {
+                      "max": 100000,
+                    },
+                  },
+                },
+              },
+              "text": {
+                "$construct": "$fn:L10n",
+                "$filter": {
+                  "defaultValue": {},
+                },
+                "$name": "l10nHtml",
+                "$strict": true,
+                "$type": "$fn:Object",
+                "*": {
+                  "$filter": {
+                    "trim": true,
+                  },
+                  "$type": "$fn:String",
+                  "$validate": {
+                    "valueLength": {
+                      "max": 100000,
+                    },
+                  },
+                },
+              },
+              "type": {
+                "$filter": {
+                  "defaultValue": "",
+                },
+                "$type": "$fn:String",
+                "$validate": {
+                  "required": true,
+                  "valueLength": {
+                    "max": 255,
+                  },
+                },
+              },
+              "updatedAt": {
+                "$filter": {
+                  "defaultValue": "now",
+                },
+                "$type": "$fn:Date",
+              },
+            },
+            "$type": "$fn:Array",
+          },
+          "surveyId": {
+            "$type": "$fn:String",
+            "$validate": {
+              "required": true,
+            },
+          },
+          "text": {
+            "$construct": "$fn:L10n",
+            "$filter": {
+              "defaultValue": {},
+            },
+            "$name": "l10nHtml",
+            "$strict": true,
+            "$type": "$fn:Object",
+            "*": {
+              "$filter": {
+                "trim": true,
+              },
+              "$label": "Element text",
+              "$type": "$fn:String",
+              "$validate": {
+                "notEmpty": true,
+                "valueLength": {
+                  "max": 5000,
+                },
+              },
+            },
+          },
+          "type": {
+            "$filter": {
+              "defaultValue": "",
+            },
+            "$type": "$fn:String",
+            "$validate": {
+              "required": true,
+              "valueLength": {
+                "max": 255,
+              },
+            },
+          },
+          "updatedAt": {
+            "$filter": {
+              "defaultValue": "now",
+            },
+            "$type": "$fn:Date",
+          },
+        },
+        "$type": "$fn:Array",
+      },
+      "language": {
+        "$type": "$fn:Object",
+        "default": {
+          "$filter": {
+            "defaultValue": "en",
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "required": true,
+          },
+        },
+        "options": {
+          "$filter": {
+            "defaultValue": [
+              "en",
+            ],
+          },
+          "$spec": {
+            "$type": "$fn:String",
+            "$validate": {
+              "required": true,
+            },
+          },
+          "$type": "$fn:Array",
+          "$validate": {
+            "notEmpty": true,
+            "required": true,
+          },
+        },
+      },
+      "legalNotice": {
+        "$type": "$fn:Object",
+        "link": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "show": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "text": {
+          "$construct": "L10n",
+          "$name": "l10nHtml",
+          "$strict": true,
+          "*": {
+            "$filter": {
+              "trim": true,
+            },
+            "$type": "$fn:String",
+            "$validate": {
+              "valueLength": {
+                "max": 100000,
+              },
+            },
+          },
+        },
+        "url": {
+          "$construct": "L10n",
+          "$name": "l10nUrl",
+          "$strict": true,
+          "*": {
+            "$filter": {
+              "prependHttp": {
+                "$if": {
+                  "$not": {
+                    "$regex": "$re:/^[a-zA-Z][a-zA-Z\\d+\\-.]*:/",
+                  },
+                },
+              },
+              "stripHtml": true,
+              "trim": true,
+            },
+            "$type": "$fn:String",
+            "$validate": {
+              "regex": {
+                "message": "url must use the http or https scheme",
+                "pattern": "$re:/^(https?:\\/\\/\\S+)?$/i",
+              },
+              "valueLength": {
+                "max": 100000,
+              },
+            },
+          },
+        },
+      },
+      "name": {
+        "$filter": {
+          "defaultValue": "",
+          "stripHtml": true,
+          "trim": true,
+        },
+        "$label": "Name",
+        "$type": "$fn:String",
+      },
+      "notify": {
+        "$type": "$fn:Object",
+        "basic": {
+          "$type": "$fn:String",
+        },
+        "detailed": {
+          "$type": "$fn:String",
+        },
+      },
+      "participant": {
+        "$type": "$fn:Object",
+        "htmlEmail": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "thankYouEmail": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "tokenLength": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Number",
+        },
+      },
+      "presentation": {
+        "$type": "$fn:Object",
+        "backNav": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "format": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "inArray": {
+              "values": [
+                "group",
+                "question",
+                "all",
+              ],
+            },
+          },
+        },
+        "groupDesc": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "groupName": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "navDelay": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Number",
+        },
+        "noAnswer": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "noBrand": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "print": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "progressBar": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "questionCode": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "questionCount": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "questionIndex": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "questionNum": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "redirectEnd": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "stats": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "thankYouLink": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "title": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+        "welcomeMessage": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Boolean",
+        },
+      },
+      "schedule": {
+        "$type": "$fn:Object",
+        "end": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Date",
+        },
+        "start": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:Date",
+        },
+      },
+      "sectionIds": {
+        "$filter": {
+          "defaultValue": [],
+        },
+        "$spec": {
+          "$type": "$fn:String",
+          "$validate": {
+            "required": true,
+          },
+        },
+        "$type": "$fn:Array",
+      },
+      "sections": {
+        "$spec": {
+          "$construct": "SurveySection",
+          "$constructCollection": "SurveySectionCollection",
+          "$name": "surveySection",
+          "$strict": true,
+          "$validate": {
+            "required": true,
+          },
+          "_id": {
+            "$type": "$fn:String",
+            "$validate": {
+              "required": true,
+              "valueLength": {
+                "max": 17,
+              },
+            },
+          },
+          "attributes": {
+            "$filter": {
+              "defaultValue": {},
+            },
+            "$strict": false,
+            "$type": "$fn:Object",
+            "*": {
+              "$type": "$fn:Mixed",
+            },
+          },
+          "code": {
+            "$filter": {
+              "defaultValue": "",
+              "trim": true,
+            },
+            "$type": "$fn:String",
+            "$validate": {
+              "regex": {
+                "message": "Code must start with a letter and contain only letters, numbers, and underscores",
+                "pattern": "$re:/^[A-Za-z][A-Za-z0-9_]*$/",
+              },
+              "valueLength": {
+                "max": 12,
+              },
+            },
+          },
+          "condition": {
+            "$filter": {
+              "defaultValue": null,
+              "trim": true,
+            },
+            "$nullable": true,
+            "$type": "$fn:String",
+            "$validate": {
+              "valueLength": {
+                "max": 2000,
+              },
+            },
+          },
+          "conditionReferences": {
+            "$filter": {
+              "defaultValue": null,
+            },
+            "$nullable": true,
+            "$spec": {
+              "$type": "$fn:String",
+            },
+            "$type": "$fn:Array",
+          },
+          "config": {
+            "$filter": {
+              "defaultValue": null,
+            },
+            "$nullable": true,
+            "$strict": false,
+            "$type": "$fn:Object",
+          },
+          "createdAt": {
+            "$filter": {
+              "defaultValue": "now",
+            },
+            "$type": "$fn:Date",
+          },
+          "createdById": {
+            "$type": "$fn:String",
+            "$validate": {
+              "required": true,
+            },
+          },
+          "desc": {
+            "$construct": "$fn:L10n",
+            "$filter": {
+              "defaultValue": null,
+            },
+            "$name": "l10nHtml",
+            "$nullable": true,
+            "$strict": true,
+            "$type": "$fn:Object",
+            "*": {
+              "$filter": {
+                "trim": true,
+              },
+              "$label": "Description",
+              "$type": "$fn:String",
+              "$validate": {
+                "notEmpty": true,
+                "valueLength": {
+                  "max": 100000,
+                },
+              },
+            },
+          },
+          "kind": {
+            "$filter": {
+              "defaultValue": "group",
+            },
+            "$type": "$fn:String",
+            "$validate": {
+              "valueLength": {
+                "max": 16,
+              },
+            },
+          },
+          "name": {
+            "$construct": "$fn:L10n",
+            "$filter": {
+              "defaultValue": {},
+            },
+            "$name": "l10n",
+            "$strict": true,
+            "$type": "$fn:Object",
+            "*": {
+              "$filter": {
+                "stripHtml": true,
+                "trim": true,
+              },
+              "$label": "Group name",
+              "$type": "$fn:String",
+              "$validate": {
+                "notEmpty": true,
+                "valueLength": {
+                  "max": 255,
+                },
+              },
+            },
+          },
+          "surveyId": {
+            "$type": "$fn:String",
+            "$validate": {
+              "required": true,
+            },
+          },
+          "updatedAt": {
+            "$filter": {
+              "defaultValue": "now",
+            },
+            "$type": "$fn:Date",
+          },
+        },
+        "$type": "$fn:Array",
+      },
+      "stats": {
+        "$type": "$fn:Object",
+        "questions": {
+          "$type": "$fn:Object",
+          "*": {
+            "$type": "$fn:Object",
+            "chartType": {
+              "$type": "$fn:String",
+              "$validate": {
+                "inArray": {
+                  "values": [
+                    "bar",
+                    "horizontalBar",
+                    "pie",
+                    "stackedBar",
+                    "pieGrid",
+                    "averageRank",
+                  ],
+                },
+              },
+            },
+            "valueMode": {
+              "$type": "$fn:String",
+              "$validate": {
+                "inArray": {
+                  "values": [
+                    "count",
+                    "percentage",
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+      "thankYou": {
+        "$type": "$fn:Object",
+        "link": {
+          "$type": "$fn:Object",
+          "text": {
+            "$construct": "L10n",
+            "$name": "l10n",
+            "$strict": true,
+            "*": {
+              "$filter": {
+                "stripHtml": true,
+                "trim": true,
+              },
+              "$type": "$fn:String",
+              "$validate": {
+                "valueLength": {
+                  "max": 100000,
+                },
+              },
+            },
+          },
+          "url": {
+            "$construct": "L10n",
+            "$name": "l10nUrl",
+            "$strict": true,
+            "*": {
+              "$filter": {
+                "prependHttp": {
+                  "$if": {
+                    "$not": {
+                      "$regex": "$re:/^[a-zA-Z][a-zA-Z\\d+\\-.]*:/",
+                    },
+                  },
+                },
+                "stripHtml": true,
+                "trim": true,
+              },
+              "$type": "$fn:String",
+              "$validate": {
+                "regex": {
+                  "message": "url must use the http or https scheme",
+                  "pattern": "$re:/^(https?:\\/\\/\\S+)?$/i",
+                },
+                "valueLength": {
+                  "max": 100000,
+                },
+              },
+            },
+          },
+        },
+        "message": {
+          "$construct": "L10n",
+          "$name": "l10nHtml",
+          "$strict": true,
+          "*": {
+            "$filter": {
+              "trim": true,
+            },
+            "$type": "$fn:String",
+            "$validate": {
+              "valueLength": {
+                "max": 100000,
+              },
+            },
+          },
+        },
+      },
+      "title": {
+        "$construct": "L10n",
+        "$filter": {
+          "defaultValue": {},
+        },
+        "$type": "$fn:Object",
+        "*": {
+          "$filter": {
+            "stripHtml": true,
+            "trim": true,
+          },
+          "$label": "Title",
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 255,
+            },
+          },
+        },
+      },
+      "updatedAt": {
+        "$filter": {
+          "defaultValue": "now",
+        },
+        "$type": "$fn:Date",
+      },
+      "welcome": {
+        "$type": "$fn:Object",
+        "message": {
+          "$construct": "L10n",
+          "$name": "l10nHtml",
+          "$strict": true,
+          "*": {
+            "$filter": {
+              "trim": true,
+            },
+            "$type": "$fn:String",
+            "$validate": {
+              "valueLength": {
+                "max": 100000,
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "unknownKey": {
+    "ok": true,
+    "result": {
+      "errors": {
+        "$unknown": [
+          "Field not specified",
+        ],
+      },
+      "isValid": false,
+    },
+  },
+  "valid": {
+    "ok": true,
+    "result": {
+      "errors": {},
+      "isValid": true,
+    },
+  },
+}
+`;

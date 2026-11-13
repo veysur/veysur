@@ -1,3 +1,4 @@
+import type { SettingSurveyDocument } from '../../SettingSurveyDocument'
 import { ChartType, ChartValueMode } from '../SettingSurveyBase'
 
 /**
@@ -40,71 +41,25 @@ export interface HasUpdateL10nProperty {
  * more permissive (optional/nullable) shape so that both concrete bases -
  * whose fields are each assignable to it - satisfy this constraint.
  */
+/** Every field of a settings group optional and nullable, as `SurveyBase` holds them. */
+type Loose<T> = { [K in keyof T]?: T[K] | null }
+
+/** One settings group of {@link SettingSurveyDocument}, loosened. */
+type Group<K extends keyof SettingSurveyDocument> = Loose<
+  NonNullable<SettingSurveyDocument[K]>
+>
+
 export interface SettingSurveyMixinBase {
-  language?: {
-    default?: string | null
-    options?: string[] | null
-  }
-  presentation?: {
-    format?: 'group' | 'question' | 'all' | null
-    noAnswer?: boolean | null
-    title?: boolean | null
-    welcomeMessage?: boolean | null
-    progressBar?: boolean | null
-    questionCount?: boolean | null
-    groupName?: boolean | null
-    groupDesc?: boolean | null
-    questionNum?: boolean | null
-    questionCode?: boolean | null
-    questionIndex?: boolean | null
-    backNav?: boolean | null
-    redirectEnd?: boolean | null
-    navDelay?: number | null
-    print?: boolean | null
-    stats?: boolean | null
-    thankYouLink?: boolean | null
-  }
-  participant?: {
-    htmlEmail?: boolean | null
-    thankYouEmail?: boolean | null
-    tokenLength?: number | null
-  }
-  data?: {
-    timestamp?: boolean | null
-    ip?: boolean | null
-    anonymiseIp?: boolean | null
-    referrerUrl?: boolean | null
-    timings?: boolean | null
-    assessment?: boolean | null
-  }
-  access?: {
-    anonymous?: boolean | null
-    open?: boolean | null
-    publicReg?: boolean | null
-    index?: boolean | null
-    tokenPersist?: boolean | null
-    multiple?: boolean | null
-    preventRepeat?: boolean | null
-    resumeLink?: boolean | null
-    botProtection?: boolean | null
-    embed?: boolean | null
-    embedDomains?: string[] | null
-  }
+  language?: Group<'language'>
+  presentation?: Group<'presentation'>
+  participant?: Group<'participant'>
+  data?: Group<'data'>
+  access?: Group<'access'>
   dataPolicy?: Record<string, unknown>
   legalNotice?: Record<string, unknown>
-  schedule?: {
-    start?: Date | null
-    end?: Date | null
-  }
-  contentFormat?: {
-    htmlAllowed?: boolean | null
-    markdownAllowed?: boolean | null
-    scriptTagsAllowed?: boolean | null
-  }
-  notify?: {
-    basic?: string | null
-    detailed?: string | null
-  }
+  schedule?: Group<'schedule'>
+  contentFormat?: Group<'contentFormat'>
+  notify?: Group<'notify'>
   stats?: {
     questions?: {
       [questionCode: string]: {

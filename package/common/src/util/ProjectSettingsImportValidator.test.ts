@@ -7,7 +7,7 @@ import {
 import { SchemaL10n } from '../model/schema/SchemaL10n'
 import { SchemaL10nHtml } from '../model/schema/SchemaL10nHtml'
 import { SchemaL10nUrl } from '../model/schema/SchemaL10nUrl'
-import { SchemaSettingSurvey } from '../model/schema/SchemaSettingSurvey'
+import { SchemaSettingSurvey } from '../model/constructor/SettingSurveyDocument.schema'
 
 const build = (
   overrides: Partial<ProjectSettingsRawImport> = {},

@@ -1,0 +1,66 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`SchemaSurveyParticipantAttribute validates as recorded and rejects unknown keys 1`] = `
+{
+  "name": "surveyParticipantAttribute",
+  "spec": {
+    "$construct": "SurveyParticipantAttribute",
+    "$name": "surveyParticipantAttribute",
+    "$strict": true,
+    "_id": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "attributes": {
+      "$filter": {
+        "defaultValue": [],
+      },
+      "$type": "$fn:Array",
+    },
+    "createdAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+    "surveyId": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "updatedAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+  },
+  "unknownKey": {
+    "ok": true,
+    "result": {
+      "errors": {
+        "$unknown": [
+          "Field not specified",
+        ],
+      },
+      "isValid": false,
+    },
+  },
+  "valid": {
+    "ok": true,
+    "result": {
+      "errors": {},
+      "isValid": true,
+    },
+  },
+}
+`;

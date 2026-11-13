@@ -1,0 +1,87 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`SchemaSettingProject validates as recorded and rejects unknown keys 1`] = `
+{
+  "name": "settingProject",
+  "spec": {
+    "$construct": "SettingProject",
+    "$name": "settingProject",
+    "$strict": true,
+    "_id": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+      },
+    },
+    "botProtection": {
+      "$type": "$fn:Object",
+      "cloudflare": {
+        "$type": "$fn:Object",
+        "secretKey": {
+          "$filter": {
+            "encrypt": true,
+          },
+          "$type": "$fn:String",
+        },
+        "siteKey": {
+          "$type": "$fn:String",
+        },
+      },
+      "google": {
+        "$type": "$fn:Object",
+        "secretKey": {
+          "$filter": {
+            "encrypt": true,
+          },
+          "$type": "$fn:String",
+        },
+        "siteKey": {
+          "$type": "$fn:String",
+        },
+      },
+      "provider": {
+        "$type": "$fn:String",
+      },
+    },
+    "createdAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+    "maps": {
+      "$type": "$fn:Object",
+      "googleApiKey": {
+        "$type": "$fn:String",
+      },
+      "provider": {
+        "$type": "$fn:String",
+      },
+    },
+    "updatedAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+  },
+  "unknownKey": {
+    "ok": true,
+    "result": {
+      "errors": {
+        "$unknown": [
+          "Field not specified",
+        ],
+      },
+      "isValid": false,
+    },
+  },
+  "valid": {
+    "ok": true,
+    "result": {
+      "errors": {},
+      "isValid": true,
+    },
+  },
+}
+`;

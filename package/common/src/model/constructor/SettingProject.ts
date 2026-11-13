@@ -1,4 +1,5 @@
 import { genUniqueId } from '@datacapy/id'
+import type { tags as t } from '@datacapy/schema'
 
 import {
   BOT_PROTECTION_PROVIDER_NONE,
@@ -9,6 +10,24 @@ import { ResolvedMapConfig } from '../service/MapConfig'
 export interface SettingProjectKeys {
   siteKey: string
   secretKey: string
+}
+
+/**
+ * The stored document. The class below is hand-written because it normalises
+ * nulls to defaults, so this is tagged with `construct` for the name only.
+ *
+ * @schema settingProject construct=SettingProject strict
+ */
+export interface SettingProjectDocument {
+  _id: string & t.Required
+  maps?: { googleApiKey?: string; provider?: string }
+  botProtection?: {
+    provider?: string
+    cloudflare?: { siteKey?: string; secretKey?: string & t.Encrypt }
+    google?: { siteKey?: string; secretKey?: string & t.Encrypt }
+  }
+  createdAt: Date & t.Default<'now'>
+  updatedAt: Date & t.Default<'now'>
 }
 
 export interface SettingProjectData {

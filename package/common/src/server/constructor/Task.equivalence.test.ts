@@ -4,9 +4,11 @@ jest.mock('@datacapy/id', () => ({
 }))
 
 import { constructorBehaviour } from '../../test-utils/constructorEquivalence'
-import { taskSpec } from '../schema/SchemaTask'
+import { SchemaTask } from './Task.schema'
 import { Task } from './Task'
 
 it('Task behaves as recorded', () => {
-  expect(constructorBehaviour(Task, taskSpec)).toMatchSnapshot()
+  expect(
+    constructorBehaviour(Task, new SchemaTask().builderFields()),
+  ).toMatchSnapshot()
 })

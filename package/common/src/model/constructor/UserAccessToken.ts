@@ -1,6 +1,10 @@
 import moment from 'moment-timezone'
 import { Infer } from '@datacapy/schema'
-import { userAccessTokenSpec } from '../schema/SchemaUserAccessToken'
+import type { AssertSchema } from '@datacapy/schema'
+import {
+  SchemaUserAccessToken,
+  userAccessTokenSpec,
+} from '../schema/SchemaUserAccessToken'
 
 type Interval =
   'weeks' | 'days' | 'hours' | 'minutes' | 'seconds' | 'milliseconds'
@@ -17,6 +21,36 @@ export interface GeoInfo {
   }
   timezone: string
 }
+
+/**
+ * Describes the hand-written `SchemaUserAccessToken` so other generated schemas
+ * can reference it. Not in `datacapy.config.json`'s `include`, so nothing is
+ * generated from it; `AssertSchema` below keeps the two in step.
+ *
+ * @schema userAccessToken
+ */
+export interface UserAccessTokenData {
+  token?: string
+  ttl?: number
+  ip?: string
+  geo?: {
+    country?: string
+    countryCode?: string
+    region?: string
+    regionCode?: string
+    timezone?: string
+    city?: string
+    location?: { type?: string; coordinates?: number[] }
+  }
+  createdAt?: Date
+  expiresAt?: Date
+}
+
+const _checkUserAccessToken: AssertSchema<
+  SchemaUserAccessToken,
+  UserAccessTokenData
+> = true
+void _checkUserAccessToken
 
 /** Fields come from {@link userAccessTokenSpec}. */
 export interface UserAccessToken extends Infer<typeof userAccessTokenSpec> {}

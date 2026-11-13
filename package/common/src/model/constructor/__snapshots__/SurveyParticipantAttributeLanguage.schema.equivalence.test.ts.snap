@@ -1,0 +1,76 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`SchemaSurveyParticipantAttributeLanguage validates as recorded and rejects unknown keys 1`] = `
+{
+  "name": "surveyParticipantAttributeLanguage",
+  "spec": {
+    "$construct": "SurveyParticipantAttributeLanguage",
+    "$name": "surveyParticipantAttributeLanguage",
+    "$strict": true,
+    "_id": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "createdAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+    "data": {
+      "$filter": {
+        "defaultValue": {},
+      },
+      "$strict": false,
+      "$type": "$fn:Object",
+    },
+    "languageCode": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 2,
+        },
+      },
+    },
+    "surveyId": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "updatedAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+  },
+  "unknownKey": {
+    "ok": true,
+    "result": {
+      "errors": {
+        "$unknown": [
+          "Field not specified",
+        ],
+      },
+      "isValid": false,
+    },
+  },
+  "valid": {
+    "ok": true,
+    "result": {
+      "errors": {},
+      "isValid": true,
+    },
+  },
+}
+`;

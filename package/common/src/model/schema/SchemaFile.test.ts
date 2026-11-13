@@ -1,4 +1,4 @@
-import { SchemaFile } from './SchemaFile'
+import { SchemaFile } from '../constructor/File.schema'
 
 describe('SchemaFile', () => {
   jest.useRealTimers()

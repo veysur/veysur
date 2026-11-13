@@ -1,4 +1,4 @@
-import { SchemaSurveyParticipantAttributeLanguage } from './SchemaSurveyParticipantAttributeLanguage'
+import { SchemaSurveyParticipantAttributeLanguage } from '../constructor/SurveyParticipantAttributeLanguage.schema'
 
 describe('SchemaSurveyParticipantAttributeLanguage', () => {
   jest.useRealTimers()

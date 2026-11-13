@@ -1,0 +1,351 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`SchemaFile validates as recorded and rejects unknown keys 1`] = `
+{
+  "name": "file",
+  "spec": {
+    "$construct": "File",
+    "$name": "file",
+    "$strict": true,
+    "_id": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "bucketType": {
+      "$filter": {
+        "defaultValue": "public",
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "inArray": {
+          "values": [
+            "public",
+            "private",
+          ],
+        },
+      },
+    },
+    "createdAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+    "createdById": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "deletedAt": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:Date",
+    },
+    "fileContext": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "inArray": {
+          "values": [
+            "import",
+            "project",
+            "survey",
+            "response",
+            "temp",
+          ],
+        },
+      },
+    },
+    "filePath": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 512,
+        },
+      },
+    },
+    "filename": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 255,
+        },
+      },
+    },
+    "hash": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 64,
+          "min": 64,
+        },
+      },
+    },
+    "imageSetId": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 128,
+        },
+      },
+    },
+    "imageVariant": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "inArray": {
+          "values": [
+            "original",
+            "edited",
+            "thumb",
+          ],
+        },
+      },
+    },
+    "import": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$nullable": true,
+      "$type": "$fn:Object",
+      "entityType": {
+        "$type": "$fn:String",
+      },
+      "format": {
+        "$type": "$fn:String",
+      },
+      "options": {
+        "$nullable": true,
+        "$type": "$fn:Object",
+        "apply": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$spec": {
+            "$type": "$fn:String",
+            "$validate": {
+              "required": true,
+            },
+          },
+          "$type": "$fn:Array",
+        },
+        "force": {
+          "$type": "$fn:Boolean",
+        },
+        "publicationId": {
+          "$nullable": true,
+          "$type": "$fn:String",
+        },
+        "snapshotId": {
+          "$nullable": true,
+          "$type": "$fn:String",
+        },
+        "surveyId": {
+          "$nullable": true,
+          "$type": "$fn:String",
+        },
+      },
+      "result": {
+        "$nullable": true,
+        "$type": "$fn:Object",
+        "details": {
+          "$nullable": true,
+          "$type": "$fn:Array",
+        },
+        "discards": {
+          "$nullable": true,
+          "$type": "$fn:Array",
+        },
+        "entityId": {
+          "$type": "$fn:String",
+        },
+        "entityType": {
+          "$type": "$fn:String",
+        },
+        "error": {
+          "$type": "$fn:String",
+        },
+        "hasIdTranslations": {
+          "$nullable": true,
+          "$type": "$fn:Boolean",
+        },
+        "repairs": {
+          "$nullable": true,
+          "$type": "$fn:Array",
+        },
+        "success": {
+          "$type": "$fn:Boolean",
+          "$validate": {
+            "required": true,
+          },
+        },
+        "warnings": {
+          "$nullable": true,
+          "$type": "$fn:Array",
+        },
+      },
+      "status": {
+        "$nullable": true,
+        "$type": "$fn:String",
+        "$validate": {
+          "inArray": {
+            "values": [
+              "pending",
+              "processing",
+              "completed",
+              "failed",
+              "queued",
+            ],
+          },
+        },
+      },
+    },
+    "mimeType": {
+      "$type": "$fn:String",
+      "$validate": {
+        "inArray": {
+          "values": [
+            "image/png",
+            "image/jpeg",
+            "image/jpg",
+            "image/webp",
+            "text/csv",
+            "text/markdown",
+            "application/octet-stream",
+            "application/pdf",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "application/vnd.ms-excel",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/vnd.ms-powerpoint",
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+          ],
+        },
+        "required": true,
+        "valueLength": {
+          "max": 127,
+        },
+      },
+    },
+    "refs": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$spec": {
+        "$type": "$fn:Object",
+        "$validate": {
+          "required": true,
+        },
+        "id": {
+          "$type": "$fn:String",
+          "$validate": {
+            "required": true,
+            "valueLength": {
+              "max": 17,
+            },
+          },
+        },
+        "type": {
+          "$type": "$fn:String",
+          "$validate": {
+            "required": true,
+            "valueLength": {
+              "max": 50,
+            },
+          },
+        },
+      },
+      "$type": "$fn:Array",
+    },
+    "responseId": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "size": {
+      "$type": "$fn:Number",
+      "$validate": {
+        "required": true,
+      },
+    },
+    "storedFilename": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 255,
+        },
+      },
+    },
+    "surveyId": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "updatedAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+    "uploadedAt": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:Date",
+    },
+  },
+  "unknownKey": {
+    "ok": true,
+    "result": {
+      "errors": {
+        "$unknown": [
+          "Field not specified",
+        ],
+      },
+      "isValid": false,
+    },
+  },
+  "valid": {
+    "ok": true,
+    "result": {
+      "errors": {},
+      "isValid": true,
+    },
+  },
+}
+`;

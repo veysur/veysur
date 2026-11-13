@@ -4,9 +4,14 @@ jest.mock('@datacapy/id', () => ({
 }))
 
 import { constructorBehaviour } from '../../test-utils/constructorEquivalence'
-import { notificationSpec } from '../schema/SchemaNotification'
+import { SchemaNotification } from './Notification.schema'
 import { Notification } from './Notification'
 
 it('Notification behaves as recorded', () => {
-  expect(constructorBehaviour(Notification, notificationSpec)).toMatchSnapshot()
+  expect(
+    constructorBehaviour(
+      Notification,
+      new SchemaNotification().builderFields(),
+    ),
+  ).toMatchSnapshot()
 })

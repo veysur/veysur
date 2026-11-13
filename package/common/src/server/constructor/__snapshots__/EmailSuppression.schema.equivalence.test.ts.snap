@@ -1,0 +1,305 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`SchemaEmailSuppression validates as recorded and rejects unknown keys 1`] = `
+{
+  "name": "emailSuppression",
+  "spec": {
+    "$construct": "EmailSuppression",
+    "$name": "emailSuppression",
+    "$strict": true,
+    "_id": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "complaintEvents": {
+      "$filter": {
+        "defaultValue": [],
+      },
+      "$spec": {
+        "$type": "$fn:Object",
+        "$validate": {
+          "required": true,
+        },
+        "occurredAt": {
+          "$filter": {
+            "defaultValue": "now",
+          },
+          "$type": "$fn:Date",
+        },
+        "participantId": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 17,
+            },
+          },
+        },
+        "projectId": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 17,
+            },
+          },
+        },
+        "surveyId": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 17,
+            },
+          },
+        },
+      },
+      "$type": "$fn:Array",
+    },
+    "createdAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+    "email": {
+      "$filter": {
+        "lowercase": true,
+        "trim": true,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "email": true,
+        "notNull": true,
+        "required": true,
+        "valueLength": {
+          "max": 255,
+        },
+      },
+    },
+    "expiresAt": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:Date",
+    },
+    "hardBounceEvents": {
+      "$filter": {
+        "defaultValue": [],
+      },
+      "$spec": {
+        "$type": "$fn:Object",
+        "$validate": {
+          "required": true,
+        },
+        "occurredAt": {
+          "$filter": {
+            "defaultValue": "now",
+          },
+          "$type": "$fn:Date",
+        },
+        "participantId": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 17,
+            },
+          },
+        },
+        "projectId": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 17,
+            },
+          },
+        },
+        "surveyId": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 17,
+            },
+          },
+        },
+      },
+      "$type": "$fn:Array",
+    },
+    "participantId": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "reason": {
+      "$type": "$fn:String",
+      "$validate": {
+        "inArray": {
+          "values": [
+            "hardBounce",
+            "softBounce",
+            "complaint",
+            "unsubscribe",
+          ],
+        },
+        "notNull": true,
+        "required": true,
+        "valueLength": {
+          "max": 255,
+        },
+      },
+    },
+    "softBounceEvents": {
+      "$filter": {
+        "defaultValue": [],
+      },
+      "$spec": {
+        "$type": "$fn:Object",
+        "$validate": {
+          "required": true,
+        },
+        "occurredAt": {
+          "$filter": {
+            "defaultValue": "now",
+          },
+          "$type": "$fn:Date",
+        },
+        "participantId": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 17,
+            },
+          },
+        },
+        "projectId": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 17,
+            },
+          },
+        },
+        "surveyId": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 17,
+            },
+          },
+        },
+      },
+      "$type": "$fn:Array",
+    },
+    "unsubscribeEvents": {
+      "$filter": {
+        "defaultValue": [],
+      },
+      "$spec": {
+        "$type": "$fn:Object",
+        "$validate": {
+          "required": true,
+        },
+        "occurredAt": {
+          "$filter": {
+            "defaultValue": "now",
+          },
+          "$type": "$fn:Date",
+        },
+        "participantId": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 17,
+            },
+          },
+        },
+        "projectId": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 17,
+            },
+          },
+        },
+        "surveyId": {
+          "$filter": {
+            "defaultValue": null,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 17,
+            },
+          },
+        },
+      },
+      "$type": "$fn:Array",
+    },
+    "updatedAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+  },
+  "unknownKey": {
+    "ok": true,
+    "result": {
+      "errors": {
+        "$unknown": [
+          "Field not specified",
+        ],
+      },
+      "isValid": false,
+    },
+  },
+  "valid": {
+    "ok": true,
+    "result": {
+      "errors": {},
+      "isValid": true,
+    },
+  },
+}
+`;

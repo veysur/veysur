@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Project behaves as recorded 1`] = `
+{
+  "_id: null": "{"$class":"Project","entries":[["_id",null]]}",
+  "_id: probe 0": "{"$class":"Project","entries":[["_id",""]]}",
+  "_id: probe 1": "{"$class":"Project","entries":[["_id","text"]]}",
+  "_id: undefined": "{"$class":"Project","entries":[["_id","$undefined"]]}",
+  "all null": "{"$class":"Project","entries":[["_id",null],["name",null],["timezone",null],["ownerId",null],["createdAt",null],["updatedAt",null]]}",
+  "all typical": "{"$class":"Project","entries":[["_id","text"],["name","text"],["timezone","text"],["ownerId","text"],["createdAt",1735787045000],["updatedAt",1735787045000]]}",
+  "createdAt: null": "{"$class":"Project","entries":[["_id","default"],["createdAt",null]]}",
+  "createdAt: probe 0": "{"$class":"Project","entries":[["_id","default"],["createdAt",{"$date":"2025-01-02T03:04:05.000Z"}]]}",
+  "createdAt: probe 1": "{"$class":"Project","entries":[["_id","default"],["createdAt","2025-01-02T03:04:05.000Z"]]}",
+  "createdAt: probe 2": "{"$class":"Project","entries":[["_id","default"],["createdAt",1735787045000]]}",
+  "createdAt: undefined": "{"$class":"Project","entries":[["_id","default"],["createdAt","$undefined"]]}",
+  "empty": "{"$class":"Project","entries":[["_id","default"]]}",
+  "name: null": "{"$class":"Project","entries":[["_id","default"],["name",null]]}",
+  "name: probe 0": "{"$class":"Project","entries":[["_id","default"],["name",""]]}",
+  "name: probe 1": "{"$class":"Project","entries":[["_id","default"],["name","text"]]}",
+  "name: undefined": "{"$class":"Project","entries":[["_id","default"],["name","$undefined"]]}",
+  "no argument": "{"$class":"Project","entries":[["_id","default"]]}",
+  "ownerId: null": "{"$class":"Project","entries":[["_id","default"],["ownerId",null]]}",
+  "ownerId: probe 0": "{"$class":"Project","entries":[["_id","default"],["ownerId",""]]}",
+  "ownerId: probe 1": "{"$class":"Project","entries":[["_id","default"],["ownerId","text"]]}",
+  "ownerId: undefined": "{"$class":"Project","entries":[["_id","default"],["ownerId","$undefined"]]}",
+  "timezone: null": "{"$class":"Project","entries":[["_id","default"],["timezone",null]]}",
+  "timezone: probe 0": "{"$class":"Project","entries":[["_id","default"],["timezone",""]]}",
+  "timezone: probe 1": "{"$class":"Project","entries":[["_id","default"],["timezone","text"]]}",
+  "timezone: undefined": "{"$class":"Project","entries":[["_id","default"],["timezone","$undefined"]]}",
+  "unknown key": "{"$class":"Project","entries":[["_id","default"],["$unknown",1]]}",
+  "updatedAt: null": "{"$class":"Project","entries":[["_id","default"],["updatedAt",null]]}",
+  "updatedAt: probe 0": "{"$class":"Project","entries":[["_id","default"],["updatedAt",{"$date":"2025-01-02T03:04:05.000Z"}]]}",
+  "updatedAt: probe 1": "{"$class":"Project","entries":[["_id","default"],["updatedAt","2025-01-02T03:04:05.000Z"]]}",
+  "updatedAt: probe 2": "{"$class":"Project","entries":[["_id","default"],["updatedAt",1735787045000]]}",
+  "updatedAt: undefined": "{"$class":"Project","entries":[["_id","default"],["updatedAt","$undefined"]]}",
+}
+`;

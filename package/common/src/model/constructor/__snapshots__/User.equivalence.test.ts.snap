@@ -1,0 +1,1084 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`the user schema rejects a role outside the allowed set and a null email 1`] = `
+{
+  "name": "user",
+  "spec": {
+    "$construct": "User",
+    "$name": "user",
+    "$strict": true,
+    "_id": {
+      "$type": "$fn:String",
+      "$validate": {
+        "notNull": undefined,
+        "required": true,
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "anonymizedAt": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:Date",
+    },
+    "client": {
+      "$constructCollection": "Collection",
+      "$filter": {
+        "private": true,
+      },
+      "$relation": true,
+      "$spec": {
+        "$name": "userClient",
+        "$validate": {
+          "required": true,
+        },
+        "_id": {
+          "$type": "$fn:String",
+          "$validate": {
+            "required": true,
+          },
+        },
+        "accessToken": {
+          "$constructCollection": "Collection",
+          "$filter": {
+            "private": true,
+          },
+          "$spec": {
+            "$construct": "UserAccessToken",
+            "$name": "userAccessToken",
+            "$validate": {
+              "required": true,
+            },
+            "createdAt": {
+              "$type": "$fn:Date",
+            },
+            "expiresAt": {
+              "$type": "$fn:Date",
+            },
+            "geo": {
+              "$type": "$fn:Object",
+              "city": {
+                "$type": "$fn:String",
+              },
+              "country": {
+                "$type": "$fn:String",
+              },
+              "countryCode": {
+                "$type": "$fn:String",
+              },
+              "location": {
+                "$type": "$fn:Object",
+                "coordinates": {
+                  "$spec": "$fn:Number",
+                  "$type": "$fn:Array",
+                },
+                "type": {
+                  "$type": "$fn:String",
+                },
+              },
+              "region": {
+                "$type": "$fn:String",
+              },
+              "regionCode": {
+                "$type": "$fn:String",
+              },
+              "timezone": {
+                "$type": "$fn:String",
+              },
+            },
+            "ip": {
+              "$type": "$fn:String",
+            },
+            "token": {
+              "$type": "$fn:String",
+            },
+            "ttl": {
+              "$type": "$fn:Number",
+            },
+          },
+          "$type": "$fn:Array",
+        },
+        "buildNumber": {
+          "$filter": {
+            "defaultValue": null,
+            "trim": true,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 40,
+            },
+          },
+        },
+        "buildVersion": {
+          "$filter": {
+            "defaultValue": null,
+            "trim": true,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 40,
+            },
+          },
+        },
+        "createdAt": {
+          "$filter": {
+            "defaultValue": "now",
+          },
+          "$type": "$fn:Date",
+        },
+        "geo": {
+          "$type": "$fn:Object",
+          "city": {
+            "$type": "$fn:String",
+          },
+          "country": {
+            "$type": "$fn:String",
+          },
+          "countryCode": {
+            "$type": "$fn:String",
+          },
+          "location": {
+            "$type": "$fn:Object",
+            "coordinates": {
+              "$spec": {
+                "$type": "$fn:Number",
+                "$validate": {
+                  "required": true,
+                },
+              },
+              "$type": "$fn:Array",
+            },
+            "type": {
+              "$type": "$fn:String",
+            },
+          },
+          "region": {
+            "$type": "$fn:String",
+          },
+          "regionCode": {
+            "$type": "$fn:String",
+          },
+          "timezone": {
+            "$type": "$fn:String",
+          },
+        },
+        "name": {
+          "$filter": {
+            "defaultValue": null,
+            "trim": true,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 300,
+            },
+          },
+        },
+        "notificationToken": {
+          "$filter": {
+            "defaultValue": null,
+            "trim": true,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 1024,
+            },
+          },
+        },
+        "system": {
+          "$filter": {
+            "defaultValue": null,
+            "trim": true,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 40,
+            },
+          },
+        },
+        "systemVersion": {
+          "$filter": {
+            "defaultValue": null,
+            "trim": true,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 40,
+            },
+          },
+        },
+        "updatedAt": {
+          "$filter": {
+            "defaultValue": "now",
+          },
+          "$type": "$fn:Date",
+        },
+        "user": {
+          "$relation": true,
+          "$type": "$fn:Mixed",
+        },
+        "userAgent": {
+          "$filter": {
+            "defaultValue": null,
+            "trim": true,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 1024,
+            },
+          },
+        },
+        "userId": {
+          "$type": "$fn:String",
+          "$validate": {
+            "required": true,
+          },
+        },
+      },
+      "$type": "$fn:Array",
+    },
+    "createdAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+    "deletedAt": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:Date",
+    },
+    "deletionReminderSentAt": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:Date",
+    },
+    "email": {
+      "$filter": {
+        "lowercase": true,
+        "trim": true,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "email": true,
+        "notNull": true,
+        "required": true,
+        "valueLength": {
+          "max": 255,
+        },
+      },
+    },
+    "emailMeta": {
+      "$type": "$fn:Object",
+      "history": {
+        "$filter": {
+          "private": true,
+        },
+        "$spec": {
+          "$type": "$fn:Object",
+          "$validate": {
+            "notNull": undefined,
+            "required": true,
+          },
+          "clientId": {
+            "$filter": {
+              "privateValue": true,
+              "trim": true,
+            },
+            "$type": "$fn:String",
+            "$validate": {
+              "notNull": undefined,
+              "required": true,
+            },
+          },
+          "createdAt": {
+            "$filter": {
+              "defaultValue": "now",
+            },
+            "$type": "$fn:Date",
+          },
+          "prevValue": {
+            "$filter": {
+              "trim": true,
+            },
+            "$type": "$fn:String",
+            "$validate": {
+              "notNull": undefined,
+              "required": true,
+            },
+          },
+          "verifyStatus": {
+            "$type": "$fn:Object",
+            "isVerified": {
+              "$filter": {
+                "defaultValue": false,
+              },
+              "$type": "$fn:Boolean",
+              "$validate": {
+                "notNull": undefined,
+                "required": true,
+              },
+            },
+            "isVerifiedAt": {
+              "$filter": {
+                "defaultValue": null,
+              },
+              "$type": "$fn:Date",
+              "$validate": {
+                "notNull": undefined,
+                "required": true,
+              },
+            },
+          },
+        },
+        "$type": "$fn:Array",
+      },
+      "verify": {
+        "$type": "$fn:Object",
+        "status": {
+          "$type": "$fn:Object",
+          "isVerified": {
+            "$filter": {
+              "defaultValue": false,
+            },
+            "$type": "$fn:Boolean",
+            "$validate": {
+              "notNull": undefined,
+              "required": true,
+            },
+          },
+          "isVerifiedAt": {
+            "$filter": {
+              "defaultValue": null,
+            },
+            "$type": "$fn:Date",
+            "$validate": {
+              "notNull": undefined,
+              "required": true,
+            },
+          },
+        },
+        "token": {
+          "$constructCollection": "Collection",
+          "$spec": {
+            "$type": "$fn:Object",
+            "$validate": {
+              "notNull": undefined,
+              "required": true,
+            },
+            "createdAt": {
+              "$type": "$fn:Date",
+            },
+            "expiresAt": {
+              "$type": "$fn:Date",
+            },
+            "failCount": {
+              "$type": "$fn:Number",
+            },
+            "token": {
+              "$filter": {
+                "privateValue": true,
+              },
+              "$type": "$fn:String",
+            },
+            "ttl": {
+              "$type": "$fn:Number",
+            },
+          },
+          "$type": "$fn:Array",
+        },
+      },
+    },
+    "maxClients": {
+      "$filter": {
+        "defaultValue": null,
+        "privateValue": true,
+      },
+      "$type": "$fn:Number",
+    },
+    "nameFirst": {
+      "$filter": {
+        "trim": true,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "notNull": true,
+        "required": true,
+        "valueLength": {
+          "max": 64,
+        },
+      },
+    },
+    "nameLast": {
+      "$filter": {
+        "trim": true,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "notNull": true,
+        "required": true,
+        "valueLength": {
+          "max": 64,
+        },
+      },
+    },
+    "password": {
+      "$filter": {
+        "privateValue": true,
+      },
+      "$type": "$fn:String",
+    },
+    "passwordMeta": {
+      "$filter": {
+        "private": true,
+      },
+      "$type": "$fn:Object",
+      "reset": {
+        "$type": "$fn:Object",
+        "token": {
+          "$constructCollection": "Collection",
+          "$spec": {
+            "$type": "$fn:Object",
+            "$validate": {
+              "required": true,
+            },
+            "createdAt": {
+              "$type": "$fn:Date",
+            },
+            "expiresAt": {
+              "$type": "$fn:Date",
+            },
+            "failCount": {
+              "$type": "$fn:Number",
+            },
+            "token": {
+              "$filter": {
+                "privateValue": true,
+              },
+              "$type": "$fn:String",
+            },
+            "ttl": {
+              "$type": "$fn:Number",
+            },
+          },
+          "$type": "$fn:Array",
+        },
+      },
+    },
+    "role": {
+      "$filter": {
+        "defaultValue": "customer",
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "inArray": {
+          "values": [
+            "customer",
+            "platformAdmin",
+          ],
+        },
+        "notNull": undefined,
+      },
+    },
+    "twoFactorMeta": {
+      "$type": "$fn:Object",
+      "enabled": {
+        "$filter": {
+          "defaultValue": false,
+        },
+        "$type": "$fn:Boolean",
+      },
+      "enabledAt": {
+        "$type": "$fn:Date",
+      },
+      "prompt": {
+        "$type": "$fn:Object",
+        "dismissed": {
+          "$filter": {
+            "defaultValue": false,
+          },
+          "$type": "$fn:Boolean",
+        },
+      },
+    },
+    "twoFactorSecret": {
+      "$filter": {
+        "encrypt": true,
+        "privateValue": true,
+      },
+      "$type": "$fn:String",
+    },
+  },
+  "unknownKey": {
+    "ok": true,
+    "result": {
+      "errors": {
+        "$unknown": [
+          "Field not specified",
+        ],
+        "email": [
+          "email does not appear to be a valid address",
+        ],
+        "role": [
+          "role is invalid",
+        ],
+      },
+      "isValid": false,
+    },
+  },
+  "valid": {
+    "ok": true,
+    "result": {
+      "errors": {
+        "email": [
+          "email does not appear to be a valid address",
+        ],
+        "role": [
+          "role is invalid",
+        ],
+      },
+      "isValid": false,
+    },
+  },
+}
+`;
+
+exports[`the user schema validates as recorded and rejects unknown keys 1`] = `
+{
+  "name": "user",
+  "spec": {
+    "$construct": "User",
+    "$name": "user",
+    "$strict": true,
+    "_id": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "anonymizedAt": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:Date",
+    },
+    "client": {
+      "$constructCollection": "Collection",
+      "$filter": {
+        "private": true,
+      },
+      "$relation": true,
+      "$spec": {
+        "$name": "userClient",
+        "$validate": {
+          "required": true,
+        },
+        "_id": {
+          "$type": "$fn:String",
+          "$validate": {
+            "required": true,
+          },
+        },
+        "accessToken": {
+          "$constructCollection": "Collection",
+          "$filter": {
+            "private": true,
+          },
+          "$spec": {
+            "$construct": "UserAccessToken",
+            "$name": "userAccessToken",
+            "$validate": {
+              "required": true,
+            },
+            "createdAt": {
+              "$type": "$fn:Date",
+            },
+            "expiresAt": {
+              "$type": "$fn:Date",
+            },
+            "geo": {
+              "$type": "$fn:Object",
+              "city": {
+                "$type": "$fn:String",
+              },
+              "country": {
+                "$type": "$fn:String",
+              },
+              "countryCode": {
+                "$type": "$fn:String",
+              },
+              "location": {
+                "$type": "$fn:Object",
+                "coordinates": {
+                  "$spec": "$fn:Number",
+                  "$type": "$fn:Array",
+                },
+                "type": {
+                  "$type": "$fn:String",
+                },
+              },
+              "region": {
+                "$type": "$fn:String",
+              },
+              "regionCode": {
+                "$type": "$fn:String",
+              },
+              "timezone": {
+                "$type": "$fn:String",
+              },
+            },
+            "ip": {
+              "$type": "$fn:String",
+            },
+            "token": {
+              "$type": "$fn:String",
+            },
+            "ttl": {
+              "$type": "$fn:Number",
+            },
+          },
+          "$type": "$fn:Array",
+        },
+        "buildNumber": {
+          "$filter": {
+            "defaultValue": null,
+            "trim": true,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 40,
+            },
+          },
+        },
+        "buildVersion": {
+          "$filter": {
+            "defaultValue": null,
+            "trim": true,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 40,
+            },
+          },
+        },
+        "createdAt": {
+          "$filter": {
+            "defaultValue": "now",
+          },
+          "$type": "$fn:Date",
+        },
+        "geo": {
+          "$type": "$fn:Object",
+          "city": {
+            "$type": "$fn:String",
+          },
+          "country": {
+            "$type": "$fn:String",
+          },
+          "countryCode": {
+            "$type": "$fn:String",
+          },
+          "location": {
+            "$type": "$fn:Object",
+            "coordinates": {
+              "$spec": {
+                "$type": "$fn:Number",
+                "$validate": {
+                  "required": true,
+                },
+              },
+              "$type": "$fn:Array",
+            },
+            "type": {
+              "$type": "$fn:String",
+            },
+          },
+          "region": {
+            "$type": "$fn:String",
+          },
+          "regionCode": {
+            "$type": "$fn:String",
+          },
+          "timezone": {
+            "$type": "$fn:String",
+          },
+        },
+        "name": {
+          "$filter": {
+            "defaultValue": null,
+            "trim": true,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 300,
+            },
+          },
+        },
+        "notificationToken": {
+          "$filter": {
+            "defaultValue": null,
+            "trim": true,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 1024,
+            },
+          },
+        },
+        "system": {
+          "$filter": {
+            "defaultValue": null,
+            "trim": true,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 40,
+            },
+          },
+        },
+        "systemVersion": {
+          "$filter": {
+            "defaultValue": null,
+            "trim": true,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 40,
+            },
+          },
+        },
+        "updatedAt": {
+          "$filter": {
+            "defaultValue": "now",
+          },
+          "$type": "$fn:Date",
+        },
+        "user": {
+          "$relation": true,
+          "$type": "$fn:Mixed",
+        },
+        "userAgent": {
+          "$filter": {
+            "defaultValue": null,
+            "trim": true,
+          },
+          "$type": "$fn:String",
+          "$validate": {
+            "valueLength": {
+              "max": 1024,
+            },
+          },
+        },
+        "userId": {
+          "$type": "$fn:String",
+          "$validate": {
+            "required": true,
+          },
+        },
+      },
+      "$type": "$fn:Array",
+    },
+    "createdAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+    "deletedAt": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:Date",
+    },
+    "deletionReminderSentAt": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:Date",
+    },
+    "email": {
+      "$filter": {
+        "lowercase": true,
+        "trim": true,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "email": true,
+        "notNull": true,
+        "required": true,
+        "valueLength": {
+          "max": 255,
+        },
+      },
+    },
+    "emailMeta": {
+      "$type": "$fn:Object",
+      "history": {
+        "$filter": {
+          "private": true,
+        },
+        "$spec": {
+          "$type": "$fn:Object",
+          "$validate": {
+            "required": true,
+          },
+          "clientId": {
+            "$filter": {
+              "privateValue": true,
+              "trim": true,
+            },
+            "$type": "$fn:String",
+            "$validate": {
+              "required": true,
+            },
+          },
+          "createdAt": {
+            "$filter": {
+              "defaultValue": "now",
+            },
+            "$type": "$fn:Date",
+          },
+          "prevValue": {
+            "$filter": {
+              "trim": true,
+            },
+            "$type": "$fn:String",
+            "$validate": {
+              "required": true,
+            },
+          },
+          "verifyStatus": {
+            "$type": "$fn:Object",
+            "isVerified": {
+              "$filter": {
+                "defaultValue": false,
+              },
+              "$type": "$fn:Boolean",
+              "$validate": {
+                "required": true,
+              },
+            },
+            "isVerifiedAt": {
+              "$filter": {
+                "defaultValue": null,
+              },
+              "$type": "$fn:Date",
+              "$validate": {
+                "required": true,
+              },
+            },
+          },
+        },
+        "$type": "$fn:Array",
+      },
+      "verify": {
+        "$type": "$fn:Object",
+        "status": {
+          "$type": "$fn:Object",
+          "isVerified": {
+            "$filter": {
+              "defaultValue": false,
+            },
+            "$type": "$fn:Boolean",
+            "$validate": {
+              "required": true,
+            },
+          },
+          "isVerifiedAt": {
+            "$filter": {
+              "defaultValue": null,
+            },
+            "$type": "$fn:Date",
+            "$validate": {
+              "required": true,
+            },
+          },
+        },
+        "token": {
+          "$constructCollection": "Collection",
+          "$spec": {
+            "$type": "$fn:Object",
+            "$validate": {
+              "required": true,
+            },
+            "createdAt": {
+              "$type": "$fn:Date",
+            },
+            "expiresAt": {
+              "$type": "$fn:Date",
+            },
+            "failCount": {
+              "$type": "$fn:Number",
+            },
+            "token": {
+              "$filter": {
+                "privateValue": true,
+              },
+              "$type": "$fn:String",
+            },
+            "ttl": {
+              "$type": "$fn:Number",
+            },
+          },
+          "$type": "$fn:Array",
+        },
+      },
+    },
+    "maxClients": {
+      "$filter": {
+        "defaultValue": null,
+        "privateValue": true,
+      },
+      "$type": "$fn:Number",
+    },
+    "nameFirst": {
+      "$filter": {
+        "trim": true,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "notNull": true,
+        "required": true,
+        "valueLength": {
+          "max": 64,
+        },
+      },
+    },
+    "nameLast": {
+      "$filter": {
+        "trim": true,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "notNull": true,
+        "required": true,
+        "valueLength": {
+          "max": 64,
+        },
+      },
+    },
+    "password": {
+      "$filter": {
+        "privateValue": true,
+      },
+      "$type": "$fn:String",
+    },
+    "passwordMeta": {
+      "$filter": {
+        "private": true,
+      },
+      "$type": "$fn:Object",
+      "reset": {
+        "$type": "$fn:Object",
+        "token": {
+          "$constructCollection": "Collection",
+          "$spec": {
+            "$type": "$fn:Object",
+            "$validate": {
+              "required": true,
+            },
+            "createdAt": {
+              "$type": "$fn:Date",
+            },
+            "expiresAt": {
+              "$type": "$fn:Date",
+            },
+            "failCount": {
+              "$type": "$fn:Number",
+            },
+            "token": {
+              "$filter": {
+                "privateValue": true,
+              },
+              "$type": "$fn:String",
+            },
+            "ttl": {
+              "$type": "$fn:Number",
+            },
+          },
+          "$type": "$fn:Array",
+        },
+      },
+    },
+    "role": {
+      "$filter": {
+        "defaultValue": "customer",
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "inArray": {
+          "values": [
+            "customer",
+            "platformAdmin",
+          ],
+        },
+      },
+    },
+    "twoFactorMeta": {
+      "$type": "$fn:Object",
+      "enabled": {
+        "$filter": {
+          "defaultValue": false,
+        },
+        "$type": "$fn:Boolean",
+      },
+      "enabledAt": {
+        "$type": "$fn:Date",
+      },
+      "prompt": {
+        "$type": "$fn:Object",
+        "dismissed": {
+          "$filter": {
+            "defaultValue": false,
+          },
+          "$type": "$fn:Boolean",
+        },
+      },
+    },
+    "twoFactorSecret": {
+      "$filter": {
+        "encrypt": true,
+        "privateValue": true,
+      },
+      "$type": "$fn:String",
+    },
+  },
+  "unknownKey": {
+    "ok": true,
+    "result": {
+      "errors": {
+        "$unknown": [
+          "Field not specified",
+        ],
+      },
+      "isValid": false,
+    },
+  },
+  "valid": {
+    "ok": true,
+    "result": {
+      "errors": {},
+      "isValid": true,
+    },
+  },
+}
+`;

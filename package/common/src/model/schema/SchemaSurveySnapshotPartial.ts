@@ -2,7 +2,7 @@ import { genUniqueId } from '@datacapy/id'
 import { Schema, SchemaBuilder as sb } from '@datacapy/schema'
 
 import { SCHEMA_LENGTH_MAX_INTERNAL_ID } from './constant'
-import { SchemaSurvey } from './SchemaSurvey'
+import { SchemaSurvey } from '../constructor/SurveyDocument.schema'
 import { Survey } from '../constructor/Survey'
 import { SurveyPublication } from '../constructor/SurveyPublication'
 

@@ -1,16 +1,7 @@
 import { SettingSurveyBase } from './SettingSurvey/SettingSurveyBase'
 import { SettingSurveyCoreMethods } from './SettingSurvey/mixin/SettingSurveyCoreMethods'
-import { LanguageMethods } from './SettingSurvey/mixin/LanguageMethods'
-import { PresentationMethods } from './SettingSurvey/mixin/PresentationMethods'
-import { StatsMethods } from './SettingSurvey/mixin/StatsMethods'
-import { ParticipantMethods } from './SettingSurvey/mixin/ParticipantMethods'
-import { DataMethods } from './SettingSurvey/mixin/DataMethods'
-import { AccessMethods } from './SettingSurvey/mixin/AccessMethods'
-import { DataPolicyMethods } from './SettingSurvey/mixin/DataPolicyMethods'
-import { LegalNoticeMethods } from './SettingSurvey/mixin/LegalNoticeMethods'
-import { ScheduleMethods } from './SettingSurvey/mixin/ScheduleMethods'
-import { NotifyMethods } from './SettingSurvey/mixin/NotifyMethods'
-import { ContentFormatMethods } from './SettingSurvey/mixin/ContentFormatMethods'
+import { SurveySettingsBundle } from './SurveySettingsBundle'
+import { mix } from './mix'
 import { SettingSurveyInterface } from './SettingSurvey/SettingSurveyInterface'
 
 // Re-export the components
@@ -23,20 +14,7 @@ export * from './SettingSurvey/index'
  * from multiple sources while maintaining immutability. Each mixin function takes
  * a base class and returns an extended class with additional methods.
  *
- * Mixins used:
- * - Base - Core data structure and immutable instance creation (settings only)
- * - CoreMethods - Basic operations (update, utility methods)
- * - LanguageMethods - Language configuration operations
- * - PresentationMethods - Presentation settings operations
- * - StatsMethods - Stats chart preferences operations
- * - ParticipantMethods - Participant settings operations
- * - DataMethods - Data tracking settings operations
- * - AccessMethods - Access control settings operations
- * - DataPolicyMethods - Data policy settings operations
- * - LegalNoticeMethods - Legal notice settings operations
- * - ScheduleMethods - Publish schedule settings operations
- * - NotifyMethods - Notification settings operations
- * - ContentFormatMethods - Content format/sanitization settings operations
+ * The settings mixins come from SurveySettingsBundle, shared with Survey.
  *
  * IMMUTABILITY PATTERN:
  *
@@ -53,28 +31,8 @@ export * from './SettingSurvey/index'
  * → calls newInstance() with { presentation: newPresentation }
  * → returns new SettingSurvey instance with updated presentation, reusing all other objects
  */
-const SettingSurveyImpl = ContentFormatMethods(
-  NotifyMethods(
-    ScheduleMethods(
-      LegalNoticeMethods(
-        DataPolicyMethods(
-          AccessMethods(
-            DataMethods(
-              ParticipantMethods(
-                StatsMethods(
-                  PresentationMethods(
-                    LanguageMethods(
-                      SettingSurveyCoreMethods(SettingSurveyBase),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    ),
-  ),
+const SettingSurveyImpl = SurveySettingsBundle(
+  mix(SettingSurveyBase).with(SettingSurveyCoreMethods).base,
 )
 
 /**

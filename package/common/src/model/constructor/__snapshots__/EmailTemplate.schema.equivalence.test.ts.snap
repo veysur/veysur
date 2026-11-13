@@ -1,0 +1,101 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`SchemaEmailTemplate validates as recorded and rejects unknown keys 1`] = `
+{
+  "name": "emailTemplate",
+  "spec": {
+    "$construct": "EmailTemplate",
+    "$name": "emailTemplate",
+    "$strict": true,
+    "_id": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+      },
+    },
+    "body": {
+      "$filter": {
+        "defaultValue": null,
+        "trim": true,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+      },
+    },
+    "createdAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+    "lang": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 3,
+        },
+      },
+    },
+    "subject": {
+      "$filter": {
+        "defaultValue": null,
+        "stripHtml": true,
+        "trim": true,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+      },
+    },
+    "surveyId": {
+      "$nullable": true,
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+      },
+    },
+    "type": {
+      "$type": "$fn:String",
+      "$validate": {
+        "inArray": {
+          "values": [
+            "invite",
+            "reminder",
+            "thankYou",
+            "adminBasic",
+            "adminDetail",
+            "team-invite",
+          ],
+        },
+        "required": true,
+      },
+    },
+    "updatedAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+  },
+  "unknownKey": {
+    "ok": true,
+    "result": {
+      "errors": {
+        "$unknown": [
+          "Field not specified",
+        ],
+      },
+      "isValid": false,
+    },
+  },
+  "valid": {
+    "ok": true,
+    "result": {
+      "errors": {},
+      "isValid": true,
+    },
+  },
+}
+`;

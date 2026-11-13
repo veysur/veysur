@@ -1,0 +1,222 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`SchemaDataTransferJob validates as recorded and rejects unknown keys 1`] = `
+{
+  "name": "dataTransferJob",
+  "spec": {
+    "$construct": "DataTransferJob",
+    "$name": "dataTransferJob",
+    "$strict": true,
+    "_id": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "completedAt": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:Date",
+    },
+    "createdAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+    "direction": {
+      "$filter": {
+        "defaultValue": "export",
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "inArray": {
+          "values": [
+            "import",
+            "export",
+          ],
+        },
+        "required": true,
+      },
+    },
+    "entityId": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "entityType": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 64,
+        },
+      },
+    },
+    "error": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+    },
+    "format": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 16,
+        },
+      },
+    },
+    "label": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 255,
+        },
+      },
+    },
+    "options": {
+      "$filter": {
+        "defaultValue": {},
+      },
+      "$nullable": true,
+      "$strict": false,
+      "$type": "$fn:Object",
+    },
+    "projectId": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "requestHost": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 255,
+        },
+      },
+    },
+    "requestProto": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 16,
+        },
+      },
+    },
+    "requestedByUserId": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "resultFileId": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "sourceFileHash": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 64,
+        },
+      },
+    },
+    "sourceFileId": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "startedAt": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:Date",
+    },
+    "status": {
+      "$filter": {
+        "defaultValue": "pending",
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "inArray": {
+          "values": [
+            "pending",
+            "processing",
+            "completed",
+            "failed",
+          ],
+        },
+        "required": true,
+      },
+    },
+    "updatedAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+  },
+  "unknownKey": {
+    "ok": true,
+    "result": {
+      "errors": {
+        "$unknown": [
+          "Field not specified",
+        ],
+      },
+      "isValid": false,
+    },
+  },
+  "valid": {
+    "ok": true,
+    "result": {
+      "errors": {},
+      "isValid": true,
+    },
+  },
+}
+`;

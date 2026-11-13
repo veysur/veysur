@@ -1,0 +1,232 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`SchemaUserClient validates as recorded 1`] = `
+{
+  "name": "userClient",
+  "spec": {
+    "$name": "userClient",
+    "_id": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+      },
+    },
+    "accessToken": {
+      "$constructCollection": "Collection",
+      "$filter": {
+        "private": true,
+      },
+      "$spec": {
+        "$construct": "UserAccessToken",
+        "$name": "userAccessToken",
+        "$validate": {
+          "required": true,
+        },
+        "createdAt": {
+          "$type": "$fn:Date",
+        },
+        "expiresAt": {
+          "$type": "$fn:Date",
+        },
+        "geo": {
+          "$type": "$fn:Object",
+          "city": {
+            "$type": "$fn:String",
+          },
+          "country": {
+            "$type": "$fn:String",
+          },
+          "countryCode": {
+            "$type": "$fn:String",
+          },
+          "location": {
+            "$type": "$fn:Object",
+            "coordinates": {
+              "$spec": "$fn:Number",
+              "$type": "$fn:Array",
+            },
+            "type": {
+              "$type": "$fn:String",
+            },
+          },
+          "region": {
+            "$type": "$fn:String",
+          },
+          "regionCode": {
+            "$type": "$fn:String",
+          },
+          "timezone": {
+            "$type": "$fn:String",
+          },
+        },
+        "ip": {
+          "$type": "$fn:String",
+        },
+        "token": {
+          "$type": "$fn:String",
+        },
+        "ttl": {
+          "$type": "$fn:Number",
+        },
+      },
+      "$type": "$fn:Array",
+    },
+    "buildNumber": {
+      "$filter": {
+        "defaultValue": null,
+        "trim": true,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 40,
+        },
+      },
+    },
+    "buildVersion": {
+      "$filter": {
+        "defaultValue": null,
+        "trim": true,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 40,
+        },
+      },
+    },
+    "createdAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+    "geo": {
+      "$type": "$fn:Object",
+      "city": {
+        "$type": "$fn:String",
+      },
+      "country": {
+        "$type": "$fn:String",
+      },
+      "countryCode": {
+        "$type": "$fn:String",
+      },
+      "location": {
+        "$type": "$fn:Object",
+        "coordinates": {
+          "$spec": {
+            "$type": "$fn:Number",
+            "$validate": {
+              "required": true,
+            },
+          },
+          "$type": "$fn:Array",
+        },
+        "type": {
+          "$type": "$fn:String",
+        },
+      },
+      "region": {
+        "$type": "$fn:String",
+      },
+      "regionCode": {
+        "$type": "$fn:String",
+      },
+      "timezone": {
+        "$type": "$fn:String",
+      },
+    },
+    "name": {
+      "$filter": {
+        "defaultValue": null,
+        "trim": true,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 300,
+        },
+      },
+    },
+    "notificationToken": {
+      "$filter": {
+        "defaultValue": null,
+        "trim": true,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 1024,
+        },
+      },
+    },
+    "system": {
+      "$filter": {
+        "defaultValue": null,
+        "trim": true,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 40,
+        },
+      },
+    },
+    "systemVersion": {
+      "$filter": {
+        "defaultValue": null,
+        "trim": true,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 40,
+        },
+      },
+    },
+    "updatedAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+    "user": {
+      "$relation": true,
+      "$type": "$fn:Mixed",
+    },
+    "userAgent": {
+      "$filter": {
+        "defaultValue": null,
+        "trim": true,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 1024,
+        },
+      },
+    },
+    "userId": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+      },
+    },
+  },
+  "unknownKey": {
+    "ok": true,
+    "result": {
+      "errors": {},
+      "isValid": true,
+    },
+  },
+  "valid": {
+    "ok": true,
+    "result": {
+      "errors": {},
+      "isValid": true,
+    },
+  },
+}
+`;

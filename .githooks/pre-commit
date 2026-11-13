@@ -64,6 +64,17 @@ if ! bash scripts/check-no-cloud-detail-in-docs.sh; then
     exit 1
 fi
 
+# Generated schemas: fail if a tagged model changed without regenerating
+if echo "$STAGED_FILES" | grep -qE '^package/common/(datacapy\.config\.json|src/.*\.ts)$'; then
+    if ! (cd package/common && pnpm gen:check); then
+        echo ""
+        echo "Generated schemas are stale. Run 'pnpm gen' in package/common and stage the result."
+        echo "To bypass: git commit --no-verify"
+        echo ""
+        exit 1
+    fi
+fi
+
 # Lint staged source files for each package that has an ESLint config
 LINT_TARGETS=(
     "package/app:ts|tsx|js|jsx"

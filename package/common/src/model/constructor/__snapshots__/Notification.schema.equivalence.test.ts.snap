@@ -1,0 +1,156 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`SchemaNotification validates as recorded and rejects unknown keys 1`] = `
+{
+  "name": "notification",
+  "spec": {
+    "$construct": "Notification",
+    "$name": "notification",
+    "$strict": true,
+    "_id": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "createdAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+    "dataTransferJob": {
+      "$construct": "DataTransferJob",
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$nullable": true,
+      "$relation": true,
+      "$type": "$fn:Mixed",
+    },
+    "dataTransferJobId": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "dismissedAt": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:Date",
+    },
+    "level": {
+      "$filter": {
+        "defaultValue": "info",
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "inArray": {
+          "values": [
+            "info",
+            "success",
+            "error",
+          ],
+        },
+        "required": true,
+      },
+    },
+    "message": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+    },
+    "projectId": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "readAt": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:Date",
+    },
+    "recipientUserId": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "status": {
+      "$filter": {
+        "defaultValue": "unread",
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "inArray": {
+          "values": [
+            "unread",
+            "read",
+            "dismissed",
+          ],
+        },
+        "required": true,
+      },
+    },
+    "title": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 255,
+        },
+      },
+    },
+    "type": {
+      "$filter": {
+        "defaultValue": "dataTransferJob",
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "inArray": {
+          "values": [
+            "dataTransferJob",
+          ],
+        },
+        "required": true,
+      },
+    },
+  },
+  "unknownKey": {
+    "ok": true,
+    "result": {
+      "errors": {
+        "$unknown": [
+          "Field not specified",
+        ],
+      },
+      "isValid": false,
+    },
+  },
+  "valid": {
+    "ok": true,
+    "result": {
+      "errors": {},
+      "isValid": true,
+    },
+  },
+}
+`;

@@ -15,6 +15,7 @@ import {
   SettingSurveyMethods,
 } from '../SettingSurvey/SettingSurveyInterface'
 import { SettingSurvey } from '../SettingSurvey'
+import type { SettingSurveyMixinBase } from '../SettingSurvey/mixin/SettingSurveyMixinBase'
 import { AttributeValue, SurveyAttributes } from './attributeMeta'
 
 export interface SurveyInterface
@@ -33,7 +34,18 @@ export interface SurveyInterface
       | 'stats'
       | 'contentFormat'
     >,
-    SettingSurveyMethods {
+    SettingSurveyMethods,
+    Pick<
+      SettingSurveyMixinBase,
+      | 'language'
+      | 'presentation'
+      | 'participant'
+      | 'data'
+      | 'access'
+      | 'schedule'
+      | 'notify'
+      | 'contentFormat'
+    > {
   // Additional properties from Survey Base (extends SettingSurvey)
   createdById: string
   name: string
@@ -45,56 +57,6 @@ export interface SurveyInterface
   elementIds: string[]
 
   // Survey-specific nullable properties for SettingSurvey-inherited properties
-  language?: {
-    default?: string | null
-    options?: string[] | null
-  }
-  presentation?: {
-    format?: 'group' | 'question' | 'all' | null
-    noAnswer?: boolean | null
-    title?: boolean | null
-    welcomeMessage?: boolean | null
-    progressBar?: boolean | null
-    questionCount?: boolean | null
-    groupName?: boolean | null
-    groupDesc?: boolean | null
-    questionNum?: boolean | null
-    questionCode?: boolean | null
-    questionIndex?: boolean | null
-    backNav?: boolean | null
-    redirectEnd?: boolean | null
-    navDelay?: number | null
-    print?: boolean | null
-    stats?: boolean | null
-    noBrand?: boolean | null
-    thankYouLink?: boolean | null
-  }
-  participant?: {
-    htmlEmail?: boolean | null
-    thankYouEmail?: boolean | null
-    tokenLength?: number | null
-  }
-  data?: {
-    timestamp?: boolean | null
-    ip?: boolean | null
-    anonymiseIp?: boolean | null
-    referrerUrl?: boolean | null
-    timings?: boolean | null
-    assessment?: boolean | null
-  }
-  access?: {
-    anonymous?: boolean | null
-    open?: boolean | null
-    publicReg?: boolean | null
-    index?: boolean | null
-    tokenPersist?: boolean | null
-    multiple?: boolean | null
-    preventRepeat?: boolean | null
-    resumeLink?: boolean | null
-    botProtection?: boolean | null
-    embed?: boolean | null
-    embedDomains?: string[] | null
-  }
   dataPolicy?: {
     show?: boolean | null
     link?: boolean | null
@@ -107,14 +69,6 @@ export interface SurveyInterface
     text?: L10n | null
     url?: L10n | null
   }
-  schedule?: {
-    start?: Date | null
-    end?: Date | null
-  }
-  notify?: {
-    basic?: string | null
-    detailed?: string | null
-  }
   stats?: {
     questions?: {
       [questionCode: string]: {
@@ -122,11 +76,6 @@ export interface SurveyInterface
         valueMode?: ChartValueMode | null
       }
     } | null
-  }
-  contentFormat?: {
-    htmlAllowed?: boolean | null
-    markdownAllowed?: boolean | null
-    scriptTagsAllowed?: boolean | null
   }
 
   // Additional core methods from Survey (extends SettingSurvey methods)

@@ -1,0 +1,66 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`SchemaProject validates as recorded and rejects unknown keys 1`] = `
+{
+  "name": "project",
+  "spec": {
+    "$construct": "Project",
+    "$name": "project",
+    "$strict": true,
+    "_id": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+      },
+    },
+    "createdAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+    "name": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+      },
+    },
+    "ownerId": {
+      "$filter": {
+        "defaultValue": "",
+      },
+      "$type": "$fn:String",
+    },
+    "timezone": {
+      "$filter": {
+        "defaultValue": "UTC",
+      },
+      "$type": "$fn:String",
+    },
+    "updatedAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+  },
+  "unknownKey": {
+    "ok": true,
+    "result": {
+      "errors": {
+        "$unknown": [
+          "Field not specified",
+        ],
+      },
+      "isValid": false,
+    },
+  },
+  "valid": {
+    "ok": true,
+    "result": {
+      "errors": {},
+      "isValid": true,
+    },
+  },
+}
+`;

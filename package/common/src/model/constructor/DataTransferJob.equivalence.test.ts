@@ -4,7 +4,7 @@ jest.mock('@datacapy/id', () => ({
 }))
 
 import { constructorBehaviour } from '../../test-utils/constructorEquivalence'
-import { SchemaDataTransferJob } from '../schema/SchemaDataTransferJob'
+import { SchemaDataTransferJob } from './DataTransferJob.schema'
 import { DataTransferJob } from './DataTransferJob'
 
 it('DataTransferJob behaves as recorded', () => {

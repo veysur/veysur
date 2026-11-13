@@ -27,6 +27,8 @@
     "**/coverage/**",
     "package/docsite/.astro/**",
     "package/common/src/Iso639v1.ts",
+    "package/common/src/model/constructor/__snapshots__/File.equivalence.test.ts.snap",
+    "package/common/src/model/constructor/__snapshots__/File.schema.equivalence.test.ts.snap",
     "package/api/assets/test-data/**",
     "pnpm-lock.yaml",
     "external/**",

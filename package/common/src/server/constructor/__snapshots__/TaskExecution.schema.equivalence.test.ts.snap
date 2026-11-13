@@ -1,0 +1,142 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`SchemaTaskExecution validates as recorded and rejects unknown keys 1`] = `
+{
+  "name": "taskExecution",
+  "spec": {
+    "$construct": "TaskExecution",
+    "$name": "taskExecution",
+    "$strict": true,
+    "_id": {
+      "$filter": {
+        "defaultValue": "",
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "completedAt": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:Date",
+    },
+    "createdAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+    "duration": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:Number",
+    },
+    "error": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 10000,
+        },
+      },
+    },
+    "log": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 50000,
+        },
+      },
+    },
+    "managerHostname": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 255,
+        },
+      },
+    },
+    "managerPodName": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "valueLength": {
+          "max": 255,
+        },
+      },
+    },
+    "startedAt": {
+      "$filter": {
+        "defaultValue": "now",
+      },
+      "$type": "$fn:Date",
+    },
+    "status": {
+      "$filter": {
+        "defaultValue": "running",
+      },
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+      },
+    },
+    "stoppedAt": {
+      "$filter": {
+        "defaultValue": null,
+      },
+      "$type": "$fn:Date",
+    },
+    "taskId": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 17,
+        },
+      },
+    },
+    "taskName": {
+      "$type": "$fn:String",
+      "$validate": {
+        "required": true,
+        "valueLength": {
+          "max": 255,
+        },
+      },
+    },
+  },
+  "unknownKey": {
+    "ok": true,
+    "result": {
+      "errors": {
+        "$unknown": [
+          "Field not specified",
+        ],
+      },
+      "isValid": false,
+    },
+  },
+  "valid": {
+    "ok": true,
+    "result": {
+      "errors": {},
+      "isValid": true,
+    },
+  },
+}
+`;

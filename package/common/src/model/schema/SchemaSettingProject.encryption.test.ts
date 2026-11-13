@@ -3,7 +3,7 @@ import { SchemaEncryptionService } from '@datacapy/schema'
 import { SchemaL10n } from './SchemaL10n'
 import { SchemaL10nHtml } from './SchemaL10nHtml'
 import { SchemaL10nUrl } from './SchemaL10nUrl'
-import { SchemaSettingProject } from './SchemaSettingProject'
+import { SchemaSettingProject } from '../constructor/SettingProject.schema'
 
 const encryptionService: SchemaEncryptionService = {
   encrypt: async (plaintext) => `enc:${plaintext}`,
