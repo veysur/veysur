@@ -1,4 +1,5 @@
 import { Service, ServerErrorNotFound } from '@datacapy/server'
+import type { tagsEndpoint as e } from '@datacapy/server'
 import {
   Notification,
   DataTransferJob,
@@ -27,6 +28,8 @@ import { StorageConfig, getStorageConfig } from './ServiceFile/FileS3Config'
  * job's notification has been read/dismissed and aged out, the job row has
  * no remaining purpose - this replaces DataTransferJob's own former
  * cleanupOld()/seeded task.
+ *
+ * @endpoints notification
  */
 export class ServiceNotification extends Service {
   constructor() {
@@ -161,6 +164,9 @@ export class ServiceNotification extends Service {
    * data source for the notification bell/panel. Scoped to
    * `aclContext.jwt._id`, same as DataTransferJob.listJobs() used to be: a
    * personal notification tray, not a project-wide activity log.
+   *
+   * @route get /list
+   * @acl projectAdmin
    */
   async list({
     projectId,
@@ -168,10 +174,10 @@ export class ServiceNotification extends Service {
     page,
     perPage,
   }: {
-    projectId: string
-    aclContext: AclContext
-    page?: number
-    perPage?: number
+    projectId: string & e.Header<'X-Project-Id'>
+    aclContext: AclContext & e.AclContext
+    page?: number & e.Query & e.Default<1>
+    perPage?: number & e.Query & e.Default<20>
   }): Promise<{
     notifications: Array<{
       notificationId: string
@@ -281,14 +287,18 @@ export class ServiceNotification extends Service {
     return notification
   }
 
+  /**
+   * @route post /:notificationId/read
+   * @acl projectAdmin
+   */
   async markRead({
     notificationId,
     projectId,
     aclContext,
   }: {
-    notificationId: string
-    projectId: string
-    aclContext: AclContext
+    notificationId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    aclContext: AclContext & e.AclContext
   }): Promise<{ success: true }> {
     const notification = await this.findOwned({
       notificationId,
@@ -309,15 +319,18 @@ export class ServiceNotification extends Service {
    * Marks a notification dismissed - the notification panel's manual
    * dismiss action. Never touches the related DataTransferJob row; that
    * row's lifecycle is owned entirely by cleanupOld() below.
+   *
+   * @route delete /:notificationId
+   * @acl projectAdmin
    */
   async dismiss({
     notificationId,
     projectId,
     aclContext,
   }: {
-    notificationId: string
-    projectId: string
-    aclContext: AclContext
+    notificationId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    aclContext: AclContext & e.AclContext
   }): Promise<{ success: true }> {
     const notification = await this.findOwned({
       notificationId,
