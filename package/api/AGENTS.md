@@ -91,7 +91,7 @@ and `src/endpoint/{core,shared}/index.ts` re-exports it. Never edit a `*.endpoin
 datacapy `package/codegen/docs/endpoints.md`; rationale: `docs/decisions/2026/2026-11-14_generated-endpoint-configs.md`.
 
 - One method serves one route; add a thin wrapper for a second route.
-- Type every parameter. `unknown & e.Body` collapses to `e.Body` and loses the type; a type that does not resolve (a bad import) silently loses its tags.
+- Type every parameter. `unknown & e.Body` collapses to `e.Body` and loses the type; a property whose type resolves to `any` (a bad import) is rejected by the generator, because its tags would be lost.
 - Declare routes in the class in the order the server should register them: a `/:id` route before a literal sibling is rejected by the generator.
 - Anything that is not a request input (a transaction `context`) belongs on an internal method, not in the tagged parameter type.
 - `src/endpoint/shared/project.ts` stays hand-written because it is edition-conditional. A hand-written config remains valid.
