@@ -621,7 +621,7 @@ export class ServicePublication extends Service {
   }: {
     surveyId: string & e.Param
     projectId: string & e.Header<'X-Project-Id'>
-    withData?: boolean & e.Query & e.Default<false>
+    withData?: boolean & e.Query
   }) {
     const context = contextForProject(projectId)
     const repoPublication =

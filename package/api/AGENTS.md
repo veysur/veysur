@@ -80,16 +80,22 @@ Non-model utilities shared across the server. Import via `'common'` or `'common/
 - `dateFilterUtils` — build MongoDB date range query conditions
 - Search queries: a string `$regex` operand is a literal substring match (regex syntax and `%`/`_` are matched literally), so pass user search text straight in with no escaping. Pass a `RegExp` object only for a deliberate pattern.
 
-### Endpoints (`src/endpoint/`) and URL prefixes
+### Endpoints and URL prefixes
 
-Directory layout mirrors services (`core/`, `shared/`; `platform/` is reserved for an extension and is not part of this repo). Core and shared endpoints have no root `path`: @datacapy/server derives the URL from the service name automatically.
+Endpoint configs are generated, not written. A service class carries `@endpoints <name>`; each exposed
+method carries `@route <verb> <path>`, `@acl <role>` (or `@acl public`) and `@endpoint <key>` where the key
+differs from the method name; each parameter is tagged with `e.Param`, `e.Query`, `e.Body`,
+`e.Header<'X-Project-Id'>`, `e.AclContext` and so on (`import type { tagsEndpoint as e } from '@datacapy/server'`).
+`pnpm gen` writes `<Service>.endpoints.ts` beside the service, `pnpm lint` fails if one is stale (`gen:check`),
+and `src/endpoint/{core,shared}/index.ts` re-exports it. Never edit a `*.endpoints.ts` file. Reference:
+datacapy `package/codegen/docs/endpoints.md`; rationale: `docs/decisions/2026/2026-11-14_generated-endpoint-configs.md`.
 
-```typescript
-export const surveyConfig = {
-  service: 'survey',          // → /survey/*
-  endpoints: { ... },
-}
-```
+- One method serves one route; add a thin wrapper for a second route.
+- Type every parameter. `unknown & e.Body` collapses to `e.Body` and loses the type; a type that does not resolve (a bad import) silently loses its tags.
+- Declare routes in the class in the order the server should register them: a `/:id` route before a literal sibling is rejected by the generator.
+- Anything that is not a request input (a transaction `context`) belongs on an internal method, not in the tagged parameter type.
+- `src/endpoint/shared/project.ts` stays hand-written because it is edition-conditional. A hand-written config remains valid.
+- A generated config does not change the URL: core and shared services have no root `path`, so @datacapy/server derives it from the service name.
 
 **Project-scoped endpoints**: for any endpoint operating on a single project's data, use `role: 'projectOwner'`/`'projectAdmin'` ACL rules — not a generic role plus a manual ownership check in the service. See `docs/datacapy-acl.md`.
 

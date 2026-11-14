@@ -77,12 +77,7 @@ export const surveyPublicationConfig = {
           required: true,
           type: String,
         },
-        withData: {
-          src: 'query',
-          required: false,
-          type: Boolean,
-          defaultValue: false,
-        },
+        withData: { src: 'query', required: false, type: Boolean },
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },

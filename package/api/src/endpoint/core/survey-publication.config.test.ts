@@ -140,7 +140,6 @@ describe('surveyPublication endpoint config', () => {
               src: 'param',
             },
             withData: {
-              defaultValue: false,
               required: false,
               src: 'query',
             },
