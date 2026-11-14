@@ -1,0 +1,9 @@
+{
+  "include": [],
+  "endpoints": {
+    "include": [
+      "src/model/service/**/*.ts"
+    ],
+    "requireAcl": true
+  }
+}

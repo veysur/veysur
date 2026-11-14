@@ -75,6 +75,18 @@ if echo "$STAGED_FILES" | grep -qE '^package/common/(datacapy\.config\.json|src/
     fi
 fi
 
+# Generated endpoint configs: fail if a tagged service changed without regenerating
+if echo "$STAGED_FILES" | grep -qE '^package/api/(datacapy\.config\.json|src/.*\.endpoints\.ts)$' || \
+   (echo "$STAGED_FILES" | grep -E '^package/api/src/model/service/.*\.ts$' | xargs -r grep -l '@endpoints' >/dev/null 2>&1); then
+    if ! (cd package/api && pnpm gen:check); then
+        echo ""
+        echo "Generated endpoint configs are stale. Run 'pnpm gen' in package/api and stage the result."
+        echo "To bypass: git commit --no-verify"
+        echo ""
+        exit 1
+    fi
+fi
+
 # Lint staged source files for each package that has an ESLint config
 LINT_TARGETS=(
     "package/app:ts|tsx|js|jsx"
