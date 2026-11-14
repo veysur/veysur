@@ -1,10 +1,13 @@
+import { AclConditions } from 'model/entity/AclContext'
 import { Service } from '@datacapy/server'
 import { DataSourceContext } from '@datacapy/om'
 import { Patcher, Patch, SettingSurvey } from 'veysur-common'
 
 import { RepoSettingSurvey } from 'model'
 import { contextForProject } from 'common'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
+/** @endpoints settingSurvey */
 export class ServiceSettingSurvey extends Service {
   constructor() {
     super({
@@ -24,7 +27,18 @@ export class ServiceSettingSurvey extends Service {
     return settingSurvey
   }
 
-  async getOne({ projectId, aclConditions: _aclConditions }) {
+  /**
+   * @route get /
+   * @endpoint getSettingSurvey
+   * @acl projectAdmin
+   */
+  async getOne({
+    projectId,
+    aclConditions: _aclConditions,
+  }: {
+    projectId: string & e.Header<'X-Project-Id'>
+    aclConditions?: AclConditions & e.AclConditions
+  }) {
     const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSettingSurvey>('settingSurvey')
 
@@ -39,7 +53,19 @@ export class ServiceSettingSurvey extends Service {
     return settingSurvey
   }
 
-  async patch({ projectId, patches }) {
+  /**
+   * @route patch /
+   * @endpoint patchSettingSurvey
+   * @acl projectAdmin
+   * @error PlanLimitExceededError 402
+   */
+  async patch({
+    projectId,
+    patches,
+  }: {
+    projectId: string & e.Header<'X-Project-Id'>
+    patches: Patch[] & e.Body
+  }) {
     const context = contextForProject(projectId)
     const repoSettingSurvey = this.getRepo<RepoSettingSurvey>('settingSurvey')
 

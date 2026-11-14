@@ -1,3 +1,5 @@
+import { AclConditions } from 'model/entity/AclContext'
+import { MergeOptions } from 'veysur-common'
 import {
   Service,
   ServerErrorNotFound,
@@ -44,7 +46,10 @@ import {
   SurveyParticipantAttributeLanguageSnapshot,
 } from '../../constructor'
 import ServiceSurveySnapshot from './ServiceSurveySnapshot'
+import { AclContext } from 'model/entity/AclContext'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
+/** @endpoints surveyPublication */
 export class ServicePublication extends Service {
   constructor() {
     super({
@@ -261,6 +266,9 @@ export class ServicePublication extends Service {
 
   /**
    * Publish a survey - creates new snapshot and publication (or reuses existing snapshot)
+   * @route post /:surveyId/publish
+   * @endpoint postPublish
+   * @acl projectAdmin
    */
   async publish({
     surveyId,
@@ -272,6 +280,16 @@ export class ServicePublication extends Service {
     forceNewSnapshot = false,
     aclConditions: _aclConditions,
     aclContext,
+  }: {
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    label?: string & e.Body
+    notes?: string & e.Body
+    snapshotLabel?: string & e.Body
+    snapshotNotes?: string & e.Body
+    forceNewSnapshot?: boolean & e.Body & e.Default<false>
+    aclConditions?: AclConditions & e.AclConditions
+    aclContext: AclContext & e.AclContext
   }) {
     const context = contextForProject(projectId)
 
@@ -470,6 +488,9 @@ export class ServicePublication extends Service {
 
   /**
    * Republish an existing snapshot - creates new publication only
+   * @route post /:surveyId/republish
+   * @endpoint postRepublish
+   * @acl projectAdmin
    */
   async republish({
     surveyId,
@@ -479,6 +500,14 @@ export class ServicePublication extends Service {
     notes,
     aclConditions: _aclConditions,
     aclContext,
+  }: {
+    surveyId: string & e.Param
+    snapshotId: string & e.Body
+    projectId: string & e.Header<'X-Project-Id'>
+    label?: string & e.Body
+    notes?: string & e.Body
+    aclConditions?: AclConditions & e.AclConditions
+    aclContext: AclContext & e.AclContext
   }) {
     const context = contextForProject(projectId)
 
@@ -535,8 +564,17 @@ export class ServicePublication extends Service {
 
   /**
    * Unpublish - stops active publication
+   * @route post /:surveyId/unpublish
+   * @endpoint postUnpublish
+   * @acl projectAdmin
    */
-  async unpublish({ surveyId, projectId }) {
+  async unpublish({
+    surveyId,
+    projectId,
+  }: {
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+  }) {
     const context = contextForProject(projectId)
     const repoPublication =
       this.getRepo<RepoSurveyPublication>('surveyPublication')
@@ -573,8 +611,18 @@ export class ServicePublication extends Service {
 
   /**
    * Get published event with snapshot data
+   * @route get /:surveyId/published
+   * @acl projectAdmin
    */
-  async getPublished({ surveyId, projectId, withData = true }) {
+  async getPublished({
+    surveyId,
+    projectId,
+    withData = true,
+  }: {
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    withData?: boolean & e.Query & e.Default<false>
+  }) {
     const context = contextForProject(projectId)
     const repoPublication =
       this.getRepo<RepoSurveyPublication>('surveyPublication')
@@ -626,8 +674,17 @@ export class ServicePublication extends Service {
    * survey.updatedAt-vs-publication.publishedAt timestamp comparison, this correctly
    * reports "no changes" when edits are made and then reverted (e.g. moving a question
    * away and back to its original position).
+   * @route get /:surveyId/has-unpublished-changes
+   * @endpoint getHasUnpublishedChanges
+   * @acl projectAdmin
    */
-  async hasUnpublishedChanges({ surveyId, projectId }) {
+  async hasUnpublishedChanges({
+    surveyId,
+    projectId,
+  }: {
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+  }) {
     const context = contextForProject(projectId)
     const repoPublication =
       this.getRepo<RepoSurveyPublication>('surveyPublication')
@@ -722,8 +779,20 @@ export class ServicePublication extends Service {
 
   /**
    * Get publication list for a survey
+   * @route get /:surveyId/list
+   * @acl projectAdmin
    */
-  async getList({ surveyId, projectId, page, perPage }) {
+  async getList({
+    surveyId,
+    projectId,
+    page,
+    perPage,
+  }: {
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    page?: number & e.Query & e.Default<1>
+    perPage?: number & e.Query & e.Default<10>
+  }) {
     const context = contextForProject(projectId)
     const pagination = parsePaginationParams(page, perPage, { perPage: 10 })
     page = pagination.page
@@ -753,8 +822,19 @@ export class ServicePublication extends Service {
 
   /**
    * Get a single publication by ID
+   * @route get /:surveyId/publication/:publicationId
+   * @endpoint getPublication
+   * @acl projectAdmin
    */
-  async get({ surveyId, publicationId, projectId }) {
+  async get({
+    surveyId,
+    publicationId,
+    projectId,
+  }: {
+    surveyId: string & e.Param
+    publicationId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+  }) {
     const context = contextForProject(projectId)
 
     const repoPublication =
@@ -777,8 +857,23 @@ export class ServicePublication extends Service {
 
   /**
    * Update publication label and notes
+   * @route patch /:surveyId/publication/:publicationId
+   * @endpoint updatePublication
+   * @acl projectAdmin
    */
-  async update({ surveyId, publicationId, projectId, label, notes }) {
+  async update({
+    surveyId,
+    publicationId,
+    projectId,
+    label,
+    notes,
+  }: {
+    surveyId: string & e.Param
+    publicationId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    label?: string & e.Body
+    notes?: string & e.Body
+  }) {
     const context = contextForProject(projectId)
 
     const repoPublication =
@@ -818,11 +913,21 @@ export class ServicePublication extends Service {
     return { publication: updatedPublication }
   }
 
+  /**
+   * @route post /:surveyId/delete-many
+   * @endpoint deleteManyPublications
+   * @acl projectAdmin
+   */
   async deleteMany({
     surveyId,
     publicationIds,
     projectId,
     aclConditions: _aclConditions,
+  }: {
+    surveyId: string & e.Param
+    publicationIds: string[] & e.Body
+    projectId: string & e.Header<'X-Project-Id'>
+    aclConditions?: AclConditions & e.AclConditions
   }) {
     const context = contextForProject(projectId)
     const repoPublication =
@@ -959,6 +1064,9 @@ export class ServicePublication extends Service {
 
   /**
    * Merge responses from source publication to target publication
+   * @route post /:surveyId/:targetPublicationId/merge-from/:sourcePublicationId
+   * @endpoint mergePublicationResponses
+   * @acl projectAdmin
    */
   async mergePublications({
     surveyId,
@@ -967,6 +1075,13 @@ export class ServicePublication extends Service {
     projectId,
     aclConditions,
     options = {},
+  }: {
+    surveyId: string & e.Param
+    targetPublicationId: string & e.Param
+    sourcePublicationId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    aclConditions?: AclConditions & e.AclConditions
+    options?: MergeOptions & e.Body
   }) {
     const context = contextForProject(projectId)
     const repoPublication =

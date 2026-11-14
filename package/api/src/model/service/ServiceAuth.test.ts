@@ -1,3 +1,4 @@
+import type { ConfigJwt } from 'model/entity/ConfigJwt'
 import { ServiceAuth } from './ServiceAuth'
 import { asPrivate } from 'test-utils/asPrivate'
 import { buildMockServiceProject } from 'test-utils/buildMockServiceProject'
@@ -60,7 +61,7 @@ describe('ServiceAuth', () => {
           accessToken: 'existing-token',
         },
         ip: '1.2.3.4',
-        jwtConfig: {},
+        jwtConfig: {} as ConfigJwt,
       })
 
       expect(mockServiceAuthDirect.loginDirect).toHaveBeenCalledWith(
@@ -83,7 +84,7 @@ describe('ServiceAuth', () => {
       const result = await service.refresh({
         aclContext: { client: { _id: 'client_1', userId: 'user_1' } },
         ip: '1.2.3.4',
-        jwtConfig: {},
+        jwtConfig: {} as ConfigJwt,
       })
 
       expect(mockRepoUser.schema.filterPrivate).toHaveBeenCalledWith(
@@ -113,7 +114,9 @@ describe('ServiceAuth', () => {
         notificationToken: 'push-token',
       }
 
-      const result = await service.delete({ aclContext: { client } })
+      const result = await service.delete({
+        aclContext: { client: client as never },
+      })
 
       expect(result).toBe(true)
       // the future token got expired, the already-past one is untouched

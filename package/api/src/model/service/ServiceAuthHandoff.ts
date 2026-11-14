@@ -1,5 +1,8 @@
 import { Service, ServerErrorNotFound } from '@datacapy/server'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
+import type { AclContext } from 'model/entity/AclContext'
+import type { ConfigJwt } from 'model/entity/ConfigJwt'
 import { Client, RepoUser, RepoUserClient, ServiceProject } from 'model'
 import { authHandoffStore } from 'service/auth-handoff/AuthHandoffStore'
 
@@ -15,11 +18,24 @@ interface AuthHandoffPayload {
   rememberMe: boolean
 }
 
+interface CreateRequest {
+  rememberMe?: boolean & e.Body
+  ip: string & e.Request<'ip'>
+  jwtConfig: ConfigJwt & e.Config<'model.app.jwt'>
+  aclContext: AclContext & e.AclContext
+}
+
+interface RedeemRequest {
+  token: string & e.Body
+}
+
 /**
  * Mints and redeems the short-lived, single-use token that carries an
  * authenticated session across domains (account <-> project admin subdomain
  * <-> platform), replacing the popup/postMessage handoff. See
  * package/app/docs/decisions/2026/2026-09-28_auth-domain-redirect-handoff.md.
+ *
+ * @endpoints authHandoff
  */
 export class ServiceAuthHandoff extends Service {
   constructor() {
@@ -34,8 +50,11 @@ export class ServiceAuthHandoff extends Service {
    * already resolved) - never from client-supplied input - so this is safe to
    * expose at role authedAdmin without letting a caller mint a token for
    * someone else's session.
+   *
+   * @route post /
+   * @acl authedAdmin
    */
-  async create(requestArgs) {
+  async create(requestArgs: CreateRequest) {
     const { aclContext, ip, jwtConfig, rememberMe } = requestArgs
     const { jwt, client: accessTokenClient } = aclContext
 
@@ -78,7 +97,11 @@ export class ServiceAuthHandoff extends Service {
     return { token, expiresAt }
   }
 
-  async redeem(requestArgs) {
+  /**
+   * @route post /redeem
+   * @acl public
+   */
+  async redeem(requestArgs: RedeemRequest) {
     const { token } = requestArgs
     const payload = await authHandoffStore.redeem<AuthHandoffPayload>(token)
     if (!payload) {

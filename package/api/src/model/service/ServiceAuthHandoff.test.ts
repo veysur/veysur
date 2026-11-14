@@ -1,3 +1,4 @@
+import type { ConfigJwt } from 'model/entity/ConfigJwt'
 import { ServiceAuthHandoff } from './ServiceAuthHandoff'
 import { buildMockServiceProject } from 'test-utils/buildMockServiceProject'
 import { authHandoffStore } from 'service/auth-handoff/AuthHandoffStore'
@@ -53,14 +54,13 @@ describe('ServiceAuthHandoff', () => {
         expiresAt: new Date('2026-01-01T00:00:00Z'),
       })
 
+      const smuggled = { auth: { jwt: { token: 'attacker-supplied' } } }
       const result = await service.create({
+        ...smuggled,
         aclContext: { jwt: { _id: 'user_1', clientId: 'client_1' } },
         ip: '1.2.3.4',
-        jwtConfig: {},
+        jwtConfig: {} as ConfigJwt,
         rememberMe: true,
-        // A malicious caller could try to smuggle their own auth payload in
-        // the request body - create() must ignore it entirely.
-        auth: { jwt: { token: 'attacker-supplied' } },
       })
 
       expect(mockRepoUser.findOne).toHaveBeenCalledWith(
@@ -96,7 +96,7 @@ describe('ServiceAuthHandoff', () => {
           accessToken: 'existing-token',
         },
         ip: '1.2.3.4',
-        jwtConfig: {},
+        jwtConfig: {} as ConfigJwt,
         rememberMe: false,
       })
 
@@ -115,7 +115,11 @@ describe('ServiceAuthHandoff', () => {
 
     test('throws NotFound when the request carries no resolvable user', async () => {
       await expect(
-        service.create({ aclContext: {}, ip: '1.2.3.4', jwtConfig: {} }),
+        service.create({
+          aclContext: {},
+          ip: '1.2.3.4',
+          jwtConfig: {} as ConfigJwt,
+        }),
       ).rejects.toThrow()
       expect(mockServiceAuthDirect.loginDirect).not.toHaveBeenCalled()
     })

@@ -21,6 +21,8 @@ import {
   User,
 } from 'model'
 import { ServiceEmailDomainCheck } from './ServiceEmailDomainCheck'
+import { AclContext } from 'model/entity/AclContext'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
 const ACCOUNT_DELETION_RETENTION = 'P1M'
 
@@ -33,6 +35,7 @@ export interface ProfileExtension {
   eventActions: string[]
 }
 
+/** @endpoints user */
 export class ServiceUser extends Service {
   constructor() {
     super({
@@ -40,7 +43,12 @@ export class ServiceUser extends Service {
     })
   }
 
-  async me({ aclContext }) {
+  /**
+   * @route get /me
+   * @endpoint getMe
+   * @acl authedAdmin
+   */
+  async me({ aclContext }: { aclContext: AclContext & e.AclContext }) {
     return this.getForClient({ _id: aclContext.jwt._id })
   }
 
@@ -59,16 +67,20 @@ export class ServiceUser extends Service {
     )
   }
 
+  /**
+   * @route put /profile
+   * @acl authedAdmin
+   */
   async putProfile({
     data,
     aclContext,
   }: {
-    data: Partial<User> & { passwordCurrent: string }
+    data: Partial<User> & { passwordCurrent: string } & e.Body
     aclContext: {
       jwt?: { _id: string }
       clientId?: string
       accessToken?: { isNew(): boolean }
-    }
+    } & e.AclContext
   }) {
     const updateData: Partial<User> = {}
     // eslint-disable-next-line no-useless-assignment -- kept pending the TODO below to re-enable the recent-auth check
@@ -253,7 +265,18 @@ export class ServiceUser extends Service {
     return {}
   }
 
-  async validatePasswordCurrent({ value, aclContext }) {
+  /**
+   * @route post /validate-password-current
+   * @endpoint postValidatePasswordCurrent
+   * @acl authedAdmin
+   */
+  async validatePasswordCurrent({
+    value,
+    aclContext,
+  }: {
+    value: string & e.Body
+    aclContext: AclContext & e.AclContext
+  }) {
     const repoUser = this.getRepo<RepoUser>('user')
     const user = await repoUser.findOne(
       { _id: aclContext.jwt._id },
@@ -266,7 +289,18 @@ export class ServiceUser extends Service {
     }
     return passwordsMatch ? true : 'Incorrect password'
   }
-  async validateEmailNotRegistered({ value, aclContext }) {
+  /**
+   * @route post /validate-email-not-registered
+   * @endpoint postValidateEmailNotRegistered
+   * @acl public
+   */
+  async validateEmailNotRegistered({
+    value,
+    aclContext,
+  }: {
+    value: string & e.Body
+    aclContext: AclContext & e.AclContext
+  }) {
     const repoUser = this.getRepo<RepoUser>('user')
     const existingUser = await repoUser.findOne({
       email: value.trim(),

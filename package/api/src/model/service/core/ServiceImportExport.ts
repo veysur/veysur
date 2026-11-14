@@ -40,6 +40,7 @@ import { getStorageConfig } from './ServiceFile/FileS3Config'
 import { ServiceFileTempDownload } from './ServiceFile/ServiceFileTempDownload'
 import { ServiceDataTransferJob } from './ServiceDataTransferJob'
 import { ASYNC_TRANSFER_SIZE_THRESHOLD_BYTES } from './ImportExport/handlers/util/asyncTransferSizeThreshold'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
 interface ImportResult {
   success: boolean
@@ -59,6 +60,7 @@ interface ImportResult {
  * 1. generateImportUrl() - Create File record + signed upload URL
  * 2. Client uploads to API upload endpoint
  * 3. processImport() - Download from storage, parse, validate, persist
+ * @endpoints importExport
  */
 export class ServiceImportExport extends Service {
   private entityHandlerRegistry: EntityHandlerRegistry
@@ -188,17 +190,20 @@ export class ServiceImportExport extends Service {
    * immediately instead of compiling inline; the caller polls
    * ServiceDataTransferJob.getStatus() for the result. Otherwise compile
    * and return the download URL synchronously, as before.
+   * @route post /export/:entityType/:entityId/:format
+   * @endpoint exportEntity
+   * @acl projectAdmin
    */
   async export(params: {
-    entityType: string
-    entityId: string
-    format: string
-    options?: ExportOptions
-    projectId: string
-    aclConditions: AclConditions
-    aclContext: AclContext
-    requestHost?: string
-    requestProto?: string
+    entityType: string & e.Param
+    entityId: string & e.Param
+    format: string & e.Param
+    options?: ExportOptions & e.Body
+    projectId: string & e.Header<'X-Project-Id'>
+    aclConditions: AclConditions & e.AclConditions
+    aclContext: AclContext & e.AclContext
+    requestHost?: string & e.Header<'X-Forwarded-Host'>
+    requestProto?: string & e.Header<'X-Forwarded-Proto'>
   }) {
     const {
       entityType,
@@ -311,6 +316,8 @@ export class ServiceImportExport extends Service {
 
   /**
    * Generate signed upload URL for import
+   * @route post /import/url/:entityType
+   * @acl projectAdmin
    */
   async generateImportUrl({
     entityType,
@@ -322,14 +329,14 @@ export class ServiceImportExport extends Service {
     requestHost,
     requestProto,
   }: {
-    entityType: string
-    format: string
-    options?: Record<string, unknown>
-    fileHash?: string
-    projectId: string
-    aclContext: AclContext
-    requestHost?: string
-    requestProto?: string
+    entityType: string & e.Param
+    format: string & e.Body
+    options?: Record<string, unknown> & e.Body
+    fileHash?: string & e.Body
+    projectId: string & e.Header<'X-Project-Id'>
+    aclContext: AclContext & e.AclContext
+    requestHost?: string & e.Header<'X-Forwarded-Host'>
+    requestProto?: string & e.Header<'X-Forwarded-Proto'>
   }) {
     const handler = this.entityHandlerRegistry.get(entityType)
 
@@ -497,15 +504,17 @@ export class ServiceImportExport extends Service {
    * enqueue a ServiceDataTransferJob instead of parsing inline; the caller
    * polls getImportStatus() for the result. Otherwise parse and persist
    * synchronously, as before.
+   * @route post /import/process/:fileId
+   * @acl projectAdmin
    */
   async processImport({
     fileId,
     projectId,
     aclContext,
   }: {
-    fileId: string
-    projectId: string
-    aclContext: AclContext
+    fileId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    aclContext: AclContext & e.AclContext
   }) {
     const context = contextForProject(projectId)
     const repoFile = this.getRepo<RepoFile>('file')
@@ -577,13 +586,15 @@ export class ServiceImportExport extends Service {
    * `uploadedAt: { $ne: null }`, which isn't set until runImport() has
    * already started downloading the file, so a 'pending'/'queued' import
    * would 404 there.
+   * @route get /import/status/:fileId
+   * @acl projectAdmin
    */
   async getImportStatus({
     fileId,
     projectId,
   }: {
-    fileId: string
-    projectId: string
+    fileId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
   }) {
     const context = contextForProject(projectId)
     const repoFile = this.getRepo<RepoFile>('file')

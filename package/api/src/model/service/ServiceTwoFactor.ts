@@ -12,6 +12,7 @@ import { ErrorRef } from 'model/common'
 import { JWT_TYPE_PRE_AUTH } from 'acl/util/constant'
 import { Jwt } from 'acl/util/Jwt'
 import { ServiceAuthDirect } from './ServiceAuthDirect'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
 export interface ClientData {
   _id: string
@@ -43,6 +44,7 @@ export interface PreAuthJwtPayload extends PreAuthJwtBase {
   notificationToken?: string
 }
 
+/** @endpoints twoFactor */
 export class ServiceTwoFactor extends Service {
   constructor() {
     super({ name: 'twoFactor' })
@@ -85,8 +87,13 @@ export class ServiceTwoFactor extends Service {
 
   // Generate a new TOTP secret for the setup flow.
   // Does NOT persist — the secret is confirmed via verifyAndEnable() or enableAndLogin().
+  /**
+   * @route post /setup
+   * @endpoint postSetup
+   * @acl authedAdmin,preAuth
+   */
   async generateSetupData(requestArgs: {
-    aclContext: { jwt: PreAuthJwtBase }
+    aclContext: { jwt: PreAuthJwtBase } & e.AclContext
   }) {
     const { aclContext } = requestArgs
     if (
@@ -119,10 +126,15 @@ export class ServiceTwoFactor extends Service {
   }
 
   // Verify TOTP code against the candidate secret, then persist and enable 2FA.
+  /**
+   * @route post /enable
+   * @endpoint postEnable
+   * @acl authedAdmin
+   */
   async verifyAndEnable(requestArgs: {
-    code: string
-    secret: string
-    aclContext: { jwt: PreAuthJwtBase }
+    code: string & e.Body
+    secret: string & e.Body
+    aclContext: { jwt: PreAuthJwtBase } & e.AclContext
   }) {
     const { code, secret, aclContext } = requestArgs
 
@@ -152,10 +164,15 @@ export class ServiceTwoFactor extends Service {
   }
 
   // Verify TOTP during login (pre-auth phase), then issue full auth tokens.
+  /**
+   * @route post /verify-login
+   * @endpoint postVerifyLogin
+   * @acl preAuth
+   */
   async verifyLogin(requestArgs: {
-    code: string
-    jwtConfig: ConfigJwt
-    aclContext: { jwt: PreAuthJwtPayload }
+    code: string & e.Body
+    jwtConfig: ConfigJwt & e.Config<'model.app.jwt'>
+    aclContext: { jwt: PreAuthJwtPayload } & e.AclContext
   }) {
     const { code, jwtConfig, aclContext } = requestArgs
     const preAuthJwt = aclContext.jwt
@@ -217,11 +234,16 @@ export class ServiceTwoFactor extends Service {
 
   // Called from the forced-setup login flow (pre-auth token with requiresTwoFactorSetup).
   // Verifies the TOTP code, persists the secret, then issues full auth tokens.
+  /**
+   * @route post /enable-and-login
+   * @endpoint postEnableAndLogin
+   * @acl preAuth
+   */
   async enableAndLogin(requestArgs: {
-    code: string
-    secret: string
-    jwtConfig: ConfigJwt
-    aclContext: { jwt: PreAuthJwtPayload }
+    code: string & e.Body
+    secret: string & e.Body
+    jwtConfig: ConfigJwt & e.Config<'model.app.jwt'>
+    aclContext: { jwt: PreAuthJwtPayload } & e.AclContext
   }) {
     const { code, secret, jwtConfig, aclContext } = requestArgs
     const preAuthJwt = aclContext.jwt
@@ -305,9 +327,14 @@ export class ServiceTwoFactor extends Service {
   }
 
   // Disable 2FA — verifies password then clears secret and enabled flag.
+  /**
+   * @route post /disable
+   * @endpoint postDisable
+   * @acl authedAdmin
+   */
   async disable(requestArgs: {
-    password: string
-    aclContext: { jwt: PreAuthJwtBase }
+    password: string & e.Body
+    aclContext: { jwt: PreAuthJwtBase } & e.AclContext
   }) {
     const { password, aclContext } = requestArgs
     const repoUser = this.getRepo<RepoUser>('user')
@@ -343,7 +370,14 @@ export class ServiceTwoFactor extends Service {
   }
 
   // Permanently dismiss the "enable 2FA?" prompt.
-  async dismissPrompt(requestArgs: { aclContext: { jwt: PreAuthJwtBase } }) {
+  /**
+   * @route post /dismiss-prompt
+   * @endpoint postDismissPrompt
+   * @acl authedAdmin
+   */
+  async dismissPrompt(requestArgs: {
+    aclContext: { jwt: PreAuthJwtBase } & e.AclContext
+  }) {
     const { aclContext } = requestArgs
     const repoUser = this.getRepo<RepoUser>('user')
     await repoUser.updateOne(

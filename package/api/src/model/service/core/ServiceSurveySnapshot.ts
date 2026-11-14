@@ -33,7 +33,9 @@ import { FileReference } from './ServiceFile/FileReference'
 import { ServiceFileDeletion } from './ServiceFile/ServiceFileDeletion'
 import { RepoFile } from 'model'
 import { AclConditions } from 'model/entity/AclContext'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
+/** @endpoints surveySnapshot */
 export class ServiceSurveySnapshot extends Service {
   constructor() {
     super({
@@ -60,7 +62,22 @@ export class ServiceSurveySnapshot extends Service {
     return fileIds
   }
 
-  async getAll({ surveyId, projectId, page, perPage }) {
+  /**
+   * @route get /:surveyId
+   * @endpoint getSurveySnapshots
+   * @acl projectAdmin
+   */
+  async getAll({
+    surveyId,
+    projectId,
+    page,
+    perPage,
+  }: {
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    page?: number & e.Query & e.Default<1>
+    perPage?: number & e.Query & e.Default<10>
+  }) {
     const context = contextForProject(projectId)
     const pagination = parsePaginationParams(page, perPage, { perPage: 10 })
     page = pagination.page
@@ -96,11 +113,21 @@ export class ServiceSurveySnapshot extends Service {
     return { snapshots, snapshotCount }
   }
 
+  /**
+   * @route post /:surveyId/delete-many
+   * @endpoint deleteManySurveySnapshots
+   * @acl projectAdmin
+   */
   async deleteMany({
     surveyId,
     snapshotIds,
     projectId,
     aclConditions: _aclConditions,
+  }: {
+    surveyId: string & e.Param
+    snapshotIds: string[] & e.Body
+    projectId: string & e.Header<'X-Project-Id'>
+    aclConditions?: AclConditions & e.AclConditions
   }) {
     const context = contextForProject(projectId)
     const repoSurveySnapshotPartial = this.getRepo<RepoSurveySnapshotPartial>(
@@ -246,11 +273,21 @@ export class ServiceSurveySnapshot extends Service {
     return { success: true, deletedCount: snapshotIds.length }
   }
 
+  /**
+   * @route get /:surveyId/:snapshotId
+   * @endpoint getSurveySnapshot
+   * @acl projectAdmin
+   */
   async get({
     surveyId,
     snapshotId,
     projectId,
     aclConditions: _aclConditions,
+  }: {
+    surveyId: string & e.Param
+    snapshotId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    aclConditions?: AclConditions & e.AclConditions
   }) {
     const context = contextForProject(projectId)
     const repoSurveySnapshotPartial = this.getRepo<RepoSurveySnapshotPartial>(
@@ -299,6 +336,11 @@ export class ServiceSurveySnapshot extends Service {
     return { snapshot, snapshotData: { ...snapshotData, survey } }
   }
 
+  /**
+   * @route patch /:surveyId/:snapshotId
+   * @endpoint updateSurveySnapshot
+   * @acl projectAdmin
+   */
   async update({
     surveyId,
     snapshotId,
@@ -306,6 +348,13 @@ export class ServiceSurveySnapshot extends Service {
     label,
     notes,
     aclConditions: _aclConditions,
+  }: {
+    surveyId: string & e.Param
+    snapshotId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    label?: string & e.Body
+    notes?: string & e.Body
+    aclConditions?: AclConditions & e.AclConditions
   }) {
     const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSurveySnapshotPartial>(
@@ -359,12 +408,23 @@ export class ServiceSurveySnapshot extends Service {
     return { snapshot: updatedSnapshot }
   }
 
+  /**
+   * @route get /:surveyId/compare/:snapshotIdA/:snapshotIdB
+   * @endpoint compareSurveySnapshots
+   * @acl projectAdmin
+   */
   async compare({
     surveyId,
     snapshotIdA,
     snapshotIdB,
     projectId,
     aclConditions: _aclConditions,
+  }: {
+    surveyId: string & e.Param
+    snapshotIdA: string & e.Param
+    snapshotIdB: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    aclConditions?: AclConditions & e.AclConditions
   }) {
     const context = contextForProject(projectId)
     const repoSurveySnapshotPartial = this.getRepo<RepoSurveySnapshotPartial>(
@@ -536,11 +596,21 @@ export class ServiceSurveySnapshot extends Service {
     return { snapshot, snapshotData }
   }
 
+  /**
+   * @route get /:surveyId/compare-with-current/:snapshotId
+   * @endpoint compareSnapshotWithCurrent
+   * @acl projectAdmin
+   */
   async compareWithCurrent({
     surveyId,
     snapshotId,
     projectId,
     aclConditions: _aclConditions,
+  }: {
+    surveyId: string & e.Param
+    snapshotId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    aclConditions?: AclConditions & e.AclConditions
   }) {
     const context = contextForProject(projectId)
     const repoSurvey = this.getRepo<RepoSurvey>('survey')
@@ -691,6 +761,9 @@ export class ServiceSurveySnapshot extends Service {
    * This method maintains backward compatibility for existing callers.
    *
    * @see ServiceResponseMerge.merge() for implementation details
+   * @route post /:surveyId/:targetSnapshotId/merge-from/:sourceSnapshotId
+   * @endpoint mergeSnapshotResponses
+   * @acl projectAdmin
    */
   async mergeSnapshots({
     surveyId,
@@ -702,14 +775,14 @@ export class ServiceSurveySnapshot extends Service {
     aclConditions,
     options = {},
   }: {
-    surveyId: string
-    targetSnapshotId: string
-    sourceSnapshotId: string
+    surveyId: string & e.Param
+    targetSnapshotId: string & e.Param
+    sourceSnapshotId: string & e.Param
     targetPublicationId?: string
     sourcePublicationId?: string
-    projectId: string
-    aclConditions: AclConditions
-    options?: MergeOptions
+    projectId: string & e.Header<'X-Project-Id'>
+    aclConditions: AclConditions & e.AclConditions
+    options?: MergeOptions & e.Body
   }): Promise<MergeResult> {
     const mergeService = this.getService<ServiceResponseMerge>('responseMerge')
 

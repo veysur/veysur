@@ -28,6 +28,7 @@ import {
   updateIncompleteUpload,
 } from './FileDeduplication'
 import { FileReference } from './FileReference'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
 export interface GenerateUploadUrlResult {
   fileId: string
@@ -38,6 +39,7 @@ export interface GenerateUploadUrlResult {
   file?: File
 }
 
+/** @endpoints fileUpload path=/file */
 export class ServiceFileUpload extends Service {
   constructor() {
     super({ name: 'fileUpload' })
@@ -96,6 +98,10 @@ export class ServiceFileUpload extends Service {
   /**
    * Generate signed upload URL for file upload
    * Handles deduplication, resurrection, and new uploads
+   * @route post /upload-url
+   * @endpoint postFileUploadUrl
+   * @acl projectAdmin
+   * @error PlanLimitExceededError 402
    */
   async generateUploadUrl({
     projectId,
@@ -112,19 +118,19 @@ export class ServiceFileUpload extends Service {
     imageVariant,
     aclContext,
   }: {
-    projectId: string
-    requestHost?: string
-    requestProto?: string
-    filename: string
-    fileHash: string
-    fileSize: number
-    mimeType: string
-    surveyId?: string
-    responseId?: string
-    fileContext?: InstanceType<typeof File>['fileContext']
-    imageSetId?: string
-    imageVariant?: string
-    aclContext: AclContext
+    projectId: string & e.Header<'X-Project-Id'>
+    requestHost?: string & e.Header<'X-Forwarded-Host'>
+    requestProto?: string & e.Header<'X-Forwarded-Proto'>
+    filename: string & e.Body
+    fileHash: string & e.Body
+    fileSize: number & e.Body
+    mimeType: string & e.Body
+    surveyId?: string & e.Body
+    responseId?: string & e.Body
+    fileContext?: InstanceType<typeof File>['fileContext'] & e.Body
+    imageSetId?: string & e.Body
+    imageVariant?: string & e.Body
+    aclContext: AclContext & e.AclContext
   }): Promise<GenerateUploadUrlResult> {
     const context = contextForProject(projectId)
     const userId = aclContext.jwt._id
@@ -388,15 +394,18 @@ export class ServiceFileUpload extends Service {
 
   /**
    * Confirm file upload by verifying object exists in storage
+   * @route post /:fileId/confirm
+   * @endpoint confirmFileUpload
+   * @acl projectAdmin
    */
   async confirmUpload({
     fileId,
     projectId,
     aclContext: _aclContext,
   }: {
-    fileId: string
-    projectId: string
-    aclContext: AclContext
+    fileId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    aclContext: AclContext & e.AclContext
   }): Promise<{ success: boolean; file: File; alreadyConfirmed: boolean }> {
     const context = contextForProject(projectId)
     const repoFile = this.getRepo<RepoFile>('file')

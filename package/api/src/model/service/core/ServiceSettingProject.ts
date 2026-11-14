@@ -9,8 +9,12 @@ import {
   maskBotProtectionSecrets,
   mergeBotProtectionSecrets,
 } from 'model/service/botProtection'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
-/** Project-wide provider keys (maps, bot protection), outside the survey settings. */
+/**
+ * Project-wide provider keys (maps, bot protection), outside the survey settings.
+ * @endpoints settingProject
+ */
 export class ServiceSettingProject extends Service {
   constructor() {
     super({
@@ -18,17 +22,31 @@ export class ServiceSettingProject extends Service {
     })
   }
 
-  async getOne({ projectId }: { projectId: string }) {
+  /**
+   * @route get /
+   * @endpoint getSettingProject
+   * @acl projectAdmin
+   */
+  async getOne({
+    projectId,
+  }: {
+    projectId: string & e.Header<'X-Project-Id'>
+  }) {
     const settingProject = await this.getOrCreate(contextForProject(projectId))
     return this.toResponse(settingProject)
   }
 
+  /**
+   * @route put /maps
+   * @endpoint putSettingProjectMaps
+   * @acl projectAdmin
+   */
   async updateMaps({
     projectId,
     maps,
   }: {
-    projectId: string
-    maps: SettingProject['maps']
+    projectId: string & e.Header<'X-Project-Id'>
+    maps: SettingProject['maps'] & e.Body
   }) {
     const context = contextForProject(projectId)
     const stored = await this.getOrCreate(context)
@@ -42,12 +60,17 @@ export class ServiceSettingProject extends Service {
     return this.refreshAndRespond(projectId, context)
   }
 
+  /**
+   * @route put /bot-protection
+   * @endpoint putSettingProjectBotProtection
+   * @acl projectAdmin
+   */
   async updateBotProtection({
     projectId,
     botProtection,
   }: {
-    projectId: string
-    botProtection: BotProtectionSetting
+    projectId: string & e.Header<'X-Project-Id'>
+    botProtection: BotProtectionSetting & e.Body
   }) {
     const context = contextForProject(projectId)
     const stored = await this.getOrCreate(context)

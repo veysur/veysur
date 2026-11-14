@@ -1,6 +1,8 @@
 import { Service, ServerErrorNotFound } from '@datacapy/server'
-import { UserClient } from 'veysur-common'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
+import type { AclContext } from 'model/entity/AclContext'
+import type { ConfigJwt } from 'model/entity/ConfigJwt'
 import { Client, RepoUser, RepoUserClient, ServiceProject } from 'model'
 
 import { ServiceAuthDirect } from './ServiceAuthDirect'
@@ -10,6 +12,17 @@ const userPopulate = {
   projectAdmin: true,
 }
 
+interface RefreshRequest {
+  ip: string & e.Request<'ip'>
+  jwtConfig: ConfigJwt & e.Config<'model.app.jwt'>
+  aclContext: AclContext & e.AclContext
+}
+
+interface DeleteRequest {
+  aclContext: AclContext & e.AclContext
+}
+
+/** @endpoints auth */
 export class ServiceAuth extends Service {
   constructor() {
     super({
@@ -17,7 +30,12 @@ export class ServiceAuth extends Service {
     })
   }
 
-  async refresh(requestArgs) {
+  /**
+   * @route post /refresh
+   * @endpoint postRefresh
+   * @acl authedAdmin
+   */
+  async refresh(requestArgs: RefreshRequest) {
     const { aclContext, ip, jwtConfig } = requestArgs
     const { client, accessToken } = aclContext
 
@@ -48,9 +66,13 @@ export class ServiceAuth extends Service {
     return { user, accessToken: null }
   }
 
-  async delete(requestArgs) {
+  /**
+   * @route delete /
+   * @acl authedAdmin
+   */
+  async delete(requestArgs: DeleteRequest) {
     const { aclContext } = requestArgs
-    const { client }: { client: UserClient } = aclContext
+    const { client } = aclContext
 
     if (!client) {
       // User not found

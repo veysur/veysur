@@ -1,3 +1,4 @@
+import type { ConfigJwt } from 'model/entity/ConfigJwt'
 // cspell:ignore Bonjour
 import { ServerErrorForbidden, ServerErrorBadRequest } from '@datacapy/server'
 import { passthroughParticipantCache } from 'test-utils/passthroughParticipantCache'
@@ -160,7 +161,7 @@ const authArgs = (
   token,
   emailVerifyToken,
   embedOrigin,
-  jwtConfig: {},
+  jwtConfig: {} as ConfigJwt,
 })
 
 describe('ServiceAuthParticipant.auth — no-token access control matrix', () => {
@@ -1020,7 +1021,7 @@ describe('ServiceAuthParticipant — bot protection', () => {
       surveyId: SURVEY_ID,
       token: 'widget-token',
       aclContext,
-      jwtConfig: {},
+      jwtConfig: {} as ConfigJwt,
       ...overrides,
     })
 

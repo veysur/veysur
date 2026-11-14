@@ -21,6 +21,7 @@ import { ServiceEmailTemplate } from '../ServiceEmailTemplate'
 import { ServiceEmail } from '../../ServiceEmail'
 import { EmailVerifyToken } from './EmailVerifyToken'
 import { contextForProject } from 'common'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
 /** Default hourly invite-send rate. Used as-is by the self-hosted deployment (no
  * plan model), and as the fallback when a project's plan has no
@@ -36,6 +37,7 @@ export interface SendInvitesResult {
   batchErrors: Array<{ email: string; message: string }>
 }
 
+/** @endpoints surveyParticipantEmail path=/survey-participant */
 export class ServiceSurveyParticipantEmail extends Service {
   constructor() {
     super({ name: 'surveyParticipantEmail' })
@@ -53,6 +55,9 @@ export class ServiceSurveyParticipantEmail extends Service {
   /**
    * Send email invites to participants in batches
    * Returns progress information and any errors encountered
+   * @route post /:surveyId/send-invites
+   * @endpoint sendInvitesSurveyParticipant
+   * @acl projectAdmin
    */
   async send({
     surveyId,
@@ -60,10 +65,10 @@ export class ServiceSurveyParticipantEmail extends Service {
     skip = 0,
     batchSize = 100,
   }: {
-    surveyId: string
-    projectId: string
-    skip?: number
-    batchSize?: number
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    skip?: number & e.Body & e.Default<0>
+    batchSize?: number & e.Body & e.Default<100>
   }): Promise<SendInvitesResult> {
     return this._sendEmail({
       surveyId,
@@ -77,6 +82,9 @@ export class ServiceSurveyParticipantEmail extends Service {
   /**
    * Send email reminders to participants in batches
    * Returns progress information and any errors encountered
+   * @route post /:surveyId/send-reminders
+   * @endpoint sendRemindersSurveyParticipant
+   * @acl projectAdmin
    */
   async sendReminders({
     surveyId,
@@ -84,10 +92,10 @@ export class ServiceSurveyParticipantEmail extends Service {
     skip = 0,
     batchSize = 100,
   }: {
-    surveyId: string
-    projectId: string
-    skip?: number
-    batchSize?: number
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    skip?: number & e.Body & e.Default<0>
+    batchSize?: number & e.Body & e.Default<100>
   }): Promise<SendInvitesResult> {
     return this._sendEmail({
       surveyId,

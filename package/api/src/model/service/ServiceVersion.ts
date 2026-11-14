@@ -1,5 +1,6 @@
 import { Service } from '@datacapy/server'
 
+/** @endpoints version */
 export class ServiceVersion extends Service {
   constructor() {
     super({
@@ -7,6 +8,11 @@ export class ServiceVersion extends Service {
     })
   }
 
+  /**
+   * @route get /
+   * @endpoint getGet
+   * @acl public
+   */
   async get() {
     return { version: process.env.BUILD_VERSION ?? 'dev' }
   }

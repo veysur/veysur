@@ -13,20 +13,27 @@ import {
   RepoSurveySnapshotPartial,
 } from 'model'
 import { contextForProject } from 'common'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
+/** @endpoints surveyParticipantAttributeSnapshot */
 export class ServiceSurveyParticipantAttributeSnapshot extends Service {
   constructor() {
     super({ name: 'surveyParticipantAttributeSnapshot' })
   }
 
+  /**
+   * @route get /:surveyId
+   * @endpoint getSurveyParticipantAttributeSnapshot
+   * @acl public
+   */
   async get({
     surveyId,
     projectId,
     lang,
   }: {
-    surveyId: string
-    projectId: string
-    lang?: string
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    lang?: string & e.Query
   }): Promise<{
     attributes: Array<{
       name: string

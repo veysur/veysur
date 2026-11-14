@@ -13,7 +13,10 @@ import {
 import { mergeSurveyLanguageSnapshots } from 'model/common'
 import { contextForProject } from 'common'
 import type { ServiceSurveyParticipantCache } from './ServiceSurveyParticipantCache'
+import { AclContext } from 'model/entity/AclContext'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
+/** @endpoints surveyParticipantSnapshot */
 export class ServiceSurveyParticipantSnapshot extends Service {
   constructor() {
     super({
@@ -21,7 +24,22 @@ export class ServiceSurveyParticipantSnapshot extends Service {
     })
   }
 
-  async get({ surveyId, projectId, lang, aclContext = undefined }) {
+  /**
+   * @route get /:surveyId
+   * @endpoint getSurveyParticipantSnapshot
+   * @acl participant
+   */
+  async get({
+    surveyId,
+    projectId,
+    lang,
+    aclContext = undefined,
+  }: {
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    lang?: string & e.Query
+    aclContext?: AclContext & e.AclContext
+  }) {
     return await this._getSnapshot({
       surveyId,
       projectId,
@@ -31,7 +49,18 @@ export class ServiceSurveyParticipantSnapshot extends Service {
     })
   }
 
-  async getPartial({ surveyId, projectId }) {
+  /**
+   * @route get /:surveyId/partial
+   * @endpoint getSurveyParticipantSnapshotPartial
+   * @acl public
+   */
+  async getPartial({
+    surveyId,
+    projectId,
+  }: {
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+  }) {
     return await this._getSnapshot({
       surveyId,
       projectId,

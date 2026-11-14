@@ -39,6 +39,8 @@ import { ServiceEmail } from './ServiceEmail'
 import { ServiceEmailDomainCheck } from './ServiceEmailDomainCheck'
 import { ParticipantToken } from './core/ServiceSurveyParticipant/ParticipantToken'
 import { EmailVerifyToken } from './core/ServiceSurveyParticipant/EmailVerifyToken'
+import { AclContext } from 'model/entity/AclContext'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
 const ERROR_REG_REQUIRED = 'ERROR_REG_REQUIRED'
 const ERROR_INVALID_TOKEN = 'ERROR_INVALID_TOKEN'
@@ -51,6 +53,7 @@ const ERROR_COUNTRY_BLOCKED = 'ERROR_COUNTRY_BLOCKED'
 const ERROR_DISPOSABLE_EMAIL_DOMAIN = 'ERROR_DISPOSABLE_EMAIL_DOMAIN'
 const ERROR_EMBED_NOT_ALLOWED = 'ERROR_EMBED_NOT_ALLOWED'
 
+/** @endpoints authParticipant */
 export class ServiceAuthParticipant extends Service {
   constructor() {
     super({
@@ -58,6 +61,11 @@ export class ServiceAuthParticipant extends Service {
     })
   }
 
+  /**
+   * @route post /:surveyId
+   * @endpoint post
+   * @acl public
+   */
   async auth({
     surveyId,
     projectId,
@@ -65,6 +73,13 @@ export class ServiceAuthParticipant extends Service {
     emailVerifyToken = undefined,
     embedOrigin = undefined,
     jwtConfig,
+  }: {
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    token?: string & e.Body
+    emailVerifyToken?: string & e.Body
+    embedOrigin?: string & e.Header<'X-Embed-Origin'>
+    jwtConfig: ConfigJwt & e.Config<'model.app.jwt'>
   }) {
     const context = DataSourceContext.fromDataSources({
       project: { lookupKey: projectId },
@@ -294,6 +309,8 @@ export class ServiceAuthParticipant extends Service {
    * old JWT already carries the survey, snapshot and session, so the new one
    * is the same identity with `botVerified` added. Anonymous surveys pass no
    * address to the provider.
+   * @route post /:surveyId/bot-verify
+   * @acl participant
    */
   async botVerify({
     surveyId,
@@ -302,6 +319,13 @@ export class ServiceAuthParticipant extends Service {
     ip = undefined,
     aclContext,
     jwtConfig,
+  }: {
+    surveyId: string & e.Param
+    token: string & e.Body
+    honeypot?: string & e.Body
+    ip?: string & e.Request<'ip'>
+    aclContext: AclContext & e.AclContext
+    jwtConfig: ConfigJwt & e.Config<'model.app.jwt'>
   }) {
     if (aclContext.surveyId !== surveyId) {
       throw new ServerErrorForbidden({
@@ -344,8 +368,18 @@ export class ServiceAuthParticipant extends Service {
     return await this.createJsonWebToken(jwtParticipant, jwtConfig)
   }
 
-  /** A signed proof-of-work challenge for the `simple` provider. */
-  async botChallenge({ surveyId, aclContext }) {
+  /**
+   * A signed proof-of-work challenge for the `simple` provider.
+   * @route post /:surveyId/bot-challenge
+   * @acl participant
+   */
+  async botChallenge({
+    surveyId,
+    aclContext,
+  }: {
+    surveyId: string & e.Param
+    aclContext: AclContext & e.AclContext
+  }) {
     if (aclContext.surveyId !== surveyId) {
       throw new ServerErrorForbidden({
         ref: ERROR_AUTH_FAIL,
@@ -414,6 +448,10 @@ export class ServiceAuthParticipant extends Service {
       : { botRequired: true, botVerified: alreadyVerified }
   }
 
+  /**
+   * @route post /:surveyId/register
+   * @acl public
+   */
   async register({
     surveyId,
     projectId,
@@ -423,6 +461,15 @@ export class ServiceAuthParticipant extends Service {
     language,
     attributes,
     ip = undefined,
+  }: {
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    nameFirst: string & e.Body
+    nameLast: string & e.Body
+    email: string & e.Body
+    language?: string & e.Body
+    attributes?: Record<string, string> & e.Body
+    ip?: string & e.Request<'ip'>
   }) {
     const geo = this.getService('geo') as unknown as
       GeoServiceContract | undefined

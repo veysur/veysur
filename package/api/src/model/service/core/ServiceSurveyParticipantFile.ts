@@ -23,6 +23,7 @@ import {
   GenerateUploadUrlResult,
 } from './ServiceFile/ServiceFileUpload'
 import { FileReference } from './ServiceFile/FileReference'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
 /**
  * Participant-facing file upload for `fileUpload` question answers.
@@ -33,6 +34,7 @@ import { FileReference } from './ServiceFile/FileReference'
  * request body — mirroring `ServiceSurveyParticipantResponse`. A file can
  * only be uploaded against, or confirmed for, the caller's own in-progress
  * response for the survey their JWT names.
+ * @endpoints surveyParticipantFile
  */
 export class ServiceSurveyParticipantFile extends Service {
   constructor() {
@@ -83,6 +85,10 @@ export class ServiceSurveyParticipantFile extends Service {
    * (created via a prior `saveSurveyParticipantResponse` call, even with an
    * empty `answers` object) — this endpoint never creates a response itself,
    * so response creation stays owned by a single code path.
+   * @route post /upload-url
+   * @endpoint postSurveyParticipantFileUploadUrl
+   * @acl participant
+   * @error PlanLimitExceededError 402
    */
   async generateUploadUrl({
     filename,
@@ -94,14 +100,14 @@ export class ServiceSurveyParticipantFile extends Service {
     requestProto,
     aclContext,
   }: {
-    filename: string
-    fileHash: string
-    fileSize: number
-    mimeType: string
-    questionCode: string
-    requestHost?: string
-    requestProto?: string
-    aclContext: AclContext & Record<string, unknown>
+    filename: string & e.Body
+    fileHash: string & e.Body
+    fileSize: number & e.Body
+    mimeType: string & e.Body
+    questionCode: string & e.Body
+    requestHost?: string & e.Header<'X-Forwarded-Host'>
+    requestProto?: string & e.Header<'X-Forwarded-Proto'>
+    aclContext: AclContext & Record<string, unknown> & e.AclContext
   }): Promise<GenerateUploadUrlResult> {
     const { surveyId, snapshotId, projectId } = aclContext as {
       surveyId: string
@@ -182,13 +188,16 @@ export class ServiceSurveyParticipantFile extends Service {
    * the caller's own response before delegating to the shared confirm logic
    * — a participant must never be able to confirm (and thereby reference)
    * a file uploaded against someone else's response.
+   * @route post /:fileId/confirm
+   * @endpoint confirmSurveyParticipantFileUpload
+   * @acl participant
    */
   async confirmUpload({
     fileId,
     aclContext,
   }: {
-    fileId: string
-    aclContext: AclContext & Record<string, unknown>
+    fileId: string & e.Param
+    aclContext: AclContext & Record<string, unknown> & e.AclContext
   }) {
     const { surveyId, projectId } = aclContext as {
       surveyId: string

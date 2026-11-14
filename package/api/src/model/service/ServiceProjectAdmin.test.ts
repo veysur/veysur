@@ -1,3 +1,4 @@
+import type { ConfigJwt } from 'model/entity/ConfigJwt'
 import { ServerErrorForbidden, ServerErrorNotFound } from '@datacapy/server'
 import { ServiceProjectAdmin } from './ServiceProjectAdmin'
 import { ServiceEmailDomainCheck } from './ServiceEmailDomainCheck'
@@ -344,6 +345,7 @@ describe('ServiceProjectAdmin', () => {
       nameFirst: 'New',
       nameLast: 'Member',
       password: 'A-valid-password-1',
+      jwtConfig: {} as ConfigJwt,
       ...overrides,
     })
 
