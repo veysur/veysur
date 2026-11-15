@@ -1,5 +1,13 @@
 # veysur-api
 
+## 0.14.0
+
+### Patch Changes
+
+- 7e15b11: Stop the event-log Redis flush scanning the whole keyspace. Write-ahead log entries are now tracked in a `wal:index` sorted set, so the flush and startup recovery cost does not grow with the number of keys in Redis. This also fixes the key-prefix mismatch that stopped the old scan from finding any entries. Dead-letter entries now expire after `DLQ_TTL_SECONDS` (default 7 days).
+- Updated dependencies [8891a06]
+  - veysur-common@0.14.0
+
 ## 0.13.1
 
 ### Patch Changes

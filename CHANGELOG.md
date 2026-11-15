@@ -5,6 +5,16 @@ released together under a single version number (see `.changeset/README.md`). Th
 the canonical release history; the identical entry is duplicated into each package's own
 `CHANGELOG.md` by [Changesets](https://github.com/changesets/changesets).
 
+## 0.14.0
+
+### Minor Changes
+
+- 8891a06: Generate the `ProjectAdmin` and `SettingProject` schemas from tagged interfaces, alongside the `EmailTemplate`, `DataTransferJob` and `UserClient` pilot. The generated `*.schema.ts` files are not edited by hand; `pnpm gen` rewrites them and `pnpm lint` fails if they are stale.
+
+### Patch Changes
+
+- 7e15b11: Stop the event-log Redis flush scanning the whole keyspace. Write-ahead log entries are now tracked in a `wal:index` sorted set, so the flush and startup recovery cost does not grow with the number of keys in Redis. This also fixes the key-prefix mismatch that stopped the old scan from finding any entries. Dead-letter entries now expire after `DLQ_TTL_SECONDS` (default 7 days).
+
 ## 0.13.1
 
 ### Patch Changes

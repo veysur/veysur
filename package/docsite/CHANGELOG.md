@@ -1,5 +1,11 @@
 # veysur-docsite
 
+## 0.14.0
+
+### Patch Changes
+
+- veysur-theme@0.14.0
+
 ## 0.13.1
 
 ### Patch Changes
