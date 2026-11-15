@@ -33,7 +33,9 @@ describe('ServiceSurvey.create section seeding', () => {
       .mockImplementation(((name: string) =>
         name === 'survey' ? repoSurvey : {}) as typeof service.getRepo)
 
-    patchSpy = jest.spyOn(service, 'patch').mockResolvedValue(undefined)
+    patchSpy = jest
+      .spyOn(service, 'patchInContext')
+      .mockResolvedValue(undefined)
 
     Object.defineProperty(service, 'modelManager', {
       value: {
@@ -153,7 +155,7 @@ describe('ServiceSurvey template delegation', () => {
   })
 
   test('listTemplates returns the template service list', () => {
-    expect(service.listTemplates()).toEqual([{ id: 't' }])
+    expect(service.listTemplates({ projectId: 'p1' })).toEqual([{ id: 't' }])
   })
 
   test('create with a templateId delegates to the template service', async () => {
@@ -186,13 +188,13 @@ describe('ServiceSurvey.patch realtime', () => {
   })
 
   test('notifies the survey room after applying patches', async () => {
-    await service.patch({
+    await service.patchInContext({
       surveyId: 's1',
       projectId: 'p1',
       patches: [],
       originClientId: 'c1',
       aclContext,
-      context: {},
+      context: {} as never,
     })
 
     expect(realtime.emitSurveyChanged).toHaveBeenCalledWith('p1', {

@@ -5,6 +5,7 @@ import {
   ServerErrorBadRequest,
 } from '@datacapy/server'
 import {
+  SurveyResponse,
   SurveyResponseValidator,
   SurveySnapshot,
   anonymisedTimestamp,
@@ -22,11 +23,14 @@ import { assertBotVerified } from 'model/service/botProtection'
 import { contextForProject } from 'common'
 import type { RedisTwoTierCache } from 'service/cache/RedisTwoTierCache'
 import { createRedisTwoTierCache } from 'service/cache/createRedisTwoTierCache'
+import { AclContext } from 'model/entity/AclContext'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
 const SNAPSHOT_CACHE_TTL_MS = 10 * 60 * 1000
 const SNAPSHOT_CACHE_TTL_SECONDS = 10 * 60
 const SNAPSHOT_CACHE_MAX_ENTRIES = 50
 
+/** @endpoints surveyParticipantResponse */
 export class ServiceSurveyParticipantResponse extends Service {
   private snapshotCache?: Promise<RedisTwoTierCache<SurveySnapshot>>
 
@@ -52,7 +56,16 @@ export class ServiceSurveyParticipantResponse extends Service {
     _projectId: string,
   ): Promise<void> {}
 
-  async get({ aclContext }) {
+  /**
+   * @route get /:surveyId
+   * @acl participant
+   */
+  async get({
+    aclContext,
+  }: {
+    surveyId?: string & e.Param
+    aclContext: AclContext & e.AclContext
+  }) {
     const { surveyId, snapshotId, projectId } = aclContext
 
     const context = contextForProject(projectId)
@@ -72,7 +85,25 @@ export class ServiceSurveyParticipantResponse extends Service {
     return (response && { response }) || null
   }
 
-  async save({ response, aclContext, ip = null, referrerUrl = null }) {
+  /**
+   * @route post /:surveyId
+   * @acl participant
+   * @error PlanLimitExceededError 402
+   */
+  async save({
+    response,
+    aclContext,
+    ip = null,
+    referrerUrl = null,
+  }: {
+    surveyId?: string & e.Param
+    response: Partial<Omit<SurveyResponse, 'answers'>> & {
+      answers?: Record<string, unknown>
+    } & e.Body
+    aclContext: AclContext & e.AclContext
+    ip?: string & e.Request<'ip'>
+    referrerUrl?: string & e.Header<'Referer'>
+  }) {
     const {
       surveyId,
       snapshotId,

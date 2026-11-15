@@ -1,7 +1,10 @@
 import { Service, ServerErrorUnauthorized } from '@datacapy/server'
+import type { tagsEndpoint as e } from '@datacapy/server'
 import * as bcryptjs from 'bcryptjs'
 
+import { BotCheck } from 'veysur-common'
 import { RepoUser, ServiceProject } from 'model'
+import type { ConfigJwt } from 'model/entity/ConfigJwt'
 import { ErrorRef } from 'model/common'
 
 import { ServiceBotProtection } from './ServiceBotProtection'
@@ -18,6 +21,23 @@ const userPopulate = {
   projectAdmin: true,
 }
 
+export interface LoginRequest {
+  email: string & e.Body
+  password: string & e.Body
+  botCheck?: BotCheck & e.Body
+  ip?: string & e.Request<'ip'>
+  clientId?: string & e.Header<'Client-Id'>
+  userAgent?: string & e.Header<'User-Agent'>
+  deviceName?: string & e.Header<'Device-Name'>
+  deviceSystem?: string & e.Header<'Device-System'>
+  deviceSystemVersion?: string & e.Header<'Device-System-Version'>
+  buildVersion?: string & e.Header<'Build-Version'>
+  buildNumber?: string & e.Header<'Build-Number'>
+  notificationToken?: string & e.Header<'Notification-Token'>
+  jwtConfig: ConfigJwt & e.Config<'model.app.jwt'>
+}
+
+/** @endpoints authEmailPassword */
 export class ServiceAuthEmailPassword extends Service {
   constructor() {
     super({
@@ -25,8 +45,13 @@ export class ServiceAuthEmailPassword extends Service {
     })
   }
 
-  /** The public login: checks the bot check, then authenticates. */
-  async login(requestArgs) {
+  /**
+   * The public login: checks the bot check, then authenticates.
+   *
+   * @route post /login
+   * @acl public
+   */
+  async login(requestArgs: LoginRequest) {
     await this.getService<ServiceBotProtection>(
       'botProtection',
     ).assertAccountBotCheck(requestArgs.botCheck)
@@ -37,7 +62,7 @@ export class ServiceAuthEmailPassword extends Service {
    * Authenticate with no bot check, for a caller that has just created the
    * account itself (signup, invite acceptance) and checked it already.
    */
-  async authenticate(requestArgs) {
+  async authenticate(requestArgs: LoginRequest & { deviceId?: string }) {
     const repoUser = this.getRepo<RepoUser>('user')
     const {
       email,

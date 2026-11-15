@@ -5,7 +5,9 @@ import type { Response } from 'express'
 
 import { RepoSurveyParticipant, RepoSurveyParticipantAttribute } from 'model'
 import { streamCsv, generateCsvFilename, contextForProject } from 'common'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
+/** @endpoints surveyParticipantExport path=/survey-participant */
 export class ServiceSurveyParticipantExport extends Service {
   private readonly HEADERS = [
     'First Name',
@@ -41,6 +43,8 @@ export class ServiceSurveyParticipantExport extends Service {
   /**
    * Export participants to CSV with streaming
    * Supports exporting all participants or a subset by IDs
+   * @route get /:surveyId/export
+   * @acl projectAdmin
    */
   async export({
     surveyId,
@@ -48,10 +52,10 @@ export class ServiceSurveyParticipantExport extends Service {
     ids,
     response,
   }: {
-    surveyId: string
-    projectId: string
-    ids?: string
-    response: Response
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    ids?: string & e.Query
+    response: Response & e.Container<'response'>
   }): Promise<void> {
     const context = contextForProject(projectId)
     const repoSurveyParticipant =

@@ -13,6 +13,7 @@ import { IMAGE_SET_ID_PATTERN } from './constants'
 
 import { StorageConfig, getStorageConfig } from './FileS3Config'
 import { FileReference } from './FileReference'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
 export interface SoftDeleteResult {
   success: boolean
@@ -37,6 +38,7 @@ export interface HardDeleteResult {
   s3Errors?: Array<{ fileId: string; error: string }>
 }
 
+/** @endpoints fileDeletion path=/file */
 export class ServiceFileDeletion extends Service {
   constructor() {
     super({ name: 'fileDeletion' })
@@ -53,14 +55,61 @@ export class ServiceFileDeletion extends Service {
   }
 
   /**
+   * Soft-delete all file records for an image set (3 variants: edited, original, thumb)
+   * S3 hard-delete is handled by the background cleanup job after 1 month
+   * @route delete /image-set
+   * @acl projectAdmin
+   */
+  async deleteImageSet({
+    projectId,
+    imageSetId,
+  }: {
+    projectId: string & e.Header<'X-Project-Id'>
+    imageSetId: string & e.Body
+    surveyId?: string & e.Body
+    responseId?: string & e.Body
+    fileContext?: ('project' | 'survey' | 'response' | 'temp' | 'import') &
+      e.Body
+  }): Promise<{ success: boolean; deletedCount: number }> {
+    if (!IMAGE_SET_ID_PATTERN.test(imageSetId)) {
+      throw new ServerErrorBadRequest('Invalid imageSetId format')
+    }
+
+    const context = contextForProject(projectId)
+    const repoFile = this.getRepo<RepoFile>('file')
+
+    const deletedCount = await repoFile.count(
+      { imageSetId, deletedAt: null },
+      { context },
+    )
+
+    if (deletedCount > 0) {
+      const deletedAt = new Date()
+      await repoFile.updateMany(
+        { imageSetId, deletedAt: null },
+        { $set: { deletedAt: deletedAt, updatedAt: deletedAt } },
+        { context },
+      )
+    }
+
+    if (deletedCount > 0) {
+      await this.onProjectStorageChanged(projectId)
+    }
+
+    return { success: true, deletedCount }
+  }
+
+  /**
    * Soft delete file (mark as deleted without removing from storage)
+   * @route delete /:fileId
+   * @acl projectAdmin
    */
   async delete({
     fileId,
     projectId,
   }: {
-    fileId: string
-    projectId: string
+    fileId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
   }): Promise<SoftDeleteResult> {
     const context = contextForProject(projectId)
     const repoFile = this.getRepo<RepoFile>('file')
@@ -125,48 +174,6 @@ export class ServiceFileDeletion extends Service {
       file: new File({ ...file, deletedAt: deletedAt }),
       softDeleted: true,
     }
-  }
-
-  /**
-   * Soft-delete all file records for an image set (3 variants: edited, original, thumb)
-   * S3 hard-delete is handled by the background cleanup job after 1 month
-   */
-  async deleteImageSet({
-    projectId,
-    imageSetId,
-  }: {
-    projectId: string
-    imageSetId: string
-    surveyId?: string
-    responseId?: string
-    fileContext?: 'project' | 'survey' | 'response' | 'temp' | 'import'
-  }): Promise<{ success: boolean; deletedCount: number }> {
-    if (!IMAGE_SET_ID_PATTERN.test(imageSetId)) {
-      throw new ServerErrorBadRequest('Invalid imageSetId format')
-    }
-
-    const context = contextForProject(projectId)
-    const repoFile = this.getRepo<RepoFile>('file')
-
-    const deletedCount = await repoFile.count(
-      { imageSetId, deletedAt: null },
-      { context },
-    )
-
-    if (deletedCount > 0) {
-      const deletedAt = new Date()
-      await repoFile.updateMany(
-        { imageSetId, deletedAt: null },
-        { $set: { deletedAt: deletedAt, updatedAt: deletedAt } },
-        { context },
-      )
-    }
-
-    if (deletedCount > 0) {
-      await this.onProjectStorageChanged(projectId)
-    }
-
-    return { success: true, deletedCount }
   }
 
   /**
@@ -244,15 +251,17 @@ export class ServiceFileDeletion extends Service {
   /**
    * Hard delete files from storage and database
    * Deletes files with deleted timestamp older than specified date
+   * @route delete /hard{/:olderThan}
+   * @acl projectAdmin
    */
   async hardDelete({
     projectId,
     olderThan,
     fileContext,
   }: {
-    projectId: string
-    olderThan?: string
-    fileContext?: InstanceType<typeof File>['fileContext']
+    projectId: string & e.Header<'X-Project-Id'>
+    olderThan?: string & e.Param
+    fileContext?: InstanceType<typeof File>['fileContext'] & e.Query
   }): Promise<HardDeleteResult> {
     const context = contextForProject(projectId)
     const repoFile = this.getRepo<RepoFile>('file')

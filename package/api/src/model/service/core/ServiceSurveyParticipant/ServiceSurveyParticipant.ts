@@ -28,9 +28,11 @@ import { findLiveSuppression, HARD_SUPPRESSION_REASONS } from 'model/common'
 import { AclConditions, AclContext } from 'model/entity/AclContext'
 import { ParticipantToken } from './ParticipantToken'
 import { EmailVerifyToken } from './EmailVerifyToken'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
 type SurveyParticipantInput = Partial<PropsOf<SurveyParticipant>>
 
+/** @endpoints surveyParticipant path=/survey-participant */
 export class ServiceSurveyParticipant extends Service {
   constructor() {
     super({ name: 'surveyParticipant' })
@@ -39,6 +41,8 @@ export class ServiceSurveyParticipant extends Service {
   /**
    * Create a new participant
    * Generates a token if not provided, validates uniqueness if provided
+   * @route post /:surveyId
+   * @acl projectAdmin
    */
   async create({
     participant,
@@ -46,10 +50,10 @@ export class ServiceSurveyParticipant extends Service {
     projectId,
     aclContext,
   }: {
-    participant: SurveyParticipantInput
-    surveyId: string
-    projectId: string
-    aclContext: AclContext
+    participant: SurveyParticipantInput & e.Body
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    aclContext: AclContext & e.AclContext
   }): Promise<SurveyParticipantInput> {
     const context = contextForProject(projectId)
     const repoSurveyParticipant =
@@ -97,50 +101,19 @@ export class ServiceSurveyParticipant extends Service {
   }
 
   /**
-   * Get a single participant by ID
-   */
-  async getOne({
-    participantId,
-    surveyId,
-    projectId,
-    aclConditions: _aclConditions,
-  }: {
-    participantId: string
-    surveyId: string
-    projectId: string
-    aclConditions: AclConditions
-  }): Promise<
-    Omit<SurveyParticipant, 'emailVerifyToken' | 'completionStatus'>
-  > {
-    const context = contextForProject(projectId)
-    const repoSurveyParticipant =
-      this.getRepo<RepoSurveyParticipant>('surveyParticipant')
-
-    const participant = await repoSurveyParticipant.findOne(
-      {
-        _id: participantId,
-        surveyId,
-      },
-      { context },
-    )
-    if (!participant) {
-      throw new ServerErrorNotFound('Survey participant not found')
-    }
-    const { emailVerifyToken: _emailVerifyToken, ...rest } = participant
-    return rest
-  }
-
-  /**
    * Get the requesting participant's own profile and attribute values.
    * Used by the survey-taking client to evaluate display conditions that
    * reference participant data (system fields and custom attributes,
    * including internal ones such as token - internal only means "not shown
    * on the public registration form", not "unusable in conditions").
+   * @route get /:surveyId/me
+   * @acl participant
    */
   async getMe({
     aclContext,
   }: {
-    aclContext: AclContext
+    surveyId?: string & e.Param
+    aclContext: AclContext & e.AclContext
   }): Promise<Pick<
     SurveyParticipant,
     'nameFirst' | 'nameLast' | 'email' | 'language' | 'token' | 'attributes'
@@ -173,7 +146,45 @@ export class ServiceSurveyParticipant extends Service {
   }
 
   /**
+   * Get a single participant by ID
+   * @route get /:surveyId/:participantId
+   * @acl projectAdmin
+   */
+  async getOne({
+    participantId,
+    surveyId,
+    projectId,
+    aclConditions: _aclConditions,
+  }: {
+    participantId: string & e.Param
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    aclConditions: AclConditions & e.AclConditions
+  }): Promise<
+    Omit<SurveyParticipant, 'emailVerifyToken' | 'completionStatus'>
+  > {
+    const context = contextForProject(projectId)
+    const repoSurveyParticipant =
+      this.getRepo<RepoSurveyParticipant>('surveyParticipant')
+
+    const participant = await repoSurveyParticipant.findOne(
+      {
+        _id: participantId,
+        surveyId,
+      },
+      { context },
+    )
+    if (!participant) {
+      throw new ServerErrorNotFound('Survey participant not found')
+    }
+    const { emailVerifyToken: _emailVerifyToken, ...rest } = participant
+    return rest
+  }
+
+  /**
    * Get all participants for a survey with pagination and search
+   * @route get /:surveyId
+   * @acl projectAdmin
    */
   async getAll({
     surveyId,
@@ -183,12 +194,12 @@ export class ServiceSurveyParticipant extends Service {
     search,
     completionStatus,
   }: {
-    surveyId: string
-    projectId: string
-    page: number
-    perPage: number
-    search?: string
-    completionStatus?: CompletionStatus
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    page?: number & e.Query & e.Default<1>
+    perPage?: number & e.Query & e.Default<10>
+    search?: string & e.Query
+    completionStatus?: CompletionStatus & e.Query
   }): Promise<{
     participants: Omit<
       SurveyParticipant,
@@ -321,6 +332,8 @@ export class ServiceSurveyParticipant extends Service {
   /**
    * Update an existing participant
    * Re-generates or validates token if changed
+   * @route put /:surveyId/:participantId
+   * @acl projectAdmin
    */
   async update({
     participantId,
@@ -328,10 +341,10 @@ export class ServiceSurveyParticipant extends Service {
     projectId,
     participant,
   }: {
-    participantId: string
-    surveyId: string
-    projectId: string
-    participant: SurveyParticipantInput
+    participantId: string & e.Param
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    participant: SurveyParticipantInput & e.Body
   }): Promise<boolean> {
     const context = contextForProject(projectId)
     const repoSurveyParticipant =
@@ -438,6 +451,8 @@ export class ServiceSurveyParticipant extends Service {
   /**
    * Delete one or more participants
    * Supports comma-separated IDs for bulk delete
+   * @route delete /:surveyId/:participantId
+   * @acl projectAdmin
    */
   async delete({
     participantId,
@@ -445,10 +460,10 @@ export class ServiceSurveyParticipant extends Service {
     projectId,
     aclConditions: _aclConditions,
   }: {
-    participantId: string
-    surveyId: string
-    projectId: string
-    aclConditions: AclConditions
+    participantId: string & e.Param
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    aclConditions: AclConditions & e.AclConditions
   }): Promise<{ deletedCount: number }> {
     const context = contextForProject(projectId)
     const repoSurveyParticipant =
@@ -485,6 +500,8 @@ export class ServiceSurveyParticipant extends Service {
    * Reset invite status (inviteSentAt + inviteQueuedAt) for one or more participants
    * Supports comma-separated IDs for bulk reset
    * Does not affect bounce/complaint tracking fields
+   * @route put /:surveyId/:participantId/reset-invite-status
+   * @acl projectAdmin
    */
   async resetInviteStatus({
     participantId,
@@ -492,10 +509,10 @@ export class ServiceSurveyParticipant extends Service {
     projectId,
     aclConditions,
   }: {
-    participantId: string
-    surveyId: string
-    projectId: string
-    aclConditions: AclConditions
+    participantId: string & e.Param
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    aclConditions: AclConditions & e.AclConditions
   }): Promise<{ updatedCount: number }> {
     return this.resetEmailStatusField({
       participantId,
@@ -512,6 +529,8 @@ export class ServiceSurveyParticipant extends Service {
    * Reset reminder status (reminderSentAt + reminderQueuedAt) for one or more participants
    * Supports comma-separated IDs for bulk reset
    * Does not affect bounce/complaint tracking fields
+   * @route put /:surveyId/:participantId/reset-reminder-status
+   * @acl projectAdmin
    */
   async resetReminderStatus({
     participantId,
@@ -519,10 +538,10 @@ export class ServiceSurveyParticipant extends Service {
     projectId,
     aclConditions,
   }: {
-    participantId: string
-    surveyId: string
-    projectId: string
-    aclConditions: AclConditions
+    participantId: string & e.Param
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    aclConditions: AclConditions & e.AclConditions
   }): Promise<{ updatedCount: number }> {
     return this.resetEmailStatusField({
       participantId,

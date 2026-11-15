@@ -1,5 +1,6 @@
 import { Service, ServerErrorNotFound } from '@datacapy/server'
-import { Patcher, Survey } from 'veysur-common'
+import { Patch, Patcher, Survey } from 'veysur-common'
+import { AclConditions } from 'model/entity/AclContext'
 import { buildDateRangeQuery, contextForProject } from 'common'
 
 import {
@@ -24,7 +25,10 @@ import { ServiceSettingSurvey } from '../ServiceSettingSurvey'
 import { ServiceSurveyLanguage } from '../ServiceSurveyLanguage'
 import { ServiceSurveyTemplate } from '../ServiceSurveyTemplate'
 import { registerPatchHandlers } from './registerPatchHandlers'
+import { AclContext } from 'model/entity/AclContext'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
+/** @endpoints survey */
 export class ServiceSurvey extends Service {
   constructor() {
     super({
@@ -32,11 +36,33 @@ export class ServiceSurvey extends Service {
     })
   }
 
-  listTemplates() {
+  /**
+   * @route get /template/list
+   * @acl projectAdmin
+   */
+  listTemplates({
+    projectId: _projectId,
+  }: {
+    projectId: string & e.Header<'X-Project-Id'>
+  }) {
     return this.getService<ServiceSurveyTemplate>('surveyTemplate').list()
   }
 
-  async create({ survey, projectId, aclContext, templateId = undefined }) {
+  /**
+   * @route post /
+   * @acl projectAdmin
+   */
+  async create({
+    survey,
+    projectId,
+    aclContext,
+    templateId = undefined,
+  }: {
+    survey: Partial<Survey> & { createdById?: string; name?: string } & e.Body
+    projectId: string & e.Header<'X-Project-Id'>
+    aclContext: AclContext & e.AclContext
+    templateId?: string & e.Body
+  }) {
     if (templateId) {
       return this.getService<ServiceSurveyTemplate>(
         'surveyTemplate',
@@ -73,7 +99,7 @@ export class ServiceSurvey extends Service {
 
     await repo.transaction(context, async (context) => {
       await repo.create(survey, { context })
-      await this.patch({
+      await this.patchInContext({
         surveyId: survey._id,
         projectId,
         patches: [
@@ -130,44 +156,10 @@ export class ServiceSurvey extends Service {
     return survey
   }
 
-  async getOne({
-    surveyId,
-    aclConditions: _aclConditions,
-    projectId,
-    lang,
-    defaultLang,
-  }) {
-    const context = contextForProject(projectId)
-    const repo = this.getRepo<RepoSurvey>('survey')
-    let survey = await repo.findOne(
-      {
-        _id: surveyId,
-      },
-      {
-        context,
-        populate: {
-          elements: true,
-          sections: true,
-        },
-      },
-    )
-    if (!survey) {
-      throw new ServerErrorNotFound('Survey not found')
-    }
-    survey = survey.applySortOrder()
-
-    const activeLang = lang || 'en'
-    const fallbackLang = defaultLang || activeLang
-    const serviceSurveyLanguage =
-      this.getService<ServiceSurveyLanguage>('surveyLanguage')
-    return serviceSurveyLanguage.getSurveyWithLanguages(
-      survey,
-      projectId,
-      activeLang,
-      fallbackLang,
-    )
-  }
-
+  /**
+   * @route get /
+   * @acl projectAdmin
+   */
   async getAll({
     projectId,
     page,
@@ -176,6 +168,14 @@ export class ServiceSurvey extends Service {
     startDate,
     endDate,
     dateField,
+  }: {
+    projectId: string & e.Header<'X-Project-Id'>
+    page?: number & e.Query & e.Default<1>
+    perPage?: number & e.Query & e.Default<20>
+    search?: string & e.Query
+    startDate?: string & e.Query
+    endDate?: string & e.Query
+    dateField?: string & e.Query & e.Default<'createdAt'>
   }) {
     const context = contextForProject(projectId)
 
@@ -226,13 +226,95 @@ export class ServiceSurvey extends Service {
     return { surveys, surveyCount }
   }
 
+  /**
+   * @route get /:surveyId
+   * @acl projectAdmin
+   */
+  async getOne({
+    surveyId,
+    aclConditions: _aclConditions,
+    projectId,
+    lang,
+    defaultLang,
+  }: {
+    surveyId: string & e.Param
+    aclConditions?: AclConditions & e.AclConditions
+    projectId: string & e.Header<'X-Project-Id'>
+    lang?: string & e.Query
+    defaultLang?: string & e.Query
+  }) {
+    const context = contextForProject(projectId)
+    const repo = this.getRepo<RepoSurvey>('survey')
+    let survey = await repo.findOne(
+      {
+        _id: surveyId,
+      },
+      {
+        context,
+        populate: {
+          elements: true,
+          sections: true,
+        },
+      },
+    )
+    if (!survey) {
+      throw new ServerErrorNotFound('Survey not found')
+    }
+    survey = survey.applySortOrder()
+
+    const activeLang = lang || 'en'
+    const fallbackLang = defaultLang || activeLang
+    const serviceSurveyLanguage =
+      this.getService<ServiceSurveyLanguage>('surveyLanguage')
+    return serviceSurveyLanguage.getSurveyWithLanguages(
+      survey,
+      projectId,
+      activeLang,
+      fallbackLang,
+    )
+  }
+
+  /**
+   * @route patch /:surveyId
+   * @acl projectAdmin
+   */
   async patch({
     surveyId,
     projectId,
     patches,
     originClientId = undefined,
     aclContext,
+  }: {
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    patches: Patch[] & e.Body
+    originClientId?: string & e.Header<'X-Client-Id'>
+    aclContext: AclContext & e.AclContext
+  }) {
+    return this.patchInContext({
+      surveyId,
+      projectId,
+      patches,
+      originClientId,
+      aclContext,
+    })
+  }
+
+  /** `patch` inside an already open transaction context (not a request input). */
+  async patchInContext({
+    surveyId,
+    projectId,
+    patches,
+    originClientId = undefined,
+    aclContext,
     context,
+  }: {
+    surveyId: string
+    projectId: string
+    patches: Patch[]
+    originClientId?: string
+    aclContext: AclContext
+    context?: ReturnType<typeof contextForProject>
   }) {
     context = context ?? contextForProject(projectId)
     const repos = {
@@ -290,7 +372,9 @@ export class ServiceSurvey extends Service {
     // Opportunistic cleanup (1/10 chance) of orphaned question stats
     const hasStatsQuestionsPatch = patches.some(
       (patch) =>
-        patch.type === 'survey' && patch.data?.stats?.questions !== undefined,
+        patch.type === 'survey' &&
+        (patch.data?.stats as { questions?: unknown } | undefined)
+          ?.questions !== undefined,
     )
     if (hasStatsQuestionsPatch && Math.random() < 0.1) {
       const serviceSettingSurvey =
@@ -312,11 +396,20 @@ export class ServiceSurvey extends Service {
     return true
   }
 
+  /**
+   * @route delete /:surveyId
+   * @acl projectAdmin
+   */
   async delete({
     surveyId,
     projectId,
     aclConditions: _aclConditions,
     aclContext,
+  }: {
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    aclConditions?: AclConditions & e.AclConditions
+    aclContext: AclContext & e.AclContext
   }) {
     const context = contextForProject(projectId)
 

@@ -8,7 +8,10 @@ import { User, StringRandom } from 'veysur-common'
 import { RepoUser, ServiceUser, ServiceEmail } from 'model'
 import { ErrorRef } from 'model/common'
 import { buildAppUrl } from 'config/buildAppUrl'
+import { AclContext } from 'model/entity/AclContext'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
+/** @endpoints verifyEmail */
 export class ServiceVerifyEmail extends Service {
   constructor() {
     super({
@@ -102,7 +105,11 @@ export class ServiceVerifyEmail extends Service {
     return verifyToken
   }
 
-  async send({ aclContext }) {
+  /**
+   * @route get /send
+   * @acl authedAdmin
+   */
+  async send({ aclContext }: { aclContext: AclContext & e.AclContext }) {
     const repoUser = this.getRepo<RepoUser>('user')
     const user = await repoUser.findOne({
       _id: aclContext.jwt._id,
@@ -113,7 +120,19 @@ export class ServiceVerifyEmail extends Service {
     return this.sendForUser(user)
   }
 
-  async verify({ email, token, aclContext }) {
+  /**
+   * @route post /verify
+   * @acl public
+   */
+  async verify({
+    email,
+    token,
+    aclContext,
+  }: {
+    email: string & e.Body
+    token: string & e.Body
+    aclContext: AclContext & e.AclContext
+  }) {
     if (!email) {
       throw new ServerErrorUnauthorized('No email address specified')
     }

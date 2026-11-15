@@ -25,10 +25,10 @@ export type AttributeBatchChange = {
 }
 
 export type BatchSaveParams = {
-  surveyId: string
-  projectId: string
-  changes: AttributeBatchChange[]
-  orderedAttributeNames?: string[]
+  surveyId: string & e.Param
+  projectId: string & e.Header<'X-Project-Id'>
+  changes: AttributeBatchChange[] & e.Body
+  orderedAttributeNames?: string[] & e.Body
 }
 
 import {
@@ -37,18 +37,24 @@ import {
   RepoSurveyParticipantAttributeLanguage,
 } from 'model'
 import { contextForProject } from 'common'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
+/** @endpoints surveyParticipantAttribute path=/survey-participant-attribute */
 export class ServiceSurveyParticipantAttribute extends Service {
   constructor() {
     super({ name: 'surveyParticipantAttribute' })
   }
 
+  /**
+   * @route get /:surveyId
+   * @acl projectAdmin
+   */
   async list({
     surveyId,
     projectId,
   }: {
-    surveyId: string
-    projectId: string
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
   }): Promise<{
     systemAttributes: Array<{ name: string } & Record<string, unknown>>
     attributes: Array<
@@ -102,14 +108,18 @@ export class ServiceSurveyParticipantAttribute extends Service {
     }
   }
 
+  /**
+   * @route post /:surveyId
+   * @acl projectAdmin
+   */
   async create({
     surveyId,
     projectId,
     attribute,
   }: {
-    surveyId: string
-    projectId: string
-    attribute: Partial<SurveyParticipantAttributeDefinition>
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    attribute: Partial<SurveyParticipantAttributeDefinition> & e.Body
   }): Promise<SurveyParticipantAttributeDefinition> {
     const context = contextForProject(projectId)
     const repoAttribute = this.getRepo<RepoSurveyParticipantAttribute>(
@@ -330,14 +340,18 @@ export class ServiceSurveyParticipantAttribute extends Service {
     return true
   }
 
+  /**
+   * @route delete /:surveyId/:attributeName
+   * @acl projectAdmin
+   */
   async delete({
     surveyId,
     projectId,
     attributeName,
   }: {
-    surveyId: string
-    projectId: string
-    attributeName: string
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    attributeName: string & e.Param
   }): Promise<boolean> {
     const context = contextForProject(projectId)
     const repoAttribute = this.getRepo<RepoSurveyParticipantAttribute>(
@@ -382,6 +396,10 @@ export class ServiceSurveyParticipantAttribute extends Service {
     return true
   }
 
+  /**
+   * @route patch /:surveyId
+   * @acl projectAdmin
+   */
   async batchSave({
     surveyId,
     projectId,

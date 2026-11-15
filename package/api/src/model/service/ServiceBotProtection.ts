@@ -26,6 +26,7 @@ import {
  * Bot checks for the survey start step. The project picks a provider and its
  * keys (`settingProject.botProtection`); a survey opts in with `access.botProtection`.
  * Design: docs/bot-protection.md.
+ * @endpoints botProtection
  */
 export class ServiceBotProtection extends Service {
   private registry: BotProtectionVerifierRegistry | null = null
@@ -52,6 +53,8 @@ export class ServiceBotProtection extends Service {
   /**
    * The challenge an account form (login, signup) solves, or `enabled: false`
    * when the deployment has turned the check off.
+   * @route post /challenge
+   * @acl public
    */
   issueAccountChallenge(): { enabled: boolean } & Partial<SimpleChallenge> {
     if (!this.isAccountCheckEnabled()) return { enabled: false }

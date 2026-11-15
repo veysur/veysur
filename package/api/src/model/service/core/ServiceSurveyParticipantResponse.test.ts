@@ -83,7 +83,7 @@ describe('ServiceSurveyParticipantResponse', () => {
           response: { answers: { q1: 'a' } },
           aclContext: {
             ...baseAclContext(),
-            jwt: { botRequired: true, botVerified: false },
+            jwt: { _id: 'u1', botRequired: true, botVerified: false },
           },
         }),
       ).rejects.toMatchObject({ ref: 'ERROR_BOT_CHECK_FAILED' })
@@ -116,7 +116,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       mockRepoSurveyResponse.findOne.mockResolvedValue(null)
 
       const result = await service.save({
-        response: { answers: { q1: 'a' }, completedAt: false },
+        response: { answers: { q1: 'a' }, completedAt: null },
         aclContext: baseAclContext(),
       })
 
@@ -130,7 +130,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       mockRepoSurveyResponse.findOne.mockResolvedValue(null)
 
       await service.save({
-        response: { answers: {}, completedAt: false },
+        response: { answers: {}, completedAt: null },
         aclContext: baseAclContext(),
       })
 
@@ -144,7 +144,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       mockRepoSurveyResponse.findOne.mockResolvedValue(null)
 
       await service.save({
-        response: { answers: {}, completedAt: false },
+        response: { answers: {}, completedAt: null },
         aclContext: baseAclContext(),
       })
 
@@ -157,7 +157,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       mockRepoSurveyResponse.findOne.mockResolvedValue(null)
 
       const result = await service.save({
-        response: { answers: { q1: 'a' }, completedAt: false },
+        response: { answers: { q1: 'a' }, completedAt: null },
         aclContext: baseAclContext(),
       })
 
@@ -174,7 +174,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       })
 
       const result = await service.save({
-        response: { answers: { q1: 'a' }, completedAt: false },
+        response: { answers: { q1: 'a' }, completedAt: null },
         aclContext: baseAclContext(),
       })
 
@@ -191,7 +191,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       })
 
       const result = await service.save({
-        response: { answers: { q1: 'a', q2: 'b' }, completedAt: false },
+        response: { answers: { q1: 'a', q2: 'b' }, completedAt: null },
         aclContext: baseAclContext(),
       })
 
@@ -204,7 +204,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       mockRepoSurveyResponse.findOne.mockResolvedValue(null)
 
       const result = await service.save({
-        response: { answers: {}, completedAt: false },
+        response: { answers: {}, completedAt: null },
         aclContext: baseAclContext(),
       })
 
@@ -217,7 +217,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       mockRepoSurveyResponse.findOne.mockResolvedValue(null)
 
       await service.save({
-        response: { answers: { q1: 'a' }, completedAt: false },
+        response: { answers: { q1: 'a' }, completedAt: null },
         aclContext: baseAclContext(),
       })
 
@@ -246,7 +246,7 @@ describe('ServiceSurveyParticipantResponse', () => {
 
       await expect(
         service.save({
-          response: { answers: { q1: 'a' }, completedAt: true },
+          response: { answers: { q1: 'a' }, completedAt: new Date() },
           aclContext: baseAclContext(),
         }),
       ).rejects.toThrow('limit exceeded')
@@ -261,7 +261,7 @@ describe('ServiceSurveyParticipantResponse', () => {
 
       await expect(
         service.save({
-          response: { answers: {}, completedAt: true }, // missing required q1
+          response: { answers: {}, completedAt: new Date() }, // missing required q1
           aclContext: baseAclContext(),
         }),
       ).rejects.toMatchObject({ ref: 'SURVEY_RESPONSE_VALIDATION' })
@@ -274,7 +274,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       mockRepoSurveyResponse.findOne.mockResolvedValue(null)
 
       const result = await service.save({
-        response: { answers: { q1: 'a' }, completedAt: true },
+        response: { answers: { q1: 'a' }, completedAt: new Date() },
         aclContext: baseAclContext(),
       })
 
@@ -308,7 +308,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       )
 
       const result = await service.save({
-        response: { answers: { q1: 'a' }, completedAt: true },
+        response: { answers: { q1: 'a' }, completedAt: new Date() },
         aclContext: baseAclContext(),
       })
 
@@ -325,7 +325,7 @@ describe('ServiceSurveyParticipantResponse', () => {
 
       await expect(
         service.save({
-          response: { answers: { q1: 'a' }, completedAt: true },
+          response: { answers: { q1: 'a' }, completedAt: new Date() },
           aclContext: baseAclContext(),
         }),
       ).rejects.toMatchObject({ ref: 'SURVEY_COMPLETED' })
@@ -344,7 +344,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       await service.save({
         response: {
           answers: { q1: 'a' },
-          completedAt: true,
+          completedAt: new Date(),
           randomSeeds: { groupB: 222 },
         },
         aclContext: baseAclContext(),
@@ -365,7 +365,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       await service.save({
         response: {
           answers: { q1: 'a' },
-          completedAt: true,
+          completedAt: new Date(),
           participantId: 'attacker-supplied-id',
         },
         aclContext: baseAclContext(),
@@ -383,7 +383,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       })
 
       await service.save({
-        response: { answers: { q1: 'a' }, completedAt: true },
+        response: { answers: { q1: 'a' }, completedAt: new Date() },
         aclContext: baseAclContext(), // publicationId: 'pub_1'
       })
 
@@ -408,7 +408,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       mockRepoSurveyResponse.findOne.mockResolvedValue(null)
 
       const result = await service.save({
-        response: { answers: { q1: 'a' }, completedAt: true },
+        response: { answers: { q1: 'a' }, completedAt: new Date() },
         aclContext: baseAclContext(),
       })
 
@@ -426,7 +426,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       })
 
       await service.save({
-        response: { answers: { q1: 'a' }, completedAt: true },
+        response: { answers: { q1: 'a' }, completedAt: new Date() },
         aclContext: baseAclContext(),
       })
 
@@ -442,7 +442,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       mockRepoSurveyResponse.findOne.mockResolvedValue(null)
 
       await service.save({
-        response: { answers: { q1: 'a' }, completedAt: true },
+        response: { answers: { q1: 'a' }, completedAt: new Date() },
         aclContext: baseAclContext(),
       })
 
@@ -466,7 +466,7 @@ describe('ServiceSurveyParticipantResponse', () => {
 
       await expect(
         service.save({
-          response: { answers: { q1: 'a' }, completedAt: true },
+          response: { answers: { q1: 'a' }, completedAt: new Date() },
           aclContext: baseAclContext(),
         }),
       ).rejects.toMatchObject({ ref: 'SURVEY_COMPLETED' })
@@ -488,7 +488,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       mockRepoSurveyResponse.findOne.mockResolvedValue(null)
 
       const result = await service.save({
-        response: { answers: {}, completedAt: false },
+        response: { answers: {}, completedAt: null },
         aclContext: baseAclContext(),
         ip: '8.8.8.8',
         referrerUrl: 'https://example.com/landing',
@@ -505,7 +505,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       mockRepoSurveyResponse.findOne.mockResolvedValue(null)
 
       const result = await service.save({
-        response: { answers: {}, completedAt: false },
+        response: { answers: {}, completedAt: null },
         aclContext: baseAclContext(),
         ip: '8.8.8.8',
       })
@@ -520,7 +520,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       mockRepoSurveyResponse.findOne.mockResolvedValue(null)
 
       const result = await service.save({
-        response: { answers: {}, completedAt: false },
+        response: { answers: {}, completedAt: null },
         aclContext: baseAclContext(),
         ip: '8.8.8.8',
       })
@@ -535,7 +535,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       mockRepoSurveyResponse.findOne.mockResolvedValue(null)
 
       const result = await service.save({
-        response: { answers: {}, completedAt: false },
+        response: { answers: {}, completedAt: null },
         aclContext: baseAclContext(),
         ip: '8.8.8.8',
       })
@@ -550,7 +550,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       mockRepoSurveyResponse.findOne.mockResolvedValue(null)
 
       const result = await service.save({
-        response: { answers: {}, completedAt: false },
+        response: { answers: {}, completedAt: null },
         aclContext: baseAclContext(),
         referrerUrl: 'https://example.com/landing',
       })
@@ -566,7 +566,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       })
 
       await service.save({
-        response: { answers: { q1: 'a' }, completedAt: false },
+        response: { answers: { q1: 'a' }, completedAt: null },
         aclContext: baseAclContext(),
         ip: '9.9.9.9',
         referrerUrl: 'https://new.example.com',
@@ -603,7 +603,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       mockRepoSurveyResponse.findOne.mockResolvedValue(null)
 
       const result = await service.save({
-        response: { answers: { q1: 'a' }, completedAt: false },
+        response: { answers: { q1: 'a' }, completedAt: null },
         aclContext: anonAclContext(),
         ip: '8.8.8.8',
         referrerUrl: 'https://example.com',
@@ -627,7 +627,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       mockRepoSurveyResponse.findOne.mockResolvedValue(null)
 
       const result = await service.save({
-        response: { answers: { q1: 'a' }, completedAt: true },
+        response: { answers: { q1: 'a' }, completedAt: new Date() },
         aclContext: anonAclContext(),
       })
 
@@ -645,7 +645,7 @@ describe('ServiceSurveyParticipantResponse', () => {
       })
 
       await service.save({
-        response: { answers: { q1: 'a' }, completedAt: true },
+        response: { answers: { q1: 'a' }, completedAt: new Date() },
         aclContext: anonAclContext(),
       })
 
@@ -661,7 +661,7 @@ describe('ServiceSurveyParticipantResponse', () => {
 
       await expect(
         service.save({
-          response: { answers: { q1: 'a' }, completedAt: true },
+          response: { answers: { q1: 'a' }, completedAt: new Date() },
           aclContext: anonAclContext(),
         }),
       ).resolves.toBeDefined()
@@ -681,7 +681,7 @@ describe('ServiceSurveyParticipantResponse', () => {
 
       for (const sessionId of ['s1', 's2', 's3']) {
         await service.save({
-          response: { answers: { q1: 'a' }, completedAt: false },
+          response: { answers: { q1: 'a' }, completedAt: null },
           aclContext: { ...baseAclContext(), participantId: null, sessionId },
         })
       }
@@ -695,7 +695,7 @@ describe('ServiceSurveyParticipantResponse', () => {
 
       for (const projectId of ['proj_1', 'proj_2']) {
         await service.save({
-          response: { answers: {}, completedAt: false },
+          response: { answers: {}, completedAt: null },
           aclContext: { ...baseAclContext(), projectId },
         })
       }
@@ -709,7 +709,7 @@ describe('ServiceSurveyParticipantResponse', () => {
 
       for (let i = 0; i < 2; i++) {
         await service.save({
-          response: { answers: {}, completedAt: false },
+          response: { answers: {}, completedAt: null },
           aclContext: baseAclContext(),
         })
       }
@@ -776,7 +776,7 @@ describe('ServiceSurveyParticipantResponse', () => {
           )
           .mockResolvedValue(undefined)
         await pod.save({
-          response: { answers: { q1: 'a' }, completedAt: true },
+          response: { answers: { q1: 'a' }, completedAt: new Date() },
           aclContext: baseAclContext(),
         })
       }

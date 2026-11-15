@@ -12,6 +12,7 @@ import {
   isMultiPartStatsCompatibleType,
   isRankingStatsCompatibleType,
   isMapStatsCompatibleType,
+  CompletionStatusFilter,
 } from 'veysur-common'
 
 import type {
@@ -42,7 +43,9 @@ import { StatsAggregatorMultiPart } from './StatsAggregatorMultiPart'
 import { StatsAggregatorRanking } from './StatsAggregatorRanking'
 import { StatsAggregatorMap } from './StatsAggregatorMap'
 import { contextForProject } from 'common'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
+/** @endpoints surveyStats */
 export class ServiceSurveyStats extends Service {
   constructor() {
     super({
@@ -50,6 +53,10 @@ export class ServiceSurveyStats extends Service {
     })
   }
 
+  /**
+   * @route get /:surveyId/:snapshotId
+   * @acl projectAdmin
+   */
   async getStats({
     surveyId,
     snapshotId,
@@ -60,6 +67,16 @@ export class ServiceSurveyStats extends Service {
     endDate,
     dateField,
     search,
+  }: {
+    surveyId: string & e.Param
+    snapshotId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    publicationId?: string & e.Query
+    completed?: CompletionStatusFilter & e.Query & e.Default<'all'>
+    startDate?: string & e.Query
+    endDate?: string & e.Query
+    dateField?: string & e.Query & e.Default<'createdAt'>
+    search?: string & e.Query
   }): Promise<SurveyStatsResult> {
     const context = contextForProject(projectId)
 

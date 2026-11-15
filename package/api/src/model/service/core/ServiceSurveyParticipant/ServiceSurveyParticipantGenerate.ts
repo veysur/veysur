@@ -12,7 +12,9 @@ import { AclContext } from 'model/entity/AclContext'
 import { ParticipantToken } from './ParticipantToken'
 import { EmailVerifyToken } from './EmailVerifyToken'
 import { contextForProject } from 'common'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
+/** @endpoints surveyParticipantGenerate path=/survey-participant */
 export class ServiceSurveyParticipantGenerate extends Service {
   private static readonly BATCH_SIZE = 100
   private static readonly MAX_ATTEMPTS = 3
@@ -25,6 +27,8 @@ export class ServiceSurveyParticipantGenerate extends Service {
   /**
    * Generate test participants for a survey
    * Creates participants with sequential naming (Test User 1, Test User 2, etc.)
+   * @route post /:surveyId/generate
+   * @acl projectAdmin
    */
   async generate({
     surveyId,
@@ -32,10 +36,10 @@ export class ServiceSurveyParticipantGenerate extends Service {
     count,
     aclContext,
   }: {
-    surveyId: string
-    projectId: string
-    count: number
-    aclContext: AclContext
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    count: number & e.Body
+    aclContext: AclContext & e.AclContext
   }): Promise<{ generatedCount: number }> {
     const context = contextForProject(projectId)
     const repoSurveyParticipant =

@@ -11,7 +11,9 @@ import { RepoEmailTemplate } from 'model'
 import { SystemEmailTemplateLoader } from 'model/common/EmailTemplateLoader'
 import { wrapEmailBody } from 'model/common/emailLayout'
 import { contextForProject } from 'common'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
+/** @endpoints emailTemplate */
 export class ServiceEmailTemplate extends Service {
   constructor() {
     super({
@@ -41,7 +43,21 @@ export class ServiceEmailTemplate extends Service {
     )
   }
 
-  async getOne({ projectId, surveyId, type, lang }) {
+  /**
+   * @route get /survey/:surveyId/:type/:lang
+   * @acl projectAdmin
+   */
+  async getOne({
+    projectId,
+    surveyId,
+    type,
+    lang,
+  }: {
+    projectId: string & e.Header<'X-Project-Id'>
+    surveyId: string & e.Param
+    type: string & e.Param
+    lang: string & e.Param
+  }) {
     const context = contextForProject(projectId)
     const repo = this.getRepo<RepoEmailTemplate>('emailTemplate')
 
@@ -53,14 +69,18 @@ export class ServiceEmailTemplate extends Service {
     return setting
   }
 
+  /**
+   * @route get /survey/:surveyId
+   * @acl projectAdmin
+   */
   async getAll({
     projectId,
     surveyId,
     includeDefaults = false,
   }: {
-    projectId: string
-    surveyId?: string | null
-    includeDefaults?: boolean
+    projectId: string & e.Header<'X-Project-Id'>
+    surveyId: (string | null) & e.Param
+    includeDefaults?: boolean & e.Query
   }): Promise<{
     surveyTemplates: EmailTemplate[]
     projectTemplates: EmailTemplate[]
@@ -101,7 +121,15 @@ export class ServiceEmailTemplate extends Service {
     }
   }
 
-  async getProjectAll({ projectId }) {
+  /**
+   * @route get /
+   * @acl projectAdmin
+   */
+  async getProjectAll({
+    projectId,
+  }: {
+    projectId: string & e.Header<'X-Project-Id'>
+  }) {
     const context = contextForProject(projectId)
     const repo = this.getRepo<RepoEmailTemplate>('emailTemplate')
 
@@ -119,11 +147,59 @@ export class ServiceEmailTemplate extends Service {
     }
   }
 
-  async deleteOne({ projectId, surveyId, type, lang }) {
+  /**
+   * @route delete /survey/:surveyId/:type/:lang
+   * @acl projectAdmin
+   */
+  async deleteOne({
+    projectId,
+    surveyId,
+    type,
+    lang,
+  }: {
+    projectId: string & e.Header<'X-Project-Id'>
+    surveyId: string & e.Param
+    type: string & e.Param
+    lang: string & e.Param
+  }) {
     const context = contextForProject(projectId)
     const repo = this.getRepo<RepoEmailTemplate>('emailTemplate')
     await repo.deleteOne({ surveyId, type, lang }, { context })
     return true
+  }
+
+  /**
+   * Project-level template: the same record as `getOne` with no survey.
+   * @route get /:type/:lang
+   * @acl projectAdmin
+   */
+  async getProjectOne({
+    projectId,
+    type,
+    lang,
+  }: {
+    projectId: string & e.Header<'X-Project-Id'>
+    type: string & e.Param
+    lang: string & e.Param
+  }) {
+    return this.getOne({ projectId, surveyId: undefined, type, lang })
+  }
+
+  /**
+   * Project-level delete: the same as `deleteOne` with no survey.
+   * @route delete /:type/:lang
+   * @acl projectAdmin
+   */
+  async deleteProjectOne({
+    projectId,
+    type,
+    lang,
+  }: {
+    projectId: string & e.Header<'X-Project-Id'>
+    type: string & e.Param
+    lang: string & e.Param
+  }) {
+    return this.deleteOne({ projectId, surveyId: undefined, type, lang })
   }
 
   private async _applyPatches({
@@ -195,11 +271,33 @@ export class ServiceEmailTemplate extends Service {
     return true
   }
 
-  async patch({ projectId, surveyId, patches }) {
+  /**
+   * @route patch /survey/:surveyId
+   * @acl projectAdmin
+   */
+  async patch({
+    projectId,
+    surveyId,
+    patches,
+  }: {
+    projectId: string & e.Header<'X-Project-Id'>
+    surveyId: string & e.Param
+    patches: Patch[] & e.Body
+  }) {
     return this._applyPatches({ projectId, surveyId, patches })
   }
 
-  async patchProject({ projectId, patches }) {
+  /**
+   * @route patch /
+   * @acl projectAdmin
+   */
+  async patchProject({
+    projectId,
+    patches,
+  }: {
+    projectId: string & e.Header<'X-Project-Id'>
+    patches: Patch[] & e.Body
+  }) {
     return this._applyPatches({
       projectId,
       surveyId: null,
@@ -208,12 +306,30 @@ export class ServiceEmailTemplate extends Service {
     })
   }
 
-  async getSystemTemplates({ lang = 'en' }) {
+  /**
+   * @route get /system
+   * @acl projectAdmin
+   */
+  async getSystemTemplates({
+    lang = 'en',
+  }: {
+    lang?: string & e.Query & e.Default<'en'>
+  }) {
     const loader = SystemEmailTemplateLoader.getInstance()
     return loader.getTemplatesByLanguage(lang)
   }
 
-  async getSystemTemplate({ type, lang }) {
+  /**
+   * @route get /system/:type/:lang
+   * @acl projectAdmin
+   */
+  async getSystemTemplate({
+    type,
+    lang,
+  }: {
+    type: string & e.Param
+    lang: string & e.Param
+  }) {
     const loader = SystemEmailTemplateLoader.getInstance()
     return loader.getTemplate(type, lang)
   }

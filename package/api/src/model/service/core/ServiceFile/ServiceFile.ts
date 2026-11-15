@@ -7,9 +7,11 @@ import {
   generateSignedDownloadUrl,
 } from 'common'
 import { getStorageConfig } from './FileS3Config'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
 const DOWNLOAD_URL_EXPIRES_IN_SECONDS = 300
 
+/** @endpoints file path=/file */
 export class ServiceFile extends Service {
   constructor() {
     super({
@@ -18,31 +20,19 @@ export class ServiceFile extends Service {
   }
 
   /**
-   * Get file metadata
-   */
-  async getOne({ fileId, projectId }) {
-    const context = contextForProject(projectId)
-    const repo = this.getRepo<RepoFile>('file')
-
-    const file = await repo.findOne(
-      {
-        _id: fileId,
-        uploadedAt: { $ne: null },
-        deletedAt: null,
-      },
-      { context },
-    )
-    if (!file) {
-      throw new ServerErrorNotFound('File not found')
-    }
-
-    return file
-  }
-
-  /**
    * List files for a project
+   * @route get /
+   * @acl projectAdmin
    */
-  async getAll({ projectId, page = 1, perPage = 50 }) {
+  async getAll({
+    projectId,
+    page = 1,
+    perPage = 50,
+  }: {
+    projectId: string & e.Header<'X-Project-Id'>
+    page?: number & e.Query & e.Default<1>
+    perPage?: number & e.Query & e.Default<50>
+  }) {
     const context = contextForProject(projectId)
     const repo = this.getRepo<RepoFile>('file')
 
@@ -73,9 +63,51 @@ export class ServiceFile extends Service {
   }
 
   /**
-   * Get files for a survey (fileContext = 'survey')
+   * Get file metadata
+   * @route get /:fileId
+   * @acl projectAdmin
    */
-  async getFilesForSurvey({ surveyId, projectId, page, perPage }) {
+  async getOne({
+    fileId,
+    projectId,
+  }: {
+    fileId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+  }) {
+    const context = contextForProject(projectId)
+    const repo = this.getRepo<RepoFile>('file')
+
+    const file = await repo.findOne(
+      {
+        _id: fileId,
+        uploadedAt: { $ne: null },
+        deletedAt: null,
+      },
+      { context },
+    )
+    if (!file) {
+      throw new ServerErrorNotFound('File not found')
+    }
+
+    return file
+  }
+
+  /**
+   * Get files for a survey (fileContext = 'survey')
+   * @route get /survey/:surveyId
+   * @acl projectAdmin
+   */
+  async getFilesForSurvey({
+    surveyId,
+    projectId,
+    page,
+    perPage,
+  }: {
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    page?: number & e.Query & e.Default<1>
+    perPage?: number & e.Query & e.Default<50>
+  }) {
     const context = contextForProject(projectId)
     const repo = this.getRepo<RepoFile>('file')
 
@@ -101,6 +133,8 @@ export class ServiceFile extends Service {
 
   /**
    * Get files for a response (fileContext = 'response')
+   * @route get /survey/:surveyId/response/:responseId
+   * @acl projectAdmin
    */
   async getFilesForResponse({
     surveyId,
@@ -109,11 +143,11 @@ export class ServiceFile extends Service {
     page,
     perPage,
   }: {
-    surveyId: string
-    responseId: string
-    projectId: string
-    page?: number
-    perPage?: number
+    surveyId: string & e.Param
+    responseId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    page?: number & e.Query & e.Default<1>
+    perPage?: number & e.Query & e.Default<50>
   }) {
     const context = contextForProject(projectId)
     const repo = this.getRepo<RepoFile>('file')
@@ -150,6 +184,8 @@ export class ServiceFile extends Service {
    * Generate a presigned download URL for a file on demand - works for either
    * bucketType, so it serves both new private-bucket files and pre-existing
    * public-bucket ones through the same call.
+   * @route get /:fileId/download-url
+   * @acl projectAdmin
    */
   async generateDownloadUrl({
     fileId,
@@ -157,10 +193,10 @@ export class ServiceFile extends Service {
     requestHost,
     requestProto,
   }: {
-    fileId: string
-    projectId: string
-    requestHost?: string
-    requestProto?: string
+    fileId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    requestHost?: string & e.Header<'X-Forwarded-Host'>
+    requestProto?: string & e.Header<'X-Forwarded-Proto'>
   }) {
     const context = contextForProject(projectId)
     const repo = this.getRepo<RepoFile>('file')

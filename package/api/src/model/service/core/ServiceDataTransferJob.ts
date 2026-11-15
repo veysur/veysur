@@ -14,6 +14,7 @@ import { ExportOptions } from './ImportExport/EntityHandlerInterface'
 import { ServiceImportExport } from './ServiceImportExport'
 import { ServiceNotification } from './ServiceNotification'
 import { StorageConfig, getStorageConfig } from './ServiceFile/FileS3Config'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
 /**
  * Runs a survey/project export or import off the request. A job row is
@@ -47,6 +48,7 @@ import { StorageConfig, getStorageConfig } from './ServiceFile/FileS3Config'
  * Notification (via ServiceNotification) that the notification bell/panel
  * actually reads; a settled job's own row is later deleted as a side effect
  * of ServiceNotification.cleanupOld(), not by a cleanup task of its own.
+ * @endpoints dataTransferJob
  */
 export class ServiceDataTransferJob extends Service {
   constructor() {
@@ -321,13 +323,15 @@ export class ServiceDataTransferJob extends Service {
    * as every other importExport endpoint) before this runs; the projectId
    * match below is a defensive check against querying a job that belongs to
    * a different project than the one the caller is currently scoped to.
+   * @route get /status/:jobId
+   * @acl projectAdmin
    */
   async getStatus({
     jobId,
     projectId,
   }: {
-    jobId: string
-    projectId: string
+    jobId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
   }): Promise<{
     jobId: string
     status: DataTransferJob['status']
@@ -364,6 +368,8 @@ export class ServiceDataTransferJob extends Service {
    * first. Scoped to `aclContext.jwt._id` (not every admin's activity on the
    * project). The notification bell/panel now reads ServiceNotification.list()
    * instead of this method directly.
+   * @route get /list
+   * @acl projectAdmin
    */
   async listJobs({
     projectId,
@@ -371,10 +377,10 @@ export class ServiceDataTransferJob extends Service {
     page,
     perPage,
   }: {
-    projectId: string
-    aclContext: AclContext
-    page?: number
-    perPage?: number
+    projectId: string & e.Header<'X-Project-Id'>
+    aclContext: AclContext & e.AclContext
+    page?: number & e.Query & e.Default<1>
+    perPage?: number & e.Query & e.Default<20>
   }): Promise<{
     jobs: Array<{
       jobId: string
@@ -443,15 +449,17 @@ export class ServiceDataTransferJob extends Service {
    * expiry/cleanup mechanism (ServiceFileTempDownload). The notification
    * panel's dismiss action now calls ServiceNotification.dismiss() instead,
    * which does not delete this row - see ServiceNotification.cleanupOld().
+   * @route delete /:jobId
+   * @acl projectAdmin
    */
   async deleteJob({
     jobId,
     projectId,
     aclContext,
   }: {
-    jobId: string
-    projectId: string
-    aclContext: AclContext
+    jobId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    aclContext: AclContext & e.AclContext
   }): Promise<{ success: true }> {
     const repo = this.getRepoDataTransferJob()
     const job = await repo.findOne({ _id: jobId })

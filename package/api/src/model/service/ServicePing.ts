@@ -1,6 +1,7 @@
 import { Service } from '@datacapy/server'
 import { DataSourceRedis } from '@datacapy/om'
 
+/** @endpoints ping */
 export class ServicePing extends Service {
   constructor() {
     super({
@@ -8,6 +9,10 @@ export class ServicePing extends Service {
     })
   }
 
+  /**
+   * @route get /
+   * @acl public
+   */
   async ping() {
     const health: { status: string; redis?: { connected: boolean } } = {
       status: 'ok',

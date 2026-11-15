@@ -1,3 +1,4 @@
+import type { ConfigJwt } from 'model/entity/ConfigJwt'
 import * as bcryptjs from 'bcryptjs'
 import { ServiceAuthEmailPassword } from './ServiceAuthEmailPassword'
 import { asPrivate } from 'test-utils/asPrivate'
@@ -20,7 +21,7 @@ describe('ServiceAuthEmailPassword', () => {
     password: 'Str0ngP@ssw0rd!',
     clientId: 'client_1',
     ip: '1.2.3.4',
-    jwtConfig: {},
+    jwtConfig: {} as ConfigJwt,
     ...overrides,
   })
 

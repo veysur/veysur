@@ -1,6 +1,8 @@
 import { Service } from '@datacapy/server'
 import { ServiceEmail } from './ServiceEmail'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
+/** @endpoints contact */
 export class ServiceContact extends Service {
   services: {
     email: ServiceEmail
@@ -10,7 +12,21 @@ export class ServiceContact extends Service {
     super({ name: 'contact' })
   }
 
-  async submit({ name, email, subject, message }) {
+  /**
+   * @route post /submit
+   * @acl public
+   */
+  async submit({
+    name,
+    email,
+    subject,
+    message,
+  }: {
+    name: string & e.Body
+    email: string & e.Body
+    subject: string & e.Body
+    message: string & e.Body
+  }) {
     await this.services.email.frequencyLimit({
       to: email,
       type: 'contact',

@@ -23,7 +23,9 @@ function timingSafeStringEqual(a: string, b: string): boolean {
 import { RepoUser, ServiceEmail } from 'model'
 import { ErrorRef } from 'model/common'
 import { buildAppUrl } from 'config/buildAppUrl'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
+/** @endpoints password */
 export class ServicePassword extends Service {
   repos: {
     user: RepoUser
@@ -54,7 +56,11 @@ export class ServicePassword extends Service {
     return passwordResetToken
   }
 
-  async resetEmail({ email }) {
+  /**
+   * @route post /reset-email
+   * @acl public
+   */
+  async resetEmail({ email }: { email: string & e.Body }) {
     const serviceEmail = this.getService<ServiceEmail>('email')
 
     await serviceEmail.frequencyLimit({
@@ -126,7 +132,19 @@ export class ServicePassword extends Service {
     })
   }
 
-  async put({ email, token, password }) {
+  /**
+   * @route put /
+   * @acl public
+   */
+  async put({
+    email,
+    token,
+    password,
+  }: {
+    email: string & e.Body
+    token: string & e.Body
+    password: string & e.Body
+  }) {
     const user = await this.repos.user.findOne({ email })
 
     const maxInvalidTokenAttempts = 3

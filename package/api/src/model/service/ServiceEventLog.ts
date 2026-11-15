@@ -8,6 +8,7 @@ import { parsePaginationParams, buildDateRangeQuery } from 'common'
 
 import { RepoEventLog, EventLog } from 'model/repo/core/RepoEventLog'
 import { RepoEventLogSystem } from 'model/repo/RepoEventLogSystem'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
 const SYSTEM_BUFFER_KEY = '__system__'
 const MONGO_DUPLICATE_KEY_ERROR = 11000
@@ -45,6 +46,7 @@ interface EventLogConfig {
   memoryWarningThreshold: number
 }
 
+/** @endpoints eventLog */
 export class ServiceEventLog extends Service {
   private memoryBuffer: Map<string, EventEntry[]> = new Map()
   private backoffState: Map<string, BackoffState> = new Map()
@@ -125,16 +127,20 @@ export class ServiceEventLog extends Service {
     }
   }
 
+  /**
+   * @route post /
+   * @acl authedAdmin
+   */
   async log({
     projectId,
     action,
     userId,
     metadata,
   }: {
-    projectId?: string
-    action: string
-    userId?: string
-    metadata?: Record<string, unknown>
+    projectId?: string & e.Header<'x-project-id'>
+    action: string & e.Body
+    userId?: string & e.Body
+    metadata?: Record<string, unknown> & e.Body
   }) {
     if (this.isShuttingDown) {
       throw Object.assign(new Error('Event logging is shutting down'), {

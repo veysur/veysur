@@ -89,7 +89,7 @@ describe('ServiceSurveyParticipantSnapshot.get()', () => {
     })
     isNoBrandAvailableSpy.mockResolvedValue(true)
 
-    await service.get({ surveyId, projectId, lang: null })
+    await service.get({ surveyId, projectId, lang: undefined })
 
     expect(mockRepoPublication.findOne).toHaveBeenCalledWith(
       { surveyId, stoppedAt: null },
@@ -104,7 +104,7 @@ describe('ServiceSurveyParticipantSnapshot.get()', () => {
     })
     isNoBrandAvailableSpy.mockResolvedValue(true)
 
-    const result = await service.get({ surveyId, projectId, lang: null })
+    const result = await service.get({ surveyId, projectId, lang: undefined })
 
     expect(result.snapshotData.survey.presentation.noBrand).toBe(true)
   })
@@ -116,7 +116,7 @@ describe('ServiceSurveyParticipantSnapshot.get()', () => {
     })
     isNoBrandAvailableSpy.mockResolvedValue(false)
 
-    const result = await service.get({ surveyId, projectId, lang: null })
+    const result = await service.get({ surveyId, projectId, lang: undefined })
 
     expect(result.snapshotData.survey.presentation.noBrand).toBe(false)
     expect(isNoBrandAvailableSpy).toHaveBeenCalledWith(projectId)
@@ -128,7 +128,7 @@ describe('ServiceSurveyParticipantSnapshot.get()', () => {
       survey: { presentation: { noBrand: false } },
     })
 
-    const result = await service.get({ surveyId, projectId, lang: null })
+    const result = await service.get({ surveyId, projectId, lang: undefined })
 
     expect(result.snapshotData.survey.presentation.noBrand).toBe(false)
     expect(isNoBrandAvailableSpy).not.toHaveBeenCalled()
@@ -145,7 +145,7 @@ describe('ServiceSurveyParticipantSnapshot.get()', () => {
     })
     isNoBrandAvailableSpy.mockResolvedValue(false)
 
-    const result = await service.get({ surveyId, projectId, lang: null })
+    const result = await service.get({ surveyId, projectId, lang: undefined })
 
     expect(result.settingSurveyData.presentation.noBrand).toBe(false)
   })
@@ -163,7 +163,7 @@ describe('ServiceSurveyParticipantSnapshot.get()', () => {
     const result = await service.get({
       surveyId,
       projectId,
-      lang: null,
+      lang: undefined,
       aclContext: { snapshotId: 'snapshot_resumed' },
     })
 
@@ -184,7 +184,7 @@ describe('ServiceSurveyParticipantSnapshot.get()', () => {
     const result = await service.get({
       surveyId,
       projectId,
-      lang: null,
+      lang: undefined,
       aclContext: {},
     })
 
@@ -204,7 +204,7 @@ describe('ServiceSurveyParticipantSnapshot.get()', () => {
     const result = await service.get({
       surveyId,
       projectId,
-      lang: null,
+      lang: undefined,
       aclContext: { snapshotId: 'snapshot_1' },
     })
 
@@ -233,7 +233,7 @@ describe('ServiceSurveyParticipantSnapshot.get()', () => {
         },
       })
 
-      const result = await service.get({ surveyId, projectId, lang: null })
+      const result = await service.get({ surveyId, projectId, lang: undefined })
 
       expect(result.settingProjectData.botProtection).toEqual({
         provider: 'cloudflare',
@@ -243,7 +243,7 @@ describe('ServiceSurveyParticipantSnapshot.get()', () => {
     })
 
     test('keeps the keys out of the survey settings payload', async () => {
-      const result = await service.get({ surveyId, projectId, lang: null })
+      const result = await service.get({ surveyId, projectId, lang: undefined })
 
       expect(result.settingSurveyData).not.toHaveProperty('maps')
       expect(result.settingSurveyData).not.toHaveProperty('botProtection')
@@ -258,7 +258,7 @@ describe('ServiceSurveyParticipantSnapshot.get()', () => {
         },
       })
 
-      const result = await service.get({ surveyId, projectId, lang: null })
+      const result = await service.get({ surveyId, projectId, lang: undefined })
 
       expect(result.settingProjectData.botProtection.provider).toBe('none')
     })
@@ -279,7 +279,7 @@ describe('ServiceSurveyParticipantSnapshot.get()', () => {
         maps: { googleApiKey: '' },
       })
 
-      const result = await service.get({ surveyId, projectId, lang: null })
+      const result = await service.get({ surveyId, projectId, lang: undefined })
 
       expect(result.settingProjectData.maps).toEqual({
         provider: 'google',
@@ -294,13 +294,13 @@ describe('ServiceSurveyParticipantSnapshot.get()', () => {
         maps: { googleApiKey: 'project-key' },
       })
 
-      const result = await service.get({ surveyId, projectId, lang: null })
+      const result = await service.get({ surveyId, projectId, lang: undefined })
 
       expect(result.settingProjectData.maps.googleApiKey).toBe('project-key')
     })
 
     test('defaults to OpenStreetMap with no key anywhere', async () => {
-      const result = await service.get({ surveyId, projectId, lang: null })
+      const result = await service.get({ surveyId, projectId, lang: undefined })
 
       expect(result.settingProjectData.maps).toEqual({
         provider: 'osm',

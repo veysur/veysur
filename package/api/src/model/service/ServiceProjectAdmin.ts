@@ -5,7 +5,7 @@ import {
 } from '@datacapy/server'
 import { ProjectAdmin } from 'veysur-common'
 import { RepoProjectAdmin, RepoUser, Email } from 'model/repo'
-import { AclContext } from 'model/entity'
+import { AclContext, ConfigJwt } from 'model/entity'
 import { StringRandom } from 'model/common'
 import { SystemEmailTemplateLoader } from 'model/common/EmailTemplateLoader'
 import { ServiceUser } from 'model'
@@ -14,7 +14,9 @@ import { ServiceProject } from './ServiceProject'
 import { ServiceEmailDomainCheck } from './ServiceEmailDomainCheck'
 import { ServiceAuthEmailPassword } from './ServiceAuthEmailPassword'
 import { buildAppUrl } from 'config/buildAppUrl'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
+/** @endpoints projectAdmin */
 export class ServiceProjectAdmin extends Service {
   constructor() {
     super({ name: 'projectAdmin' })
@@ -58,14 +60,259 @@ export class ServiceProjectAdmin extends Service {
     }
   }
 
+  /**
+   * @route get /accept-detail
+   * @acl public
+   */
+  async getInviteDetail({
+    code,
+    email,
+    aclContext,
+  }: {
+    code?: string & e.Query
+    email?: string & e.Query
+    aclContext: AclContext & e.AclContext
+  }) {
+    const repo = this.getRepo<RepoProjectAdmin>('projectAdmin')
+
+    const invite = await repo.findOne(
+      { code, status: 'pending' },
+      { populate: { invitedBy: true } },
+    )
+
+    if (!invite) {
+      throw new ServerErrorNotFound('Invitation not found')
+    }
+
+    if (invite.email !== email) {
+      throw new ServerErrorForbidden(
+        'This invitation is not for your email address',
+      )
+    }
+
+    if (aclContext?.jwt?.email && aclContext.jwt.email !== email) {
+      throw new ServerErrorForbidden('This invitation is not for your account')
+    }
+
+    invite.project = await this.getService<ServiceProject>('project').getById(
+      invite.projectId,
+    )
+
+    return invite
+  }
+
+  /**
+   * @route post /accept
+   * @acl authedAdmin
+   */
+  async accept({
+    code,
+    email,
+    aclContext,
+  }: {
+    code?: string & e.Body
+    email?: string & e.Body
+    aclContext: AclContext & e.AclContext
+  }) {
+    const repo = this.getRepo<RepoProjectAdmin>('projectAdmin')
+    const repoUser = this.getRepo<RepoUser>('user')
+
+    const invite = await repo.findOne({ code, status: 'pending' })
+    if (!invite) {
+      throw new ServerErrorNotFound('Invitation not found')
+    }
+
+    if (invite.email !== email) {
+      throw new ServerErrorForbidden(
+        'This invitation is not for your email address',
+      )
+    }
+
+    const user = await repoUser.findOne({ _id: aclContext.jwt._id })
+    if (!user) {
+      throw new ServerErrorNotFound('User not found')
+    }
+
+    if (user.email !== email) {
+      throw new ServerErrorForbidden('This invitation is not for your account')
+    }
+
+    const project = await this.getService<ServiceProject>('project').getById(
+      invite.projectId,
+    )
+    if (!project) {
+      throw new ServerErrorNotFound('Project not found')
+    }
+
+    await this.assertNotAlreadyMember({
+      repoProjectAdmin: repo,
+      projectId: invite.projectId,
+      isOwner: project.ownerId === user._id,
+      existingQuery: { userId: user._id, status: 'active' },
+      perspective: 'invitee',
+    })
+
+    await repo.updateOne(
+      { _id: invite._id },
+      {
+        $set: {
+          userId: aclContext.jwt._id,
+          status: 'active',
+          code: null,
+          updatedAt: new Date(),
+        },
+      },
+    )
+
+    return { projectId: invite.projectId }
+  }
+
+  /**
+   * Accepts an invite for an invitee with no existing account, creating one
+   * as part of acceptance. Unlike `accept()`, this is reachable
+   * unauthenticated - the invite `code` plus matching `email` is the
+   * authorization proof (same trust model as the emailed invite link
+   * itself). Reuses `ServiceUser.createAccount()`, the same account-creation
+   * primitive the self-hosted CLI bootstrap tool uses, rather than
+   * reimplementing it.
+   * @route post /accept-new-account
+   * @acl public
+   */
+  async acceptNewAccount({
+    code,
+    email,
+    nameFirst,
+    nameLast,
+    password,
+    ip,
+    userAgent,
+    deviceId,
+    deviceName,
+    deviceSystem,
+    deviceSystemVersion,
+    buildVersion,
+    buildNumber,
+    jwtConfig,
+  }: {
+    code: string & e.Body
+    email: string & e.Body
+    nameFirst: string & e.Body
+    nameLast?: string & e.Body
+    password: string & e.Body
+    ip?: string & e.Request<'ip'>
+    userAgent?: string & e.Header<'User-Agent'>
+    deviceId?: string & e.Header<'Device-Id'>
+    deviceName?: string & e.Header<'Device-Name'>
+    deviceSystem?: string & e.Header<'Device-System'>
+    deviceSystemVersion?: string & e.Header<'Device-System-Version'>
+    buildVersion?: string & e.Header<'Build-Version'>
+    buildNumber?: string & e.Header<'Build-Number'>
+    jwtConfig: ConfigJwt & e.Config<'model.app.jwt'>
+  }) {
+    const repo = this.getRepo<RepoProjectAdmin>('projectAdmin')
+
+    const invite = await repo.findOne({ code, status: 'pending' })
+    if (!invite) {
+      throw new ServerErrorNotFound('Invitation not found')
+    }
+
+    if (invite.email !== email) {
+      throw new ServerErrorForbidden(
+        'This invitation is not for your email address',
+      )
+    }
+
+    const { userId } = await this.getService<ServiceUser>('user').createAccount(
+      { nameFirst, nameLast, email, password },
+    )
+
+    await repo.updateOne(
+      { _id: invite._id },
+      {
+        $set: {
+          userId,
+          status: 'active',
+          code: null,
+          updatedAt: new Date(),
+        },
+      },
+    )
+
+    const loginResult = await this.getService<ServiceAuthEmailPassword>(
+      'authEmailPassword',
+    ).authenticate({
+      email,
+      password,
+      ip,
+      userAgent,
+      deviceId,
+      deviceName,
+      deviceSystem,
+      deviceSystemVersion,
+      buildVersion,
+      buildNumber,
+      jwtConfig,
+    })
+
+    return { ...loginResult, projectId: invite.projectId }
+  }
+
+  /**
+   * @route post /decline
+   * @acl authedAdmin
+   */
+  async decline({
+    code,
+    email,
+    aclContext,
+  }: {
+    code?: string & e.Body
+    email?: string & e.Body
+    aclContext: AclContext & e.AclContext
+  }) {
+    const repo = this.getRepo<RepoProjectAdmin>('projectAdmin')
+    const repoUser = this.getRepo<RepoUser>('user')
+
+    const invite = await repo.findOne({ code, status: 'pending' })
+    if (!invite) {
+      throw new ServerErrorNotFound('Invitation not found')
+    }
+
+    if (invite.email !== email) {
+      throw new ServerErrorForbidden(
+        'This invitation is not for your email address',
+      )
+    }
+
+    const user = await repoUser.findOne({ _id: aclContext.jwt._id })
+    if (!user) {
+      throw new ServerErrorNotFound('User not found')
+    }
+
+    if (user.email !== email) {
+      throw new ServerErrorForbidden('This invitation is not for your account')
+    }
+
+    await repo.updateOne(
+      { _id: invite._id },
+      { $set: { status: 'declined', updatedAt: new Date() } },
+    )
+
+    return { success: true }
+  }
+
+  /**
+   * @route get /:projectId
+   * @acl projectAdmin,projectOwner
+   */
   async listWithUsers({
     projectId,
     limit,
     skip,
   }: {
-    projectId: string
-    limit?: number
-    skip?: number
+    projectId?: string & e.Param
+    limit?: number & e.Query
+    skip?: number & e.Query
   }) {
     const repo = this.getRepo<RepoProjectAdmin>('projectAdmin')
     return repo.find(
@@ -79,6 +326,11 @@ export class ServiceProjectAdmin extends Service {
     )
   }
 
+  /**
+   * @route post /:projectId/invite
+   * @acl projectOwner
+   * @error PlanLimitExceededError 402
+   */
   async invite({
     projectId,
     nameFirst,
@@ -86,11 +338,11 @@ export class ServiceProjectAdmin extends Service {
     email,
     aclContext,
   }: {
-    projectId: string
-    nameFirst: string
-    nameLast?: string
-    email: string
-    aclContext: AclContext
+    projectId?: string & e.Param
+    nameFirst?: string & e.Body
+    nameLast?: string & e.Body
+    email?: string & e.Body
+    aclContext: AclContext & e.AclContext
   }) {
     const repoProjectAdmin = this.getRepo<RepoProjectAdmin>('projectAdmin')
     const repoUser = this.getRepo<RepoUser>('user')
@@ -185,14 +437,18 @@ export class ServiceProjectAdmin extends Service {
     return invite
   }
 
+  /**
+   * @route delete /:projectId/:projectAdminId
+   * @acl projectAdmin,projectOwner
+   */
   async remove({
     projectId,
     projectAdminId,
     aclContext: _aclContext,
   }: {
-    projectId: string
-    projectAdminId: string
-    aclContext: AclContext
+    projectId?: string & e.Param
+    projectAdminId?: string & e.Param
+    aclContext: AclContext & e.AclContext
   }) {
     const repo = this.getRepo<RepoProjectAdmin>('projectAdmin')
     const record = await repo.findOne({ _id: projectAdminId, projectId })
@@ -200,233 +456,6 @@ export class ServiceProjectAdmin extends Service {
       throw new ServerErrorNotFound('Team member not found')
     }
     await repo.deleteOne({ _id: projectAdminId, projectId })
-    return { success: true }
-  }
-
-  async getInviteDetail({
-    code,
-    email,
-    aclContext,
-  }: {
-    code: string
-    email: string
-    aclContext: AclContext
-  }) {
-    const repo = this.getRepo<RepoProjectAdmin>('projectAdmin')
-
-    const invite = await repo.findOne(
-      { code, status: 'pending' },
-      { populate: { invitedBy: true } },
-    )
-
-    if (!invite) {
-      throw new ServerErrorNotFound('Invitation not found')
-    }
-
-    if (invite.email !== email) {
-      throw new ServerErrorForbidden(
-        'This invitation is not for your email address',
-      )
-    }
-
-    if (aclContext?.jwt?.email && aclContext.jwt.email !== email) {
-      throw new ServerErrorForbidden('This invitation is not for your account')
-    }
-
-    invite.project = await this.getService<ServiceProject>('project').getById(
-      invite.projectId,
-    )
-
-    return invite
-  }
-
-  async accept({
-    code,
-    email,
-    aclContext,
-  }: {
-    code: string
-    email: string
-    aclContext: AclContext
-  }) {
-    const repo = this.getRepo<RepoProjectAdmin>('projectAdmin')
-    const repoUser = this.getRepo<RepoUser>('user')
-
-    const invite = await repo.findOne({ code, status: 'pending' })
-    if (!invite) {
-      throw new ServerErrorNotFound('Invitation not found')
-    }
-
-    if (invite.email !== email) {
-      throw new ServerErrorForbidden(
-        'This invitation is not for your email address',
-      )
-    }
-
-    const user = await repoUser.findOne({ _id: aclContext.jwt._id })
-    if (!user) {
-      throw new ServerErrorNotFound('User not found')
-    }
-
-    if (user.email !== email) {
-      throw new ServerErrorForbidden('This invitation is not for your account')
-    }
-
-    const project = await this.getService<ServiceProject>('project').getById(
-      invite.projectId,
-    )
-    if (!project) {
-      throw new ServerErrorNotFound('Project not found')
-    }
-
-    await this.assertNotAlreadyMember({
-      repoProjectAdmin: repo,
-      projectId: invite.projectId,
-      isOwner: project.ownerId === user._id,
-      existingQuery: { userId: user._id, status: 'active' },
-      perspective: 'invitee',
-    })
-
-    await repo.updateOne(
-      { _id: invite._id },
-      {
-        $set: {
-          userId: aclContext.jwt._id,
-          status: 'active',
-          code: null,
-          updatedAt: new Date(),
-        },
-      },
-    )
-
-    return { projectId: invite.projectId }
-  }
-
-  /**
-   * Accepts an invite for an invitee with no existing account, creating one
-   * as part of acceptance. Unlike `accept()`, this is reachable
-   * unauthenticated - the invite `code` plus matching `email` is the
-   * authorization proof (same trust model as the emailed invite link
-   * itself). Reuses `ServiceUser.createAccount()`, the same account-creation
-   * primitive the self-hosted CLI bootstrap tool uses, rather than
-   * reimplementing it.
-   */
-  async acceptNewAccount({
-    code,
-    email,
-    nameFirst,
-    nameLast,
-    password,
-    ip,
-    userAgent,
-    deviceId,
-    deviceName,
-    deviceSystem,
-    deviceSystemVersion,
-    buildVersion,
-    buildNumber,
-    jwtConfig,
-  }: {
-    code: string
-    email: string
-    nameFirst: string
-    nameLast?: string
-    password: string
-    ip?: string
-    userAgent?: string
-    deviceId?: string
-    deviceName?: string
-    deviceSystem?: string
-    deviceSystemVersion?: string
-    buildVersion?: string
-    buildNumber?: string
-    jwtConfig?: unknown
-  }) {
-    const repo = this.getRepo<RepoProjectAdmin>('projectAdmin')
-
-    const invite = await repo.findOne({ code, status: 'pending' })
-    if (!invite) {
-      throw new ServerErrorNotFound('Invitation not found')
-    }
-
-    if (invite.email !== email) {
-      throw new ServerErrorForbidden(
-        'This invitation is not for your email address',
-      )
-    }
-
-    const { userId } = await this.getService<ServiceUser>('user').createAccount(
-      { nameFirst, nameLast, email, password },
-    )
-
-    await repo.updateOne(
-      { _id: invite._id },
-      {
-        $set: {
-          userId,
-          status: 'active',
-          code: null,
-          updatedAt: new Date(),
-        },
-      },
-    )
-
-    const loginResult = await this.getService<ServiceAuthEmailPassword>(
-      'authEmailPassword',
-    ).authenticate({
-      email,
-      password,
-      ip,
-      userAgent,
-      deviceId,
-      deviceName,
-      deviceSystem,
-      deviceSystemVersion,
-      buildVersion,
-      buildNumber,
-      jwtConfig,
-    })
-
-    return { ...loginResult, projectId: invite.projectId }
-  }
-
-  async decline({
-    code,
-    email,
-    aclContext,
-  }: {
-    code: string
-    email: string
-    aclContext: AclContext
-  }) {
-    const repo = this.getRepo<RepoProjectAdmin>('projectAdmin')
-    const repoUser = this.getRepo<RepoUser>('user')
-
-    const invite = await repo.findOne({ code, status: 'pending' })
-    if (!invite) {
-      throw new ServerErrorNotFound('Invitation not found')
-    }
-
-    if (invite.email !== email) {
-      throw new ServerErrorForbidden(
-        'This invitation is not for your email address',
-      )
-    }
-
-    const user = await repoUser.findOne({ _id: aclContext.jwt._id })
-    if (!user) {
-      throw new ServerErrorNotFound('User not found')
-    }
-
-    if (user.email !== email) {
-      throw new ServerErrorForbidden('This invitation is not for your account')
-    }
-
-    await repo.updateOne(
-      { _id: invite._id },
-      { $set: { status: 'declined', updatedAt: new Date() } },
-    )
-
     return { success: true }
   }
 

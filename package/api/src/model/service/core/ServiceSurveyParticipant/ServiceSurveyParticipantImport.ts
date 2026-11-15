@@ -20,6 +20,7 @@ import { AclContext } from 'model/entity/AclContext'
 import { ParticipantToken } from './ParticipantToken'
 import { EmailVerifyToken } from './EmailVerifyToken'
 import { contextForProject } from 'common'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
 /**
  * Response-like object this service writes an SSE progress stream to.
@@ -65,6 +66,7 @@ export interface ImportRow {
   attributes?: Record<string, string>
 }
 
+/** @endpoints surveyParticipantImport path=/survey-participant */
 export class ServiceSurveyParticipantImport extends Service {
   private readonly COLUMN_MAPPINGS: Record<string, string> = {
     // Standard field names (camelCase)
@@ -110,6 +112,8 @@ export class ServiceSurveyParticipantImport extends Service {
   /**
    * Import participants from CSV with streaming and batch processing
    * Supports deduplication by email and token conflict resolution
+   * @route post /:surveyId/import
+   * @acl projectAdmin
    */
   async import({
     file,
@@ -119,12 +123,12 @@ export class ServiceSurveyParticipantImport extends Service {
     aclContext,
     response,
   }: {
-    file: string
-    surveyId: string
-    projectId: string
-    batchSize?: number
-    aclContext: AclContext
-    response: StreamableResponse
+    file: string & e.Body
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    batchSize?: number & e.Body & e.Default<500>
+    aclContext: AclContext & e.AclContext
+    response: StreamableResponse & e.Container<'response'>
   }): Promise<void> {
     const context = contextForProject(projectId)
     const repoSurveyParticipant =

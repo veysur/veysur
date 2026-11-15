@@ -14,7 +14,10 @@ import {
   RepoSurveySnapshot,
   ServiceProject,
 } from 'model'
+import { AclContext } from 'model/entity/AclContext'
+import type { tagsEndpoint as e } from '@datacapy/server'
 
+/** @endpoints surveyResponse */
 export class ServiceSurveyResponse extends Service {
   constructor() {
     super({
@@ -42,6 +45,8 @@ export class ServiceSurveyResponse extends Service {
    * Manually created (admin) responses never count toward any plan-level
    * response usage limit a deployment may enforce, regardless of
    * completion status — this method intentionally never calls a usage guard.
+   * @route post /:surveyId/:snapshotId
+   * @acl projectAdmin
    */
   async create({
     response,
@@ -50,6 +55,13 @@ export class ServiceSurveyResponse extends Service {
     publicationId = null,
     projectId,
     aclContext,
+  }: {
+    response: Partial<SurveyResponse> & { createdById?: string } & e.Body
+    surveyId: string & e.Param
+    snapshotId: string & e.Param
+    publicationId?: string & e.Body
+    projectId: string & e.Header<'X-Project-Id'>
+    aclContext: AclContext & e.AclContext
   }) {
     const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSurveyResponse>('surveyResponse')
@@ -81,7 +93,19 @@ export class ServiceSurveyResponse extends Service {
     return response
   }
 
-  async getOne({ responseId, surveyId, projectId }) {
+  /**
+   * @route get /:surveyId/:responseId
+   * @acl projectAdmin
+   */
+  async getOne({
+    responseId,
+    surveyId,
+    projectId,
+  }: {
+    responseId: string & e.Param
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+  }) {
     const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSurveyResponse>('surveyResponse')
     const response = await repo.findOne(
@@ -104,6 +128,10 @@ export class ServiceSurveyResponse extends Service {
     return response
   }
 
+  /**
+   * @route get /:surveyId
+   * @acl projectAdmin
+   */
   async getAll({
     surveyId,
     snapshotId,
@@ -117,6 +145,19 @@ export class ServiceSurveyResponse extends Service {
     dateField,
     search,
     merged,
+  }: {
+    surveyId: string & e.Param
+    snapshotId?: string & e.Query
+    publicationId?: string & e.Query
+    projectId: string & e.Header<'X-Project-Id'>
+    page?: number & e.Query & e.Default<1>
+    perPage?: number & e.Query & e.Default<20>
+    completed?: string & e.Query
+    startDate?: string & e.Query
+    endDate?: string & e.Query
+    dateField?: string & e.Query
+    search?: string & e.Query
+    merged?: string & e.Query
   }) {
     const context = contextForProject(projectId)
 
@@ -226,7 +267,21 @@ export class ServiceSurveyResponse extends Service {
     }
   }
 
-  async update({ responseId, surveyId, projectId, response }) {
+  /**
+   * @route put /:surveyId/:responseId
+   * @acl projectAdmin
+   */
+  async update({
+    responseId,
+    surveyId,
+    projectId,
+    response,
+  }: {
+    responseId: string & e.Param
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+    response: Partial<SurveyResponse> & { createdById?: string } & e.Body
+  }) {
     const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSurveyResponse>('surveyResponse')
     const existing = await repo.findOne(
@@ -268,7 +323,19 @@ export class ServiceSurveyResponse extends Service {
     return true
   }
 
-  async delete({ responseId, surveyId, projectId }) {
+  /**
+   * @route delete /:surveyId/:responseId
+   * @acl projectAdmin
+   */
+  async delete({
+    responseId,
+    surveyId,
+    projectId,
+  }: {
+    responseId: string & e.Param
+    surveyId: string & e.Param
+    projectId: string & e.Header<'X-Project-Id'>
+  }) {
     const context = contextForProject(projectId)
     const repo = this.getRepo<RepoSurveyResponse>('surveyResponse')
 
