@@ -19,14 +19,18 @@ Install, update and operate a self-hosted instance. Requirements: Docker with Co
 ## Install
 
 Download the latest release from [github.com/veysur/veysur/releases](https://github.com/veysur/veysur/releases).
-Take `veysur-<version>.tar.gz` from **Assets**, not the "Source code" archive that GitHub adds to every release,
+Take `veysur.tar.gz` from **Assets**, not the "Source code" archive that GitHub adds to every release,
 which is the whole repository and has no top-level `install.sh`. Then:
 
 ```bash
-wget https://github.com/veysur/veysur/releases/download/v0.10.1/veysur-0.10.1.tar.gz
-tar -xzf veysur-0.10.1.tar.gz && cd veysur
+wget https://github.com/veysur/veysur/releases/latest/download/veysur.tar.gz
+tar -xzf veysur.tar.gz && cd veysur
 ./install.sh
 ```
+
+Each release also attaches `veysur.tar.gz` and `veysur-with-images.tar.gz` under those fixed names, so this
+link never needs editing. To install a specific version, replace `latest/download` with `download/vX.Y.Z` and
+take the matching `veysur-X.Y.Z.tar.gz`.
 
 `install.sh` offers to install Docker if it is missing, loads any bundled image archives, then runs the two
 scripts below. `--yes --domain <domain>` makes it non-interactive. Images are pulled from `ghcr.io/veysur` at

@@ -96,7 +96,8 @@ its last step. Run it (one per tag) to cut the actual GitHub release from that p
 3. Version bump, changelog, commit, tag `vX.Y.Z`, push.
 4. It creates the GitHub release as a **draft**. The tag push starts `.github/workflows/release.yml`,
    which pushes the images to GHCR (also tagged `latest`) and attaches the thin and `-with-images`
-   operator tarballs to the draft. See [deployment.md](./deployment.md#build-a-release-package)
+   operator tarballs to the draft, plus fixed-name copies (`veysur.tar.gz`, `veysur-with-images.tar.gz`)
+   that the install docs link to through `releases/latest/download/`. See [deployment.md](./deployment.md#build-a-release-package)
    for what the package script does.
 5. When that run succeeds, `release.sh` publishes the draft. If it fails, the draft stays private.
 

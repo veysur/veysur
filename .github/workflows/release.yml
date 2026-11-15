@@ -61,9 +61,15 @@ jobs:
       - name: Build thin package
         run: deploy/scripts/release-package.sh "$VERSION"
 
+      # The install docs link to releases/latest/download/veysur.tar.gz, so each release also
+      # carries these two fixed-name copies. Keep the names in step with scripts/check-install-docs.sh.
       - name: Attach packages to the release
         run: |
           gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --title "$TAG" --generate-notes
+          cp "deploy/dist/veysur-$VERSION.tar.gz" deploy/dist/veysur.tar.gz
+          cp "deploy/dist/veysur-$VERSION-with-images.tar.gz" deploy/dist/veysur-with-images.tar.gz
           gh release upload "$TAG" --clobber \
             "deploy/dist/veysur-$VERSION.tar.gz" \
-            "deploy/dist/veysur-$VERSION-with-images.tar.gz"
+            "deploy/dist/veysur-$VERSION-with-images.tar.gz" \
+            deploy/dist/veysur.tar.gz \
+            deploy/dist/veysur-with-images.tar.gz

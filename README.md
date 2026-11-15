@@ -68,16 +68,15 @@ later), 3 GB of RAM, 10 GB of free disk, a domain name pointing at it with ports
 an SMTP relay for password resets and invitations. On Windows, install under WSL (Windows Subsystem
 for Linux); we don't provide Windows-specific instructions beyond that.
 
-Download the latest release package from the
-[GitHub releases page](https://github.com/veysur/veysur/releases/latest). `veysur-<version>.tar.gz`
-is small and pulls the container images from `ghcr.io/veysur` during install.
-`veysur-<version>-with-images.tar.gz` bundles the images, for servers without access to that registry.
-Use the `veysur-<version>.tar.gz` file under **Assets**, not the "Source code" archive that GitHub adds
-to every release. Then install:
+The commands below always download the latest release. `veysur.tar.gz` is small and pulls the
+container images from `ghcr.io/veysur` during install. `veysur-with-images.tar.gz` bundles the images,
+for servers without access to that registry. Take one of these under **Assets** on the
+[releases page](https://github.com/veysur/veysur/releases/latest), not the "Source code" archive that
+GitHub adds to every release. Then install:
 
 ```bash
-wget https://github.com/veysur/veysur/releases/download/v0.10.1/veysur-0.10.1.tar.gz
-tar -xzf veysur-0.10.1.tar.gz && cd veysur
+wget https://github.com/veysur/veysur/releases/latest/download/veysur.tar.gz
+tar -xzf veysur.tar.gz && cd veysur
 ./install.sh                                                  # asks a few questions and starts VeySur
 ./scripts/admin-account-bootstrap.sh --email you@example.com  # creates the first administrator
 ./scripts/veysur.sh mail-test you@example.com                 # checks that e-mail is sent

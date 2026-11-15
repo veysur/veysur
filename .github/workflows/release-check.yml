@@ -24,3 +24,6 @@ jobs:
 
       - name: Build images
         run: deploy/scripts/release-package.sh 0.0.0-check --check
+
+      - name: Check install docs
+        run: scripts/check-install-docs.sh

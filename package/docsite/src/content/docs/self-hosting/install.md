@@ -5,18 +5,18 @@ description: Install a self-hosted VeySur instance from a release package.
 
 ## Install
 
-1. Download `veysur-<version>.tar.gz` from the Assets list on the [VeySur releases page](https://github.com/veysur/veysur/releases). Do not use the "Source code" archive, which does not contain the installer.
+1. Download `veysur.tar.gz` from the Assets list on the [VeySur releases page](https://github.com/veysur/veysur/releases). Do not use the "Source code" archive, which does not contain the installer.
 2. Unpack it and run the installer:
 
    ```bash
-   wget https://github.com/veysur/veysur/releases/download/v0.10.1/veysur-0.10.1.tar.gz
-   tar -xzf veysur-0.10.1.tar.gz && cd veysur
+   wget https://github.com/veysur/veysur/releases/latest/download/veysur.tar.gz
+   tar -xzf veysur.tar.gz && cd veysur
    ./install.sh
    ```
 
 The installer offers to install Docker if it is missing. It then asks for the domain, TLS mode, administrator email and SMTP relay, generates every secret, and starts the stack. Add `--yes --domain <domain>` to run it without prompts.
 
-The thin release downloads its images when installing. The `-with-images` release bundles them for servers without registry access.
+The thin release downloads its images when installing. The `veysur-with-images.tar.gz` package bundles them for servers without registry access.
 
 ## Create the first account
 
