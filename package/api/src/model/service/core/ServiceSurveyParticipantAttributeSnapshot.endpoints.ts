@@ -7,7 +7,7 @@ export const surveyParticipantAttributeSnapshotConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    getSurveyParticipantAttributeSnapshot: {
+    get: {
       method: 'get',
       verbs: ['get'],
       path: '/:surveyId',

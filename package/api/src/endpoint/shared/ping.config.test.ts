@@ -8,7 +8,7 @@ describe('ping endpoint config', () => {
     expect(projectEndpointConfig(generated)).toEqual({
       enable: true,
       endpoints: {
-        getSend: {
+        ping: {
           acl: [
             {
               allow: true,

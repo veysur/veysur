@@ -58,7 +58,6 @@ export class ServiceSurveyParticipantResponse extends Service {
 
   /**
    * @route get /:surveyId
-   * @endpoint getSurveyParticipantResponse
    * @acl participant
    */
   async get({
@@ -88,7 +87,6 @@ export class ServiceSurveyParticipantResponse extends Service {
 
   /**
    * @route post /:surveyId
-   * @endpoint saveSurveyParticipantResponse
    * @acl participant
    * @error PlanLimitExceededError 402
    */

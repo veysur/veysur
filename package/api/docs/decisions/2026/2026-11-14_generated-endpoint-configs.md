@@ -14,8 +14,9 @@ the request parser only reads `defaultValue`.
 
 ## Decision
 
-- A service class carries `@endpoints <name>`; each exposed method carries `@route`, `@acl`
-  and, where the key differs from the method name, `@endpoint`. Parameters are tagged with
+- A service class carries `@endpoints <name>`; each exposed method carries `@route` and `@acl`.
+  The endpoint key is the method name (the old keys such as `getAllSurvey` fed only `disable` and
+  `groups`, which nothing uses). Parameters are tagged with
   `tagsEndpoint` types (`e.Param`, `e.Header<'X-Project-Id'>`, `e.Body`, ...).
   `datacapy-gen` writes `<Service>.endpoints.ts` beside the service; `pnpm lint` runs
   `gen:check`. Design and tag reference: datacapy `package/codegen/docs/endpoints.md`.

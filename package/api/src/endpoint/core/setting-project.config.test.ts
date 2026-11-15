@@ -8,7 +8,7 @@ describe('settingProject endpoint config', () => {
     expect(projectEndpointConfig(generated)).toEqual({
       enable: true,
       endpoints: {
-        getSettingProject: {
+        getOne: {
           acl: [
             {
               allow: true,
@@ -28,7 +28,7 @@ describe('settingProject endpoint config', () => {
           path: '/',
           verbs: ['get'],
         },
-        putSettingProjectBotProtection: {
+        updateBotProtection: {
           acl: [
             {
               allow: true,
@@ -52,7 +52,7 @@ describe('settingProject endpoint config', () => {
           path: '/bot-protection',
           verbs: ['put'],
         },
-        putSettingProjectMaps: {
+        updateMaps: {
           acl: [
             {
               allow: true,

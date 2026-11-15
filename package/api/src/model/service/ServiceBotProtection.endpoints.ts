@@ -7,7 +7,7 @@ export const botProtectionConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    accountChallenge: {
+    issueAccountChallenge: {
       method: 'issueAccountChallenge',
       verbs: ['post'],
       path: '/challenge',

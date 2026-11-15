@@ -8,7 +8,7 @@ describe('twoFactor endpoint config', () => {
     expect(projectEndpointConfig(generated)).toEqual({
       enable: true,
       endpoints: {
-        postDisable: {
+        disable: {
           acl: [
             {
               allow: true,
@@ -27,7 +27,7 @@ describe('twoFactor endpoint config', () => {
           path: '/disable',
           verbs: ['post'],
         },
-        postDismissPrompt: {
+        dismissPrompt: {
           acl: [
             {
               allow: true,
@@ -41,7 +41,7 @@ describe('twoFactor endpoint config', () => {
           path: '/dismiss-prompt',
           verbs: ['post'],
         },
-        postEnable: {
+        verifyAndEnable: {
           acl: [
             {
               allow: true,
@@ -64,7 +64,7 @@ describe('twoFactor endpoint config', () => {
           path: '/enable',
           verbs: ['post'],
         },
-        postEnableAndLogin: {
+        enableAndLogin: {
           acl: [
             {
               allow: true,
@@ -92,7 +92,7 @@ describe('twoFactor endpoint config', () => {
           path: '/enable-and-login',
           verbs: ['post'],
         },
-        postSetup: {
+        generateSetupData: {
           acl: [
             {
               allow: true,
@@ -110,7 +110,7 @@ describe('twoFactor endpoint config', () => {
           path: '/setup',
           verbs: ['post'],
         },
-        postVerifyLogin: {
+        verifyLogin: {
           acl: [
             {
               allow: true,

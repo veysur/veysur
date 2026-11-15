@@ -8,7 +8,7 @@ export const fileUploadConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    postFileUploadUrl: {
+    generateUploadUrl: {
       method: 'generateUploadUrl',
       verbs: ['post'],
       path: '/upload-url',
@@ -44,7 +44,7 @@ export const fileUploadConfig = {
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
       response: { error: { PlanLimitExceededError: { http: { code: 402 } } } },
     },
-    confirmFileUpload: {
+    confirmUpload: {
       method: 'confirmUpload',
       verbs: ['post'],
       path: '/:fileId/confirm',

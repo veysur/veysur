@@ -10,7 +10,6 @@ export class ServiceVersion extends Service {
 
   /**
    * @route get /
-   * @endpoint getGet
    * @acl public
    */
   async get() {

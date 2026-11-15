@@ -7,7 +7,7 @@ export const surveyParticipantFileConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    postSurveyParticipantFileUploadUrl: {
+    generateUploadUrl: {
       method: 'generateUploadUrl',
       verbs: ['post'],
       path: '/upload-url',
@@ -33,7 +33,7 @@ export const surveyParticipantFileConfig = {
       acl: { rules: [{ allow: true, role: 'participant' }] },
       response: { error: { PlanLimitExceededError: { http: { code: 402 } } } },
     },
-    confirmSurveyParticipantFileUpload: {
+    confirmUpload: {
       method: 'confirmUpload',
       verbs: ['post'],
       path: '/:fileId/confirm',

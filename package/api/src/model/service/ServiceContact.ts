@@ -14,7 +14,6 @@ export class ServiceContact extends Service {
 
   /**
    * @route post /submit
-   * @endpoint postSubmit
    * @acl public
    */
   async submit({

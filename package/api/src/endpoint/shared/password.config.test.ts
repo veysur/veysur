@@ -8,7 +8,7 @@ describe('password endpoint config', () => {
     expect(projectEndpointConfig(generated)).toEqual({
       enable: true,
       endpoints: {
-        postResetEmail: {
+        resetEmail: {
           acl: [
             {
               allow: true,

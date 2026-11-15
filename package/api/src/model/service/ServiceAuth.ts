@@ -32,7 +32,6 @@ export class ServiceAuth extends Service {
 
   /**
    * @route post /refresh
-   * @endpoint postRefresh
    * @acl authedAdmin
    */
   async refresh(requestArgs: RefreshRequest) {

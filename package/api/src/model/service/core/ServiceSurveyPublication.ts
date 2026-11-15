@@ -267,7 +267,6 @@ export class ServicePublication extends Service {
   /**
    * Publish a survey - creates new snapshot and publication (or reuses existing snapshot)
    * @route post /:surveyId/publish
-   * @endpoint postPublish
    * @acl projectAdmin
    */
   async publish({
@@ -489,7 +488,6 @@ export class ServicePublication extends Service {
   /**
    * Republish an existing snapshot - creates new publication only
    * @route post /:surveyId/republish
-   * @endpoint postRepublish
    * @acl projectAdmin
    */
   async republish({
@@ -565,7 +563,6 @@ export class ServicePublication extends Service {
   /**
    * Unpublish - stops active publication
    * @route post /:surveyId/unpublish
-   * @endpoint postUnpublish
    * @acl projectAdmin
    */
   async unpublish({
@@ -675,7 +672,6 @@ export class ServicePublication extends Service {
    * reports "no changes" when edits are made and then reverted (e.g. moving a question
    * away and back to its original position).
    * @route get /:surveyId/has-unpublished-changes
-   * @endpoint getHasUnpublishedChanges
    * @acl projectAdmin
    */
   async hasUnpublishedChanges({
@@ -823,7 +819,6 @@ export class ServicePublication extends Service {
   /**
    * Get a single publication by ID
    * @route get /:surveyId/publication/:publicationId
-   * @endpoint getPublication
    * @acl projectAdmin
    */
   async get({
@@ -858,7 +853,6 @@ export class ServicePublication extends Service {
   /**
    * Update publication label and notes
    * @route patch /:surveyId/publication/:publicationId
-   * @endpoint updatePublication
    * @acl projectAdmin
    */
   async update({
@@ -915,7 +909,6 @@ export class ServicePublication extends Service {
 
   /**
    * @route post /:surveyId/delete-many
-   * @endpoint deleteManyPublications
    * @acl projectAdmin
    */
   async deleteMany({
@@ -1065,7 +1058,6 @@ export class ServicePublication extends Service {
   /**
    * Merge responses from source publication to target publication
    * @route post /:surveyId/:targetPublicationId/merge-from/:sourcePublicationId
-   * @endpoint mergePublicationResponses
    * @acl projectAdmin
    */
   async mergePublications({

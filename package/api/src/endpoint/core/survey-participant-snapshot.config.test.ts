@@ -8,7 +8,7 @@ describe('surveyParticipantSnapshot endpoint config', () => {
     expect(projectEndpointConfig(generated)).toEqual({
       enable: true,
       endpoints: {
-        getSurveyParticipantSnapshot: {
+        get: {
           acl: [
             {
               allow: true,
@@ -36,7 +36,7 @@ describe('surveyParticipantSnapshot endpoint config', () => {
           path: '/:surveyId',
           verbs: ['get'],
         },
-        getSurveyParticipantSnapshotPartial: {
+        getPartial: {
           acl: [
             {
               allow: true,

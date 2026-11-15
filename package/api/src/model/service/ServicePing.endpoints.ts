@@ -7,7 +7,7 @@ export const pingConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    getSend: {
+    ping: {
       method: 'ping',
       verbs: ['get'],
       path: '/',

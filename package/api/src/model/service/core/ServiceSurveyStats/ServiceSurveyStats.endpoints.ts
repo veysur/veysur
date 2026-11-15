@@ -7,7 +7,7 @@ export const surveyStatsConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    getSurveyStats: {
+    getStats: {
       method: 'getStats',
       verbs: ['get'],
       path: '/:surveyId/:snapshotId',

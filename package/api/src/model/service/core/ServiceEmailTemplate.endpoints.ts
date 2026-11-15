@@ -7,7 +7,7 @@ export const emailTemplateConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    getSurveyEmailTemplate: {
+    getOne: {
       method: 'getOne',
       verbs: ['get'],
       path: '/survey/:surveyId/:type/:lang',
@@ -24,7 +24,7 @@ export const emailTemplateConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    getSurveyEmailTemplates: {
+    getAll: {
       method: 'getAll',
       verbs: ['get'],
       path: '/survey/:surveyId',
@@ -40,7 +40,7 @@ export const emailTemplateConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    getProjectEmailTemplates: {
+    getProjectAll: {
       method: 'getProjectAll',
       verbs: ['get'],
       path: '/',
@@ -54,7 +54,7 @@ export const emailTemplateConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    deleteSurveyEmailTemplate: {
+    deleteOne: {
       method: 'deleteOne',
       verbs: ['delete'],
       path: '/survey/:surveyId/:type/:lang',
@@ -71,7 +71,7 @@ export const emailTemplateConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    getProjectEmailTemplate: {
+    getProjectOne: {
       method: 'getProjectOne',
       verbs: ['get'],
       path: '/:type/:lang',
@@ -87,7 +87,7 @@ export const emailTemplateConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    deleteProjectEmailTemplate: {
+    deleteProjectOne: {
       method: 'deleteProjectOne',
       verbs: ['delete'],
       path: '/:type/:lang',
@@ -103,7 +103,7 @@ export const emailTemplateConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    patchSurveyEmailTemplate: {
+    patch: {
       method: 'patch',
       verbs: ['patch'],
       path: '/survey/:surveyId',
@@ -119,7 +119,7 @@ export const emailTemplateConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    patchProjectEmailTemplate: {
+    patchProject: {
       method: 'patchProject',
       verbs: ['patch'],
       path: '/',
@@ -134,7 +134,7 @@ export const emailTemplateConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    getSystemEmailTemplates: {
+    getSystemTemplates: {
       method: 'getSystemTemplates',
       verbs: ['get'],
       path: '/system',
@@ -148,7 +148,7 @@ export const emailTemplateConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    getSystemEmailTemplate: {
+    getSystemTemplate: {
       method: 'getSystemTemplate',
       verbs: ['get'],
       path: '/system/:type/:lang',

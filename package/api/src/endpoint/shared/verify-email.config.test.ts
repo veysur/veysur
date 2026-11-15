@@ -8,7 +8,7 @@ describe('verifyEmail endpoint config', () => {
     expect(projectEndpointConfig(generated)).toEqual({
       enable: true,
       endpoints: {
-        getSend: {
+        send: {
           acl: [
             {
               allow: true,
@@ -22,7 +22,7 @@ describe('verifyEmail endpoint config', () => {
           path: '/send',
           verbs: ['get'],
         },
-        postVerify: {
+        verify: {
           acl: [
             {
               allow: true,

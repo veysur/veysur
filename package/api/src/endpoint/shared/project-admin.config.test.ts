@@ -8,7 +8,7 @@ describe('projectAdmin endpoint config', () => {
     expect(projectEndpointConfig(generated)).toEqual({
       enable: true,
       endpoints: {
-        deleteProjectAdmin: {
+        remove: {
           acl: [
             {
               allow: true,
@@ -58,7 +58,7 @@ describe('projectAdmin endpoint config', () => {
           path: '/accept-detail',
           verbs: ['get'],
         },
-        getProjectAdmins: {
+        listWithUsers: {
           acl: [
             {
               allow: true,
@@ -89,7 +89,7 @@ describe('projectAdmin endpoint config', () => {
           path: '/:projectId',
           verbs: ['get'],
         },
-        postAccept: {
+        accept: {
           acl: [
             {
               allow: true,
@@ -112,7 +112,7 @@ describe('projectAdmin endpoint config', () => {
           path: '/accept',
           verbs: ['post'],
         },
-        postAcceptNewAccount: {
+        acceptNewAccount: {
           acl: [
             {
               allow: true,
@@ -191,7 +191,7 @@ describe('projectAdmin endpoint config', () => {
           path: '/accept-new-account',
           verbs: ['post'],
         },
-        postDecline: {
+        decline: {
           acl: [
             {
               allow: true,
@@ -214,7 +214,7 @@ describe('projectAdmin endpoint config', () => {
           path: '/decline',
           verbs: ['post'],
         },
-        postInvite: {
+        invite: {
           acl: [
             {
               allow: true,

@@ -8,7 +8,7 @@ describe('importExport endpoint config', () => {
     expect(projectEndpointConfig(generated)).toEqual({
       enable: true,
       endpoints: {
-        exportEntity: {
+        export: {
           acl: [
             {
               allow: true,

@@ -8,7 +8,7 @@ export const surveyParticipantGenerateConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    generateSurveyParticipant: {
+    generate: {
       method: 'generate',
       verbs: ['post'],
       path: '/:surveyId/generate',

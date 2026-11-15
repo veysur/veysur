@@ -8,7 +8,7 @@ describe('settingSurvey endpoint config', () => {
     expect(projectEndpointConfig(generated)).toEqual({
       enable: true,
       endpoints: {
-        getSettingSurvey: {
+        getOne: {
           acl: [
             {
               allow: true,
@@ -28,7 +28,7 @@ describe('settingSurvey endpoint config', () => {
           path: '/',
           verbs: ['get'],
         },
-        patchSettingSurvey: {
+        patch: {
           acl: [
             {
               allow: true,

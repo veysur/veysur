@@ -7,7 +7,7 @@ export const authEmailPasswordConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    postEmailPassword: {
+    login: {
       method: 'login',
       verbs: ['post'],
       path: '/login',

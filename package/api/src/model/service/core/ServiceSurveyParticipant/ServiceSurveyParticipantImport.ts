@@ -113,7 +113,6 @@ export class ServiceSurveyParticipantImport extends Service {
    * Import participants from CSV with streaming and batch processing
    * Supports deduplication by email and token conflict resolution
    * @route post /:surveyId/import
-   * @endpoint importSurveyParticipant
    * @acl projectAdmin
    */
   async import({

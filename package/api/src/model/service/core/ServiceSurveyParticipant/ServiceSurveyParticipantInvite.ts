@@ -56,7 +56,6 @@ export class ServiceSurveyParticipantEmail extends Service {
    * Send email invites to participants in batches
    * Returns progress information and any errors encountered
    * @route post /:surveyId/send-invites
-   * @endpoint sendInvitesSurveyParticipant
    * @acl projectAdmin
    */
   async send({
@@ -83,7 +82,6 @@ export class ServiceSurveyParticipantEmail extends Service {
    * Send email reminders to participants in batches
    * Returns progress information and any errors encountered
    * @route post /:surveyId/send-reminders
-   * @endpoint sendRemindersSurveyParticipant
    * @acl projectAdmin
    */
   async sendReminders({

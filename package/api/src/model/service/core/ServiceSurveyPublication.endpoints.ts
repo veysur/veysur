@@ -7,7 +7,7 @@ export const surveyPublicationConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    postPublish: {
+    publish: {
       method: 'publish',
       verbs: ['post'],
       path: '/:surveyId/publish',
@@ -32,7 +32,7 @@ export const surveyPublicationConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    postRepublish: {
+    republish: {
       method: 'republish',
       verbs: ['post'],
       path: '/:surveyId/republish',
@@ -50,7 +50,7 @@ export const surveyPublicationConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    postUnpublish: {
+    unpublish: {
       method: 'unpublish',
       verbs: ['post'],
       path: '/:surveyId/unpublish',
@@ -81,7 +81,7 @@ export const surveyPublicationConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    getHasUnpublishedChanges: {
+    hasUnpublishedChanges: {
       method: 'hasUnpublishedChanges',
       verbs: ['get'],
       path: '/:surveyId/has-unpublished-changes',
@@ -118,7 +118,7 @@ export const surveyPublicationConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    getPublication: {
+    get: {
       method: 'get',
       verbs: ['get'],
       path: '/:surveyId/publication/:publicationId',
@@ -134,7 +134,7 @@ export const surveyPublicationConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    updatePublication: {
+    update: {
       method: 'update',
       verbs: ['patch'],
       path: '/:surveyId/publication/:publicationId',
@@ -152,7 +152,7 @@ export const surveyPublicationConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    deleteManyPublications: {
+    deleteMany: {
       method: 'deleteMany',
       verbs: ['post'],
       path: '/:surveyId/delete-many',
@@ -168,7 +168,7 @@ export const surveyPublicationConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    mergePublicationResponses: {
+    mergePublications: {
       method: 'mergePublications',
       verbs: ['post'],
       path: '/:surveyId/:targetPublicationId/merge-from/:sourcePublicationId',

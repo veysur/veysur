@@ -8,7 +8,7 @@ export const fileConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    getAllFile: {
+    getAll: {
       method: 'getAll',
       verbs: ['get'],
       path: '/',
@@ -29,7 +29,7 @@ export const fileConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    getFile: {
+    getOne: {
       method: 'getOne',
       verbs: ['get'],
       path: '/:fileId',
@@ -44,7 +44,7 @@ export const fileConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    getFilesBySurvey: {
+    getFilesForSurvey: {
       method: 'getFilesForSurvey',
       verbs: ['get'],
       path: '/survey/:surveyId',
@@ -66,7 +66,7 @@ export const fileConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    getFilesByResponse: {
+    getFilesForResponse: {
       method: 'getFilesForResponse',
       verbs: ['get'],
       path: '/survey/:surveyId/response/:responseId',
@@ -89,7 +89,7 @@ export const fileConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    getFileDownloadUrl: {
+    generateDownloadUrl: {
       method: 'generateDownloadUrl',
       verbs: ['get'],
       path: '/:fileId/download-url',

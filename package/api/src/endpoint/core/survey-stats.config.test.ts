@@ -8,7 +8,7 @@ describe('surveyStats endpoint config', () => {
     expect(projectEndpointConfig(generated)).toEqual({
       enable: true,
       endpoints: {
-        getSurveyStats: {
+        getStats: {
           acl: [
             {
               allow: true,

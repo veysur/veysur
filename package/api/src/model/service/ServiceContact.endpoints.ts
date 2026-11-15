@@ -7,7 +7,7 @@ export const contactConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    postSubmit: {
+    submit: {
       method: 'submit',
       verbs: ['post'],
       path: '/submit',

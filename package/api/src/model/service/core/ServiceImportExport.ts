@@ -191,7 +191,6 @@ export class ServiceImportExport extends Service {
    * ServiceDataTransferJob.getStatus() for the result. Otherwise compile
    * and return the download URL synchronously, as before.
    * @route post /export/:entityType/:entityId/:format
-   * @endpoint exportEntity
    * @acl projectAdmin
    */
   async export(params: {

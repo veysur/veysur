@@ -11,7 +11,7 @@ describe('survey-participant-attribute endpoint config', () => {
     ).toEqual({
       enable: true,
       endpoints: {
-        batchSaveSurveyParticipantAttribute: {
+        batchSave: {
           acl: [
             {
               allow: true,
@@ -43,7 +43,7 @@ describe('survey-participant-attribute endpoint config', () => {
           path: '/:surveyId',
           verbs: ['patch'],
         },
-        deleteSurveyParticipantAttribute: {
+        delete: {
           acl: [
             {
               allow: true,
@@ -71,7 +71,7 @@ describe('survey-participant-attribute endpoint config', () => {
           path: '/:surveyId/:attributeName',
           verbs: ['delete'],
         },
-        getAllSurveyParticipantAttribute: {
+        list: {
           acl: [
             {
               allow: true,
@@ -95,7 +95,7 @@ describe('survey-participant-attribute endpoint config', () => {
           path: '/:surveyId',
           verbs: ['get'],
         },
-        postSurveyParticipantAttribute: {
+        create: {
           acl: [
             {
               allow: true,

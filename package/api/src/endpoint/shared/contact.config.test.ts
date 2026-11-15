@@ -8,7 +8,7 @@ describe('contact endpoint config', () => {
     expect(projectEndpointConfig(generated)).toEqual({
       enable: true,
       endpoints: {
-        postSubmit: {
+        submit: {
           acl: [
             {
               allow: true,

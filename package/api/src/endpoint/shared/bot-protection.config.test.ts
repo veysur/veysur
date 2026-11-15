@@ -8,7 +8,7 @@ describe('botProtection endpoint config', () => {
     expect(projectEndpointConfig(generated)).toEqual({
       enable: true,
       endpoints: {
-        accountChallenge: {
+        issueAccountChallenge: {
           acl: [
             {
               allow: true,

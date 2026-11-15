@@ -8,7 +8,7 @@ export const surveyParticipantConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    postSurveyParticipant: {
+    create: {
       method: 'create',
       verbs: ['post'],
       path: '/:surveyId',
@@ -24,14 +24,14 @@ export const surveyParticipantConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    getSurveyParticipantMe: {
+    getMe: {
       method: 'getMe',
       verbs: ['get'],
       path: '/:surveyId/me',
       data: { surveyId: { src: 'param', required: false, type: String } },
       acl: { rules: [{ allow: true, role: 'participant' }] },
     },
-    getSurveyParticipant: {
+    getOne: {
       method: 'getOne',
       verbs: ['get'],
       path: '/:surveyId/:participantId',
@@ -47,7 +47,7 @@ export const surveyParticipantConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    getAllSurveyParticipant: {
+    getAll: {
       method: 'getAll',
       verbs: ['get'],
       path: '/:surveyId',
@@ -71,7 +71,7 @@ export const surveyParticipantConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    updateSurveyParticipant: {
+    update: {
       method: 'update',
       verbs: ['put'],
       path: '/:surveyId/:participantId',
@@ -88,7 +88,7 @@ export const surveyParticipantConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    deleteSurveyParticipant: {
+    delete: {
       method: 'delete',
       verbs: ['delete'],
       path: '/:surveyId/:participantId',
@@ -104,7 +104,7 @@ export const surveyParticipantConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    resetInviteStatusSurveyParticipant: {
+    resetInviteStatus: {
       method: 'resetInviteStatus',
       verbs: ['put'],
       path: '/:surveyId/:participantId/reset-invite-status',
@@ -120,7 +120,7 @@ export const surveyParticipantConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    resetReminderStatusSurveyParticipant: {
+    resetReminderStatus: {
       method: 'resetReminderStatus',
       verbs: ['put'],
       path: '/:surveyId/:participantId/reset-reminder-status',

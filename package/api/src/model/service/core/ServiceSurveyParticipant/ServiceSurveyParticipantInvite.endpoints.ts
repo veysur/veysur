@@ -8,7 +8,7 @@ export const surveyParticipantEmailConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    sendInvitesSurveyParticipant: {
+    send: {
       method: 'send',
       verbs: ['post'],
       path: '/:surveyId/send-invites',
@@ -30,7 +30,7 @@ export const surveyParticipantEmailConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    sendRemindersSurveyParticipant: {
+    sendReminders: {
       method: 'sendReminders',
       verbs: ['post'],
       path: '/:surveyId/send-reminders',

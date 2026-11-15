@@ -8,7 +8,7 @@ export const surveyParticipantAttributeConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    getAllSurveyParticipantAttribute: {
+    list: {
       method: 'list',
       verbs: ['get'],
       path: '/:surveyId',
@@ -23,7 +23,7 @@ export const surveyParticipantAttributeConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    postSurveyParticipantAttribute: {
+    create: {
       method: 'create',
       verbs: ['post'],
       path: '/:surveyId',
@@ -39,7 +39,7 @@ export const surveyParticipantAttributeConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    deleteSurveyParticipantAttribute: {
+    delete: {
       method: 'delete',
       verbs: ['delete'],
       path: '/:surveyId/:attributeName',
@@ -55,7 +55,7 @@ export const surveyParticipantAttributeConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    batchSaveSurveyParticipantAttribute: {
+    batchSave: {
       method: 'batchSave',
       verbs: ['patch'],
       path: '/:surveyId',

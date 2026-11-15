@@ -26,7 +26,6 @@ export class ServiceSurveyParticipantSnapshot extends Service {
 
   /**
    * @route get /:surveyId
-   * @endpoint getSurveyParticipantSnapshot
    * @acl participant
    */
   async get({
@@ -51,7 +50,6 @@ export class ServiceSurveyParticipantSnapshot extends Service {
 
   /**
    * @route get /:surveyId/partial
-   * @endpoint getSurveyParticipantSnapshotPartial
    * @acl public
    */
   async getPartial({

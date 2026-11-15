@@ -45,7 +45,6 @@ export class ServiceEmailTemplate extends Service {
 
   /**
    * @route get /survey/:surveyId/:type/:lang
-   * @endpoint getSurveyEmailTemplate
    * @acl projectAdmin
    */
   async getOne({
@@ -72,7 +71,6 @@ export class ServiceEmailTemplate extends Service {
 
   /**
    * @route get /survey/:surveyId
-   * @endpoint getSurveyEmailTemplates
    * @acl projectAdmin
    */
   async getAll({
@@ -125,7 +123,6 @@ export class ServiceEmailTemplate extends Service {
 
   /**
    * @route get /
-   * @endpoint getProjectEmailTemplates
    * @acl projectAdmin
    */
   async getProjectAll({
@@ -152,7 +149,6 @@ export class ServiceEmailTemplate extends Service {
 
   /**
    * @route delete /survey/:surveyId/:type/:lang
-   * @endpoint deleteSurveyEmailTemplate
    * @acl projectAdmin
    */
   async deleteOne({
@@ -175,7 +171,6 @@ export class ServiceEmailTemplate extends Service {
   /**
    * Project-level template: the same record as `getOne` with no survey.
    * @route get /:type/:lang
-   * @endpoint getProjectEmailTemplate
    * @acl projectAdmin
    */
   async getProjectOne({
@@ -193,7 +188,6 @@ export class ServiceEmailTemplate extends Service {
   /**
    * Project-level delete: the same as `deleteOne` with no survey.
    * @route delete /:type/:lang
-   * @endpoint deleteProjectEmailTemplate
    * @acl projectAdmin
    */
   async deleteProjectOne({
@@ -279,7 +273,6 @@ export class ServiceEmailTemplate extends Service {
 
   /**
    * @route patch /survey/:surveyId
-   * @endpoint patchSurveyEmailTemplate
    * @acl projectAdmin
    */
   async patch({
@@ -296,7 +289,6 @@ export class ServiceEmailTemplate extends Service {
 
   /**
    * @route patch /
-   * @endpoint patchProjectEmailTemplate
    * @acl projectAdmin
    */
   async patchProject({
@@ -316,7 +308,6 @@ export class ServiceEmailTemplate extends Service {
 
   /**
    * @route get /system
-   * @endpoint getSystemEmailTemplates
    * @acl projectAdmin
    */
   async getSystemTemplates({
@@ -330,7 +321,6 @@ export class ServiceEmailTemplate extends Service {
 
   /**
    * @route get /system/:type/:lang
-   * @endpoint getSystemEmailTemplate
    * @acl projectAdmin
    */
   async getSystemTemplate({

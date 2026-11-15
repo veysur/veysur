@@ -45,7 +45,6 @@ export class ServiceUser extends Service {
 
   /**
    * @route get /me
-   * @endpoint getMe
    * @acl authedAdmin
    */
   async me({ aclContext }: { aclContext: AclContext & e.AclContext }) {
@@ -267,7 +266,6 @@ export class ServiceUser extends Service {
 
   /**
    * @route post /validate-password-current
-   * @endpoint postValidatePasswordCurrent
    * @acl authedAdmin
    */
   async validatePasswordCurrent({
@@ -291,7 +289,6 @@ export class ServiceUser extends Service {
   }
   /**
    * @route post /validate-email-not-registered
-   * @endpoint postValidateEmailNotRegistered
    * @acl public
    */
   async validateEmailNotRegistered({

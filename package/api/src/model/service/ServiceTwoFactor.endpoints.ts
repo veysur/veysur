@@ -7,7 +7,7 @@ export const twoFactorConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    postSetup: {
+    generateSetupData: {
       method: 'generateSetupData',
       verbs: ['post'],
       path: '/setup',
@@ -19,7 +19,7 @@ export const twoFactorConfig = {
         ],
       },
     },
-    postEnable: {
+    verifyAndEnable: {
       method: 'verifyAndEnable',
       verbs: ['post'],
       path: '/enable',
@@ -29,7 +29,7 @@ export const twoFactorConfig = {
       },
       acl: { rules: [{ allow: true, role: 'authedAdmin' }] },
     },
-    postVerifyLogin: {
+    verifyLogin: {
       method: 'verifyLogin',
       verbs: ['post'],
       path: '/verify-login',
@@ -39,7 +39,7 @@ export const twoFactorConfig = {
       },
       acl: { rules: [{ allow: true, role: 'preAuth' }] },
     },
-    postEnableAndLogin: {
+    enableAndLogin: {
       method: 'enableAndLogin',
       verbs: ['post'],
       path: '/enable-and-login',
@@ -50,14 +50,14 @@ export const twoFactorConfig = {
       },
       acl: { rules: [{ allow: true, role: 'preAuth' }] },
     },
-    postDisable: {
+    disable: {
       method: 'disable',
       verbs: ['post'],
       path: '/disable',
       data: { password: { src: 'body', required: true, type: String } },
       acl: { rules: [{ allow: true, role: 'authedAdmin' }] },
     },
-    postDismissPrompt: {
+    dismissPrompt: {
       method: 'dismissPrompt',
       verbs: ['post'],
       path: '/dismiss-prompt',

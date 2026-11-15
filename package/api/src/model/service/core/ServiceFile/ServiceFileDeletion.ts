@@ -102,7 +102,6 @@ export class ServiceFileDeletion extends Service {
   /**
    * Soft delete file (mark as deleted without removing from storage)
    * @route delete /:fileId
-   * @endpoint deleteFile
    * @acl projectAdmin
    */
   async delete({
@@ -253,7 +252,6 @@ export class ServiceFileDeletion extends Service {
    * Hard delete files from storage and database
    * Deletes files with deleted timestamp older than specified date
    * @route delete /hard{/:olderThan}
-   * @endpoint hardDeleteFiles
    * @acl projectAdmin
    */
   async hardDelete({

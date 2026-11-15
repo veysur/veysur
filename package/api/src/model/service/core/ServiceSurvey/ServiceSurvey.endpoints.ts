@@ -7,7 +7,7 @@ export const surveyConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    getSurveyTemplateList: {
+    listTemplates: {
       method: 'listTemplates',
       verbs: ['get'],
       path: '/template/list',
@@ -21,7 +21,7 @@ export const surveyConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    postSurvey: {
+    create: {
       method: 'create',
       verbs: ['post'],
       path: '/',
@@ -37,7 +37,7 @@ export const surveyConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    getAllSurvey: {
+    getAll: {
       method: 'getAll',
       verbs: ['get'],
       path: '/',
@@ -67,7 +67,7 @@ export const surveyConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    getSurvey: {
+    getOne: {
       method: 'getOne',
       verbs: ['get'],
       path: '/:surveyId',
@@ -84,7 +84,7 @@ export const surveyConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    patchSurvey: {
+    patch: {
       method: 'patch',
       verbs: ['patch'],
       path: '/:surveyId',
@@ -106,7 +106,7 @@ export const surveyConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    deleteSurvey: {
+    delete: {
       method: 'delete',
       verbs: ['delete'],
       path: '/:surveyId',

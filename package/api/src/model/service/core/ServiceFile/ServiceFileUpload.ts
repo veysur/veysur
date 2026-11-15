@@ -99,7 +99,6 @@ export class ServiceFileUpload extends Service {
    * Generate signed upload URL for file upload
    * Handles deduplication, resurrection, and new uploads
    * @route post /upload-url
-   * @endpoint postFileUploadUrl
    * @acl projectAdmin
    * @error PlanLimitExceededError 402
    */
@@ -395,7 +394,6 @@ export class ServiceFileUpload extends Service {
   /**
    * Confirm file upload by verifying object exists in storage
    * @route post /:fileId/confirm
-   * @endpoint confirmFileUpload
    * @acl projectAdmin
    */
   async confirmUpload({

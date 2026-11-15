@@ -29,7 +29,6 @@ export class ServiceSettingSurvey extends Service {
 
   /**
    * @route get /
-   * @endpoint getSettingSurvey
    * @acl projectAdmin
    */
   async getOne({
@@ -55,7 +54,6 @@ export class ServiceSettingSurvey extends Service {
 
   /**
    * @route patch /
-   * @endpoint patchSettingSurvey
    * @acl projectAdmin
    * @error PlanLimitExceededError 402
    */

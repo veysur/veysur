@@ -47,7 +47,6 @@ export class ServiceSurveyParticipantAttribute extends Service {
 
   /**
    * @route get /:surveyId
-   * @endpoint getAllSurveyParticipantAttribute
    * @acl projectAdmin
    */
   async list({
@@ -111,7 +110,6 @@ export class ServiceSurveyParticipantAttribute extends Service {
 
   /**
    * @route post /:surveyId
-   * @endpoint postSurveyParticipantAttribute
    * @acl projectAdmin
    */
   async create({
@@ -344,7 +342,6 @@ export class ServiceSurveyParticipantAttribute extends Service {
 
   /**
    * @route delete /:surveyId/:attributeName
-   * @endpoint deleteSurveyParticipantAttribute
    * @acl projectAdmin
    */
   async delete({
@@ -401,7 +398,6 @@ export class ServiceSurveyParticipantAttribute extends Service {
 
   /**
    * @route patch /:surveyId
-   * @endpoint batchSaveSurveyParticipantAttribute
    * @acl projectAdmin
    */
   async batchSave({

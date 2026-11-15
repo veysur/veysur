@@ -7,7 +7,7 @@ export const settingSurveyConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    getSettingSurvey: {
+    getOne: {
       method: 'getOne',
       verbs: ['get'],
       path: '/',
@@ -21,7 +21,7 @@ export const settingSurveyConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    patchSettingSurvey: {
+    patch: {
       method: 'patch',
       verbs: ['patch'],
       path: '/',

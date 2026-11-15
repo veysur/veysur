@@ -54,7 +54,6 @@ export class ServiceBotProtection extends Service {
    * The challenge an account form (login, signup) solves, or `enabled: false`
    * when the deployment has turned the check off.
    * @route post /challenge
-   * @endpoint accountChallenge
    * @acl public
    */
   issueAccountChallenge(): { enabled: boolean } & Partial<SimpleChallenge> {

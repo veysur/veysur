@@ -49,7 +49,6 @@ export class ServiceAuthEmailPassword extends Service {
    * The public login: checks the bot check, then authenticates.
    *
    * @route post /login
-   * @endpoint postEmailPassword
    * @acl public
    */
   async login(requestArgs: LoginRequest) {

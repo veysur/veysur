@@ -28,7 +28,6 @@ export class ServiceSurveyParticipantGenerate extends Service {
    * Generate test participants for a survey
    * Creates participants with sequential naming (Test User 1, Test User 2, etc.)
    * @route post /:surveyId/generate
-   * @endpoint generateSurveyParticipant
    * @acl projectAdmin
    */
   async generate({

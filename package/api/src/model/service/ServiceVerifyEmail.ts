@@ -107,7 +107,6 @@ export class ServiceVerifyEmail extends Service {
 
   /**
    * @route get /send
-   * @endpoint getSend
    * @acl authedAdmin
    */
   async send({ aclContext }: { aclContext: AclContext & e.AclContext }) {
@@ -123,7 +122,6 @@ export class ServiceVerifyEmail extends Service {
 
   /**
    * @route post /verify
-   * @endpoint postVerify
    * @acl public
    */
   async verify({

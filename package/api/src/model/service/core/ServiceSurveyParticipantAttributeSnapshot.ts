@@ -23,7 +23,6 @@ export class ServiceSurveyParticipantAttributeSnapshot extends Service {
 
   /**
    * @route get /:surveyId
-   * @endpoint getSurveyParticipantAttributeSnapshot
    * @acl public
    */
   async get({

@@ -83,8 +83,7 @@ Non-model utilities shared across the server. Import via `'common'` or `'common/
 ### Endpoints and URL prefixes
 
 Endpoint configs are generated, not written. A service class carries `@endpoints <name>`; each exposed
-method carries `@route <verb> <path>`, `@acl <role>` (or `@acl public`) and `@endpoint <key>` where the key
-differs from the method name; each parameter is tagged with `e.Param`, `e.Query`, `e.Body`,
+method carries `@route <verb> <path>` and `@acl <role>` (or `@acl public`); the endpoint key is the method name; each parameter is tagged with `e.Param`, `e.Query`, `e.Body`,
 `e.Header<'X-Project-Id'>`, `e.AclContext` and so on (`import type { tagsEndpoint as e } from '@datacapy/server'`).
 `pnpm gen` writes `<Service>.endpoints.ts` beside the service, `pnpm lint` fails if one is stale (`gen:check`),
 and `src/endpoint/{core,shared}/index.ts` re-exports it. Never edit a `*.endpoints.ts` file. Reference:

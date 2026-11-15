@@ -8,7 +8,7 @@ describe('survey endpoint config', () => {
     expect(projectEndpointConfig(generated)).toEqual({
       enable: true,
       endpoints: {
-        deleteSurvey: {
+        delete: {
           acl: [
             {
               allow: true,
@@ -32,7 +32,7 @@ describe('survey endpoint config', () => {
           path: '/:surveyId',
           verbs: ['delete'],
         },
-        getAllSurvey: {
+        getAll: {
           acl: [
             {
               allow: true,
@@ -79,7 +79,7 @@ describe('survey endpoint config', () => {
           path: '/',
           verbs: ['get'],
         },
-        getSurvey: {
+        getOne: {
           acl: [
             {
               allow: true,
@@ -111,7 +111,7 @@ describe('survey endpoint config', () => {
           path: '/:surveyId',
           verbs: ['get'],
         },
-        getSurveyTemplateList: {
+        listTemplates: {
           acl: [
             {
               allow: true,
@@ -131,7 +131,7 @@ describe('survey endpoint config', () => {
           path: '/template/list',
           verbs: ['get'],
         },
-        patchSurvey: {
+        patch: {
           acl: [
             {
               allow: true,
@@ -164,7 +164,7 @@ describe('survey endpoint config', () => {
           path: '/:surveyId',
           verbs: ['patch'],
         },
-        postSurvey: {
+        create: {
           acl: [
             {
               allow: true,

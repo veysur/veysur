@@ -8,7 +8,7 @@ export const surveyParticipantImportConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    importSurveyParticipant: {
+    import: {
       method: 'import',
       verbs: ['post'],
       path: '/:surveyId/import',

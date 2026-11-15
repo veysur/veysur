@@ -7,7 +7,7 @@ export const authConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    postRefresh: {
+    refresh: {
       method: 'refresh',
       verbs: ['post'],
       path: '/refresh',

@@ -63,7 +63,6 @@ export class ServiceAuthParticipant extends Service {
 
   /**
    * @route post /:surveyId
-   * @endpoint post
    * @acl public
    */
   async auth({

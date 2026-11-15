@@ -86,7 +86,6 @@ export class ServiceSurveyParticipantFile extends Service {
    * empty `answers` object) — this endpoint never creates a response itself,
    * so response creation stays owned by a single code path.
    * @route post /upload-url
-   * @endpoint postSurveyParticipantFileUploadUrl
    * @acl participant
    * @error PlanLimitExceededError 402
    */
@@ -189,7 +188,6 @@ export class ServiceSurveyParticipantFile extends Service {
    * — a participant must never be able to confirm (and thereby reference)
    * a file uploaded against someone else's response.
    * @route post /:fileId/confirm
-   * @endpoint confirmSurveyParticipantFileUpload
    * @acl participant
    */
   async confirmUpload({

@@ -8,7 +8,7 @@ describe('surveyParticipantAttributeSnapshot endpoint config', () => {
     expect(projectEndpointConfig(generated)).toEqual({
       enable: true,
       endpoints: {
-        getSurveyParticipantAttributeSnapshot: {
+        get: {
           acl: [
             {
               allow: true,

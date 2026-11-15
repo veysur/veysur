@@ -7,7 +7,7 @@ export const authParticipantConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    post: {
+    auth: {
       method: 'auth',
       verbs: ['post'],
       path: '/:surveyId',

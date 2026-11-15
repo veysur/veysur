@@ -8,7 +8,7 @@ export const surveyParticipantExportConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    exportSurveyParticipant: {
+    export: {
       method: 'export',
       verbs: ['get'],
       path: '/:surveyId/export',

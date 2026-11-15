@@ -58,7 +58,6 @@ export class ServicePassword extends Service {
 
   /**
    * @route post /reset-email
-   * @endpoint postResetEmail
    * @acl public
    */
   async resetEmail({ email }: { email: string & e.Body }) {

@@ -7,7 +7,7 @@ export const surveyParticipantSnapshotConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    getSurveyParticipantSnapshot: {
+    get: {
       method: 'get',
       verbs: ['get'],
       path: '/:surveyId',
@@ -23,7 +23,7 @@ export const surveyParticipantSnapshotConfig = {
       },
       acl: { rules: [{ allow: true, role: 'participant' }] },
     },
-    getSurveyParticipantSnapshotPartial: {
+    getPartial: {
       method: 'getPartial',
       verbs: ['get'],
       path: '/:surveyId/partial',

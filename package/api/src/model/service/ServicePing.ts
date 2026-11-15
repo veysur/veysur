@@ -11,7 +11,6 @@ export class ServicePing extends Service {
 
   /**
    * @route get /
-   * @endpoint getSend
    * @acl public
    */
   async ping() {

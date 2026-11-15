@@ -9,7 +9,7 @@ describe('surveySnapshot endpoint config', () => {
     expect(projectEndpointConfig(generated)).toEqual({
       enable: true,
       endpoints: {
-        compareSnapshotWithCurrent: {
+        compareWithCurrent: {
           acl: [
             {
               allow: true,
@@ -37,7 +37,7 @@ describe('surveySnapshot endpoint config', () => {
           path: '/:surveyId/compare-with-current/:snapshotId',
           verbs: ['get'],
         },
-        compareSurveySnapshots: {
+        compare: {
           acl: [
             {
               allow: true,
@@ -69,7 +69,7 @@ describe('surveySnapshot endpoint config', () => {
           path: '/:surveyId/compare/:snapshotIdA/:snapshotIdB',
           verbs: ['get'],
         },
-        deleteManySurveySnapshots: {
+        deleteMany: {
           acl: [
             {
               allow: true,
@@ -97,7 +97,7 @@ describe('surveySnapshot endpoint config', () => {
           path: '/:surveyId/delete-many',
           verbs: ['post'],
         },
-        getSurveySnapshot: {
+        get: {
           acl: [
             {
               allow: true,
@@ -125,7 +125,7 @@ describe('surveySnapshot endpoint config', () => {
           path: '/:surveyId/:snapshotId',
           verbs: ['get'],
         },
-        getSurveySnapshots: {
+        getAll: {
           acl: [
             {
               allow: true,
@@ -159,7 +159,7 @@ describe('surveySnapshot endpoint config', () => {
           path: '/:surveyId',
           verbs: ['get'],
         },
-        mergeSnapshotResponses: {
+        mergeSnapshots: {
           acl: [
             {
               allow: true,
@@ -203,7 +203,7 @@ describe('surveySnapshot endpoint config', () => {
           path: '/:surveyId/:targetSnapshotId/merge-from/:sourceSnapshotId',
           verbs: ['post'],
         },
-        updateSurveySnapshot: {
+        update: {
           acl: [
             {
               allow: true,

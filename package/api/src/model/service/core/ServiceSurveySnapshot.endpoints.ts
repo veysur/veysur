@@ -7,7 +7,7 @@ export const surveySnapshotConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    getSurveySnapshots: {
+    getAll: {
       method: 'getAll',
       verbs: ['get'],
       path: '/:surveyId',
@@ -29,7 +29,7 @@ export const surveySnapshotConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    deleteManySurveySnapshots: {
+    deleteMany: {
       method: 'deleteMany',
       verbs: ['post'],
       path: '/:surveyId/delete-many',
@@ -45,7 +45,7 @@ export const surveySnapshotConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    getSurveySnapshot: {
+    get: {
       method: 'get',
       verbs: ['get'],
       path: '/:surveyId/:snapshotId',
@@ -61,7 +61,7 @@ export const surveySnapshotConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    updateSurveySnapshot: {
+    update: {
       method: 'update',
       verbs: ['patch'],
       path: '/:surveyId/:snapshotId',
@@ -79,7 +79,7 @@ export const surveySnapshotConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    compareSurveySnapshots: {
+    compare: {
       method: 'compare',
       verbs: ['get'],
       path: '/:surveyId/compare/:snapshotIdA/:snapshotIdB',
@@ -96,7 +96,7 @@ export const surveySnapshotConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    compareSnapshotWithCurrent: {
+    compareWithCurrent: {
       method: 'compareWithCurrent',
       verbs: ['get'],
       path: '/:surveyId/compare-with-current/:snapshotId',
@@ -112,7 +112,7 @@ export const surveySnapshotConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    mergeSnapshotResponses: {
+    mergeSnapshots: {
       method: 'mergeSnapshots',
       verbs: ['post'],
       path: '/:surveyId/:targetSnapshotId/merge-from/:sourceSnapshotId',

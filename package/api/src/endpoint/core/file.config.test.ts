@@ -11,7 +11,7 @@ describe('file endpoint config', () => {
     expect(projectEndpointConfig(fileUploadConfigGenerated)).toEqual({
       enable: true,
       endpoints: {
-        confirmFileUpload: {
+        confirmUpload: {
           acl: [
             {
               allow: true,
@@ -35,7 +35,7 @@ describe('file endpoint config', () => {
           path: '/:fileId/confirm',
           verbs: ['post'],
         },
-        postFileUploadUrl: {
+        generateUploadUrl: {
           acl: [
             {
               allow: true,
@@ -113,7 +113,7 @@ describe('file endpoint config', () => {
     expect(projectEndpointConfig(fileConfigGenerated)).toEqual({
       enable: true,
       endpoints: {
-        getAllFile: {
+        getAll: {
           acl: [
             {
               allow: true,
@@ -143,7 +143,7 @@ describe('file endpoint config', () => {
           path: '/',
           verbs: ['get'],
         },
-        getFile: {
+        getOne: {
           acl: [
             {
               allow: true,
@@ -167,7 +167,7 @@ describe('file endpoint config', () => {
           path: '/:fileId',
           verbs: ['get'],
         },
-        getFileDownloadUrl: {
+        generateDownloadUrl: {
           acl: [
             {
               allow: true,
@@ -201,7 +201,7 @@ describe('file endpoint config', () => {
           path: '/:fileId/download-url',
           verbs: ['get'],
         },
-        getFilesByResponse: {
+        getFilesForResponse: {
           acl: [
             {
               allow: true,
@@ -239,7 +239,7 @@ describe('file endpoint config', () => {
           path: '/survey/:surveyId/response/:responseId',
           verbs: ['get'],
         },
-        getFilesBySurvey: {
+        getFilesForSurvey: {
           acl: [
             {
               allow: true,
@@ -283,7 +283,7 @@ describe('file endpoint config', () => {
     expect(projectEndpointConfig(fileDeletionConfigGenerated)).toEqual({
       enable: true,
       endpoints: {
-        deleteFile: {
+        delete: {
           acl: [
             {
               allow: true,
@@ -343,7 +343,7 @@ describe('file endpoint config', () => {
           path: '/image-set',
           verbs: ['delete'],
         },
-        hardDeleteFiles: {
+        hardDelete: {
           acl: [
             {
               allow: true,

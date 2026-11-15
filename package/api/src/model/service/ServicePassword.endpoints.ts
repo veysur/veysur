@@ -7,7 +7,7 @@ export const passwordConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    postResetEmail: {
+    resetEmail: {
       method: 'resetEmail',
       verbs: ['post'],
       path: '/reset-email',

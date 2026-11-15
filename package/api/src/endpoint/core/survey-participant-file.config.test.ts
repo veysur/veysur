@@ -8,7 +8,7 @@ describe('surveyParticipantFile endpoint config', () => {
     expect(projectEndpointConfig(generated)).toEqual({
       enable: true,
       endpoints: {
-        confirmSurveyParticipantFileUpload: {
+        confirmUpload: {
           acl: [
             {
               allow: true,
@@ -27,7 +27,7 @@ describe('surveyParticipantFile endpoint config', () => {
           path: '/:fileId/confirm',
           verbs: ['post'],
         },
-        postSurveyParticipantFileUploadUrl: {
+        generateUploadUrl: {
           acl: [
             {
               allow: true,

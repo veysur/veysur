@@ -8,7 +8,7 @@ describe('user endpoint config', () => {
     expect(projectEndpointConfig(generated)).toEqual({
       enable: true,
       endpoints: {
-        getMe: {
+        me: {
           acl: [
             {
               allow: true,
@@ -22,7 +22,7 @@ describe('user endpoint config', () => {
           path: '/me',
           verbs: ['get'],
         },
-        postValidateEmailNotRegistered: {
+        validateEmailNotRegistered: {
           acl: [
             {
               allow: true,
@@ -41,7 +41,7 @@ describe('user endpoint config', () => {
           path: '/validate-email-not-registered',
           verbs: ['post'],
         },
-        postValidatePasswordCurrent: {
+        validatePasswordCurrent: {
           acl: [
             {
               allow: true,

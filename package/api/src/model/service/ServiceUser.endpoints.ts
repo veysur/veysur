@@ -7,7 +7,7 @@ export const userConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    getMe: {
+    me: {
       method: 'me',
       verbs: ['get'],
       path: '/me',
@@ -21,14 +21,14 @@ export const userConfig = {
       data: { data: { src: 'body', required: true } },
       acl: { rules: [{ allow: true, role: 'authedAdmin' }] },
     },
-    postValidatePasswordCurrent: {
+    validatePasswordCurrent: {
       method: 'validatePasswordCurrent',
       verbs: ['post'],
       path: '/validate-password-current',
       data: { value: { src: 'body', required: true, type: String } },
       acl: { rules: [{ allow: true, role: 'authedAdmin' }] },
     },
-    postValidateEmailNotRegistered: {
+    validateEmailNotRegistered: {
       method: 'validateEmailNotRegistered',
       verbs: ['post'],
       path: '/validate-email-not-registered',

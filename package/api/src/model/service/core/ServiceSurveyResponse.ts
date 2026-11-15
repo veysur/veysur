@@ -46,7 +46,6 @@ export class ServiceSurveyResponse extends Service {
    * response usage limit a deployment may enforce, regardless of
    * completion status — this method intentionally never calls a usage guard.
    * @route post /:surveyId/:snapshotId
-   * @endpoint postSurveyResponse
    * @acl projectAdmin
    */
   async create({
@@ -96,7 +95,6 @@ export class ServiceSurveyResponse extends Service {
 
   /**
    * @route get /:surveyId/:responseId
-   * @endpoint getSurveyResponse
    * @acl projectAdmin
    */
   async getOne({
@@ -132,7 +130,6 @@ export class ServiceSurveyResponse extends Service {
 
   /**
    * @route get /:surveyId
-   * @endpoint getAllSurveyResponse
    * @acl projectAdmin
    */
   async getAll({
@@ -272,7 +269,6 @@ export class ServiceSurveyResponse extends Service {
 
   /**
    * @route put /:surveyId/:responseId
-   * @endpoint updateSurveyResponse
    * @acl projectAdmin
    */
   async update({
@@ -329,7 +325,6 @@ export class ServiceSurveyResponse extends Service {
 
   /**
    * @route delete /:surveyId/:responseId
-   * @endpoint deleteSurveyResponse
    * @acl projectAdmin
    */
   async delete({

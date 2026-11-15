@@ -42,7 +42,6 @@ export class ServiceSurveyParticipant extends Service {
    * Create a new participant
    * Generates a token if not provided, validates uniqueness if provided
    * @route post /:surveyId
-   * @endpoint postSurveyParticipant
    * @acl projectAdmin
    */
   async create({
@@ -108,7 +107,6 @@ export class ServiceSurveyParticipant extends Service {
    * including internal ones such as token - internal only means "not shown
    * on the public registration form", not "unusable in conditions").
    * @route get /:surveyId/me
-   * @endpoint getSurveyParticipantMe
    * @acl participant
    */
   async getMe({
@@ -150,7 +148,6 @@ export class ServiceSurveyParticipant extends Service {
   /**
    * Get a single participant by ID
    * @route get /:surveyId/:participantId
-   * @endpoint getSurveyParticipant
    * @acl projectAdmin
    */
   async getOne({
@@ -187,7 +184,6 @@ export class ServiceSurveyParticipant extends Service {
   /**
    * Get all participants for a survey with pagination and search
    * @route get /:surveyId
-   * @endpoint getAllSurveyParticipant
    * @acl projectAdmin
    */
   async getAll({
@@ -337,7 +333,6 @@ export class ServiceSurveyParticipant extends Service {
    * Update an existing participant
    * Re-generates or validates token if changed
    * @route put /:surveyId/:participantId
-   * @endpoint updateSurveyParticipant
    * @acl projectAdmin
    */
   async update({
@@ -457,7 +452,6 @@ export class ServiceSurveyParticipant extends Service {
    * Delete one or more participants
    * Supports comma-separated IDs for bulk delete
    * @route delete /:surveyId/:participantId
-   * @endpoint deleteSurveyParticipant
    * @acl projectAdmin
    */
   async delete({
@@ -507,7 +501,6 @@ export class ServiceSurveyParticipant extends Service {
    * Supports comma-separated IDs for bulk reset
    * Does not affect bounce/complaint tracking fields
    * @route put /:surveyId/:participantId/reset-invite-status
-   * @endpoint resetInviteStatusSurveyParticipant
    * @acl projectAdmin
    */
   async resetInviteStatus({
@@ -537,7 +530,6 @@ export class ServiceSurveyParticipant extends Service {
    * Supports comma-separated IDs for bulk reset
    * Does not affect bounce/complaint tracking fields
    * @route put /:surveyId/:participantId/reset-reminder-status
-   * @endpoint resetReminderStatusSurveyParticipant
    * @acl projectAdmin
    */
   async resetReminderStatus({

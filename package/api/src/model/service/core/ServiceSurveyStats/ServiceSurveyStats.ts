@@ -55,7 +55,6 @@ export class ServiceSurveyStats extends Service {
 
   /**
    * @route get /:surveyId/:snapshotId
-   * @endpoint getSurveyStats
    * @acl projectAdmin
    */
   async getStats({

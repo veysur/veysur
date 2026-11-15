@@ -7,14 +7,14 @@ export const verifyEmailConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    getSend: {
+    send: {
       method: 'send',
       verbs: ['get'],
       path: '/send',
       data: {},
       acl: { rules: [{ allow: true, role: 'authedAdmin' }] },
     },
-    postVerify: {
+    verify: {
       method: 'verify',
       verbs: ['post'],
       path: '/verify',

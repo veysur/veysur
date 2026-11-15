@@ -8,7 +8,7 @@ describe('authEmailPassword endpoint config', () => {
     expect(projectEndpointConfig(generated)).toEqual({
       enable: true,
       endpoints: {
-        postEmailPassword: {
+        login: {
           acl: [
             {
               allow: true,

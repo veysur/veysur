@@ -8,7 +8,7 @@ describe('surveyPublication endpoint config', () => {
     expect(projectEndpointConfig(generated)).toEqual({
       enable: true,
       endpoints: {
-        deleteManyPublications: {
+        deleteMany: {
           acl: [
             {
               allow: true,
@@ -36,7 +36,7 @@ describe('surveyPublication endpoint config', () => {
           path: '/:surveyId/delete-many',
           verbs: ['post'],
         },
-        getHasUnpublishedChanges: {
+        hasUnpublishedChanges: {
           acl: [
             {
               allow: true,
@@ -94,7 +94,7 @@ describe('surveyPublication endpoint config', () => {
           path: '/:surveyId/list',
           verbs: ['get'],
         },
-        getPublication: {
+        get: {
           acl: [
             {
               allow: true,
@@ -150,7 +150,7 @@ describe('surveyPublication endpoint config', () => {
           path: '/:surveyId/published',
           verbs: ['get'],
         },
-        mergePublicationResponses: {
+        mergePublications: {
           acl: [
             {
               allow: true,
@@ -186,7 +186,7 @@ describe('surveyPublication endpoint config', () => {
           path: '/:surveyId/:targetPublicationId/merge-from/:sourcePublicationId',
           verbs: ['post'],
         },
-        postPublish: {
+        publish: {
           acl: [
             {
               allow: true,
@@ -231,7 +231,7 @@ describe('surveyPublication endpoint config', () => {
           path: '/:surveyId/publish',
           verbs: ['post'],
         },
-        postRepublish: {
+        republish: {
           acl: [
             {
               allow: true,
@@ -267,7 +267,7 @@ describe('surveyPublication endpoint config', () => {
           path: '/:surveyId/republish',
           verbs: ['post'],
         },
-        postUnpublish: {
+        unpublish: {
           acl: [
             {
               allow: true,
@@ -291,7 +291,7 @@ describe('surveyPublication endpoint config', () => {
           path: '/:surveyId/unpublish',
           verbs: ['post'],
         },
-        updatePublication: {
+        update: {
           acl: [
             {
               allow: true,

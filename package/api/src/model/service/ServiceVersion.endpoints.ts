@@ -7,7 +7,7 @@ export const versionConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    getGet: {
+    get: {
       method: 'get',
       verbs: ['get'],
       path: '/',

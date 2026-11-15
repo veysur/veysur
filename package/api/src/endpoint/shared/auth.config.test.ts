@@ -22,7 +22,7 @@ describe('auth endpoint config', () => {
           path: '/',
           verbs: ['delete'],
         },
-        postRefresh: {
+        refresh: {
           acl: [
             {
               allow: true,

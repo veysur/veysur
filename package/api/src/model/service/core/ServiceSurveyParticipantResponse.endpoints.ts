@@ -7,14 +7,14 @@ export const surveyParticipantResponseConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    getSurveyParticipantResponse: {
+    get: {
       method: 'get',
       verbs: ['get'],
       path: '/:surveyId',
       data: { surveyId: { src: 'param', required: false, type: String } },
       acl: { rules: [{ allow: true, role: 'participant' }] },
     },
-    saveSurveyParticipantResponse: {
+    save: {
       method: 'save',
       verbs: ['post'],
       path: '/:surveyId',

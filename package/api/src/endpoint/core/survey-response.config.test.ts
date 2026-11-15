@@ -8,7 +8,7 @@ describe('surveyResponse endpoint config', () => {
     expect(projectEndpointConfig(generated)).toEqual({
       enable: true,
       endpoints: {
-        deleteSurveyResponse: {
+        delete: {
           acl: [
             {
               allow: true,
@@ -36,7 +36,7 @@ describe('surveyResponse endpoint config', () => {
           path: '/:surveyId/:responseId',
           verbs: ['delete'],
         },
-        getAllSurveyResponse: {
+        getAll: {
           acl: [
             {
               allow: true,
@@ -102,7 +102,7 @@ describe('surveyResponse endpoint config', () => {
           path: '/:surveyId',
           verbs: ['get'],
         },
-        getSurveyResponse: {
+        getOne: {
           acl: [
             {
               allow: true,
@@ -130,7 +130,7 @@ describe('surveyResponse endpoint config', () => {
           path: '/:surveyId/:responseId',
           verbs: ['get'],
         },
-        postSurveyResponse: {
+        create: {
           acl: [
             {
               allow: true,
@@ -166,7 +166,7 @@ describe('surveyResponse endpoint config', () => {
           path: '/:surveyId/:snapshotId',
           verbs: ['post'],
         },
-        updateSurveyResponse: {
+        update: {
           acl: [
             {
               allow: true,

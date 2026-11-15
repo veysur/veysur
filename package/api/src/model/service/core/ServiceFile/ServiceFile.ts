@@ -22,7 +22,6 @@ export class ServiceFile extends Service {
   /**
    * List files for a project
    * @route get /
-   * @endpoint getAllFile
    * @acl projectAdmin
    */
   async getAll({
@@ -66,7 +65,6 @@ export class ServiceFile extends Service {
   /**
    * Get file metadata
    * @route get /:fileId
-   * @endpoint getFile
    * @acl projectAdmin
    */
   async getOne({
@@ -97,7 +95,6 @@ export class ServiceFile extends Service {
   /**
    * Get files for a survey (fileContext = 'survey')
    * @route get /survey/:surveyId
-   * @endpoint getFilesBySurvey
    * @acl projectAdmin
    */
   async getFilesForSurvey({
@@ -137,7 +134,6 @@ export class ServiceFile extends Service {
   /**
    * Get files for a response (fileContext = 'response')
    * @route get /survey/:surveyId/response/:responseId
-   * @endpoint getFilesByResponse
    * @acl projectAdmin
    */
   async getFilesForResponse({
@@ -189,7 +185,6 @@ export class ServiceFile extends Service {
    * bucketType, so it serves both new private-bucket files and pre-existing
    * public-bucket ones through the same call.
    * @route get /:fileId/download-url
-   * @endpoint getFileDownloadUrl
    * @acl projectAdmin
    */
   async generateDownloadUrl({

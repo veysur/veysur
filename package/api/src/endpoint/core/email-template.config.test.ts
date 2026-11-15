@@ -8,7 +8,7 @@ describe('emailTemplate endpoint config', () => {
     expect(projectEndpointConfig(generated)).toEqual({
       enable: true,
       endpoints: {
-        deleteProjectEmailTemplate: {
+        deleteProjectOne: {
           acl: [
             {
               allow: true,
@@ -36,7 +36,7 @@ describe('emailTemplate endpoint config', () => {
           path: '/:type/:lang',
           verbs: ['delete'],
         },
-        deleteSurveyEmailTemplate: {
+        deleteOne: {
           acl: [
             {
               allow: true,
@@ -68,7 +68,7 @@ describe('emailTemplate endpoint config', () => {
           path: '/survey/:surveyId/:type/:lang',
           verbs: ['delete'],
         },
-        getProjectEmailTemplate: {
+        getProjectOne: {
           acl: [
             {
               allow: true,
@@ -96,7 +96,7 @@ describe('emailTemplate endpoint config', () => {
           path: '/:type/:lang',
           verbs: ['get'],
         },
-        getProjectEmailTemplates: {
+        getProjectAll: {
           acl: [
             {
               allow: true,
@@ -116,7 +116,7 @@ describe('emailTemplate endpoint config', () => {
           path: '/',
           verbs: ['get'],
         },
-        getSurveyEmailTemplate: {
+        getOne: {
           acl: [
             {
               allow: true,
@@ -148,7 +148,7 @@ describe('emailTemplate endpoint config', () => {
           path: '/survey/:surveyId/:type/:lang',
           verbs: ['get'],
         },
-        getSurveyEmailTemplates: {
+        getAll: {
           acl: [
             {
               allow: true,
@@ -176,7 +176,7 @@ describe('emailTemplate endpoint config', () => {
           path: '/survey/:surveyId',
           verbs: ['get'],
         },
-        getSystemEmailTemplate: {
+        getSystemTemplate: {
           acl: [
             {
               allow: true,
@@ -199,7 +199,7 @@ describe('emailTemplate endpoint config', () => {
           path: '/system/:type/:lang',
           verbs: ['get'],
         },
-        getSystemEmailTemplates: {
+        getSystemTemplates: {
           acl: [
             {
               allow: true,
@@ -219,7 +219,7 @@ describe('emailTemplate endpoint config', () => {
           path: '/system',
           verbs: ['get'],
         },
-        patchProjectEmailTemplate: {
+        patchProject: {
           acl: [
             {
               allow: true,
@@ -243,7 +243,7 @@ describe('emailTemplate endpoint config', () => {
           path: '/',
           verbs: ['patch'],
         },
-        patchSurveyEmailTemplate: {
+        patch: {
           acl: [
             {
               allow: true,

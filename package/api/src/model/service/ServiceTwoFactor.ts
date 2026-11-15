@@ -89,7 +89,6 @@ export class ServiceTwoFactor extends Service {
   // Does NOT persist — the secret is confirmed via verifyAndEnable() or enableAndLogin().
   /**
    * @route post /setup
-   * @endpoint postSetup
    * @acl authedAdmin,preAuth
    */
   async generateSetupData(requestArgs: {
@@ -128,7 +127,6 @@ export class ServiceTwoFactor extends Service {
   // Verify TOTP code against the candidate secret, then persist and enable 2FA.
   /**
    * @route post /enable
-   * @endpoint postEnable
    * @acl authedAdmin
    */
   async verifyAndEnable(requestArgs: {
@@ -166,7 +164,6 @@ export class ServiceTwoFactor extends Service {
   // Verify TOTP during login (pre-auth phase), then issue full auth tokens.
   /**
    * @route post /verify-login
-   * @endpoint postVerifyLogin
    * @acl preAuth
    */
   async verifyLogin(requestArgs: {
@@ -236,7 +233,6 @@ export class ServiceTwoFactor extends Service {
   // Verifies the TOTP code, persists the secret, then issues full auth tokens.
   /**
    * @route post /enable-and-login
-   * @endpoint postEnableAndLogin
    * @acl preAuth
    */
   async enableAndLogin(requestArgs: {
@@ -329,7 +325,6 @@ export class ServiceTwoFactor extends Service {
   // Disable 2FA — verifies password then clears secret and enabled flag.
   /**
    * @route post /disable
-   * @endpoint postDisable
    * @acl authedAdmin
    */
   async disable(requestArgs: {
@@ -372,7 +367,6 @@ export class ServiceTwoFactor extends Service {
   // Permanently dismiss the "enable 2FA?" prompt.
   /**
    * @route post /dismiss-prompt
-   * @endpoint postDismissPrompt
    * @acl authedAdmin
    */
   async dismissPrompt(requestArgs: {

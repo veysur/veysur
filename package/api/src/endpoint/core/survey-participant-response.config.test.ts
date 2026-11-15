@@ -9,7 +9,7 @@ describe('surveyParticipantResponse endpoint config', () => {
     expect(projectEndpointConfig(generated)).toEqual({
       enable: true,
       endpoints: {
-        getSurveyParticipantResponse: {
+        get: {
           acl: [
             {
               allow: true,
@@ -28,7 +28,7 @@ describe('surveyParticipantResponse endpoint config', () => {
           path: '/:surveyId',
           verbs: ['get'],
         },
-        saveSurveyParticipantResponse: {
+        save: {
           acl: [
             {
               allow: true,

@@ -64,7 +64,6 @@ export class ServiceSurveySnapshot extends Service {
 
   /**
    * @route get /:surveyId
-   * @endpoint getSurveySnapshots
    * @acl projectAdmin
    */
   async getAll({
@@ -115,7 +114,6 @@ export class ServiceSurveySnapshot extends Service {
 
   /**
    * @route post /:surveyId/delete-many
-   * @endpoint deleteManySurveySnapshots
    * @acl projectAdmin
    */
   async deleteMany({
@@ -275,7 +273,6 @@ export class ServiceSurveySnapshot extends Service {
 
   /**
    * @route get /:surveyId/:snapshotId
-   * @endpoint getSurveySnapshot
    * @acl projectAdmin
    */
   async get({
@@ -338,7 +335,6 @@ export class ServiceSurveySnapshot extends Service {
 
   /**
    * @route patch /:surveyId/:snapshotId
-   * @endpoint updateSurveySnapshot
    * @acl projectAdmin
    */
   async update({
@@ -410,7 +406,6 @@ export class ServiceSurveySnapshot extends Service {
 
   /**
    * @route get /:surveyId/compare/:snapshotIdA/:snapshotIdB
-   * @endpoint compareSurveySnapshots
    * @acl projectAdmin
    */
   async compare({
@@ -598,7 +593,6 @@ export class ServiceSurveySnapshot extends Service {
 
   /**
    * @route get /:surveyId/compare-with-current/:snapshotId
-   * @endpoint compareSnapshotWithCurrent
    * @acl projectAdmin
    */
   async compareWithCurrent({
@@ -762,7 +756,6 @@ export class ServiceSurveySnapshot extends Service {
    *
    * @see ServiceResponseMerge.merge() for implementation details
    * @route post /:surveyId/:targetSnapshotId/merge-from/:sourceSnapshotId
-   * @endpoint mergeSnapshotResponses
    * @acl projectAdmin
    */
   async mergeSnapshots({

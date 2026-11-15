@@ -103,7 +103,6 @@ export class ServiceProjectAdmin extends Service {
 
   /**
    * @route post /accept
-   * @endpoint postAccept
    * @acl authedAdmin
    */
   async accept({
@@ -177,7 +176,6 @@ export class ServiceProjectAdmin extends Service {
    * primitive the self-hosted CLI bootstrap tool uses, rather than
    * reimplementing it.
    * @route post /accept-new-account
-   * @endpoint postAcceptNewAccount
    * @acl public
    */
   async acceptNewAccount({
@@ -261,7 +259,6 @@ export class ServiceProjectAdmin extends Service {
 
   /**
    * @route post /decline
-   * @endpoint postDecline
    * @acl authedAdmin
    */
   async decline({
@@ -306,7 +303,6 @@ export class ServiceProjectAdmin extends Service {
 
   /**
    * @route get /:projectId
-   * @endpoint getProjectAdmins
    * @acl projectAdmin,projectOwner
    */
   async listWithUsers({
@@ -332,7 +328,6 @@ export class ServiceProjectAdmin extends Service {
 
   /**
    * @route post /:projectId/invite
-   * @endpoint postInvite
    * @acl projectOwner
    * @error PlanLimitExceededError 402
    */
@@ -444,7 +439,6 @@ export class ServiceProjectAdmin extends Service {
 
   /**
    * @route delete /:projectId/:projectAdminId
-   * @endpoint deleteProjectAdmin
    * @acl projectAdmin,projectOwner
    */
   async remove({

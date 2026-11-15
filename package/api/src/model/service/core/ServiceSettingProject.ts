@@ -24,7 +24,6 @@ export class ServiceSettingProject extends Service {
 
   /**
    * @route get /
-   * @endpoint getSettingProject
    * @acl projectAdmin
    */
   async getOne({
@@ -38,7 +37,6 @@ export class ServiceSettingProject extends Service {
 
   /**
    * @route put /maps
-   * @endpoint putSettingProjectMaps
    * @acl projectAdmin
    */
   async updateMaps({
@@ -62,7 +60,6 @@ export class ServiceSettingProject extends Service {
 
   /**
    * @route put /bot-protection
-   * @endpoint putSettingProjectBotProtection
    * @acl projectAdmin
    */
   async updateBotProtection({

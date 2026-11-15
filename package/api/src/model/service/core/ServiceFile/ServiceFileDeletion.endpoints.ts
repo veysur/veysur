@@ -26,7 +26,7 @@ export const fileDeletionConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    deleteFile: {
+    delete: {
       method: 'delete',
       verbs: ['delete'],
       path: '/:fileId',
@@ -41,7 +41,7 @@ export const fileDeletionConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    hardDeleteFiles: {
+    hardDelete: {
       method: 'hardDelete',
       verbs: ['delete'],
       path: '/hard{/:olderThan}',

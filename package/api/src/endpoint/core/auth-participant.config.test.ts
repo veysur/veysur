@@ -63,7 +63,7 @@ describe('authParticipant endpoint config', () => {
           path: '/:surveyId/bot-verify',
           verbs: ['post'],
         },
-        post: {
+        auth: {
           acl: [
             {
               allow: true,

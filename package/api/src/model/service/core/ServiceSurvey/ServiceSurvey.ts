@@ -38,7 +38,6 @@ export class ServiceSurvey extends Service {
 
   /**
    * @route get /template/list
-   * @endpoint getSurveyTemplateList
    * @acl projectAdmin
    */
   listTemplates({
@@ -51,7 +50,6 @@ export class ServiceSurvey extends Service {
 
   /**
    * @route post /
-   * @endpoint postSurvey
    * @acl projectAdmin
    */
   async create({
@@ -160,7 +158,6 @@ export class ServiceSurvey extends Service {
 
   /**
    * @route get /
-   * @endpoint getAllSurvey
    * @acl projectAdmin
    */
   async getAll({
@@ -231,7 +228,6 @@ export class ServiceSurvey extends Service {
 
   /**
    * @route get /:surveyId
-   * @endpoint getSurvey
    * @acl projectAdmin
    */
   async getOne({
@@ -280,7 +276,6 @@ export class ServiceSurvey extends Service {
 
   /**
    * @route patch /:surveyId
-   * @endpoint patchSurvey
    * @acl projectAdmin
    */
   async patch({
@@ -403,7 +398,6 @@ export class ServiceSurvey extends Service {
 
   /**
    * @route delete /:surveyId
-   * @endpoint deleteSurvey
    * @acl projectAdmin
    */
   async delete({

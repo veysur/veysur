@@ -17,7 +17,7 @@ export const projectAdminConfig = {
       },
       acl: { rules: [{ allow: true, role: 'all' }] },
     },
-    postAccept: {
+    accept: {
       method: 'accept',
       verbs: ['post'],
       path: '/accept',
@@ -27,7 +27,7 @@ export const projectAdminConfig = {
       },
       acl: { rules: [{ allow: true, role: 'authedAdmin' }] },
     },
-    postAcceptNewAccount: {
+    acceptNewAccount: {
       method: 'acceptNewAccount',
       verbs: ['post'],
       path: '/accept-new-account',
@@ -84,7 +84,7 @@ export const projectAdminConfig = {
       },
       acl: { rules: [{ allow: true, role: 'all' }] },
     },
-    postDecline: {
+    decline: {
       method: 'decline',
       verbs: ['post'],
       path: '/decline',
@@ -94,7 +94,7 @@ export const projectAdminConfig = {
       },
       acl: { rules: [{ allow: true, role: 'authedAdmin' }] },
     },
-    getProjectAdmins: {
+    listWithUsers: {
       method: 'listWithUsers',
       verbs: ['get'],
       path: '/:projectId',
@@ -110,7 +110,7 @@ export const projectAdminConfig = {
         ],
       },
     },
-    postInvite: {
+    invite: {
       method: 'invite',
       verbs: ['post'],
       path: '/:projectId/invite',
@@ -123,7 +123,7 @@ export const projectAdminConfig = {
       acl: { rules: [{ allow: true, role: 'projectOwner' }] },
       response: { error: { PlanLimitExceededError: { http: { code: 402 } } } },
     },
-    deleteProjectAdmin: {
+    remove: {
       method: 'remove',
       verbs: ['delete'],
       path: '/:projectId/:projectAdminId',

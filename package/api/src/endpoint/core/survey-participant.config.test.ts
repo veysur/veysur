@@ -13,7 +13,7 @@ describe('survey-participant endpoint config', () => {
     expect(projectEndpointConfig(surveyParticipantConfigGenerated)).toEqual({
       enable: true,
       endpoints: {
-        deleteSurveyParticipant: {
+        delete: {
           acl: [
             {
               allow: true,
@@ -41,7 +41,7 @@ describe('survey-participant endpoint config', () => {
           path: '/:surveyId/:participantId',
           verbs: ['delete'],
         },
-        getAllSurveyParticipant: {
+        getAll: {
           acl: [
             {
               allow: true,
@@ -83,7 +83,7 @@ describe('survey-participant endpoint config', () => {
           path: '/:surveyId',
           verbs: ['get'],
         },
-        getSurveyParticipant: {
+        getOne: {
           acl: [
             {
               allow: true,
@@ -111,7 +111,7 @@ describe('survey-participant endpoint config', () => {
           path: '/:surveyId/:participantId',
           verbs: ['get'],
         },
-        getSurveyParticipantMe: {
+        getMe: {
           acl: [
             {
               allow: true,
@@ -130,7 +130,7 @@ describe('survey-participant endpoint config', () => {
           path: '/:surveyId/me',
           verbs: ['get'],
         },
-        postSurveyParticipant: {
+        create: {
           acl: [
             {
               allow: true,
@@ -158,7 +158,7 @@ describe('survey-participant endpoint config', () => {
           path: '/:surveyId',
           verbs: ['post'],
         },
-        resetInviteStatusSurveyParticipant: {
+        resetInviteStatus: {
           acl: [
             {
               allow: true,
@@ -186,7 +186,7 @@ describe('survey-participant endpoint config', () => {
           path: '/:surveyId/:participantId/reset-invite-status',
           verbs: ['put'],
         },
-        resetReminderStatusSurveyParticipant: {
+        resetReminderStatus: {
           acl: [
             {
               allow: true,
@@ -214,7 +214,7 @@ describe('survey-participant endpoint config', () => {
           path: '/:surveyId/:participantId/reset-reminder-status',
           verbs: ['put'],
         },
-        updateSurveyParticipant: {
+        update: {
           acl: [
             {
               allow: true,
@@ -258,7 +258,7 @@ describe('survey-participant endpoint config', () => {
     ).toEqual({
       enable: true,
       endpoints: {
-        importSurveyParticipant: {
+        import: {
           acl: [
             {
               allow: true,
@@ -307,7 +307,7 @@ describe('survey-participant endpoint config', () => {
     ).toEqual({
       enable: true,
       endpoints: {
-        exportSurveyParticipant: {
+        export: {
           acl: [
             {
               allow: true,
@@ -351,7 +351,7 @@ describe('survey-participant endpoint config', () => {
     ).toEqual({
       enable: true,
       endpoints: {
-        sendInvitesSurveyParticipant: {
+        send: {
           acl: [
             {
               allow: true,
@@ -385,7 +385,7 @@ describe('survey-participant endpoint config', () => {
           path: '/:surveyId/send-invites',
           verbs: ['post'],
         },
-        sendRemindersSurveyParticipant: {
+        sendReminders: {
           acl: [
             {
               allow: true,
@@ -431,7 +431,7 @@ describe('survey-participant endpoint config', () => {
     ).toEqual({
       enable: true,
       endpoints: {
-        generateSurveyParticipant: {
+        generate: {
           acl: [
             {
               allow: true,

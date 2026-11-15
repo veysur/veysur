@@ -8,7 +8,7 @@ describe('version endpoint config', () => {
     expect(projectEndpointConfig(generated)).toEqual({
       enable: true,
       endpoints: {
-        getGet: {
+        get: {
           acl: [
             {
               allow: true,

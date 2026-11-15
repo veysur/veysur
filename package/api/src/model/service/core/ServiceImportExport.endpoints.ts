@@ -7,7 +7,7 @@ export const importExportConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    exportEntity: {
+    export: {
       method: 'export',
       verbs: ['post'],
       path: '/export/:entityType/:entityId/:format',

@@ -7,7 +7,7 @@ export const settingProjectConfig = {
   enable: true,
   acl: { rules: [{ allow: false, role: 'all' }] },
   endpoints: {
-    getSettingProject: {
+    getOne: {
       method: 'getOne',
       verbs: ['get'],
       path: '/',
@@ -21,7 +21,7 @@ export const settingProjectConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    putSettingProjectMaps: {
+    updateMaps: {
       method: 'updateMaps',
       verbs: ['put'],
       path: '/maps',
@@ -36,7 +36,7 @@ export const settingProjectConfig = {
       },
       acl: { rules: [{ allow: true, role: 'projectAdmin' }] },
     },
-    putSettingProjectBotProtection: {
+    updateBotProtection: {
       method: 'updateBotProtection',
       verbs: ['put'],
       path: '/bot-protection',

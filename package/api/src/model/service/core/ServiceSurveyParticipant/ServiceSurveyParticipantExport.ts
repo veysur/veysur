@@ -44,7 +44,6 @@ export class ServiceSurveyParticipantExport extends Service {
    * Export participants to CSV with streaming
    * Supports exporting all participants or a subset by IDs
    * @route get /:surveyId/export
-   * @endpoint exportSurveyParticipant
    * @acl projectAdmin
    */
   async export({
