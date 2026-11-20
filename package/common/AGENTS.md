@@ -10,6 +10,7 @@ pnpm test:common                               # run tests from repo root
 pnpm --filter veysur-common build              # build from any directory
 pnpm --filter veysur-common test               # test from any directory
 pnpm --filter veysur-common typecheck          # type-check
+pnpm --filter veysur-common show-type [Survey|SettingSurvey]   # full member list of a mixin-built class, grouped by mixin file (editor hovers truncate it)
 ```
 
 **After editing common**, always run `pnpm build:common` before running or testing dependent packages — `app` and `api` consume the compiled output in `dist/`, not source.
