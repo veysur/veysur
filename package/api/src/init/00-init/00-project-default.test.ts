@@ -11,7 +11,7 @@ describe('initProjectDefault', () => {
 
   const buildServer = () => {
     const use = jest.fn()
-    const server = { router: { use } } as unknown as Server
+    const server = { use } as unknown as Server
     return { server, use }
   }
 
@@ -31,7 +31,7 @@ describe('initProjectDefault', () => {
     initProjectDefault(server)
 
     expect(use).toHaveBeenCalledTimes(1)
-    const middleware = use.mock.calls[0][0]
+    const middleware = use.mock.calls[0][1]
 
     const req = { headers: {} as Record<string, string> }
     const next = jest.fn()
@@ -47,7 +47,7 @@ describe('initProjectDefault', () => {
 
     initProjectDefault(server)
 
-    const middleware = use.mock.calls[0][0]
+    const middleware = use.mock.calls[0][1]
     const req = { headers: { 'x-project-id': 'other-project' } }
     const next = jest.fn()
     middleware(req, {}, next)

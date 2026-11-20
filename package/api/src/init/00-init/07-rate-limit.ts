@@ -88,13 +88,13 @@ export const initRateLimit = function (server: Server) {
     return
   }
 
-  server.router.use(async (req, res, next) => {
+  server.use('router', async (req, res, next) => {
     // Skip CORS preflight — OPTIONS carries no payload risk
     if (req.method === 'OPTIONS') {
       return next()
     }
 
-    const ip = req.ip ?? req.socket?.remoteAddress ?? 'unknown'
+    const ip = req.ip ?? req.node?.socket.remoteAddress ?? 'unknown'
 
     for (const rule of compiledRules) {
       if (!rule.regex.test(req.path)) continue
@@ -102,14 +102,15 @@ export const initRateLimit = function (server: Server) {
       if (rule.skip) return next()
 
       const result = await rule.limiter!.check(`rl:${rule.tierKey}:${ip}`)
-      res.set('X-RateLimit-Limit', String(rule.limit))
-      res.set('X-RateLimit-Remaining', String(result.remaining))
+      res.header('X-RateLimit-Limit', String(rule.limit))
+      res.header('X-RateLimit-Remaining', String(result.remaining))
 
       if (!result.allowed) {
-        res.set('Retry-After', String(result.retryAfter))
-        return res
+        res.header('Retry-After', String(result.retryAfter))
+        res
           .status(429)
           .json({ error: 'Too many requests', retryAfter: result.retryAfter })
+        return
       }
 
       return next()
@@ -117,14 +118,15 @@ export const initRateLimit = function (server: Server) {
 
     // Default tier — no rule matched
     const result = await defaultLimiter.check(`rl:gen:${ip}`)
-    res.set('X-RateLimit-Limit', String(appConfig.rateLimit.default.limit))
-    res.set('X-RateLimit-Remaining', String(result.remaining))
+    res.header('X-RateLimit-Limit', String(appConfig.rateLimit.default.limit))
+    res.header('X-RateLimit-Remaining', String(result.remaining))
 
     if (!result.allowed) {
-      res.set('Retry-After', String(result.retryAfter))
-      return res
+      res.header('Retry-After', String(result.retryAfter))
+      res
         .status(429)
         .json({ error: 'Too many requests', retryAfter: result.retryAfter })
+      return
     }
 
     next()
