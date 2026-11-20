@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`UserAccessToken behaves as recorded 1`] = `
+{
+  "all null": "{"$class":"UserAccessToken","entries":[["token",null],["ttl",null],["ip",null],["geo",null],["createdAt",null],["expiresAt",null]]}",
+  "all typical": "{"$class":"UserAccessToken","entries":[["token","text"],["ttl",5],["ip","text"],["geo",{"$class":"Object","entries":[["a",1]]}],["createdAt",1735787045000],["expiresAt",1735787045000]]}",
+  "createdAt: null": "{"$class":"UserAccessToken","entries":[["createdAt",null]]}",
+  "createdAt: probe 0": "{"$class":"UserAccessToken","entries":[["createdAt",{"$date":"2025-01-02T03:04:05.000Z"}]]}",
+  "createdAt: probe 1": "{"$class":"UserAccessToken","entries":[["createdAt","2025-01-02T03:04:05.000Z"]]}",
+  "createdAt: probe 2": "{"$class":"UserAccessToken","entries":[["createdAt",1735787045000]]}",
+  "createdAt: undefined": "{"$class":"UserAccessToken","entries":[["createdAt","$undefined"]]}",
+  "empty": "{"$class":"UserAccessToken","entries":[]}",
+  "expiresAt: null": "{"$class":"UserAccessToken","entries":[["expiresAt",null]]}",
+  "expiresAt: probe 0": "{"$class":"UserAccessToken","entries":[["expiresAt",{"$date":"2025-01-02T03:04:05.000Z"}]]}",
+  "expiresAt: probe 1": "{"$class":"UserAccessToken","entries":[["expiresAt","2025-01-02T03:04:05.000Z"]]}",
+  "expiresAt: probe 2": "{"$class":"UserAccessToken","entries":[["expiresAt",1735787045000]]}",
+  "expiresAt: undefined": "{"$class":"UserAccessToken","entries":[["expiresAt","$undefined"]]}",
+  "geo: null": "{"$class":"UserAccessToken","entries":[["geo",null]]}",
+  "geo: probe 0": "{"$class":"UserAccessToken","entries":[["geo",{"$class":"Object","entries":[]}]]}",
+  "geo: probe 1": "{"$class":"UserAccessToken","entries":[["geo",{"$class":"Object","entries":[["a",1]]}]]}",
+  "geo: undefined": "{"$class":"UserAccessToken","entries":[["geo","$undefined"]]}",
+  "ip: null": "{"$class":"UserAccessToken","entries":[["ip",null]]}",
+  "ip: probe 0": "{"$class":"UserAccessToken","entries":[["ip",""]]}",
+  "ip: probe 1": "{"$class":"UserAccessToken","entries":[["ip","text"]]}",
+  "ip: undefined": "{"$class":"UserAccessToken","entries":[["ip","$undefined"]]}",
+  "no argument": "{"$class":"UserAccessToken","entries":[]}",
+  "token: null": "{"$class":"UserAccessToken","entries":[["token",null]]}",
+  "token: probe 0": "{"$class":"UserAccessToken","entries":[["token",""]]}",
+  "token: probe 1": "{"$class":"UserAccessToken","entries":[["token","text"]]}",
+  "token: undefined": "{"$class":"UserAccessToken","entries":[["token","$undefined"]]}",
+  "ttl: null": "{"$class":"UserAccessToken","entries":[["ttl",null]]}",
+  "ttl: probe 0": "{"$class":"UserAccessToken","entries":[["ttl",0]]}",
+  "ttl: probe 1": "{"$class":"UserAccessToken","entries":[["ttl",5]]}",
+  "ttl: undefined": "{"$class":"UserAccessToken","entries":[["ttl","$undefined"]]}",
+  "unknown key": "{"$class":"UserAccessToken","entries":[["$unknown",1]]}",
+}
+`;

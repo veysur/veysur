@@ -2,7 +2,7 @@
 // cspell:disable
 import { Schema, SchemaBuilder as sb } from '@datacapy/schema'
 import type { AssertSchema } from '@datacapy/schema'
-import type { ProjectFields } from './Project'
+import type { Project } from './Project'
 
 export class SchemaProject extends Schema.from(
   sb
@@ -19,5 +19,11 @@ export class SchemaProject extends Schema.from(
     }),
 ) {}
 
-const _checkSchemaProject: AssertSchema<SchemaProject, ProjectFields> = true
+const _checkSchemaProject: AssertSchema<
+  SchemaProject,
+  Pick<
+    Project,
+    '_id' | 'name' | 'timezone' | 'ownerId' | 'createdAt' | 'updatedAt'
+  >
+> = true
 void _checkSchemaProject

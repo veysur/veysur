@@ -1,0 +1,76 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`SchemaUserAccessToken validates as recorded 1`] = `
+{
+  "name": "userAccessToken",
+  "spec": {
+    "$construct": "UserAccessToken",
+    "$name": "userAccessToken",
+    "createdAt": {
+      "$type": "$fn:Date",
+    },
+    "expiresAt": {
+      "$type": "$fn:Date",
+    },
+    "geo": {
+      "$type": "$fn:Object",
+      "city": {
+        "$type": "$fn:String",
+      },
+      "country": {
+        "$type": "$fn:String",
+      },
+      "countryCode": {
+        "$type": "$fn:String",
+      },
+      "location": {
+        "$type": "$fn:Object",
+        "coordinates": {
+          "$spec": {
+            "$type": "$fn:Number",
+            "$validate": {
+              "required": true,
+            },
+          },
+          "$type": "$fn:Array",
+        },
+        "type": {
+          "$type": "$fn:String",
+        },
+      },
+      "region": {
+        "$type": "$fn:String",
+      },
+      "regionCode": {
+        "$type": "$fn:String",
+      },
+      "timezone": {
+        "$type": "$fn:String",
+      },
+    },
+    "ip": {
+      "$type": "$fn:String",
+    },
+    "token": {
+      "$type": "$fn:String",
+    },
+    "ttl": {
+      "$type": "$fn:Number",
+    },
+  },
+  "unknownKey": {
+    "ok": true,
+    "result": {
+      "errors": {},
+      "isValid": true,
+    },
+  },
+  "valid": {
+    "ok": true,
+    "result": {
+      "errors": {},
+      "isValid": true,
+    },
+  },
+}
+`;

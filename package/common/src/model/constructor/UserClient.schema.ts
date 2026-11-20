@@ -3,8 +3,8 @@
 import { Schema, SchemaBuilder as sb } from '@datacapy/schema'
 import type { AssertSchema, SpecFor } from '@datacapy/schema'
 import type { UserClientData } from './UserClient'
-import { SchemaUserAccessToken } from '../schema/SchemaUserAccessToken'
-import type { UserAccessTokenData } from './UserAccessToken'
+import { SchemaUserAccessToken } from './UserAccessToken.schema'
+import type { UserAccessToken } from './UserAccessToken'
 
 export class SchemaUserClient extends Schema.from(
   sb.schema('userClient').shape({
@@ -33,7 +33,7 @@ export class SchemaUserClient extends Schema.from(
     accessToken: sb
       .array(
         sb
-          .refTo<SpecFor<UserAccessTokenData>>(
+          .refTo<SpecFor<UserAccessToken>>(
             (): unknown => new SchemaUserAccessToken(),
           )
           .required(),

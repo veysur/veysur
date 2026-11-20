@@ -71,7 +71,12 @@ exports[`the user schema rejects a role outside the allowed set and a null email
               "location": {
                 "$type": "$fn:Object",
                 "coordinates": {
-                  "$spec": "$fn:Number",
+                  "$spec": {
+                    "$type": "$fn:Number",
+                    "$validate": {
+                      "required": true,
+                    },
+                  },
                   "$type": "$fn:Array",
                 },
                 "type": {
@@ -623,7 +628,12 @@ exports[`the user schema validates as recorded and rejects unknown keys 1`] = `
               "location": {
                 "$type": "$fn:Object",
                 "coordinates": {
-                  "$spec": "$fn:Number",
+                  "$spec": {
+                    "$type": "$fn:Number",
+                    "$validate": {
+                      "required": true,
+                    },
+                  },
                   "$type": "$fn:Array",
                 },
                 "type": {

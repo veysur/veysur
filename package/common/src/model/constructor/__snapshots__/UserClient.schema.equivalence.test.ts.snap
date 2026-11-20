@@ -42,7 +42,12 @@ exports[`SchemaUserClient validates as recorded 1`] = `
           "location": {
             "$type": "$fn:Object",
             "coordinates": {
-              "$spec": "$fn:Number",
+              "$spec": {
+                "$type": "$fn:Number",
+                "$validate": {
+                  "required": true,
+                },
+              },
               "$type": "$fn:Array",
             },
             "type": {

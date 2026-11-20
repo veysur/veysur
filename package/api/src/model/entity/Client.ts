@@ -1,4 +1,4 @@
-import { GeoInfo, UserAccessToken } from 'veysur-common'
+import { UserAccessToken, UserClient } from 'veysur-common'
 
 export interface Client {
   _id?: string
@@ -12,7 +12,7 @@ export interface Client {
   buildNumber?: string
   userAgent?: string
   notificationToken?: string
-  geo?: GeoInfo
+  geo?: UserClient['geo']
   accessToken?: UserAccessToken[]
   createdAt?: Date
   updatedAt?: Date

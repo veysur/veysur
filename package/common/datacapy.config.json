@@ -2,6 +2,7 @@
   "include": [
     "src/model/constructor/EmailTemplate.ts",
     "src/model/constructor/DataTransferJob.ts",
+    "src/model/constructor/UserAccessToken.ts",
     "src/model/constructor/UserClient.ts",
     "src/model/constructor/ProjectAdmin.ts",
     "src/model/constructor/SettingProject.ts",
@@ -25,10 +26,6 @@
   ],
   "registry": "src/model/schema/registry.ts",
   "importMap": {
-    "UserAccessTokenData": {
-      "schema": "../schema/SchemaUserAccessToken",
-      "type": "./UserAccessToken"
-    },
     "L10nData": {
       "schema": "../schema/SchemaL10n",
       "type": "./EmbeddedSchemaData"

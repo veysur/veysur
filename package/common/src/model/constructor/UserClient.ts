@@ -1,5 +1,5 @@
 import type { tags as t } from '@datacapy/schema'
-import { UserAccessToken, UserAccessTokenData } from './UserAccessToken'
+import { UserAccessToken } from './UserAccessToken'
 import { Infer } from '@datacapy/schema'
 import type { SchemaUserClient } from './UserClient.schema'
 export class UserClient {
@@ -55,7 +55,7 @@ export interface UserClientData {
     city?: string
     location?: { type?: string; coordinates?: number[] }
   }
-  accessToken?: UserAccessTokenData[] &
+  accessToken?: UserAccessToken[] &
     t.ConstructCollection<'Collection'> &
     t.Private
   createdAt: Date & t.Default<'now'>
