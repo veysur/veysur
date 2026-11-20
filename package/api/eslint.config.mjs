@@ -6,9 +6,28 @@ import ts from 'typescript-eslint'
 // themselves live in a separate `veysur-api-cloud` extension package;
 // this rule keeps core from reaching back into it other than through
 // model-manager.ts's lazy require().
+const noExpressPath = {
+  name: 'express',
+  message:
+    'Use the neutral @datacapy/server types (HttpRequest, HttpResponse, Handler) ' +
+    'instead of Express. See package/api/AGENTS.md.',
+}
+
+const noServerNativeAccess = [
+  'error',
+  {
+    selector:
+      "MemberExpression[object.name='server'][property.name=/^(app|router)$/]",
+    message:
+      'Register middleware and routes through server.use, server.route, server.static and ' +
+      'server.trustProxy, not the Express server.app or server.router. See package/api/AGENTS.md.',
+  },
+]
+
 const platformImportRule = [
   'error',
   {
+    paths: [noExpressPath],
     patterns: [
       {
         group: ['veysur-api-cloud', 'veysur-api-cloud/**'],
@@ -44,6 +63,14 @@ export default [
           ignoreRestSiblings: true,
         },
       ],
+    },
+  },
+  {
+    // The server adaptor is framework-neutral: nothing here may use Express.
+    files: ['src/**/*.ts'],
+    rules: {
+      'no-restricted-imports': ['error', { paths: [noExpressPath] }],
+      'no-restricted-syntax': noServerNativeAccess,
     },
   },
   {

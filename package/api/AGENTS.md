@@ -98,6 +98,18 @@ datacapy `package/codegen/docs/endpoints.md`; rationale: `docs/decisions/2026/20
 
 **Project-scoped endpoints**: for any endpoint operating on a single project's data, use `role: 'projectOwner'`/`'projectAdmin'` ACL rules — not a generic role plus a manual ownership check in the service. See `docs/datacapy-acl.md`.
 
+### Init middleware and the server adaptor (`src/init/`)
+
+`@datacapy/server` runs on an HTTP adaptor (Express today), so init code is written against the neutral types and never against Express. Lint enforces it: no `express` import, no `server.app` / `server.router`.
+
+- Register with `server.use(stage, [path], handler)`, `server.route(stage, method, path, ...handlers)`, `server.static(...)` and `server.trustProxy([...])`. Stage `app` runs before datacapy's router is mounted (storage routes, webhooks), stage `router` inside it. Type handlers with `Handler`, `HttpRequest` and `HttpResponse` from `@datacapy/server`.
+- Read a raw body from `req.node` (the Node request), as the multipart, storage upload and Stripe handlers do.
+- Stream with `res.stream(readable, { headers })`, never `res.write`/`res.end` on a stream. `res.header(name, value)` sets the value verbatim.
+- A trailing `/*name` path wildcard arrives as one string; in a path-scoped `use`, `req.path` is relative to that path.
+- Test init code over real HTTP: build `new Server({ path: '/api', port: 0 }, new ModelManager())`, call the init function, `await server.init()`, then `server.adaptor.listen(0)`. Add fake services or repos after `init()`. See `src/init/init-http.test.ts`. The API's global fake timers stall streams and formidable, so such a test calls `jest.useRealTimers()`.
+
+Contract and conformance rules: datacapy `package/server/docs/http-adaptor.md`.
+
 ### Repos (`src/model/repo/`)
 
 Two subdirectories plus root-level files:
