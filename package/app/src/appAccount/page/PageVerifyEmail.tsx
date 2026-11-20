@@ -229,9 +229,16 @@ export const PageVerifyEmail: React.FC = () => {
                     <AlertDescription>{errorMessage}</AlertDescription>
                   </Alert>
                 )}
-                <div className="text-sm text-muted-foreground text-center">
-                  Code sent to{' '}
-                  <span className="font-medium text-foreground">{email}</span>
+                <div className="flex flex-col gap-1 text-sm text-muted-foreground text-center">
+                  <p>
+                    We sent a 6-digit code to{' '}
+                    <span className="font-medium text-foreground">{email}</span>
+                    . It can take a few minutes to arrive.
+                  </p>
+                  <p>
+                    Can&apos;t see it? Check your spam or junk folder, and check
+                    that the address is correct.
+                  </p>
                 </div>
                 <div className="grid gap-1">
                   <OtpInput
@@ -260,7 +267,8 @@ export const PageVerifyEmail: React.FC = () => {
                     {resendSuccess && (
                       <p className="text-sm text-muted-foreground">
                         <Mail className="inline h-3.5 w-3.5 mr-1 align-text-bottom" />
-                        Verification email sent! Check your inbox.
+                        Verification email sent. Check your inbox and your spam
+                        or junk folder.
                       </p>
                     )}
                     {resendError && (

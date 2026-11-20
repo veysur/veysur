@@ -121,4 +121,19 @@ describe('PageVerifyEmail', () => {
       expect(queryClient.getQueryData([KEY_STATE_REMEMBER_ME])).toBe(true)
     })
   })
+
+  it('tells the user to check spam when waiting for the code', async () => {
+    authValue = { user: { email: 'a@b.test' } }
+    window.history.pushState({}, '', '/verify-email?email=a@b.test')
+    render(
+      <MemoryRouter initialEntries={['/verify-email?email=a@b.test']}>
+        <Routes>
+          <Route path="/verify-email" element={<PageVerifyEmail />} />
+        </Routes>
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByText(/spam or junk folder/)).toBeTruthy()
+    expect(screen.getByText(/It can take a few minutes/)).toBeTruthy()
+  })
 })
