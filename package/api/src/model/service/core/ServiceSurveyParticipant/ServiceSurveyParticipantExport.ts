@@ -1,7 +1,7 @@
 import { Service } from '@datacapy/server'
 import { DataSourceContext } from '@datacapy/om'
 import { SurveyParticipant } from 'veysur-common'
-import type { Response } from 'express'
+import type { HttpResponse } from '@datacapy/server'
 
 import { RepoSurveyParticipant, RepoSurveyParticipantAttribute } from 'model'
 import { streamCsv, generateCsvFilename, contextForProject } from 'common'
@@ -55,7 +55,7 @@ export class ServiceSurveyParticipantExport extends Service {
     surveyId: string & e.Param
     projectId: string & e.Header<'X-Project-Id'>
     ids?: string & e.Query
-    response: Response & e.Container<'response'>
+    response: HttpResponse & e.Container<'response'>
   }): Promise<void> {
     const context = contextForProject(projectId)
     const repoSurveyParticipant =

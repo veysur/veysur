@@ -206,7 +206,9 @@ describe('S3 Path Generation', () => {
 
   describe('responseFileBucket', () => {
     test('is deterministic for the same responseId', () => {
-      expect(responseFileBucket('resp_789')).toBe(responseFileBucket('resp_789'))
+      expect(responseFileBucket('resp_789')).toBe(
+        responseFileBucket('resp_789'),
+      )
     })
 
     test('returns a zero-padded 3-digit bucket within range', () => {
