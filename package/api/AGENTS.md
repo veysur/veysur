@@ -75,7 +75,7 @@ Shared utilities and helpers used across the model layer. Import via `'model/com
 Non-model utilities shared across the server. Import via `'common'` or `'common/<file>'`.
 
 - `pagination` — parse/validate page+perPage query params
-- `csvStream` — stream data as CSV to Express response
+- `csvStream` — stream data as CSV to a neutral `HttpResponse`
 - `s3Client` — file storage abstraction (S3 / local filesystem)
 - `dateFilterUtils` — build MongoDB date range query conditions
 - Search queries: a string `$regex` operand is a literal substring match (regex syntax and `%`/`_` are matched literally), so pass user search text straight in with no escaping. Pass a `RegExp` object only for a deliberate pattern.
@@ -179,7 +179,7 @@ Two subdirectories plus root-level files:
 - **Version**: 0.1.0
 - **Description**: NodeJS REST API server wrapper for the Datacapy domain model
 - **Key Features**:
-  - **ExpressJS Integration**: Built as wrapper around ExpressJS with middleware compatibility
+  - **HTTP adaptors**: Runs on Express (default) or Hono through a neutral adaptor; see `package/server/docs/http-adaptor.md` in datacapy
   - **Auto-exposure**: Automatically exposes repositories and services as REST endpoints
   - **Configurable Access**: Repository exposure is configurable for security
   - **Request Processing**: Validation and type-casting of incoming request data
