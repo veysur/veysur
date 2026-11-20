@@ -1,45 +1,46 @@
+import { Readable } from 'stream'
 import Papa from 'papaparse'
-import type { Response } from 'express'
+import type { HttpResponse } from '@datacapy/server'
 
 /**
- * Streams data as CSV to an Express response object using batch processing
+ * Streams data as CSV to the response using batch processing
  */
 export async function streamCsv<T>(
-  res: Response,
+  res: HttpResponse,
   filename: string,
   headers: string[],
   dataFetcher: (skip: number, limit: number) => Promise<T[]>,
   rowMapper: (doc: T) => unknown[],
   batchSize: number = 1000,
 ): Promise<void> {
-  // Set headers for CSV download
-  res.setHeader('Content-Type', 'text/csv')
-  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
+  async function* lines(): AsyncGenerator<string> {
+    yield Papa.unparse([headers]) + '\n'
 
-  // Write CSV header
-  res.write(Papa.unparse([headers]) + '\n')
+    let skip = 0
+    let hasMore = true
 
-  // Stream rows in batches
-  let skip = 0
-  let hasMore = true
+    while (hasMore) {
+      const batch = await dataFetcher(skip, batchSize)
 
-  while (hasMore) {
-    const batch = await dataFetcher(skip, batchSize)
+      if (batch.length === 0) {
+        break
+      }
 
-    if (batch.length === 0) {
-      break
+      for (const doc of batch) {
+        yield Papa.unparse([rowMapper(doc)]) + '\n'
+      }
+
+      skip += batch.length
+      hasMore = batch.length === batchSize
     }
-
-    for (const doc of batch) {
-      const row = rowMapper(doc)
-      res.write(Papa.unparse([row]) + '\n')
-    }
-
-    skip += batch.length
-    hasMore = batch.length === batchSize
   }
 
-  res.end()
+  await res.stream(Readable.from(lines()), {
+    headers: {
+      'Content-Type': 'text/csv',
+      'Content-Disposition': `attachment; filename="${filename}"`,
+    },
+  })
 }
 
 /**

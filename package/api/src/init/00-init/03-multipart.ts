@@ -3,7 +3,7 @@ import { IncomingForm } from 'formidable'
 import { app as appConfig } from 'config/default'
 
 export const initMultipart = function (server: Server) {
-  server.router.use(function (req, res, next) {
+  server.use('router', function (req, res, next) {
     // Only parse multipart/form-data requests
     if (!req.headers['content-type']?.startsWith('multipart/form-data')) {
       return next()
@@ -14,7 +14,7 @@ export const initMultipart = function (server: Server) {
       allowEmptyFiles: false,
     })
 
-    form.parse(req, (err, fields, files) => {
+    form.parse(req.node, (err, fields, files) => {
       if (err) {
         return res.status(400).json({
           error: 'MultipartParseError',

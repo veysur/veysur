@@ -185,6 +185,7 @@ export interface ServiceConfig {
 export interface ServerConfig {
   path: string
   port: number
+  adaptor: 'express' | 'hono'
   model: ModelConfig
   [key: string]: unknown
 }

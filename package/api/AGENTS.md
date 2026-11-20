@@ -75,7 +75,7 @@ Shared utilities and helpers used across the model layer. Import via `'model/com
 Non-model utilities shared across the server. Import via `'common'` or `'common/<file>'`.
 
 - `pagination` — parse/validate page+perPage query params
-- `csvStream` — stream data as CSV to Express response
+- `csvStream` — stream data as CSV to a neutral `HttpResponse`
 - `s3Client` — file storage abstraction (S3 / local filesystem)
 - `dateFilterUtils` — build MongoDB date range query conditions
 - Search queries: a string `$regex` operand is a literal substring match (regex syntax and `%`/`_` are matched literally), so pass user search text straight in with no escaping. Pass a `RegExp` object only for a deliberate pattern.
@@ -97,6 +97,20 @@ datacapy `package/codegen/docs/endpoints.md`; rationale: `docs/decisions/2026/20
 - A generated config does not change the URL: core and shared services have no root `path`, so @datacapy/server derives it from the service name.
 
 **Project-scoped endpoints**: for any endpoint operating on a single project's data, use `role: 'projectOwner'`/`'projectAdmin'` ACL rules — not a generic role plus a manual ownership check in the service. See `docs/datacapy-acl.md`.
+
+### Init middleware and the server adaptor (`src/init/`)
+
+`@datacapy/server` runs on an HTTP adaptor (Express today), so init code is written against the neutral types and never against Express. Lint enforces it: no `express` import, no `server.app` / `server.router`.
+
+- Register with `server.use(stage, [path], handler)`, `server.route(stage, method, path, ...handlers)`, `server.static(...)` and `server.trustProxy([...])`. Stage `app` runs before datacapy's router is mounted (storage routes, webhooks), stage `router` inside it. Type handlers with `Handler`, `HttpRequest` and `HttpResponse` from `@datacapy/server`.
+- Read a raw body from `req.node` (the Node request), as the multipart, storage upload and Stripe handlers do.
+- Stream with `res.stream(readable, { headers })`, never `res.write`/`res.end` on a stream. `res.header(name, value)` sets the value verbatim.
+- A trailing `/*name` path wildcard arrives as one string; in a path-scoped `use`, `req.path` is relative to that path.
+- Test init code over real HTTP: build `new Server({ path: '/api', port: 0 }, new ModelManager())`, call the init function, `await server.init()`, then `server.adaptor.listen(0)`. Add fake services or repos after `init()`. See `src/init/init-http.test.ts`. The API's global fake timers stall streams and formidable, so such a test calls `jest.useRealTimers()`.
+
+The adaptor is chosen by `API_HTTP_ADAPTOR` (`express`, the default, or `hono`), read in `config/default.ts`. Init tests that run over HTTP use `describe.each(['express', 'hono'])` so both stay covered; a new init step must pass on both. `server.app` and `server.router` throw under Hono.
+
+Contract and conformance rules: datacapy `package/server/docs/http-adaptor.md`.
 
 ### Repos (`src/model/repo/`)
 
@@ -165,7 +179,7 @@ Two subdirectories plus root-level files:
 - **Version**: 0.1.0
 - **Description**: NodeJS REST API server wrapper for the Datacapy domain model
 - **Key Features**:
-  - **ExpressJS Integration**: Built as wrapper around ExpressJS with middleware compatibility
+  - **HTTP adaptors**: Runs on Express (default) or Hono through a neutral adaptor; see `package/server/docs/http-adaptor.md` in datacapy
   - **Auto-exposure**: Automatically exposes repositories and services as REST endpoints
   - **Configurable Access**: Repository exposure is configurable for security
   - **Request Processing**: Validation and type-casting of incoming request data

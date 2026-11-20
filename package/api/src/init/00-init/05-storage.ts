@@ -6,7 +6,7 @@ import {
 } from 'common'
 import { app as appConfig } from 'config/default'
 import type { StorageConfig } from 'common'
-import type { Request, Response, NextFunction } from 'express'
+import type { IncomingMessage } from 'http'
 
 function buildStorageConfig(): StorageConfig {
   const s3 = appConfig.s3
@@ -26,7 +26,7 @@ function buildStorageConfig(): StorageConfig {
   }
 }
 
-async function readBody(req: Request): Promise<Buffer> {
+async function readBody(req: IncomingMessage): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = []
     req.on('data', (chunk: Buffer) => chunks.push(chunk))
@@ -42,19 +42,21 @@ export const initStorage = function (server: Server) {
   // Mount local file serving middleware (local mode only)
   const localMiddleware = createStorageMiddleware(storageConfig)
   if (localMiddleware) {
-    server.app.get('/storage/:bucket/*key', localMiddleware)
+    server.route('app', 'get', '/storage/:bucket/*key', localMiddleware)
   }
 
   // Mount upload endpoint — handles file body upload for both local and S3 modes.
   // Client PUTs raw file body to this endpoint with a signed token.
-  // This must be registered on server.app BEFORE @datacapy/server mounts its router.
-  server.app.put(
+  // Registered at the app stage, before @datacapy/server mounts its router. The
+  // body is read from the raw request, after the token has been checked.
+  server.route(
+    'app',
+    'put',
     '/api/file/upload/:bucket/*key',
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (req, res, next) => {
       try {
         const bucket = req.params.bucket as string
-        // Express 5 wildcard: path segments as an array
-        const key = (req.params.key as string[]).join('/')
+        const key = req.params.key as string
         const token = req.query.token as string | undefined
 
         if (!token) {
@@ -75,7 +77,7 @@ export const initStorage = function (server: Server) {
           return
         }
 
-        const body = await readBody(req)
+        const body = await readBody(req.node)
         const contentType =
           (req.headers['content-type'] as string) || 'application/octet-stream'
 

@@ -1,9 +1,12 @@
-import { S3Adaptor, createLocalFileMiddleware } from 's3-adaptor'
-import type { S3AdaptorConfig, LocalConfig } from 's3-adaptor'
+import { S3Adaptor, createLocalFileHandler } from 's3-adaptor'
+import type {
+  S3AdaptorConfig,
+  LocalConfig,
+  LocalFileHandler,
+} from 's3-adaptor'
 import { createHmac, timingSafeEqual } from 'crypto'
 import crypto from 'crypto'
 import fs from 'fs'
-import type { RequestHandler } from 'express'
 
 export interface StorageConfig {
   type: 'local' | 's3'
@@ -69,9 +72,9 @@ export function createStorageAdaptor(config: StorageConfig): S3Adaptor {
  */
 export function createStorageMiddleware(
   config: StorageConfig,
-): RequestHandler | null {
+): LocalFileHandler | null {
   if (config.type !== 'local') return null
-  return createLocalFileMiddleware(buildLocalConfig(config))
+  return createLocalFileHandler(buildLocalConfig(config))
 }
 
 // ─── Token signing (same algorithm as s3-adaptor TokenSigner) ─────────────────

@@ -35,19 +35,21 @@ function isAllowedOrigin(origin: string): boolean {
 }
 
 export const initCors = function (server: Server) {
-  server.router.use(function (req, res, next) {
+  server.use('router', function (req, res, next) {
     const origin = req.headers.origin
 
-    res.set('Vary', 'Origin')
-    res.set('Access-Control-Allow-Methods', allowedMethods)
-    res.set('Access-Control-Allow-Headers', allowedHeaders)
+    res.header('Vary', 'Origin')
+    res.header('Access-Control-Allow-Methods', allowedMethods)
+    res.header('Access-Control-Allow-Headers', allowedHeaders)
 
     if (origin && isAllowedOrigin(origin)) {
-      res.set('Access-Control-Allow-Origin', origin)
+      res.header('Access-Control-Allow-Origin', origin)
     }
 
     if (req.method === 'OPTIONS') {
-      return res.sendStatus(200)
+      res.type('text/plain')
+      res.status(200).send('OK')
+      return
     }
 
     next()

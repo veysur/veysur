@@ -1,11 +1,12 @@
-import type { Response } from 'express'
+import type { HttpResponse } from '@datacapy/server'
+import type { Readable } from 'stream'
 import { ServiceSurveyParticipantExport } from './ServiceSurveyParticipantExport'
 
 describe('ServiceSurveyParticipantExport', () => {
   let service: ServiceSurveyParticipantExport
   let mockRepoSurveyParticipant: { find: jest.Mock }
   let mockRepoSurveyParticipantAttribute: { findOne: jest.Mock }
-  let response: Response
+  let response: HttpResponse
   let written: string[]
 
   beforeEach(() => {
@@ -30,10 +31,10 @@ describe('ServiceSurveyParticipantExport', () => {
 
     written = []
     response = {
-      setHeader: jest.fn(),
-      write: jest.fn((chunk: string) => written.push(chunk)),
-      end: jest.fn(),
-    } as unknown as Response
+      stream: async (readable: Readable) => {
+        for await (const chunk of readable) written.push(String(chunk))
+      },
+    } as unknown as HttpResponse
   })
 
   test('appends custom attribute columns to the header row', async () => {

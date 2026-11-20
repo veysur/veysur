@@ -26,6 +26,8 @@ const {
   API_PLATFORM_DOMAIN,
   API_BASE_PLATFORM,
   API_SERVER_PORT,
+  // HTTP framework: `express` (default) or `hono`
+  API_HTTP_ADAPTOR,
   // Static, config-sourced Project (self-hosted is single-project — see
   // model/service/ServiceProject.ts)
   API_PROJECT_NAME,
@@ -493,6 +495,7 @@ const dataSources = [
 export const server: ServerConfig = {
   path: '/api',
   port: API_SERVER_PORT ? Number(API_SERVER_PORT) : 3838,
+  adaptor: API_HTTP_ADAPTOR === 'hono' ? 'hono' : 'express',
   model: {
     dataSources,
     app,

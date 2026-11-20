@@ -13,7 +13,7 @@ import { isSelfHosted } from 'config/edition'
 export const initProjectDefault = function (server: Server) {
   if (!isSelfHosted()) return
 
-  server.router.use((req, _res, next) => {
+  server.use('router', (req, _res, next) => {
     if (!req.headers['x-project-id']) {
       req.headers['x-project-id'] = DEFAULT_PROJECT_ID
     }
