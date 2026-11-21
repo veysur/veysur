@@ -108,7 +108,7 @@ datacapy `package/codegen/docs/endpoints.md`; rationale: `docs/decisions/2026/20
 - A trailing `/*name` path wildcard arrives as one string; in a path-scoped `use`, `req.path` is relative to that path.
 - Test init code over real HTTP: build `new Server({ path: '/api', port: 0 }, new ModelManager())`, call the init function, `await server.init()`, then `server.adaptor.listen(0)`. Add fake services or repos after `init()`. See `src/init/init-http.test.ts`. The API's global fake timers stall streams and formidable, so such a test calls `jest.useRealTimers()`.
 
-The adaptor is chosen by `API_HTTP_ADAPTOR` (`express`, the default, or `hono`), read in `config/default.ts`. Init tests that run over HTTP use `describe.each(['express', 'hono'])` so both stay covered; a new init step must pass on both. `server.app` and `server.router` throw under Hono.
+The adaptor is chosen by `API_HTTP_ADAPTOR` (`express`, the default, or `hono`), read in `config/default.ts`. Init tests that run over HTTP use `describe.each(['express', 'hono'])` so both stay covered; a new init step must pass on both.
 
 Contract and conformance rules: datacapy `package/server/docs/http-adaptor.md`.
 
