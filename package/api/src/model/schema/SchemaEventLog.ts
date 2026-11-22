@@ -4,7 +4,7 @@ export const eventLogFields = {
   _id: sb.string(),
   action: sb.string().required().notNull().maxLength(255),
   userId: sb.string().default(null),
-  metadata: sb.object().as<Record<string, unknown>>().default(null),
+  metadata: sb.object().as<Record<string, unknown>>().strict(false).default(null),
   createdAt: sb.date().required().default('now'),
 }
 

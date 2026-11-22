@@ -13,6 +13,14 @@ describe.each([
     expect((await new Ctor().validatePaths(valid)).isValid).toBe(true)
   })
 
+  it('accepts free-form metadata', async () => {
+    const { isValid } = await new Ctor().validatePaths({
+      ...valid,
+      metadata: { surveyId: 'abc', fields: ['timezone'], nested: { a: 1 } },
+    })
+    expect(isValid).toBe(true)
+  })
+
   it('rejects an event without an action', async () => {
     const { isValid } = await new Ctor().validatePaths({
       ...valid,
