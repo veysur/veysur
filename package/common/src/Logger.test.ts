@@ -225,6 +225,23 @@ describe('Logger', () => {
       expect(mockLogger.log).toHaveBeenCalledWith('test')
     })
 
+    it('serialises and forwards every argument, not just the first', () => {
+      const mockLogger = {
+        log: jest.fn(),
+        info: jest.fn(),
+        warn: jest.fn(),
+        error: jest.fn(),
+        debug: jest.fn(),
+        trace: jest.fn(),
+      }
+      const logger = new Logger({ config: { redact: [] }, logger: mockLogger })
+      logger.error('[EventLog] flush failed', new Error('boom'))
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        '[EventLog] flush failed',
+        expect.objectContaining({ name: 'Error', message: 'boom' }),
+      )
+    })
+
     it('redacts sensitive data before passing to underlying logger', () => {
       const mockLogger = {
         info: jest.fn(),

@@ -56,28 +56,33 @@ export class Logger {
     this.logger = options.logger ? options.logger : console
   }
 
-  log(value) {
-    this.logger.log(this.serialize(value))
+  log(...values: unknown[]) {
+    this.logger.log(...this.serializeAll(values))
   }
 
-  trace(value) {
-    this.logger.trace(this.serialize(value))
+  trace(...values: unknown[]) {
+    this.logger.trace(...this.serializeAll(values))
   }
 
-  debug(value) {
-    this.logger.debug(this.serialize(value))
+  debug(...values: unknown[]) {
+    this.logger.debug(...this.serializeAll(values))
   }
 
-  info(value) {
-    this.logger.info(this.serialize(value))
+  info(...values: unknown[]) {
+    this.logger.info(...this.serializeAll(values))
   }
 
-  warn(value) {
-    this.logger.warn(this.serialize(value))
+  warn(...values: unknown[]) {
+    this.logger.warn(...this.serializeAll(values))
   }
 
-  error(value) {
-    this.logger.error(this.serialize(value))
+  error(...values: unknown[]) {
+    this.logger.error(...this.serializeAll(values))
+  }
+
+  // Every argument is serialised, so `logger.error(message, err)` keeps `err`.
+  serializeAll(values: unknown[]): unknown[] {
+    return values.map((value) => this.serialize(value))
   }
 
   serialize(value, fieldName?) {
