@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Editor } from '@tiptap/react'
 import { BubbleMenu } from '@tiptap/react/menus'
+import { PluginKey } from '@tiptap/pm/state'
 import { Code, RemoveFormatting } from 'lucide-react'
 
 import {
@@ -37,6 +38,8 @@ interface TiptapToolbarProps {
   toolbarVariant?: 'html' | 'markdown'
 }
 
+const BUBBLE_MENU_PLUGIN_KEY = new PluginKey('contentEditorBubbleMenu')
+
 const BUBBLE_MENU_PORTAL_ROOT_ID = 'tiptap-bubble-menu-portal-root'
 
 // A dedicated container to append the bubble menu to via `document.body`
@@ -62,9 +65,30 @@ export const TiptapToolbar: React.FC<TiptapToolbarProps> = ({
   variablePickerGroups,
   toolbarVariant = 'html',
 }) => {
+  // The picker's popover leaves TipTap's `preventHide` flag set in some
+  // sequences, so the blur that should hide this menu is swallowed and the
+  // menu stays on screen after focus moves to another editor. Hide it
+  // explicitly once focus has genuinely left the editor and the menu.
+  useEffect(() => {
+    const hideIfFocusLeft = () => {
+      window.setTimeout(() => {
+        if (editor.isDestroyed || editor.isFocused) return
+        if (document.activeElement?.closest('.tiptap-bubble-menu')) return
+        editor.view.dispatch(
+          editor.state.tr.setMeta(BUBBLE_MENU_PLUGIN_KEY, 'hide'),
+        )
+      }, 0)
+    }
+    editor.on('blur', hideIfFocusLeft)
+    return () => {
+      editor.off('blur', hideIfFocusLeft)
+    }
+  }, [editor])
+
   return (
     <BubbleMenu
       editor={editor}
+      pluginKey={BUBBLE_MENU_PLUGIN_KEY}
       appendTo={getBubbleMenuPortalRoot}
       shouldShow={({ editor }) => editor.isEditable && editor.isFocused}
       getReferencedVirtualElement={() => ({

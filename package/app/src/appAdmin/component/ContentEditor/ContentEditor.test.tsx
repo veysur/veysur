@@ -1,4 +1,4 @@
-import { render, waitFor, fireEvent, screen } from '@testing-library/react'
+import { act, render, waitFor, fireEvent, screen } from '@testing-library/react'
 
 import { ContentEditor } from './ContentEditor'
 import { EMAIL_PREVIEW_CONTENT_CLASS } from './emailPreviewCss'
@@ -300,6 +300,42 @@ describe('ContentEditor', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Edit Markdown')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('toolbar visibility', () => {
+    it('hides the toolbar when focus moves to another editor after a click inside the toolbar', async () => {
+      render(
+        <>
+          <ContentEditor value="one" withToolbar={true} onChange={jest.fn()} />
+          <ContentEditor value="two" withToolbar={true} onChange={jest.fn()} />
+        </>,
+      )
+      await waitFor(() => {
+        expect(
+          document.querySelectorAll('.tiptap-editor-content'),
+        ).toHaveLength(2)
+      })
+      const [first, second] = Array.from(
+        document.querySelectorAll<HTMLElement>('.tiptap-editor-content'),
+      )
+
+      act(() => first.focus())
+      let menu: HTMLElement | null = null
+      await waitFor(() => {
+        menu = document.querySelector<HTMLElement>('.tiptap-bubble-menu')
+        expect(menu).not.toBeNull()
+        expect(menu?.style.visibility).toBe('visible')
+      })
+
+      // A mousedown inside the menu arms TipTap's `preventHide`, which a
+      // popover trigger then leaves stuck, swallowing the next real blur.
+      fireEvent.mouseDown(menu as unknown as HTMLElement)
+      act(() => second.focus())
+
+      await waitFor(() => {
+        expect((menu as unknown as HTMLElement).style.visibility).toBe('hidden')
       })
     })
   })
