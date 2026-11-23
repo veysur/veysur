@@ -107,14 +107,14 @@ export const SurveyEditorNavContainer: React.FC<Props> = ({
     const header = renderHeaderBar(toggleOuter, toggleLeft)
     const mainContent = rightSidebar ? (
       <SidebarProvider className="h-full min-h-0 flex-1">
-        <SidebarInset className="h-full flex flex-col min-w-0 pb-12">
+        <SidebarInset className="h-full flex flex-col min-w-0 pb-[3.25rem]">
           {header}
           {children}
         </SidebarInset>
         {rightSidebar}
       </SidebarProvider>
     ) : (
-      <div className="flex flex-col h-full min-w-0 pb-12">
+      <div className="flex flex-col h-full min-w-0 pb-[3.25rem]">
         {header}
         {children}
       </div>
@@ -135,7 +135,7 @@ export const SurveyEditorNavContainer: React.FC<Props> = ({
                 leftSidebar ? (
                   <SidebarProvider>
                     {leftSidebar}
-                    <SidebarInset className="pb-12">
+                    <SidebarInset className="pb-[3.25rem]">
                       <LeftSidebarWrapper>
                         {(toggleLeft) => content(toggleOuter, toggleLeft)}
                       </LeftSidebarWrapper>

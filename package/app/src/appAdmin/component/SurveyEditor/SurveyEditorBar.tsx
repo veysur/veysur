@@ -1,5 +1,5 @@
 import { useOutletContext } from 'react-router-dom'
-import { Menu, Settings, Layers } from 'lucide-react'
+import { Menu } from 'lucide-react'
 import { SettingSurvey } from 'veysur-common'
 
 import { cn } from 'common/cn'
@@ -13,6 +13,9 @@ import {
   SURVEY_ENTITY_TYPE_NAME,
 } from 'appAdmin/component/SurveyEditor'
 import { SurveyEditorPublish } from 'appAdmin/component/SurveyEditorPublish'
+
+import { SurveyEditorMobileBar } from './SurveyEditorMobileBar'
+import { useEdgeSwipe } from './hook/useEdgeSwipe'
 
 type OutletContext = {
   settingSurvey: SettingSurvey
@@ -38,6 +41,11 @@ export function SurveyEditorBar({
 
   // Get toggle for right sidebar (innermost provider)
   const { toggleSidebar: toggleRightSidebar } = useSidebar()
+
+  useEdgeSwipe({
+    onSwipeFromLeft: toggleLeftSidebar,
+    onSwipeFromRight: toggleRightSidebar,
+  })
 
   // const handleEmptySpaceClick = (e: React.MouseEvent) => {
   //   if (e.target === e.currentTarget) {
@@ -92,36 +100,20 @@ export function SurveyEditorBar({
                   <span className="sr-only">Navigation</span>
                 </Button>
               )}
-              {toggleLeftSidebar && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 lg:hidden"
-                  onClick={toggleLeftSidebar}
-                >
-                  <Layers className="h-4 w-4" />
-                  <span className="sr-only">Structure</span>
-                </Button>
-              )}
               <div className="flex flex-1 min-w-0 items-center text-xl font-semibold hover:bg-accent">
                 {nameInput}
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 ms-2 lg:hidden"
-                onClick={toggleRightSidebar}
-              >
-                <Settings className="h-4 w-4" />
-                <span className="sr-only">Attributes</span>
-              </Button>
               <SurveyEditorPublish />
             </div>
           </div>
         </div>
       </div>
+      <SurveyEditorMobileBar
+        onToggleStructure={toggleLeftSidebar}
+        onToggleAttributes={toggleRightSidebar}
+      />
     </>
   )
 }

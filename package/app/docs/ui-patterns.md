@@ -21,6 +21,23 @@ Any new editor element with reorder arrows should follow the same split: margin 
 
 ---
 
+## Survey Editor Mobile Panels (SurveyEditorMobileBar)
+
+The editor has a Structure panel (left) and an Attributes panel (right), both drawers below `lg`. Their toggles do not live in the header, which has no room for them on a phone. Below `lg`, `SurveyEditorBar` renders `SurveyEditorMobileBar`, a fixed 52px bar (`3.25rem` plus the device safe-area inset) with a Structure button on the left and an Attributes button on the right. `SurveyEditorNavContainer` reserves the same `pb-[3.25rem]` so content is not hidden behind it, so change both values together.
+
+`useEdgeSwipe` adds a gesture shortcut: a swipe that starts within 24px of the left or right screen edge and travels at least 60px inward toggles the matching panel. It is inactive from `lg` up and while any `role="dialog"` is open (an open drawer or the publish dialog), which stops a second drawer stacking on the first. The bar stays as the visible fallback, since gestures are hard to discover and can clash with a browser's back swipe.
+
+Below `sm` the Publish button shows only its icon and status dot; the label stays for screen readers and the tooltip.
+
+### Key Files
+
+- `src/appAdmin/component/SurveyEditor/SurveyEditorMobileBar.tsx`
+- `src/appAdmin/component/SurveyEditor/SurveyEditorBar.tsx` (wires the toggles)
+- `src/appAdmin/component/SurveyEditor/hook/useEdgeSwipe.ts`
+- `src/appAdmin/component/SurveyEditorPublish/PublishButton.tsx`
+
+---
+
 ## Full-Page Empty State (GoldenEmptyState)
 
 Use `GoldenEmptyState` when a page or section has no data and should prompt the user to take a first action. It centres content vertically using the golden ratio and wraps it in a card.

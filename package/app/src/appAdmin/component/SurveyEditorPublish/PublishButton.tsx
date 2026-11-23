@@ -43,7 +43,7 @@ export const PublishButton: React.FC<Props> = ({
           <span className="absolute -top-0.5 -right-0.5 size-1.5 rounded-full bg-warning" />
         )}
       </span>
-      {label}
+      <span className="max-sm:sr-only">{label}</span>
     </Button>
   )
 }
