@@ -46,8 +46,15 @@ export function SectionMethods<T extends Constructor<SurveyBase>>(Base: T) {
       )
     }
 
+    /** `newIndex` is a position among the question groups, not among all sections. */
     moveSection(sectionId: string, newIndex: number): this {
-      const newSections = this.sections.move(sectionId, newIndex)
+      const targetGroup = this.sections.groups()[newIndex]
+      if (!targetGroup) return this.newInstance({})
+
+      const targetIndex = this.sections.findIndex(
+        (section) => section._id === targetGroup._id,
+      )
+      const newSections = this.sections.move(sectionId, targetIndex)
       if (newSections === this.sections) return this.newInstance({})
 
       const newSectionIds = [...newSections.map((section) => section._id)]

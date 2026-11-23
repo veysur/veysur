@@ -76,7 +76,7 @@ exports[`mixin composition Survey.prototype exposes the same effective methods 1
   "moveQuestion": "a17b893326",
   "moveQuestionDown": "ec2ac9b0f5",
   "moveQuestionUp": "84d9db11b3",
-  "moveSection": "90fccf25bd",
+  "moveSection": "08635aeffe",
   "moveSubquestion": "652a79741a",
   "mutateAnswerOption": "cca0691c1c",
   "mutateQuestion": "1a4a76978a",

@@ -128,6 +128,57 @@ describe('GroupMethods', () => {
       expect(survey.sections.groups()[1]._id).toBe('g2')
     })
 
+    test('moves a group down by one position', () => {
+      const newSurvey = new Survey(survey).moveSection('g1', 1)
+
+      expect(newSurvey.sections.groups().map((g) => g._id)).toEqual([
+        'g2',
+        'g1',
+        'g3',
+      ])
+    })
+
+    describe('with a welcome section ahead of the groups', () => {
+      let withWelcome: Survey
+
+      beforeEach(() => {
+        withWelcome = new Survey({
+          ...survey,
+          sections: [
+            {
+              _id: 'w',
+              surveyId: '1',
+              createdById: '1',
+              kind: 'welcome',
+              name: { en: 'Welcome' },
+              attributes: {},
+            },
+            ...survey.sections,
+          ],
+        })
+      })
+
+      test('indexes are positions among groups, so moving down swaps with the next group', () => {
+        const newSurvey = withWelcome.moveSection('g1', 1)
+
+        expect(newSurvey.sections.groups().map((g) => g._id)).toEqual([
+          'g2',
+          'g1',
+          'g3',
+        ])
+      })
+
+      test('moving up swaps with the previous group', () => {
+        const newSurvey = withWelcome.moveSection('g2', 0)
+
+        expect(newSurvey.sections.groups().map((g) => g._id)).toEqual([
+          'g2',
+          'g1',
+          'g3',
+        ])
+      })
+    })
+
     test('re-sorts questions and questionIds to follow the new group order', () => {
       const newSurvey = new Survey(survey).moveSection('g2', 0)
 
