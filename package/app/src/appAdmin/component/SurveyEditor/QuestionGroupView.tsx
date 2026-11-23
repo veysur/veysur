@@ -174,7 +174,12 @@ const QuestionGroupViewComponent: React.FC<QuestionGroupViewProps> = ({
     groupName.length > 25 ? `${groupName.substring(0, 25)}...` : groupName
 
   const moveNav = (
-    <div className={cn(['absolute inset-y-1/2 right-0', { hidden: !focused }])}>
+    <div
+      className={cn([
+        'absolute inset-y-1/2 right-0 max-md:hidden',
+        { hidden: !focused },
+      ])}
+    >
       <MoveNav
         className="absolute -right-14"
         onMoveUp={index == 0 ? undefined : handleMoveUp}
@@ -278,6 +283,14 @@ const QuestionGroupViewComponent: React.FC<QuestionGroupViewProps> = ({
             {/* Right column: delete buttons aligned */}
             <div className="flex flex-col items-end flex-shrink-0 -mr-1">
               <div className="flex items-center gap-1">
+                {focused && (
+                  <MoveNav
+                    layout="inline"
+                    className="md:hidden"
+                    onMoveUp={index == 0 ? undefined : handleMoveUp}
+                    onMoveDown={isLast ? undefined : handleMoveDown}
+                  />
+                )}
                 <DialogConfirmClickable
                   variant="link-destructive"
                   size="sm"

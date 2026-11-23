@@ -50,7 +50,7 @@ export const MoveNav: React.FC<MoveNavProps> = ({
   const wrapperClass =
     layout === 'inline'
       ? `move-nav flex flex-row ${className}`.trim()
-      : `move-nav h-18 w-9 pb-10 ${className}`.trim()
+      : `move-nav h-18 w-9 pb-10 max-md:flex max-md:h-auto max-md:w-auto max-md:pb-0 ${className}`.trim()
 
   const moveUpOpacity = onMoveUp ? classnameActive : classnameDisabled
   const moveDownOpacity = onMoveDown ? classnameActive : classnameDisabled

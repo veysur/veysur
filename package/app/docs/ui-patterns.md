@@ -4,6 +4,23 @@ Common UI patterns used across VeySur admin entity pages.
 
 ---
 
+## Survey Editor Reorder Controls (MoveNav)
+
+On `md` and wider, the move up/down arrows sit in the editor's right margin (`absolute -right-14`), so the survey wrapper keeps a `mx-14` gutter. Below `md` that gutter would take 112px from a phone screen, so the editor uses `mx-4` (matching the preview's `px-4`) and the arrows move into the focused card:
+
+- **Questions and content elements:** `MoveNav` becomes a horizontal pair in the card's bottom-right corner. The focused card adds `max-md:pb-10` so the arrows clear the answer field.
+- **Groups:** the card is a single short row, so `QuestionGroupView` renders a second `MoveNav` (`layout="inline"`, `md:hidden`) in the header beside the delete button, and hides the margin one with `max-md:hidden`.
+
+Any new editor element with reorder arrows should follow the same split: margin placement from `md` up, in-card placement below it. Group moves take an index among groups, not among all sections (`Survey.moveSection`).
+
+### Key Files
+
+- `src/appAdmin/component/SurveyEditor/MoveNav.tsx`
+- `src/appAdmin/component/SurveyEditor/SurveyEditorContent.tsx` (gutters)
+- `src/appAdmin/component/SurveyEditor/QuestionView.tsx`, `ContentView.tsx`, `QuestionGroupView.tsx`
+
+---
+
 ## Full-Page Empty State (GoldenEmptyState)
 
 Use `GoldenEmptyState` when a page or section has no data and should prompt the user to take a first action. It centres content vertically using the golden ratio and wraps it in a card.

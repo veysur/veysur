@@ -171,12 +171,12 @@ export const SurveyEditorContent: React.FC = () => {
 
   return (
     <>
-      <div className="flex justify-between items-center mt-6 mx-14 pr-4">
+      <div className="flex justify-between items-center mt-6 mx-4 md:mx-14 pr-4">
         <div className="flex-grow" />
         <SurveyLanguageSelector />
       </div>
 
-      <div className="survey-content-wrapper mt-6 mb-40 mx-14">
+      <div className="survey-content-wrapper mt-6 mb-40 mx-4 md:mx-14">
         <section className="survey-main-section">
           {survey?.sections.groups() && survey.sections.groups().length > 0 ? (
             <>

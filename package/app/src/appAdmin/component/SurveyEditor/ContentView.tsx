@@ -108,7 +108,9 @@ const ContentViewComponent: React.FC<ContentViewProps> = ({
 
   const moveNav = (
     <MoveNav
-      className={cn(['absolute top-4 -right-14'])}
+      className={cn([
+        'absolute top-4 max-md:top-auto max-md:bottom-1 right-1 md:-right-14',
+      ])}
       onMoveUp={isFirst ? undefined : handleMoveUp}
       onMoveDown={isLast ? undefined : handleMoveDown}
     />
@@ -120,7 +122,9 @@ const ContentViewComponent: React.FC<ContentViewProps> = ({
       data-testid="content-container"
       className={cn(
         'content mb-10 group relative transition-colors rounded-md p-4 mb-4 border-l-4 border-transparent',
-        focused ? 'border-primary bg-editor-focus' : 'hover:bg-editor-hover',
+        focused
+          ? 'border-primary bg-editor-focus max-md:pb-10'
+          : 'hover:bg-editor-hover',
       )}
     >
       <div className="grow relative" onClick={handleOnFocus}>
