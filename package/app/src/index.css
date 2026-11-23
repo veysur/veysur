@@ -32,6 +32,10 @@
   #root {
     @apply min-h-screen;
   }
+  /* Below this width layouts collapse (titles wrap per letter); scroll sideways instead. */
+  html {
+    min-width: 360px;
+  }
   #survey-container .html-editor-focused {
     @apply border-0 outline-0;
   }
