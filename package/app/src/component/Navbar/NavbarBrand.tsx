@@ -36,14 +36,14 @@ export function NavbarBrand({
     <img
       src="/image/veysur-logo-dark.svg"
       alt="VeySur"
-      className="h-12 -translate-y-2 w-auto"
+      className="h-9 -translate-y-1.5 sm:h-12 sm:-translate-y-2 w-auto"
     />
   )
 
   return (
     <header className="z-50 bg-header text-header-foreground border-b border-border">
-      <div className="grid grid-cols-[1fr_auto_1fr] h-20 items-center px-4 sm:px-6 lg:px-8 gap-2">
-        <div className="flex items-center gap-3 -mb-4 min-w-0">
+      <div className="grid grid-cols-[1fr_auto_1fr] h-14 sm:h-20 items-center px-4 sm:px-6 lg:px-8 gap-2">
+        <div className="flex items-center gap-3 -mb-3 sm:-mb-4 min-w-0">
           <BrandLink
             href={href}
             linkPath={linkPath}

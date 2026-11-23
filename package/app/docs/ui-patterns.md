@@ -91,6 +91,19 @@ import { ClipboardList, Plus } from 'lucide-react'
 
 ---
 
+## Mobile Header (NavbarBrand and NavbarBrandAdmin)
+
+`NavbarBrand` is the shared dark header. Below `sm` it is `h-14` with a `h-9` logo (from `sm` up, `h-20` and `h-12`), so the editor's own title bar below it is not squeezed. The account app uses the same shell and shrinks with it.
+
+In the admin app, Surveys, Team and Settings are inline links from `md` up. Below `md` they collapse into one `Menu` dropdown listing Surveys, Team and Survey settings, plus Project settings for owners. Both forms take their `AuthLink` props from the same `navLinkProps(path)` helper, so add a new destination in both places. Registry extras such as the cloud plan-usage button stay visible beside the menu, because an extra is a self-contained component and cannot become a menu item without changing the extension contract.
+
+### Key Files
+
+- `src/component/Navbar/NavbarBrand.tsx`
+- `src/appAdmin/component/Navbar/NavbarBrandAdmin.tsx`
+
+---
+
 ## Entity Mass Action Buttons
 
 Action buttons placed in the right slot of `PageHeader`, scoped to an entity type. Each button triggers a specific dialog (import, add, generate, export, send email).

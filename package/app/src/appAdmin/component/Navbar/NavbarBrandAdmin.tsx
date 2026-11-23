@@ -6,6 +6,7 @@ import {
   Settings,
   Users,
   FolderKanban,
+  Menu,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
@@ -45,19 +46,66 @@ export const NavbarBrandAdmin: React.FC<NavbarBrandAdminProps> = (props) => {
   const { auth, authRefresh } = useAuth()
   const project = useProjectDomain()
   const isOwner = auth?.user?.projectOwn?.some((p) => p._id === project?._id)
+  const navLinkProps = (path: string) => ({
+    targetUrl: `${window.location.origin}${path}`,
+    loginPath: '/admin/login',
+    onNavigate: () => navigate(path),
+  })
+  const mobileMenu = (
+    <DropdownMenu>
+      <DropdownMenuTrigger tooltip="Menu" asChild>
+        <Button
+          variant="link"
+          size="icon"
+          className="text-header-foreground/70 hover:text-primary md:hidden"
+          aria-label="Menu"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start">
+        <DropdownMenuItem asChild>
+          <AuthLink {...navLinkProps('/survey')}>
+            <ClipboardList className="h-4 w-4" />
+            Surveys
+          </AuthLink>
+        </DropdownMenuItem>
+        {isOwner && (
+          <DropdownMenuItem asChild>
+            <AuthLink {...navLinkProps('/team')}>
+              <Users className="h-4 w-4" />
+              Team
+            </AuthLink>
+          </DropdownMenuItem>
+        )}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <AuthLink {...navLinkProps('/setting/survey/language')}>
+            <Settings className="h-4 w-4" />
+            Survey settings
+          </AuthLink>
+        </DropdownMenuItem>
+        {isOwner && (
+          <DropdownMenuItem asChild>
+            <AuthLink {...navLinkProps('/setting/project')}>
+              <FolderKanban className="h-4 w-4" />
+              Project settings
+            </AuthLink>
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
   const navigation = (
     <nav className="flex items-center space-x-1 md:space-x-4">
+      {mobileMenu}
       <Button
         variant="link"
         tooltip="Surveys"
-        className="text-header-foreground/70 hover:text-primary gap-1.5"
+        className="text-header-foreground/70 hover:text-primary gap-1.5 max-md:hidden"
         asChild
       >
-        <AuthLink
-          targetUrl={`${window.location.origin}/survey`}
-          loginPath="/admin/login"
-          onNavigate={() => navigate('/survey')}
-        >
+        <AuthLink {...navLinkProps('/survey')}>
           <ClipboardList className="h-4 w-4 shrink-0" />
           <span className="hidden lg:inline">Surveys</span>
         </AuthLink>
@@ -66,14 +114,10 @@ export const NavbarBrandAdmin: React.FC<NavbarBrandAdminProps> = (props) => {
         <Button
           variant="link"
           tooltip="Team"
-          className="text-header-foreground/70 hover:text-primary gap-1.5"
+          className="text-header-foreground/70 hover:text-primary gap-1.5 max-md:hidden"
           asChild
         >
-          <AuthLink
-            targetUrl={`${window.location.origin}/team`}
-            loginPath="/admin/login"
-            onNavigate={() => navigate('/team')}
-          >
+          <AuthLink {...navLinkProps('/team')}>
             <Users className="h-4 w-4 shrink-0" />
             <span className="hidden lg:inline">Team</span>
           </AuthLink>
@@ -83,7 +127,7 @@ export const NavbarBrandAdmin: React.FC<NavbarBrandAdminProps> = (props) => {
         <DropdownMenuTrigger tooltip="Settings" asChild>
           <Button
             variant="link"
-            className="text-header-foreground/70 hover:text-primary gap-1.5"
+            className="text-header-foreground/70 hover:text-primary gap-1.5 max-md:hidden"
           >
             <Settings className="h-4 w-4 shrink-0" />
             <span className="hidden lg:inline">Settings</span>
@@ -91,22 +135,14 @@ export const NavbarBrandAdmin: React.FC<NavbarBrandAdminProps> = (props) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           <DropdownMenuItem asChild>
-            <AuthLink
-              targetUrl={`${window.location.origin}/setting/survey/language`}
-              loginPath="/admin/login"
-              onNavigate={() => navigate('/setting/survey/language')}
-            >
+            <AuthLink {...navLinkProps('/setting/survey/language')}>
               <ClipboardList className="h-4 w-4" />
               Survey
             </AuthLink>
           </DropdownMenuItem>
           {isOwner && (
             <DropdownMenuItem asChild>
-              <AuthLink
-                targetUrl={`${window.location.origin}/setting/project`}
-                loginPath="/admin/login"
-                onNavigate={() => navigate('/setting/project')}
-              >
+              <AuthLink {...navLinkProps('/setting/project')}>
                 <FolderKanban className="h-4 w-4" />
                 Project
               </AuthLink>
