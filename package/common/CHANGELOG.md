@@ -1,5 +1,11 @@
 # veysur-common
 
+## 0.14.1
+
+### Patch Changes
+
+- 051d7de: `Logger` methods now serialise and forward every argument. Calls such as `logger.error(message, err)` previously dropped `err`, hiding the cause of failures in server logs.
+
 ## 0.14.0
 
 ### Minor Changes
