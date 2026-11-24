@@ -53,7 +53,7 @@ survey_journey() {
 
   api GET "/survey-response/$SURVEY_ID?perPage=50"
   expect_status 200 "responses listed"
-  jq -e --arg c "$QUESTION_CODE" '[(.responses // .items // .)[]? | select(.answers[$c] == "release-test-answer")] | length == 1' "$WORK/body" >/dev/null &&
+  jq -e --arg c "$QUESTION_CODE" '[(.response // .responses)[]? | select(.answers[$c] == "release-test-answer")] | length == 1' "$WORK/body" >/dev/null &&
     pass "the stored response carries the submitted answer" || fail "response not found with its answer: $(head -c 400 "$WORK/body")"
 }
 
@@ -125,7 +125,7 @@ backup_roundtrip() {
   admin_login
   api GET "/survey-response/$SURVEY_ID?perPage=50"
   expect_status 200 "responses listed after restore"
-  jq -e --arg c "$QUESTION_CODE" '[(.responses // .items // .)[]? | select(.answers[$c] == "release-test-answer")] | length == 1' "$WORK/body" >/dev/null &&
+  jq -e --arg c "$QUESTION_CODE" '[(.response // .responses)[]? | select(.answers[$c] == "release-test-answer")] | length == 1' "$WORK/body" >/dev/null &&
     pass "the response survived the restore" || fail "response missing after restore: $(head -c 400 "$WORK/body")"
 }
 
