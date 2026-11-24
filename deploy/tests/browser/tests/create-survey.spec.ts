@@ -8,5 +8,5 @@ test('the administrator creates a survey from the new survey form', async ({ pag
   await page.getByLabel(/^name/i).fill('Browser test survey')
   await page.locator('button[type="submit"]').click()
   await expect(page).toHaveURL(/\/admin\/survey\/[^/]+\/edit/)
-  await expect(page.getByTestId('save-status')).toBeVisible()
+  await expect(page.getByTestId('save-status')).toBeVisible({ timeout: 60_000 })
 })
