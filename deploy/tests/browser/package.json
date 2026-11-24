@@ -1,0 +1,11 @@
+{
+  "name": "veysur-release-browser-tests",
+  "private": true,
+  "description": "Browser smoke tests run against a release stack by deploy/tests/release-smoke.sh --browser",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
+  }
+}

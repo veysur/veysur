@@ -50,3 +50,40 @@ jobs:
 
       - name: Upgrade test
         run: deploy/tests/release-upgrade.sh --from-tarball previous/veysur-*.tar.gz
+
+  # Drives the admin and survey apps in Chromium. Not required yet: it reports but does not block
+  # until it has run reliably for ten consecutive runs.
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Chromium
+        run: |
+          cd deploy/tests/browser
+          npm ci --no-audit --no-fund
+          npx playwright install --with-deps chromium
+
+      - name: Build the thin package
+        run: deploy/scripts/release-package.sh 0.0.0-smoke
+
+      - name: Browser smoke test
+        run: deploy/tests/release-smoke.sh --tarball deploy/dist/veysur-0.0.0-smoke.tar.gz --browser
+
+      - name: Upload traces and screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-test-results
+          path: |
+            deploy/tests/browser/test-results
+            deploy/tests/browser/playwright-report
+          retention-days: 7

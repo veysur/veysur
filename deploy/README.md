@@ -45,7 +45,9 @@ Or, more simply, `docker compose build` from `deploy/` — see [deployment.md](.
 directory, installs it with `install.sh`, creates the first administrator and checks `/api/ping`, the admin,
 survey and account app shells, an admin login and container health. It then runs a functional journey (`tests/release-functional.sh`): create, publish, answer and export a survey, upload and read public and private files, and back up and restore the stack. `--skip-functional` stops after the smoke checks.
 
-`tests/release-upgrade.sh --from-tarball <previous veysur-X.Y.Z.tar.gz>` installs that release (images pulled from ghcr.io), seeds a survey, a response and a file, then checks that a failed upgrade rolls back and a good one keeps the data, using `update.sh` with the new images as an offline archive. `release.yml` runs it against the newest earlier release before publishing. Without `--registry` and `--tag` it builds the
+`tests/release-upgrade.sh --from-tarball <previous veysur-X.Y.Z.tar.gz>` installs that release (images pulled from ghcr.io), seeds a survey, a response and a file, then checks that a failed upgrade rolls back and a good one keeps the data, using `update.sh` with the new images as an offline archive. `release.yml` runs it against the newest earlier release before publishing.
+
+`release-smoke.sh --browser` also runs the Playwright specs in `tests/browser/` (log in, create a survey, answer the published survey) against the stack. It is a separate, non-blocking job in `release-smoke.yml` until it has run reliably for ten consecutive runs. Run `npm ci && npx playwright install chromium` in that directory first. Without `--registry` and `--tag` it builds the
 images from this checkout; with them it uses images already present locally. It uses its own Compose project and
 removes everything on exit (`--keep` leaves it). `release.yml` runs it before publishing, and `release-smoke.yml`
 runs it on pull requests that change `deploy/`.

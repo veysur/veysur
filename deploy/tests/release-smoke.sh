@@ -14,7 +14,7 @@ set -uo pipefail
 SRC_DEPLOY="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REPO_DIR="$(cd "$SRC_DEPLOY/.." && pwd)"
 
-KEEP=false SKIP_FUNCTIONAL=false TARBALL="" REGISTRY="" TAG="" HTTP_PORT=""
+KEEP=false SKIP_FUNCTIONAL=false BROWSER=false TARBALL="" REGISTRY="" TAG="" HTTP_PORT=""
 
 usage() {
   cat <<USAGE
@@ -27,6 +27,8 @@ Usage: $0 --tarball <veysur-X.Y.Z.tar.gz> [options]
                           built from this checkout
   --port <n>              Host port for the site (default: a free one)
   --skip-functional       Stop after the smoke checks; skip the survey, file and backup journey
+  --browser               After the functional journey, run the Playwright specs in browser/
+                          (needs node and npm; run 'npx playwright install chromium' first)
   --keep                  Leave the stack and its temporary directory in place
   --help, -h              Show this help
 
@@ -42,12 +44,14 @@ while [ $# -gt 0 ]; do
     --tag) TAG=$2; shift 2 ;;
     --port) HTTP_PORT=$2; shift 2 ;;
     --skip-functional) SKIP_FUNCTIONAL=true; shift ;;
+    --browser) BROWSER=true; shift ;;
     --keep) KEEP=true; shift ;;
     --help | -h) usage; exit 0 ;;
     *) usage >&2; echo "unknown option: $1" >&2; exit 2 ;;
   esac
 done
 [ -n "$TARBALL" ] && [ -f "$TARBALL" ] || { usage >&2; echo "--tarball must name an existing file" >&2; exit 2; }
+! { $BROWSER && $SKIP_FUNCTIONAL; } || { echo "--browser needs the functional journey it builds on" >&2; exit 2; }
 [ -z "$REGISTRY" ] || [ -n "$TAG" ] || { echo "--registry needs --tag" >&2; exit 2; }
 [ -n "$REGISTRY" ] || [ -z "$TAG" ] || { echo "--tag needs --registry" >&2; exit 2; }
 
@@ -153,6 +157,11 @@ if ! $SKIP_FUNCTIONAL; then
   # shellcheck source=release-functional.sh
   source "$(dirname "${BASH_SOURCE[0]}")/release-functional.sh"
   functional_checks
+  if $BROWSER; then
+    # shellcheck source=release-browser.sh
+    source "$(dirname "${BASH_SOURCE[0]}")/release-browser.sh"
+    browser_checks
+  fi
 fi
 
 say "All checks passed ($PASSED)"
