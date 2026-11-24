@@ -11,6 +11,30 @@ api() {
   http "$method" "$BASE/api$path" -H "Authorization: Bearer $TOKEN" -H "X-Project-Id: $PROJECT" -H 'Content-Type: application/json' "$@"
 }
 
+# upload_file FILE NAME MIME [CONTEXT]: uploads through the API; sets UP_ID, UP_URL, UP_PATH.
+upload_file() {
+  local file=$1 name=$2 mime=$3 context=${4:-} hash size
+  hash=$(sha256sum "$file" | cut -d' ' -f1)
+  size=$(stat -c %s "$file")
+  api POST /file/upload-url -d "$(jq -n --arg f "$name" --arg h "$hash" --argjson s "$size" --arg m "$mime" --arg c "$context" \
+    '{filename:$f,fileHash:$h,fileSize:$s,mimeType:$m} + (if $c == "" then {} else {fileContext:$c} end)')"
+  expect_status '200|201' "upload link for $name"
+  UP_ID=$(jq -r '.fileId' "$WORK/body")
+  UP_URL=$(jq -r '.uploadUrl' "$WORK/body")
+  UP_PATH=$(jq -r '.file.filePath // .filePath' "$WORK/body")
+  case $UP_URL in "$BASE"/*) ;; *) fail "upload link is not on the site origin: $UP_URL" ;; esac
+  http PUT "$UP_URL" -H "Content-Type: $mime" --data-binary @"$file"
+  expect_status '200|201|204' "upload of $name"
+  api POST "/file/$UP_ID/confirm"
+  expect_status '200|201' "confirm $name"
+}
+
+# expect_answer DESCRIPTION: $WORK/body, a response list, holds exactly the answer survey_journey submitted.
+expect_answer() {
+  jq -e --arg c "$QUESTION_CODE" '[(.response // .responses)[]? | select(.answers[$c] == "release-test-answer")] | length == 1' "$WORK/body" >/dev/null &&
+    pass "$1" || fail "$1: $(head -c 400 "$WORK/body")"
+}
+
 # survey_journey: create, publish, answer and read back a survey. Sets SURVEY_ID, QUESTION_CODE.
 survey_journey() {
   local patches
@@ -55,8 +79,7 @@ survey_journey() {
 
   api GET "/survey-response/$SURVEY_ID?perPage=50"
   expect_status 200 "responses listed"
-  jq -e --arg c "$QUESTION_CODE" '[(.response // .responses)[]? | select(.answers[$c] == "release-test-answer")] | length == 1' "$WORK/body" >/dev/null &&
-    pass "the stored response carries the submitted answer" || fail "response not found with its answer: $(head -c 400 "$WORK/body")"
+  expect_answer "the stored response carries the submitted answer"
 }
 
 # survey_export: exports the survey archive and downloads it through the site origin.
@@ -74,26 +97,10 @@ survey_export() {
 
 # file_roundtrip: uploads a public and a private file through local storage and reads both back.
 file_roundtrip() {
-  local pub="$WORK/pub.png" priv="$WORK/priv.pdf" hash size
+  local pub="$WORK/pub.png" priv="$WORK/priv.pdf"
   head -c 20000 /dev/urandom >"$pub"
   head -c 20000 /dev/urandom >"$priv"
 
-  upload_file() {
-    local file=$1 name=$2 mime=$3 context=${4:-}
-    hash=$(sha256sum "$file" | cut -d' ' -f1)
-    size=$(stat -c %s "$file")
-    api POST /file/upload-url -d "$(jq -n --arg f "$name" --arg h "$hash" --argjson s "$size" --arg m "$mime" --arg c "$context" \
-      '{filename:$f,fileHash:$h,fileSize:$s,mimeType:$m} + (if $c == "" then {} else {fileContext:$c} end)')"
-    expect_status '200|201' "upload link for $name"
-    UP_ID=$(jq -r '.fileId' "$WORK/body")
-    UP_URL=$(jq -r '.uploadUrl' "$WORK/body")
-    UP_PATH=$(jq -r '.file.filePath // .filePath' "$WORK/body")
-    case $UP_URL in "$BASE"/*) ;; *) fail "upload link is not on the site origin: $UP_URL" ;; esac
-    http PUT "$UP_URL" -H "Content-Type: $mime" --data-binary @"$file"
-    expect_status '200|201|204' "upload of $name"
-    api POST "/file/$UP_ID/confirm"
-    expect_status '200|201' "confirm $name"
-  }
 
   upload_file "$pub" release.png image/png
   http GET "$BASE/veysur-files/$UP_PATH" -H 'Accept-Encoding: identity'
@@ -127,8 +134,7 @@ backup_roundtrip() {
   admin_login
   api GET "/survey-response/$SURVEY_ID?perPage=50"
   expect_status 200 "responses listed after restore"
-  jq -e --arg c "$QUESTION_CODE" '[(.response // .responses)[]? | select(.answers[$c] == "release-test-answer")] | length == 1' "$WORK/body" >/dev/null &&
-    pass "the response survived the restore" || fail "response missing after restore: $(head -c 400 "$WORK/body")"
+  expect_answer "the response survived the restore"
 }
 
 functional_checks() {
