@@ -8,7 +8,8 @@ set -euo pipefail
 # the whole repo vX.Y.Z (not per-package tags, unlike datacapy/s3-adaptor).
 #
 # Steps:
-#   1. Pre-flight: clean tree, on master and in sync, gh signed in, lockfile current.
+#   1. Pre-flight: clean tree, on master and in sync, gh signed in, submodule libraries released
+#      and pinned, lockfile current.
 #   2. Run .github/workflows/release-check.yml (image build, nothing pushed) and wait for it.
 #   3. Version bump, root changelog entry, commit, tag, push.
 #   4. Create the GitHub release as a draft, with that changelog entry as its notes.
@@ -57,6 +58,9 @@ if [[ "$(git rev-parse HEAD)" != "$(git rev-parse origin/master)" ]]; then
   echo "master is not in sync with origin/master. Push or pull first." >&2
   exit 1
 fi
+
+# datacapy and s3-adaptor must be released and pinned first (see docs/releasing.md).
+./scripts/release-check-submodules.sh
 
 # The image build installs with a frozen lockfile; a stale one only fails there otherwise.
 echo "Checking pnpm-lock.yaml is current..."

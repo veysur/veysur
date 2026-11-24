@@ -68,6 +68,8 @@ Commit the generated `.changeset/*.md` file with the PR.
 
 ## Cutting a release
 
+The step-by-step runbook is [releasing.md](./releasing.md). This section explains what each step does.
+
 Releases are cut in dependency order, since `veysur`'s `pnpm-lock.yaml` and submodule
 pointers need to reflect `datacapy`/`s3-adaptor`'s latest tagged commit:
 
@@ -89,7 +91,8 @@ its last step. Run it (one per tag) to cut the actual GitHub release from that p
 
 `veysur`'s `release.sh` runs the whole sequence and publishes only a release that has its assets:
 
-1. Pre-flight: clean tree, on `master` and in sync with `origin/master`, `gh` signed in, and
+1. Pre-flight: clean tree, on `master` and in sync with `origin/master`, `gh` signed in,
+   `datacapy` and `s3-adaptor` released and pinned (`scripts/release-check-submodules.sh`), and
    `pnpm-lock.yaml` current (`pnpm install --frozen-lockfile --lockfile-only`).
 2. It runs `.github/workflows/release-check.yml`, which builds the `api` and `nginx` images
    without pushing anything, and waits. A failure stops the release before any commit or tag.
