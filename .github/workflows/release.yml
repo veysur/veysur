@@ -1,9 +1,11 @@
 # cspell:ignore clobber
 name: Release package
 
-# Publishes the container images to GHCR and attaches the operator tarballs to the GitHub
-# release. scripts/release.sh creates the tag and a draft release, runs this on the tag, and
-# publishes the release only once this succeeds. release-check.yml proves the build first.
+# Builds the images and operator tarballs, tests them, and only then publishes: pushes the
+# images to GHCR (including latest) and attaches the tarballs to the GitHub release.
+# Nothing is pushed or attached unless the test job passes. scripts/release.sh creates the tag
+# and a draft release, runs this on the tag, and publishes the release only once this succeeds.
+# release-check.yml proves the build first.
 # workflow_dispatch re-runs it for an existing tag, for example after a failed run.
 on:
   push:
@@ -23,11 +25,10 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 45
     env:
-      GH_TOKEN: ${{ github.token }}
       RAW_VERSION: ${{ github.event.inputs.version || github.ref_name }}
     steps:
       - name: Resolve version
@@ -41,34 +42,121 @@ jobs:
           ref: ${{ format('refs/tags/{0}', env.TAG) }}
           submodules: recursive
 
-      - name: Log in to GHCR
-        run: echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-
-      # Builds and pushes ghcr.io/veysur/api and nginx at the version, and writes the
-      # air-gapped veysur-<version>-with-images.tar.gz.
-      - name: Build and push images, bundle air-gapped package
-        run: deploy/scripts/release-package.sh "$VERSION" --build-images --push
-
-      # compose.yaml and the docs default to the latest tag.
-      - name: Tag images latest
-        run: |
-          for image in api nginx; do
-            docker tag "ghcr.io/veysur/$image:$VERSION" "ghcr.io/veysur/$image:latest"
-            docker push "ghcr.io/veysur/$image:latest"
-          done
+      # Builds ghcr.io/veysur/api and nginx at the version into the local Docker daemon (no
+      # push) and writes the air-gapped veysur-<version>-with-images.tar.gz.
+      - name: Build images, bundle air-gapped package
+        run: deploy/scripts/release-package.sh "$VERSION" --build-images
 
       # The thin package pulls its images from GHCR at install time.
       - name: Build thin package
         run: deploy/scripts/release-package.sh "$VERSION"
 
+      - name: Save images for the test and publish jobs
+        run: |
+          mkdir -p release-images
+          docker save "ghcr.io/veysur/api:$VERSION" "ghcr.io/veysur/nginx:$VERSION" | gzip > release-images/images.tar.gz
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-images
+          path: release-images/images.tar.gz
+          compression-level: 0
+          retention-days: 7
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-packages
+          path: deploy/dist/*.tar.gz
+          retention-days: 7
+
+  # Runs against the locally built images and tarballs, before anything is published.
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      RAW_VERSION: ${{ github.event.inputs.version || github.ref_name }}
+    steps:
+      - name: Resolve version
+        run: |
+          VERSION="${RAW_VERSION#v}"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "TAG=v$VERSION" >> "$GITHUB_ENV"
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ format('refs/tags/{0}', env.TAG) }}
+          submodules: recursive
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-images
+          path: release-images
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-packages
+          path: deploy/dist
+
+      - name: Load images
+        run: |
+          gunzip -c release-images/images.tar.gz | docker load
+          docker image inspect "ghcr.io/veysur/api:$VERSION" "ghcr.io/veysur/nginx:$VERSION" >/dev/null
+
+      # Phase 1 onwards adds the install, functional and upgrade tests here.
+      - name: Check the tarballs unpack
+        run: |
+          for archive in "deploy/dist/veysur-$VERSION.tar.gz" "deploy/dist/veysur-$VERSION-with-images.tar.gz"; do
+            tar -tzf "$archive" >/dev/null
+          done
+
+  publish:
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RAW_VERSION: ${{ github.event.inputs.version || github.ref_name }}
+    steps:
+      - name: Resolve version
+        run: |
+          VERSION="${RAW_VERSION#v}"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "TAG=v$VERSION" >> "$GITHUB_ENV"
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-images
+          path: release-images
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-packages
+          path: deploy/dist
+
+      - name: Log in to GHCR
+        run: echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Load images
+        run: gunzip -c release-images/images.tar.gz | docker load
+
+      # compose.yaml and the docs default to the latest tag, so it moves only here, after the tests.
+      - name: Push images and tag latest
+        run: |
+          for image in api nginx; do
+            docker push "ghcr.io/veysur/$image:$VERSION"
+            docker tag "ghcr.io/veysur/$image:$VERSION" "ghcr.io/veysur/$image:latest"
+            docker push "ghcr.io/veysur/$image:latest"
+          done
+
       # The install docs link to releases/latest/download/veysur.tar.gz, so each release also
       # carries these two fixed-name copies. Keep the names in step with scripts/check-install-docs.sh.
       - name: Attach packages to the release
         run: |
-          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --title "$TAG" --generate-notes
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --title "$TAG" --generate-notes
           cp "deploy/dist/veysur-$VERSION.tar.gz" deploy/dist/veysur.tar.gz
           cp "deploy/dist/veysur-$VERSION-with-images.tar.gz" deploy/dist/veysur-with-images.tar.gz
-          gh release upload "$TAG" --clobber \
+          gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" --clobber \
             "deploy/dist/veysur-$VERSION.tar.gz" \
             "deploy/dist/veysur-$VERSION-with-images.tar.gz" \
             deploy/dist/veysur.tar.gz \

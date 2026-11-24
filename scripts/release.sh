@@ -13,7 +13,7 @@ set -euo pipefail
 #   2. Run .github/workflows/release-check.yml (image build, nothing pushed) and wait for it.
 #   3. Version bump, root changelog entry, commit, tag, push.
 #   4. Create the GitHub release as a draft, with that changelog entry as its notes.
-#   5. Wait for .github/workflows/release.yml (started by the tag push) to publish the images
+#   5. Wait for .github/workflows/release.yml (started by the tag push) to build, test and publish the images
 #      and attach the tarballs, then publish the draft. A failed run leaves the draft private.
 #
 # The release is published from here, with the caller's credentials, not by the workflow:

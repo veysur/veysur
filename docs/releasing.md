@@ -75,7 +75,7 @@ The script then runs on its own:
 2. `changeset version` bumps the five fixed-group packages together and the root `package.json` follows.
 3. The root `CHANGELOG.md` entry is written, committed as `chore(release): vX.Y.Z`, tagged `vX.Y.Z` and pushed.
 4. A draft GitHub release is created with that changelog entry as its notes.
-5. The tag push starts `release.yml`, which pushes the `api` and `nginx` images to GHCR (also tagged `latest`) and attaches the operator tarballs to the draft.
+5. The tag push starts `release.yml`, which builds the images and tarballs, tests them, and only then pushes the `api` and `nginx` images to GHCR (also tagged `latest`) and attaches the tarballs to the draft. A failing test pushes nothing.
 6. When `release.yml` succeeds, the script publishes the draft.
 
 Publishing the release is what triggers the Zenodo archive and DOI.
