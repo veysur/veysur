@@ -191,14 +191,43 @@ for app in admin survey account; do
   grep -q 'id="root"' "$WORK/body" && pass "$app shell has its mount point" || fail "$app shell has no id=\"root\" element"
 done
 
-http POST "$BASE/api/auth-email-password/login" -H 'Content-Type: application/json' \
-  -d "$(jq -n --arg e "$ADMIN_EMAIL" --arg p "$ADMIN_PASSWORD" '{email:$e,password:$p}')"
+# The account forms need a proof of work. The api container's Node solves it, so the host needs
+# nothing beyond Docker. Sets BOT_TOKEN; each token is single use.
+solve_bot_check() {
+  local challenge bits min_seconds
+  http POST "$BASE/api/bot-protection/challenge" -H 'Content-Type: application/json' -d '{}'
+  expect_status '200|201' "account bot-check challenge"
+  [ "$(jq -r '.enabled' "$WORK/body")" = true ] || { BOT_TOKEN=""; return 0; }
+  challenge=$(jq -r '.challenge' "$WORK/body") bits=$(jq -r '.bits' "$WORK/body") min_seconds=$(jq -r '.minSeconds' "$WORK/body")
+  BOT_TOKEN=$(dc exec -T -e CHALLENGE="$challenge" -e BITS="$bits" api node -e '
+const { createHash } = require("crypto")
+const { CHALLENGE: challenge, BITS: bits } = process.env
+const zeroBits = (d, n) => {
+  for (let i = 0; i < Math.floor(n / 8); i++) if (d[i] !== 0) return false
+  return n % 8 === 0 || d[Math.floor(n / 8)] >> (8 - (n % 8)) === 0
+}
+let nonce = 0
+while (!zeroBits(createHash("sha256").update(`${challenge}:${nonce}`).digest(), Number(bits))) nonce++
+process.stdout.write(`${challenge}:${nonce}`)
+') || fail "could not solve the bot-check challenge"
+  [ -n "$BOT_TOKEN" ] || fail "the bot-check solution was empty"
+  sleep "$min_seconds"
+  pass "bot-check solved"
+}
+
+login() {
+  http POST "$BASE/api/auth-email-password/login" -H 'Content-Type: application/json' \
+    -d "$(jq -n --arg e "$ADMIN_EMAIL" --arg p "$1" --arg t "$BOT_TOKEN" '{email:$e,password:$p,botCheck:{token:$t}}')"
+}
+
+solve_bot_check
+login "$ADMIN_PASSWORD"
 expect_status 200 "admin login"
 TOKEN=$(jq -r '.jwt.token' "$WORK/body")
 [ -n "$TOKEN" ] && [ "$TOKEN" != null ] && pass "login returned a JWT" || fail "login returned no token: $(head -c 300 "$WORK/body")"
 
-http POST "$BASE/api/auth-email-password/login" -H 'Content-Type: application/json' \
-  -d "$(jq -n --arg e "$ADMIN_EMAIL" '{email:$e,password:"wrong-password"}')"
+solve_bot_check
+login "wrong-password"
 case $STATUS in 4??) pass "wrong password is refused (HTTP $STATUS)" ;; *) fail "wrong password returned HTTP $STATUS" ;; esac
 
 # task-manager's healthcheck has a 15 minute start period, so "starting" is fine for it alone.
