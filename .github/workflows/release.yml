@@ -103,12 +103,14 @@ jobs:
           gunzip -c release-images/images.tar.gz | docker load
           docker image inspect "ghcr.io/veysur/api:$VERSION" "ghcr.io/veysur/nginx:$VERSION" >/dev/null
 
-      # Phase 1 onwards adds the install, functional and upgrade tests here.
       - name: Check the tarballs unpack
         run: |
           for archive in "deploy/dist/veysur-$VERSION.tar.gz" "deploy/dist/veysur-$VERSION-with-images.tar.gz"; do
             tar -tzf "$archive" >/dev/null
           done
+
+      - name: Fresh-install smoke test
+        run: deploy/tests/release-smoke.sh --tarball "deploy/dist/veysur-$VERSION.tar.gz" --registry ghcr.io/veysur --tag "$VERSION"
 
   publish:
     needs: test

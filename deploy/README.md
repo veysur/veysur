@@ -22,7 +22,7 @@ or move to another server.
 | `compose.dev.yaml` | Contributor overlay, see [development](../docs/development.md) |
 | `nginx.conf`, `nginx.dev.conf` | Single-origin routing for production and development |
 | `nginx/` | File-storage includes: `storage-local.conf`, plus a generated `storage-s3.conf` in S3 mode, see [storage](../docs/storage.md) |
-| `tests/` | `storage.test.sh` (fast helper checks) and `storage-s3.e2e.sh` (full stack against a throwaway S3 service) |
+| `tests/` | `storage.test.sh` (fast helper checks) and `storage-s3.e2e.sh` (full stack against a throwaway S3 service) and `release-smoke.sh` (fresh install of a release tarball) |
 | `caddy/` | Front-door config and the four TLS snippets, see [tls](../docs/tls.md) |
 | `mysql/` | Server config and first-start grants |
 | `docker/` | `Dockerfile.api`, `Dockerfile.nginx` (production) and `Dockerfile.dev` |
@@ -38,6 +38,15 @@ docker build -f deploy/docker/Dockerfile.nginx -t ghcr.io/veysur/nginx .
 ```
 
 Or, more simply, `docker compose build` from `deploy/` — see [deployment.md](../docs/deployment.md#install-from-source).
+
+## Testing a release package
+
+`tests/release-smoke.sh --tarball <veysur-X.Y.Z.tar.gz>` unpacks the thin operator package into a temporary
+directory, installs it with `install.sh`, creates the first administrator and checks `/api/ping`, the admin,
+survey and account app shells, an admin login and container health. Without `--registry` and `--tag` it builds the
+images from this checkout; with them it uses images already present locally. It uses its own Compose project and
+removes everything on exit (`--keep` leaves it). `release.yml` runs it before publishing, and `release-smoke.yml`
+runs it on pull requests that change `deploy/`.
 
 ## Testing storage
 
