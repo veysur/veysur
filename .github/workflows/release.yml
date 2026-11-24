@@ -112,6 +112,20 @@ jobs:
       - name: Fresh-install smoke test
         run: deploy/tests/release-smoke.sh --tarball "deploy/dist/veysur-$VERSION.tar.gz" --registry ghcr.io/veysur --tag "$VERSION"
 
+      # Installs the newest earlier release, seeds data, upgrades to this one with update.sh and
+      # checks the data survived. The first release has no predecessor and skips.
+      - name: Upgrade test
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          previous=$( { gh release list --exclude-drafts --limit 100 --json tagName -q '.[].tagName'; echo "$TAG"; } | sort -Vu | grep -x -B1 "$TAG" | head -n 1)
+          if [ -z "$previous" ] || [ "$previous" = "$TAG" ]; then
+            echo "No earlier release to upgrade from; skipping"
+            exit 0
+          fi
+          gh release download "$previous" --pattern "veysur-${previous#v}.tar.gz" --dir previous
+          deploy/tests/release-upgrade.sh --from-tarball "previous/veysur-${previous#v}.tar.gz" --registry ghcr.io/veysur --tag "$VERSION"
+
   publish:
     needs: test
     runs-on: ubuntu-latest

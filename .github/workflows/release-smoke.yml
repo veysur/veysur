@@ -31,3 +31,22 @@ jobs:
 
       - name: Fresh-install smoke test
         run: deploy/tests/release-smoke.sh --tarball deploy/dist/veysur-0.0.0-smoke.tar.gz
+
+  # Upgrades the latest published release to the images built from this checkout.
+  upgrade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Download the latest release package
+        run: |
+          previous=$(gh release view --json tagName -q .tagName)
+          gh release download "$previous" --pattern "veysur-${previous#v}.tar.gz" --dir previous
+
+      - name: Upgrade test
+        run: deploy/tests/release-upgrade.sh --from-tarball previous/veysur-*.tar.gz
