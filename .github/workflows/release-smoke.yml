@@ -5,6 +5,8 @@ name: Release smoke test
 # exercises it earlier, when deploy/ changes, and on demand.
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '17 3 * * *'
   pull_request:
     paths:
       - 'deploy/**'
@@ -87,3 +89,24 @@ jobs:
             deploy/tests/browser/test-results
             deploy/tests/browser/playwright-report
           retention-days: 7
+
+  # The latest published release as users get it: its tarball and the images from ghcr.io, with no
+  # local build. Nightly and on demand only, since it says nothing about a pull request.
+  released:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download the latest release and pull its images
+        run: |
+          tag=$(gh release view --json tagName -q .tagName)
+          echo "VERSION=${tag#v}" >> "$GITHUB_ENV"
+          gh release download "$tag" --pattern "veysur-${tag#v}.tar.gz" --dir release
+          for image in api nginx; do docker pull "ghcr.io/veysur/$image:${tag#v}"; done
+
+      - name: Smoke test the published release
+        run: deploy/tests/release-smoke.sh --tarball "release/veysur-$VERSION.tar.gz" --registry ghcr.io/veysur --tag "$VERSION"

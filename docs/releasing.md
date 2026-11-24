@@ -87,12 +87,34 @@ Publishing the release is what triggers the Zenodo archive and DOI.
 - The images exist: `docker pull ghcr.io/veysur/api:X.Y.Z` (and `nginx`).
 - The new version appears on Zenodo within a few minutes. If not, check the repo toggle at zenodo.org/account/settings/github.
 
+## What gates a release
+
+`release.yml` builds the images and tarballs, tests them, and publishes only if every test passes. The tests run in `deploy/tests/` against the built artefacts, never the repository checkout:
+
+| Test | Proves |
+|---|---|
+| `release-smoke.sh` | A fresh install of the thin package starts: ping, app shells, admin login, container health. It then creates, publishes, answers and exports a survey, round-trips files, and restores a backup. |
+| `release-upgrade.sh` | The previous release upgrades with `update.sh`, keeps its data, and a failed update rolls back. Skipped for the first release. |
+| `release-smoke.sh --browser` | The admin and survey apps work in Chromium. Not a gate yet: it runs as a non-blocking job until it has been stable for ten consecutive runs. |
+
+`release-smoke.yml` runs the same tests on pull requests that touch `deploy/`, and nightly against `master` and against the latest published release. The images are single-architecture (`linux/amd64`), so there is no arm64 run.
+
+Run them locally with Docker, `curl` and `jq`. Build the thin package first, then pass it in:
+
+```bash
+deploy/scripts/release-package.sh 0.0.0-smoke
+deploy/tests/release-smoke.sh --tarball deploy/dist/veysur-0.0.0-smoke.tar.gz
+deploy/tests/release-upgrade.sh --from-tarball <previous veysur-X.Y.Z.tar.gz>
+```
+
+Both print the container state and logs on the first failed check. After a failed `release.yml`, fix the cause and re-run it with the command under "If something fails"; nothing was pushed, so it is safe to repeat.
+
 ## If something fails
 
 | Failure | State | What to do |
 |---|---|---|
 | Pre-flight or `release-check.yml` | Nothing changed | Fix the cause and re-run. |
-| `release.yml` after the tag push | Release is a private draft | Fix the cause, then re-run the workflow and publish the draft. |
+| `release.yml` after the tag push | Release is a private draft; no images pushed if a test failed | Fix the cause, then re-run the workflow and publish the draft. |
 
 ```bash
 gh workflow run release.yml -f version=X.Y.Z

@@ -50,6 +50,8 @@ Commits are scanned for secrets by [gitleaks](https://github.com/gitleaks/gitlea
 `gitleaks` binary or Docker. Never commit real credentials; use placeholders. For a false
 positive, add an entry to `.gitleaks.toml` rather than bypassing the hook.
 
+A change under `deploy/` runs the release smoke test on its pull request (`.github/workflows/release-smoke.yml`). Releases are gated by the same tests; see [docs/releasing.md](./docs/releasing.md#what-gates-a-release).
+
 ## Reporting bugs
 
 Open an issue with: what you expected, what happened instead, and the
