@@ -124,6 +124,7 @@ one `vX.Y.Z` tag (`fixed` grouping: self-hosters deploy/upgrade them as one unit
 day-to-day `pnpm changeset` flow, the `./scripts/release.sh` release runbook (including how
 it coordinates with `datacapy`/`s3-adaptor` releases), and onboarding a new package.
 - Manual, maintainer-triggered flow for now: no CI release automation yet.
+- A release is gated by the tests in `deploy/tests/` (fresh install, functional journey, upgrade from the previous release), which `release.yml` runs before it pushes any image. Change `deploy/` or the release workflows and `release-smoke.yml` runs them on the pull request; see [docs/releasing.md](./docs/releasing.md#what-gates-a-release).
 
 ## Documentation
 
