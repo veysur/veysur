@@ -29,10 +29,12 @@ survey_journey() {
   api PATCH "/survey/$SURVEY_ID" -d "$(jq -c '{patches}' <<<"$patches")"
   expect_status '200|201|204' "question added and survey opened"
 
-  # The admin app loads the project's survey settings, which creates them on first read, before a
-  # survey can be published. Publishing a fresh project without that read fails with a 500.
-  api GET /setting-survey
-  expect_status 200 "project survey settings loaded"
+  # Releases before the survey settings were created at startup fail to publish a fresh project
+  # until the admin app's read creates them. The upgrade test seeds such a release.
+  if [ "${SEED_LEGACY_SETTINGS:-0}" = 1 ]; then
+    api GET /setting-survey
+    expect_status 200 "project survey settings loaded"
+  fi
 
   api POST "/survey-publication/$SURVEY_ID/publish" -d '{}'
   expect_status '200|201' "survey published"
