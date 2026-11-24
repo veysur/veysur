@@ -10,6 +10,11 @@ the canonical release history; the identical entry is duplicated into each packa
 ### Patch Changes
 
 - 051d7de: `Logger` methods now serialise and forward every argument. Calls such as `logger.error(message, err)` previously dropped `err`, hiding the cause of failures in server logs.
+- 355f034, bfa1935, 2bb9f6d, 998e96f: Improve the layout on mobile. The survey editor fits narrow widths, the editor panel toggles move to a bottom bar, the header collapses to a single navigation menu, and pages have a minimum width so layouts are no longer squashed.
+- 0bdf15a: The verify-email page now hints at checking the spam folder and has clearer wording.
+- 4cec578: Hide the rich text toolbar when focus moves to another editor.
+- 28b89c5: Treat the `moveSection` index as a position among groups.
+- a7582b7: Accept free-form metadata in the event log schema.
 
 ## 0.14.0
 
