@@ -108,6 +108,7 @@ COPY --from=builder /app/package/app/dist/account /usr/share/nginx/html/account
 COPY --from=builder /app/package/app/dist/static  /usr/share/nginx/html/static
 
 COPY --from=builder /app/package/app/dist/image       /usr/share/nginx/html/image
+COPY --from=builder /app/package/app/dist/fonts       /usr/share/nginx/html/fonts
 COPY --from=builder /app/package/app/dist/favicon.svg /usr/share/nginx/html/favicon.svg
 COPY --from=builder /app/package/app/dist/favicon.png /usr/share/nginx/html/favicon.png
 

@@ -129,6 +129,11 @@ for app in admin survey account; do
   grep -q 'id="root"' "$WORK/body" && pass "$app shell has its mount point" || fail "$app shell has no id=\"root\" element"
 done
 
+# base.css loads the Geist font from /fonts/; a missing location serves a 404 and falls back to the system font.
+curl -sS -m 30 -o "$WORK/body" -D "$WORK/headers" "$BASE/fonts/Geist-Variable.woff2" || fail "curl failed: GET /fonts/Geist-Variable.woff2"
+grep -qi '^HTTP/[0-9.]* 200' "$WORK/headers" && grep -qiE '^content-type: *(font/woff2|application/font-woff2)' "$WORK/headers" \
+  && pass "Geist font is served from /fonts/" || fail "Geist font not served as woff2: $(head -n 1 "$WORK/headers")"
+
 admin_login
 
 solve_bot_check
