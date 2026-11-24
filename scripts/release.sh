@@ -9,7 +9,7 @@ set -euo pipefail
 #
 # Steps:
 #   1. Pre-flight: clean tree, on master and in sync, gh signed in, submodule libraries released
-#      and pinned, lockfile current.
+#      and pinned, feat/fix commits checked for changesets (warns), lockfile current.
 #   2. Run .github/workflows/release-check.yml (image build, nothing pushed) and wait for it.
 #   3. Version bump, root changelog entry, commit, tag, push.
 #   4. Create the GitHub release as a draft, with that changelog entry as its notes.
@@ -61,6 +61,9 @@ fi
 
 # datacapy and s3-adaptor must be released and pinned first (see docs/releasing.md).
 ./scripts/release-check-submodules.sh
+
+# Warn about feat/fix commits that have no changeset, so they are not lost from the notes.
+./scripts/release-check-changesets.sh
 
 # The image build installs with a frozen lockfile; a stale one only fails there otherwise.
 echo "Checking pnpm-lock.yaml is current..."

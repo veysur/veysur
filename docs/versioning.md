@@ -92,7 +92,8 @@ its last step. Run it (one per tag) to cut the actual GitHub release from that p
 `veysur`'s `release.sh` runs the whole sequence and publishes only a release that has its assets:
 
 1. Pre-flight: clean tree, on `master` and in sync with `origin/master`, `gh` signed in,
-   `datacapy` and `s3-adaptor` released and pinned (`scripts/release-check-submodules.sh`), and
+   `datacapy` and `s3-adaptor` released and pinned (`scripts/release-check-submodules.sh`),
+   a warning for `feat`/`fix` commits with no changeset (`scripts/release-check-changesets.sh`), and
    `pnpm-lock.yaml` current (`pnpm install --frozen-lockfile --lockfile-only`).
 2. It runs `.github/workflows/release-check.yml`, which builds the `api` and `nginx` images
    without pushing anything, and waits. A failure stops the release before any commit or tag.

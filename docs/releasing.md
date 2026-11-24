@@ -23,6 +23,9 @@ git log "$(git describe --tags --abbrev=0)"..HEAD --oneline
 
 A user-facing change with no changeset will be missing from the changelog. Add one with `pnpm changeset`, commit it and push it before continuing.
 
+`release.sh` also runs `scripts/release-check-changesets.sh`, which lists `feat`/`fix` commits since the last tag that add no changeset
+and asks whether to continue. It is a warning, not a block: a changeset added in a separate commit is not recognised, and nothing is asked when there is no terminal.
+
 ## 1. Release the submodule libraries (only if they changed)
 
 `datacapy` and `s3-adaptor` release first, because `veysur` pins their commits. Skip a library with no pending changesets.
