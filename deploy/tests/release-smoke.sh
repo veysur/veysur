@@ -169,4 +169,11 @@ if ! $SKIP_FUNCTIONAL; then
   fi
 fi
 
+# A re-flushed event log entry must be absorbed as already written, not logged as a failed flush.
+if dc logs api task-manager 2>&1 | grep -q 'Duplicate entry'; then
+  dc logs api task-manager 2>&1 | grep 'Duplicate entry' | head -n 3 >&2
+  fail "api or task-manager logged a duplicate-key error"
+fi
+pass "no duplicate-key errors in the api or task-manager logs"
+
 say "All checks passed ($PASSED)"
