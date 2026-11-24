@@ -1,0 +1,33 @@
+name: Release smoke test
+
+# Installs the thin operator package on a clean runner, with images built from the checkout, and
+# checks the stack answers. release.yml runs the same script against the release artefacts; this
+# exercises it earlier, when deploy/ changes, and on demand.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'deploy/**'
+      - '.github/workflows/release*.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build the thin package
+        run: deploy/scripts/release-package.sh 0.0.0-smoke
+
+      - name: Fresh-install smoke test
+        run: deploy/tests/release-smoke.sh --tarball deploy/dist/veysur-0.0.0-smoke.tar.gz
