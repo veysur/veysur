@@ -12,6 +12,7 @@ import type { tagsEndpoint as e } from '@datacapy/server'
 
 const SYSTEM_BUFFER_KEY = '__system__'
 const MONGO_DUPLICATE_KEY_ERROR = 11000
+const MYSQL_DUPLICATE_ENTRY_ERRNO = 1062
 const WAL_INDEX_KEY = 'wal:index'
 const DLQ_INDEX_KEY = 'dlq:index'
 
@@ -267,6 +268,15 @@ export class ServiceEventLog extends Service {
     })
   }
 
+  private isDuplicateKeyError(err: unknown) {
+    const { code, errno } = (err ?? {}) as { code?: unknown; errno?: unknown }
+    return (
+      code === MONGO_DUPLICATE_KEY_ERROR ||
+      errno === MYSQL_DUPLICATE_ENTRY_ERRNO ||
+      code === 'ER_DUP_ENTRY'
+    )
+  }
+
   private async writeEntriesToDb(bufferKey: string, entries: EventEntry[]) {
     if (bufferKey === SYSTEM_BUFFER_KEY) {
       const repo = this.getRepo<RepoEventLogSystem>('eventLogSystem')
@@ -281,10 +291,7 @@ export class ServiceEventLog extends Service {
               createdAt: e.createdAt,
             })
             .catch((err) => {
-              if (
-                (err as { code?: number })?.code !== MONGO_DUPLICATE_KEY_ERROR
-              )
-                throw err
+              if (!this.isDuplicateKeyError(err)) throw err
             }),
         ),
       )
@@ -307,10 +314,7 @@ export class ServiceEventLog extends Service {
               { context },
             )
             .catch((err) => {
-              if (
-                (err as { code?: number })?.code !== MONGO_DUPLICATE_KEY_ERROR
-              )
-                throw err
+              if (!this.isDuplicateKeyError(err)) throw err
             }),
         ),
       )

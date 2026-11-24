@@ -470,3 +470,44 @@ describe('ServiceEventLog dead-letter queue expiry', () => {
     ).toEqual(['fresh'])
   })
 })
+
+describe('ServiceEventLog.writeEntriesToDb() duplicate handling', () => {
+  type DbPrivates = {
+    writeEntriesToDb: (bufferKey: string, entries: unknown[]) => Promise<void>
+  }
+
+  function serviceWithInsertError(error: unknown) {
+    const service = new ServiceEventLog()
+    const insertOne = jest.fn().mockRejectedValue(error)
+    jest.spyOn(service, 'getRepo').mockImplementation((() => ({
+      insertOne,
+    })) as unknown as typeof service.getRepo)
+    return asPrivate<ServiceEventLog, DbPrivates>(service)
+  }
+
+  it.each([
+    [
+      'MySQL ER_DUP_ENTRY',
+      Object.assign(new Error('Duplicate entry'), {
+        code: 'ER_DUP_ENTRY',
+        errno: 1062,
+      }),
+    ],
+    ['MongoDB 11000', Object.assign(new Error('E11000'), { code: 11000 })],
+  ])('treats a %s error as already written', async (_name, error) => {
+    const p = serviceWithInsertError(error)
+    await expect(
+      p.writeEntriesToDb('__system__', [entry('a')]),
+    ).resolves.toBeUndefined()
+    await expect(
+      p.writeEntriesToDb('proj1', [entry('a')]),
+    ).resolves.toBeUndefined()
+  })
+
+  it('rethrows other insert errors', async () => {
+    const p = serviceWithInsertError(new Error('connection lost'))
+    await expect(
+      p.writeEntriesToDb('__system__', [entry('a')]),
+    ).rejects.toThrow('connection lost')
+  })
+})
