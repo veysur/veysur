@@ -14,7 +14,7 @@ set -uo pipefail
 SRC_DEPLOY="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REPO_DIR="$(cd "$SRC_DEPLOY/.." && pwd)"
 
-KEEP=false TARBALL="" REGISTRY="" TAG="" HTTP_PORT=""
+KEEP=false SKIP_FUNCTIONAL=false TARBALL="" REGISTRY="" TAG="" HTTP_PORT=""
 
 usage() {
   cat <<USAGE
@@ -26,6 +26,7 @@ Usage: $0 --tarball <veysur-X.Y.Z.tar.gz> [options]
                           (--registry ghcr.io/veysur --tag 1.2.0). Without them the images are
                           built from this checkout
   --port <n>              Host port for the site (default: a free one)
+  --skip-functional       Stop after the smoke checks; skip the survey, file and backup journey
   --keep                  Leave the stack and its temporary directory in place
   --help, -h              Show this help
 
@@ -40,6 +41,7 @@ while [ $# -gt 0 ]; do
     --registry) REGISTRY=$2; shift 2 ;;
     --tag) TAG=$2; shift 2 ;;
     --port) HTTP_PORT=$2; shift 2 ;;
+    --skip-functional) SKIP_FUNCTIONAL=true; shift ;;
     --keep) KEEP=true; shift ;;
     --help | -h) usage; exit 0 ;;
     *) usage >&2; echo "unknown option: $1" >&2; exit 2 ;;
@@ -220,11 +222,15 @@ login() {
     -d "$(jq -n --arg e "$ADMIN_EMAIL" --arg p "$1" --arg t "$BOT_TOKEN" '{email:$e,password:$p,botCheck:{token:$t}}')"
 }
 
-solve_bot_check
-login "$ADMIN_PASSWORD"
-expect_status 200 "admin login"
-TOKEN=$(jq -r '.jwt.token' "$WORK/body")
-[ -n "$TOKEN" ] && [ "$TOKEN" != null ] && pass "login returned a JWT" || fail "login returned no token: $(head -c 300 "$WORK/body")"
+admin_login() {
+  solve_bot_check
+  login "$ADMIN_PASSWORD"
+  expect_status 200 "admin login"
+  TOKEN=$(jq -r '.jwt.token' "$WORK/body")
+  PROJECT=$(jq -r '(.user.projectOwn[0]._id) // "default"' "$WORK/body")
+  [ -n "$TOKEN" ] && [ "$TOKEN" != null ] && pass "login returned a JWT" || fail "login returned no token: $(head -c 300 "$WORK/body")"
+}
+admin_login
 
 solve_bot_check
 login "wrong-password"
@@ -247,5 +253,11 @@ for id in "${containers[@]}"; do
   esac
 done
 pass "all ${#containers[@]} containers running, healthy and not restarting"
+
+if ! $SKIP_FUNCTIONAL; then
+  # shellcheck source=release-functional.sh
+  source "$(dirname "${BASH_SOURCE[0]}")/release-functional.sh"
+  functional_checks
+fi
 
 say "All checks passed ($PASSED)"
