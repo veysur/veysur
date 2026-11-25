@@ -82,35 +82,11 @@ Non-model utilities shared across the server. Import via `'common'` or `'common/
 
 ### Endpoints and URL prefixes
 
-Endpoint configs are generated, not written. A service class carries `@endpoints <name>`; each exposed
-method carries `@route <verb> <path>` and `@acl <role>` (or `@acl public`); the endpoint key is the method name; each parameter is tagged with `e.Param`, `e.Query`, `e.Body`,
-`e.Header<'X-Project-Id'>`, `e.AclContext` and so on (`import type { tagsEndpoint as e } from '@datacapy/server'`).
-`pnpm gen` writes `<Service>.endpoints.ts` beside the service, `pnpm lint` fails if one is stale (`gen:check`),
-and `src/endpoint/{core,shared}/index.ts` re-exports it. Never edit a `*.endpoints.ts` file. Reference:
-datacapy `package/codegen/docs/endpoints.md`; rationale: `docs/decisions/2026/2026-11-14_generated-endpoint-configs.md`.
-
-- One method serves one route; add a thin wrapper for a second route.
-- Type every parameter. `unknown & e.Body` collapses to `e.Body` and loses the type; a property whose type resolves to `any` (a bad import) is rejected by the generator, because its tags would be lost.
-- Declare routes in the class in the order the server should register them: a `/:id` route before a literal sibling is rejected by the generator.
-- Anything that is not a request input (a transaction `context`) belongs on an internal method, not in the tagged parameter type.
-- `src/endpoint/shared/project.ts` stays hand-written because it is edition-conditional. A hand-written config remains valid.
-- A generated config does not change the URL: core and shared services have no root `path`, so @datacapy/server derives it from the service name.
-
-**Project-scoped endpoints**: for any endpoint operating on a single project's data, use `role: 'projectOwner'`/`'projectAdmin'` ACL rules — not a generic role plus a manual ownership check in the service. See `docs/datacapy-acl.md`.
+Endpoint configs are generated: a service carries `@endpoints <name>`, each exposed method `@route <verb> <path>` and `@acl <role>` (or `public`), and parameters are tagged with `e.Param`, `e.Query`, `e.Body` and so on. `pnpm gen` writes `<Service>.endpoints.ts`; `pnpm lint` fails if one is stale. Never edit a `*.endpoints.ts` file. Project-scoped endpoints use `role: 'projectOwner'`/`'projectAdmin'`, not a manual ownership check. Tagging rules, route order and the hand-written exceptions: [docs/endpoints-and-init.md](docs/endpoints-and-init.md).
 
 ### Init middleware and the server adaptor (`src/init/`)
 
-`@datacapy/server` runs on an HTTP adaptor (Express today), so init code is written against the neutral types and never against Express. Lint enforces it: no `express` import, no `server.app` / `server.router`.
-
-- Register with `server.use(stage, [path], handler)`, `server.route(stage, method, path, ...handlers)`, `server.static(...)` and `server.trustProxy([...])`. Stage `app` runs before datacapy's router is mounted (storage routes, webhooks), stage `router` inside it. Type handlers with `Handler`, `HttpRequest` and `HttpResponse` from `@datacapy/server`.
-- Read a raw body from `req.node` (the Node request), as the multipart, storage upload and Stripe handlers do.
-- Stream with `res.stream(readable, { headers })`, never `res.write`/`res.end` on a stream. `res.header(name, value)` sets the value verbatim.
-- A trailing `/*name` path wildcard arrives as one string; in a path-scoped `use`, `req.path` is relative to that path.
-- Test init code over real HTTP: build `new Server({ path: '/api', port: 0 }, new ModelManager())`, call the init function, `await server.init()`, then `server.adaptor.listen(0)`. Add fake services or repos after `init()`. See `src/init/init-http.test.ts`. The API's global fake timers stall streams and formidable, so such a test calls `jest.useRealTimers()`.
-
-The adaptor is chosen by `API_HTTP_ADAPTOR` (`express`, the default, or `hono`), read in `config/default.ts`. Init tests that run over HTTP use `describe.each(['express', 'hono'])` so both stay covered; a new init step must pass on both.
-
-Contract and conformance rules: datacapy `package/server/docs/http-adaptor.md`.
+Init code is written against the neutral adaptor types, never Express (lint-enforced: no `express` import, no `server.app` / `server.router`). Register with `server.use`, `server.route`, `server.static`; stream with `res.stream`. Init tests over HTTP must pass on both `express` and `hono` (`describe.each`). Full rules: [docs/endpoints-and-init.md](docs/endpoints-and-init.md#init-middleware-and-the-server-adaptor-srcinit).
 
 ### Repos (`src/model/repo/`)
 
@@ -128,71 +104,9 @@ Two subdirectories plus root-level files:
 
 **Any direct `repo.getDataSource(context)` call must be paired with `repo.releaseDataSource(context)` in a `finally` block.** This bypasses the normal CRUD methods (`find`/`insert`/`update`/etc.), which already pair acquire/release internally — needed when a migration patch runs raw SQL (e.g. `RENAME TABLE`) that has no repo method. Skipping the release leaks a `DataSourceRegistry` ref count that never reaches zero, so the registry can never close that dynamic (per-project) datasource — harmless in a one-shot migration job that exits right after, but a real leak in any longer-lived process. See `2026-09-09_1000_reshape-survey-section-element.ts` for the reference pattern.
 
-## Key Dependencies
-- @datacapy/server framework for REST API (see Framework Details below)
-- bcryptjs for password hashing
-- jsonwebtoken for authentication
-- nodemailer for email services
-- handlebars for templating
-- moment-timezone for date handling
-- veysur-common shared library
+## Framework
 
-## Framework Details
-
-### Datacapy (NodeJS Application Model)
-- **Repository**: https://github.com/datacapy/datacapy
-- **Version**: 0.1.0
-- **Description**: NodeJS application model with ODM capabilities and schema-based data validation
-- **Architecture**:
-  - **Schemas**: Define data structures and validation rules for documents
-  - **Repositories**: Handle data persistence and retrieval from databases
-  - **Services**: Manage interactions between repositories (checkout, authenticator, report-generator, email)
-- **Key Features**:
-  - **Object Document Mapping (ODM)**: Populate documents into constructor instances
-  - **Document Relations**: Comprehensive relationship support with auto-population
-    - hasOne, hasMany, hasManyCount (count of related documents)
-    - belongsToOne, belongsToMany (many-to-many with embedded reference arrays)
-    - embeddedHasOne, embeddedHasMany, embeddedBelongsToOne, embeddedBelongsToMany
-    - Basic query optimization with configurable auto-population
-  - **Data Validation & Type-casting**:
-    - Built-in validators: required, notNull, notEmpty, length (min/max), regex, equality, email
-    - Custom validator support
-    - Automatic type-casting with failure validation errors
-    - ObjectID type support (BSON/MongoDB)
-  - **Default Values**: Used during validation, insert, or update when fields are undefined/null
-  - **Data Sources**: Currently supports MongoDB only
-
-### @datacapy/schema (Data Schema Library)
-- **Repository**: Part of the Datacapy ecosystem
-- **Version**: 0.1.0
-- **Description**: Standalone Javascript data schema definition and validation library
-- **Key Features**:
-  - Define Javascript data structure schemas with validation rules
-  - Type-casting and default value population
-  - Schema composition via named schema references
-  - Strict mode validation for undefined fields
-  - Field labeling for validation error messages
-  - Multiple validator instances per field with custom messages
-
-### @datacapy/server (REST API Server)
-- **Repository**: https://github.com/datacapy/datacapy
-- **Version**: 0.1.0
-- **Description**: NodeJS REST API server wrapper for the Datacapy domain model
-- **Key Features**:
-  - **HTTP adaptors**: Runs on Express (default) or Hono through a neutral adaptor; see `package/server/docs/http-adaptor.md` in datacapy
-  - **Auto-exposure**: Automatically exposes repositories and services as REST endpoints
-  - **Configurable Access**: Repository exposure is configurable for security
-  - **Request Processing**: Validation and type-casting of incoming request data
-  - **Authentication**: Token-based authentication with custom implementation support
-  - **Authorization**: Access control lists (ACL) with user authorization
-  - **Dynamic Roles**: Role assessment on each request with default and custom role support
-
-## Development Notes
-- Uses relaxed TypeScript configuration for flexibility
-- API routes follow RESTful conventions
-- Authentication with JWT tokens
-- Email templates with Handlebars
-- Shared code via veysur-common dependency
+Built on @datacapy/server (REST), @datacapy/om (MySQL ORM) and @datacapy/schema, with JWT auth, bcryptjs, nodemailer, handlebars and moment-timezone. TypeScript is relaxed (`strict: false`). Library background: [docs/framework-reference.md](docs/framework-reference.md).
 
 ## Background Jobs
 

@@ -102,27 +102,10 @@ export function useSurveySnapshot(surveyId: string, snapshotId: string) {
 ```
 
 ### Query Persistence
-
-Queries are persisted via `BrowserPersister` (`src/common/BrowserPersister/` — see its AGENTS.md).
-
-- **Default**: sessionStorage; switches to localStorage when user has "Remember me" checked
-- **Explicit override**: `meta: { persistence: { storageType: 'local' } }` for non-sensitive UI preferences (items-per-page, collapse state)
-- **Storage key naming**: all keys must use the `veysur.` prefix. `clearVeysurStorage()` from `common/queryClient` sweeps all `veysur.*` keys on logout — any new persistent key must follow this convention
+Queries persist via `BrowserPersister` (sessionStorage by default, localStorage with "Remember me"; override with `meta: { persistence: { storageType: 'local' } }` for non-sensitive UI preferences). Every persistent storage key uses the `veysur.` prefix so logout can sweep it.
 
 ### Cache Invalidation
-
-Every mutation hook must invalidate every query key whose underlying data the mutation changed — the list AND the detail, not just one. **Build every mutation hook that invalidates a query with `useInvalidatingMutation`** (`/package/app/src/hook/useInvalidatingMutation.ts`), not a raw `useMutation` with a manual `onSuccess: () => { queryClient.invalidateQueries(...) }`. Plain `onSuccess` invalidation is a footgun: TanStack Query only waits for `onSuccess` if it _returns_ the invalidation promise, and a forgotten `return` means `mutateAsync` resolves before the refetch lands — the mutation appears to succeed but the UI renders stale data until an unrelated later refetch. `useInvalidatingMutation` makes this mistake structurally impossible. See [docs/mutation-cache-invalidation.md](docs/mutation-cache-invalidation.md) for the full API (declarative `invalidateKeys`, deriving keys from `data`/`variables`, conditional invalidation, extra post-invalidation work via `onSuccess`).
-
-- **A get-hook and every mutate-hook that affects its data must reference the same exported `KEY_STATE_*` constant.** Never duplicate the string literal by hand — a re-typed copy can drift or go stale silently (no error, no warning; the query just never refreshes).
-- When a mutation affects several related caches, invalidate all of them via the same `invalidateKeys` array/function (see `useSurveyResponseUpdate.ts` for the reference example). Shared invalidation helpers (e.g. `surveyResponseQueryKeys.ts`) are pure functions returning `QueryKey[]`, never functions that call `queryClient.invalidateQueries` themselves — see the mutation-cache-invalidation doc for why.
-- Each sub-app keeps its query keys in a `keyState.ts` beside its other shared constants. If you add or touch a query key, add/use a `KEY_STATE_*` constant there — do not add another raw string literal.
-- Invalidation is independent of persistence — `invalidateQueries()` is sufficient; you don't need to touch `BrowserPersister` or clear storage manually (see Query Persistence above).
-
-**Reviewer checklist for any new/changed mutation hook:**
-
-1. List every `useQuery` whose data this mutation changes (search for hooks reading the same entity).
-2. Confirm the hook is built with `useInvalidatingMutation` and its `invalidateKeys` covers the same `KEY_STATE_*` constant each of those queries uses — not a re-typed string literal, and not a raw `useMutation` with manual `onSuccess` invalidation.
-3. If no shared constant exists yet for a key you're adding, add it to that app's `keyState.ts` first.
+Build every mutation that invalidates a query with `useInvalidatingMutation` (`src/hook/useInvalidatingMutation.ts`), never a raw `useMutation` with manual `onSuccess` invalidation. A get-hook and every mutation hook affecting its data share one exported `KEY_STATE_*` constant from the sub-app's `keyState.ts`; invalidate the list and the detail. Shared key helpers are pure functions returning `QueryKey[]`. Full rules and reviewer checklist: [docs/data-fetching-rules.md](docs/data-fetching-rules.md) and [docs/mutation-cache-invalidation.md](docs/mutation-cache-invalidation.md).
 
 ## Dates & timezones
 
@@ -153,7 +136,7 @@ export function useEntityList() {
 }
 ```
 
-**Build every authenticated `useQuery` in `appAdmin`/`appAccount` with `useAuthdQuery`** (`/package/app/src/hook/useAuthdQuery.ts`), not a raw `useQuery`. `RestClient`'s JWT refresh (`jwtRefresher`) is registered by whichever `useAuth()`-calling component's `useEffect` happens to mount first — there is no single provider owning it, so a query that fires before any `useAuth()` instance has registered can go out with a stale token and 401 intermittently. `useAuthdQuery` closes this deterministically by awaiting `authRefreshWithRetry()` from its own local `useAuth()` instance before running `queryFn`, regardless of mount order. `useInvalidatingMutation` does the same for `mutationFn`, so mutation hooks get this for free. Exceptions (leave on plain `useQuery`): `useAuth.ts`'s own `[KEY_STATE_AUTH]` query (would be circular), local-persistence-only hooks with no network call (e.g. `usePaginationPerPage.ts`, `useCookieConsent.ts`), and genuinely unauthenticated/pre-login queries (e.g. the geo lookups in `useBlockedCountries.ts` and `useCountryAccess.ts`).
+**Build every authenticated `useQuery` in `appAdmin`/`appAccount` with `useAuthdQuery`** (`src/hook/useAuthdQuery.ts`), not a raw `useQuery`: it awaits the JWT refresh before `queryFn`, so a query that fires before any `useAuth()` has registered cannot 401 on a stale token. Exceptions (plain `useQuery`): `useAuth.ts`'s own query, local-only hooks (`usePaginationPerPage`, `useCookieConsent`) and unauthenticated pre-login queries (geo lookups).
 
 **`authRefresh(true)` calls must stay.** Force-refresh after any mutation that changes auth-related user data (email verification, 2FA toggle) to reload React auth state. This is distinct from keeping the JWT fresh — it pushes a server-side change into the React layer.
 
