@@ -16,7 +16,7 @@ datacapy `package/codegen/docs/endpoints.md`; rationale: `docs/decisions/2026/20
 - `src/endpoint/shared/project.ts` stays hand-written because it is edition-conditional. A hand-written config remains valid.
 - A generated config does not change the URL: core and shared services have no root `path`, so @datacapy/server derives it from the service name.
 
-**Project-scoped endpoints**: for any endpoint operating on a single project's data, use `role: 'projectOwner'`/`'projectAdmin'` ACL rules — not a generic role plus a manual ownership check in the service. See `docs/datacapy-acl.md`.
+**Project-scoped endpoints**: for any endpoint operating on a single project's data, use `role: 'projectOwner'`/`'projectAdmin'` ACL rules, not a generic role plus a manual ownership check in the service. See `docs/datacapy-acl.md`.
 
 ## Init middleware and the server adaptor (`src/init/`)
 

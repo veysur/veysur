@@ -24,18 +24,18 @@ unit run stays green without a database.
 `pnpm test:integration` (`script/test-integration.sh`) needs only Docker: it brings up a
 tmpfs-backed MySQL via `docker-compose.test.yml` (`docker compose up -d --wait`), points jest
 at it on `127.0.0.1:33306`, and runs only the integration files. The container is left
-running so repeat runs start instantly — `pnpm test:integration:down` removes it. It uses
+running so repeat runs start instantly, `pnpm test:integration:down` removes it. It uses
 `MYSQL_PASSWORD` from `config-dev.env` as the root password, so a throwaway container and a
 real local MySQL are interchangeable. Extra args pass through to jest
 (`pnpm test:integration -- RepoTask`).
 
 ## Code Style
 - **Types**: TypeScript with relaxed settings (strict: false, noImplicitAny: false)
-- **Testing**: Jest with ts-jest, tests colocated in `src/**/*.test.ts`. Console-noise policy (fail-by-default `console.error`/`console.warn`) lives in `src/test-utils/consoleGuard.ts`, wired via `tests/setupTests.ts` — see root `AGENTS.md`'s "Console Noise in Tests" section.
+- **Testing**: Jest with ts-jest, tests colocated in `src/**/*.test.ts`. Console-noise policy (fail-by-default `console.error`/`console.warn`) lives in `src/test-utils/consoleGuard.ts`, wired via `tests/setupTests.ts`, see root `AGENTS.md`'s "Console Noise in Tests" section.
 - **Imports**: Use ES6 imports, prefer named imports
 - **Formatting**: Prettier config: 2 spaces, no semicolons, single quotes, trailing commas
 - **Error Handling**: Use proper TypeScript error types, avoid `any`
-- **Typing discipline**: see root `AGENTS.md` — avoid `any` and `as unknown as`; for mocking repo/service methods in tests, use the `getRepo`/`getService` map-and-cast pattern and the `asPrivate<S, O>()` helper (`src/test-utils/asPrivate.ts`)
+- **Typing discipline**: see root `AGENTS.md`, avoid `any` and `as unknown as`; for mocking repo/service methods in tests, use the `getRepo`/`getService` map-and-cast pattern and the `asPrivate<S, O>()` helper (`src/test-utils/asPrivate.ts`)
 
 ## Code Organisation
 
@@ -47,15 +47,15 @@ real local MySQL are interchangeable. Extra args pass through to jest
 or the extension package `veysur-common-cloud`. `pnpm lint` enforces this (`no-restricted-imports` in
 `eslint.config.mjs`).
 
-The rule runs at `error` — `pnpm lint` fails on any violation.
+The rule runs at `error`, `pnpm lint` fails on any violation.
 
 ### Services (`src/model/service/`)
 
 Two subdirectories plus root-level files:
 
-- **`core/`** — Survey services: `ServiceSurvey`, `ServiceFile`, `ServiceSurveyParticipant`, `ServiceImportExport`, etc.
-- **`platform/`** — Reserved for an extension. Not part of this repo.
-- **root** — Cross-cutting infrastructure used by both: `ServiceAuth`, `ServiceUser`, `ServiceProject`, `ServiceEmail`, `ServicePing`, etc.
+- **`core/`**: Survey services: `ServiceSurvey`, `ServiceFile`, `ServiceSurveyParticipant`, `ServiceImportExport`, etc.
+- **`platform/`**: Reserved for an extension. Not part of this repo.
+- **root**: Cross-cutting infrastructure used by both: `ServiceAuth`, `ServiceUser`, `ServiceProject`, `ServiceEmail`, `ServicePing`, etc.
 
 **Decision rule**: Is it needed by every deployment and not survey-specific? → root of `model/service/`. Survey-specific? → `core/`.
 
@@ -63,21 +63,21 @@ Two subdirectories plus root-level files:
 
 Shared utilities and helpers used across the model layer. Import via `'model/common'` or `'model/common/<file>'`.
 
-- `Registry` — generic base class for registry pattern
-- `ipLookup` — IP geolocation adapter; default provider: ip-api.com (see `ipLookup/README.md` to add alternatives)
-- `EmailTemplateLoader` — singleton loader for system email templates
-- `HtmlToText` — HTML to plain-text converter for email
-- `StringRandom` — random string generation
-- `surveySearchUtils` — participant/response search query helpers
+- `Registry`: generic base class for registry pattern
+- `ipLookup`: IP geolocation adapter; default provider: ip-api.com (see `ipLookup/README.md` to add alternatives)
+- `EmailTemplateLoader`: singleton loader for system email templates
+- `HtmlToText`: HTML to plain-text converter for email
+- `StringRandom`: random string generation
+- `surveySearchUtils`: participant/response search query helpers
 
 ### Generic Server Utilities (`src/common/`)
 
 Non-model utilities shared across the server. Import via `'common'` or `'common/<file>'`.
 
-- `pagination` — parse/validate page+perPage query params
-- `csvStream` — stream data as CSV to a neutral `HttpResponse`
-- `s3Client` — file storage abstraction (S3 / local filesystem)
-- `dateFilterUtils` — build MongoDB date range query conditions
+- `pagination`: parse/validate page+perPage query params
+- `csvStream`: stream data as CSV to a neutral `HttpResponse`
+- `s3Client`: file storage abstraction (S3 / local filesystem)
+- `dateFilterUtils`: build MongoDB date range query conditions
 - Search queries: a string `$regex` operand is a literal substring match (regex syntax and `%`/`_` are matched literally), so pass user search text straight in with no escaping. Pass a `RegExp` object only for a deliberate pattern.
 
 ### Endpoints and URL prefixes
@@ -92,17 +92,17 @@ Init code is written against the neutral adaptor types, never Express (lint-enfo
 
 Two subdirectories plus root-level files:
 
-- **`core/`** — project datasource (`dataSource: 'project'`), survey platform repos: `RepoSurvey`, `RepoFile`, `RepoSurveyResponse`, etc.
-- **`platform/`** — Reserved for an extension. Not part of this repo.
-- **root** — default datasource, infrastructure: `RepoUser`, `RepoProject`, `RepoEmail`, `RepoTask`, etc.
+- **`core/`**: project datasource (`dataSource: 'project'`), survey platform repos: `RepoSurvey`, `RepoFile`, `RepoSurveyResponse`, etc.
+- **`platform/`**: Reserved for an extension. Not part of this repo.
+- **root**: default datasource, infrastructure: `RepoUser`, `RepoProject`, `RepoEmail`, `RepoTask`, etc.
 
 **Decision rule**: Does the repo use `dataSource: 'project'`? → `core/`. Otherwise → root of `model/repo/`. All `core/` repos use the project datasource; root repos use the default.
 
-**Import via barrel** (`from 'model/repo'`) — avoid direct file-path imports.
+**Import via barrel** (`from 'model/repo'`), avoid direct file-path imports.
 
 **Declare `indexes` with `repib` and `relations` with `relb`** (from `@datacapy/server`), not hand-written `{ spec, options }` / `{ type, repo }` objects. **Indexes on Date-typed fields must set `typeHint`**: `repib.desc('createdAt').timestamp()` (or `.timestamp('field')` within a composite) does it. Without it, @datacapy/om generates a plain `VARCHAR` column and range queries (`$lte`/`$gte`/etc.) silently compare dates lexicographically instead of chronologically. The object key is the index name, so keep it stable. See `external/datacapy/package/om/docs/mysql-indexes.md` and `relations.md`.
 
-**Any direct `repo.getDataSource(context)` call must be paired with `repo.releaseDataSource(context)` in a `finally` block.** This bypasses the normal CRUD methods (`find`/`insert`/`update`/etc.), which already pair acquire/release internally — needed when a migration patch runs raw SQL (e.g. `RENAME TABLE`) that has no repo method. Skipping the release leaks a `DataSourceRegistry` ref count that never reaches zero, so the registry can never close that dynamic (per-project) datasource — harmless in a one-shot migration job that exits right after, but a real leak in any longer-lived process. See `2026-09-09_1000_reshape-survey-section-element.ts` for the reference pattern.
+**Any direct `repo.getDataSource(context)` call must be paired with `repo.releaseDataSource(context)` in a `finally` block.** This bypasses the normal CRUD methods (`find`/`insert`/`update`/etc.), which already pair acquire/release internally, needed when a migration patch runs raw SQL (e.g. `RENAME TABLE`) that has no repo method. Skipping the release leaks a `DataSourceRegistry` ref count that never reaches zero, so the registry can never close that dynamic (per-project) datasource, harmless in a one-shot migration job that exits right after, but a real leak in any longer-lived process. See `2026-09-09_1000_reshape-survey-section-element.ts` for the reference pattern.
 
 ## Framework
 
@@ -110,7 +110,7 @@ Built on @datacapy/server (REST), @datacapy/om (MySQL ORM) and @datacapy/schema,
 
 ## Background Jobs
 
-Recurring/scheduled work (e.g. file cleanup, mail queue dispatch) runs via the generic `ServiceTaskManager`, triggered by an external scheduler every minute and gated by each `Task` record's own interval. See `docs/task-manager.md` for adding new scheduled tasks, concurrency/locking, and manual triggering. Bulk survey invite/reminder sends are paced through this same infrastructure — see `docs/mail-queue-pacing.md`.
+Recurring/scheduled work (e.g. file cleanup, mail queue dispatch) runs via the generic `ServiceTaskManager`, triggered by an external scheduler every minute and gated by each `Task` record's own interval. See `docs/task-manager.md` for adding new scheduled tasks, concurrency/locking, and manual triggering. Bulk survey invite/reminder sends are paced through this same infrastructure, see `docs/mail-queue-pacing.md`.
 
 ## Anonymous Surveys
 
@@ -126,7 +126,7 @@ Optional country blocking runs through a `geo` collaborator that an extension re
 
 ## Disposable Email Domain Blocking
 
-Every path where a user sets/changes their own email — signup, survey participant registration, and account profile email change — rejects known disposable/temporary email domains via `ServiceEmailDomainCheck`, which is a no-op unless a deployment registers its own `emailDomainBlock` repo. See `docs/disposable-email-blocking.md`.
+Every path where a user sets/changes their own email, signup, survey participant registration, and account profile email change, rejects known disposable/temporary email domains via `ServiceEmailDomainCheck`, which is a no-op unless a deployment registers its own `emailDomainBlock` repo. See `docs/disposable-email-blocking.md`.
 
 ## Realtime
 

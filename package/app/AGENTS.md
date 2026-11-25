@@ -20,7 +20,7 @@ React application built with TypeScript, RSBuild, and Jest. This is the main fro
 
 - **Types**: Strict TypeScript, explicit types required (noImplicitAny)
 - **React**: JSX runtime, functional components, hooks pattern
-- **Testing**: Jest with React Testing Library, tests in `src/**/*.test.{ts,tsx}`. Console-noise policy (fail-by-default `console.error`/`console.warn`, `allowConsole()` for expected cases) lives in `tests/consoleGuard.ts` and is wired into `tests/setupTests.ts` — see root `AGENTS.md`'s "Console Noise in Tests" section.
+- **Testing**: Jest with React Testing Library, tests in `src/**/*.test.{ts,tsx}`. Console-noise policy (fail-by-default `console.error`/`console.warn`, `allowConsole()` for expected cases) lives in `tests/consoleGuard.ts` and is wired into `tests/setupTests.ts`, see root `AGENTS.md`'s "Console Noise in Tests" section.
 - **Imports**: Use ES6 imports, prefer named imports. Group imports: global (node_modules) → project relative → file relative, separated by blank lines
 - **Formatting**: Prettier config: 2 spaces, no semicolons, single quotes, trailing commas
 
@@ -38,10 +38,10 @@ React application built with TypeScript, RSBuild, and Jest. This is the main fro
 
 URLs follow a consistent hierarchical pattern: `/{app}/{entity}/{id}/{composite-id}/{action}`
 
-- `/admin/survey` — list; `/admin/survey/new` — create; `/admin/survey/{surveyId}/edit` — edit
-- `/admin/survey/{surveyId}/participant/{participantId}/edit` — nested entity
-- `/admin/survey/{surveyId}/response/snapshot/{snapshotId}/add` — composite ID + action
-- `/admin/survey/{surveyId}/setting/{section}` — settings
+- `/admin/survey`: list; `/admin/survey/new`, create; `/admin/survey/{surveyId}/edit`, edit
+- `/admin/survey/{surveyId}/participant/{participantId}/edit`: nested entity
+- `/admin/survey/{surveyId}/response/snapshot/{snapshotId}/add`: composite ID + action
+- `/admin/survey/{surveyId}/setting/{section}`: settings
 
 Rules: always follow pattern order; use explicit action suffixes (`/edit`, `/view`, `/add`); entity name without ID = list, with ID = detail/action.
 
@@ -72,7 +72,7 @@ not import** any sub-app tree (`appAdmin/**`, `appSurvey/**`, `appAccount/**`, o
 extension's). `appAdmin/**` and `appSurvey/**` **may not import** extension code. `pnpm lint`
 enforces this (`no-restricted-imports` in `eslint.config.mjs`).
 
-The rule runs at `error` — `pnpm lint` fails on any violation.
+The rule runs at `error`, `pnpm lint` fails on any violation.
 
 ## Data Fetching
 
@@ -80,7 +80,7 @@ Use TanStack Query for all data fetching and mutations (`useQuery` / `useMutatio
 
 ### CRITICAL: Construct model objects in the hook's return statement, NOT in `queryFn`
 
-React Query serializes data for caching — constructors, methods, and collection helpers are lost on cache hit.
+React Query serializes data for caching, constructors, methods, and collection helpers are lost on cache hit.
 
 ```typescript
 export function useSurveySnapshot(surveyId: string, snapshotId: string) {
@@ -110,7 +110,7 @@ Build every mutation that invalidates a query with `useInvalidatingMutation` (`s
 ## Dates & timezones
 
 Format timestamps for display only through the helpers in `src/common/formatDateTime.ts`
-(`formatDate`, `formatDateTime`, `formatCalendar`, …) — never a bare `momentTimezone(x).format(...)`
+(`formatDate`, `formatDateTime`, `formatCalendar`, …), never a bare `momentTimezone(x).format(...)`
 in a component. Pass the zone from the sub-app's `useDisplayTimezone()` hook (`appAdmin` → project
 zone, `appAccount` → browser zone). State the zone once per
 view with `<TimezoneNotice>` or a heading suffix, not on every timestamp. Full reference:
@@ -118,7 +118,7 @@ view with `<TimezoneNotice>` or a heading suffix, not on every timestamp. Full r
 
 ## Hook Conventions
 
-**Hooks must NOT take auth or project as parameters** — use `useAuth()` and `useProjectDomain()` internally:
+**Hooks must NOT take auth or project as parameters**: use `useAuth()` and `useProjectDomain()` internally:
 
 ```typescript
 // ❌ BAD
@@ -138,7 +138,7 @@ export function useEntityList() {
 
 **Build every authenticated `useQuery` in `appAdmin`/`appAccount` with `useAuthdQuery`** (`src/hook/useAuthdQuery.ts`), not a raw `useQuery`: it awaits the JWT refresh before `queryFn`, so a query that fires before any `useAuth()` has registered cannot 401 on a stale token. Exceptions (plain `useQuery`): `useAuth.ts`'s own query, local-only hooks (`usePaginationPerPage`, `useCookieConsent`) and unauthenticated pre-login queries (geo lookups).
 
-**`authRefresh(true)` calls must stay.** Force-refresh after any mutation that changes auth-related user data (email verification, 2FA toggle) to reload React auth state. This is distinct from keeping the JWT fresh — it pushes a server-side change into the React layer.
+**`authRefresh(true)` calls must stay.** Force-refresh after any mutation that changes auth-related user data (email verification, 2FA toggle) to reload React auth state. This is distinct from keeping the JWT fresh, it pushes a server-side change into the React layer.
 
 ## Detailed Implementation Patterns
 
@@ -146,7 +146,7 @@ For API class, Factory/Registry, Schema, Form, Edit Page patterns and component 
 
 ## React Component Optimisations
 
-**Hoist shared layout wrappers — don't repeat them across early-return branches.**
+**Hoist shared layout wrappers, don't repeat them across early-return branches.**
 
 When multiple branches of a component return the same outer wrapper (e.g. a page layout + centering div), extract that wrapper into a single return and render the varying content inside it using ternary or conditional expressions:
 

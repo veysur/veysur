@@ -1,4 +1,4 @@
-# AGENTS.md — veysur-common
+# AGENTS.md: veysur-common
 
 Shared TypeScript library used by both `package/api` and `package/app`. Dual-output build: CommonJS (for Node.js) and ESM (for bundlers).
 
@@ -13,7 +13,7 @@ pnpm --filter veysur-common typecheck          # type-check
 pnpm --filter veysur-common show-type [Survey|SettingSurvey]   # full member list of a mixin-built class, grouped by mixin file (editor hovers truncate it)
 ```
 
-**After editing common**, always run `pnpm build:common` before running or testing dependent packages — `app` and `api` consume the compiled output in `dist/`, not source.
+**After editing common**, always run `pnpm build:common` before running or testing dependent packages, `app` and `api` consume the compiled output in `dist/`, not source.
 
 ## Output & Exports
 
@@ -32,15 +32,15 @@ Subpath export entry points:
 
 **`src/server/` is server-only.** Models the browser never needs live there, not in `src/model/`, so they are absent from the main index and from the client `schemaManager`. `api` registers them through its own constructor and schema barrels. `app` and `app-cloud` may not import `veysur-common/server` (lint-enforced). A model that a shared schema embeds (for example `UserClient` inside `User`) stays in `src/model/`.
 
-**`util/generateSurveyHash` is server-only** — it uses Node.js `crypto` and is intentionally excluded from the main export. Import it directly:
+**`util/generateSurveyHash` is server-only**: it uses Node.js `crypto` and is intentionally excluded from the main export. Import it directly:
 ```ts
 import { generateSurveyHash } from 'veysur-common/util/generateSurveyHash'
 ```
 Never import this from frontend (`package/app` or `package/website`).
 
-**TypeScript strict mode is off** — `strict: false`, `noImplicitAny: false`. This is intentional for cross-project compatibility. Do not tighten without coordinating changes across `api` and `app`.
+**TypeScript strict mode is off**: `strict: false`, `noImplicitAny: false`. This is intentional for cross-project compatibility. Do not tighten without coordinating changes across `api` and `app`.
 
-**Survey elements: narrow, never assert.** Questions and content elements share `SurveyElementBase` and live together in `Survey.elements`. To reach a kind-specific field, branch through `isSurveyQuestion` / `isSurveyContent` (exported from the main index). Never write `element as { kind?: string }` or `element as { config?: unknown }` — see the Typing Discipline section in the root `AGENTS.md`.
+**Survey elements: narrow, never assert.** Questions and content elements share `SurveyElementBase` and live together in `Survey.elements`. To reach a kind-specific field, branch through `isSurveyQuestion` / `isSurveyContent` (exported from the main index). Never write `element as { kind?: string }` or `element as { config?: unknown }`, see the Typing Discipline section in the root `AGENTS.md`.
 
 ## Key Source Areas
 
