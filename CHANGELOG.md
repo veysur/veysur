@@ -5,6 +5,14 @@ released together under a single version number (see `.changeset/README.md`). Th
 the canonical release history; the identical entry is duplicated into each package's own
 `CHANGELOG.md` by [Changesets](https://github.com/changesets/changesets).
 
+## 0.14.2
+
+### Patch Changes
+
+- 8815d7f: Self-hosted: serve the Geist font. The nginx image did not include `/fonts/` and the Compose nginx config had no location for it, so every page load logged a 404 and fell back to the system font.
+- e2f0ccd: Treat a MySQL duplicate-entry error as already written when flushing the event log. Only the MongoDB duplicate code was ignored, so a re-flushed entry logged "Duplicate entry" errors and could be moved to the dead letter queue.
+- 541adb8: Self-hosted: create the project's survey settings at startup. Publishing a survey on a fresh install through the API failed with a 500 ("Setting survey not found") until the admin app had read the settings.
+
 ## 0.14.1
 
 ### Patch Changes

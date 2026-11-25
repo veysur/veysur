@@ -1,5 +1,13 @@
 # veysur-app
 
+## 0.14.2
+
+### Patch Changes
+
+- 8815d7f: Self-hosted: serve the Geist font. The nginx image did not include `/fonts/` and the Compose nginx config had no location for it, so every page load logged a 404 and fell back to the system font.
+- veysur-common@0.14.2
+  - veysur-theme@0.14.2
+
 ## 0.14.1
 
 ### Patch Changes

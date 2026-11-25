@@ -1,6 +1,6 @@
 {
   "name": "veysur-api",
-  "version": "0.14.1",
+  "version": "0.14.2",
   "description": "",
   "license": "Elastic-2.0",
   "main": "index.js",
