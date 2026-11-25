@@ -106,10 +106,14 @@ export const SUBDOMAIN_PREFIX_REGEX = /^[a-z]([a-z0-9-]*[a-z0-9])?$/
 export const SCHEMA_PROJECT_DOMAIN_REGEX =
   /^(?:[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$/
 
+/** The one wording for a malformed subdomain, so every form and validator agrees. */
+export const SUBDOMAIN_FORMAT_MESSAGE =
+  'Subdomain must contain only lowercase letters, numbers, and hyphens, and must start with a letter and end with a letter or number'
+
 export const SUBDOMAIN_REQUIREMENTS = [
   `Min ${SUBDOMAIN_MIN_LENGTH} characters`,
   'Only lowercase letters, numbers, and hyphens',
-  'Must start and end with letter',
+  'Must start with a letter and end with a letter or number',
   'Must not be a reserved word',
 ]
 
@@ -136,7 +140,7 @@ export function validateSubdomainPrefix(
   }
 
   if (!SUBDOMAIN_PREFIX_REGEX.test(trimmed)) {
-    return 'Subdomain must contain only lowercase letters, numbers, and hyphens, and must start and end with a letter or number'
+    return SUBDOMAIN_FORMAT_MESSAGE
   }
 
   if ((SUBDOMAIN_RESERVED_WORDS as readonly string[]).includes(trimmed)) {
