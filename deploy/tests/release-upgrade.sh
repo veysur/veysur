@@ -126,7 +126,6 @@ retry 30 2 "/api/ping returns 200" ping_ok
 # ---- seed data on the previous release --------------------------------------
 
 say "Seeding data on $FROM_VERSION"
-SEED_LEGACY_SETTINGS=1
 admin_login
 survey_journey
 head -c 20000 /dev/urandom >"$WORK/seed.png"
