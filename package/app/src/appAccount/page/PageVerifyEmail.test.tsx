@@ -80,7 +80,7 @@ describe('PageVerifyEmail', () => {
     await waitFor(() =>
       expect(screen.getByText('Email Verified!')).toBeTruthy(),
     )
-    expect(screen.getByText('Continue')).toBeTruthy()
+    expect(screen.getByText('Log in to continue')).toBeTruthy()
     expect(handler).toHaveBeenCalledTimes(1)
   })
 

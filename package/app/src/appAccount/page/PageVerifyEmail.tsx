@@ -210,7 +210,7 @@ export const PageVerifyEmail: React.FC = () => {
               </Button>
             ) : (
               <Link to="/login">
-                <Button className="w-full">Continue</Button>
+                <Button className="w-full">Log in to continue</Button>
               </Link>
             )}
           </StatusMessage>
