@@ -59,6 +59,11 @@
       "require": "./dist/cjs/test-utils/schemaEquivalence.js",
       "types": "./dist/cjs/test-utils/schemaEquivalence.d.ts"
     },
+    "./util/generateSubdomain": {
+      "import": "./dist/esm/util/generateSubdomain.js",
+      "require": "./dist/cjs/util/generateSubdomain.js",
+      "types": "./dist/cjs/util/generateSubdomain.d.ts"
+    },
     "./util/generateSurveyHash": {
       "import": "./dist/esm/util/generateSurveyHash.js",
       "require": "./dist/cjs/util/generateSurveyHash.js",
