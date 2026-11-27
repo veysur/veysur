@@ -50,7 +50,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
         <div className="flex flex-col items-center gap-6 sm:grid sm:grid-cols-[1fr_auto_1fr] sm:items-center">
           <div
             className={`flex flex-col items-center gap-1 sm:items-start transition-opacity duration-300 ${
-              isNavbarLogoVisible ? 'opacity-0' : 'opacity-100'
+              isNavbarLogoVisible ? 'max-sm:hidden opacity-0' : 'opacity-100'
             }`}
           >
             {/* bg-footer is permanently ink-dark in both modes, so this
@@ -82,11 +82,11 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           </nav>
           <div className="hidden sm:block" />
         </div>
-        <div className="mt-6 flex items-center justify-between">
+        <div className="mt-6 flex flex-col items-center gap-2 text-center sm:flex-row sm:justify-between sm:text-left">
           <CookieSettingsButton />
           <p className="text-xs text-footer-foreground/60">
             &copy; {year} VeySur. All rights reserved.
-            <AppVersion className="ml-3 font-mono text-footer-foreground/40" />
+            <AppVersion className="block sm:ml-3 sm:inline font-mono text-footer-foreground/40" />
           </p>
         </div>
       </div>

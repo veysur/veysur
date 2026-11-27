@@ -34,6 +34,10 @@ React application built with TypeScript, RSBuild, and Jest. This is the main fro
 - React Router for navigation
 - Jest + React Testing Library for testing
 
+## Minimum viewport
+
+The minimum supported viewport is 360px wide. Check layouts at 360px; nothing may overflow horizontally.
+
 ## URL Structure Pattern
 
 URLs follow a consistent hierarchical pattern: `/{app}/{entity}/{id}/{composite-id}/{action}`
