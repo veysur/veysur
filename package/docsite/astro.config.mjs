@@ -116,6 +116,7 @@ export default defineConfig({
             { label: 'Manage Participant Attributes', slug: 'guides/manage-participant-attributes' },
             { label: 'Manage Team Members', slug: 'guides/manage-team-members' },
             { label: 'Publish Your Survey', slug: 'guides/publish-your-survey' },
+            { label: 'Edit a Published Survey', slug: 'guides/edit-a-published-survey' },
             { label: 'Embed a Survey in a Website', slug: 'guides/embed-a-survey' },
             { label: 'Protect a Survey from Bots', slug: 'guides/protect-a-survey-from-bots' },
             { label: 'Merge Publication Responses', slug: 'guides/merge-publication-responses' },

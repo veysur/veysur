@@ -24,3 +24,5 @@ Drag items in the structure panel to reorder them. Groups can move relative to o
 ## Deleting
 
 To delete a group, question, or content item, click the delete button shown to its right when it is focused. Deleting a group removes everything inside it.
+
+In a published survey, existing responses are kept on their snapshot. A deleted question cannot be mapped in a later merge, so its answers are skipped. See [Edit a Published Survey](/guides/edit-a-published-survey/).

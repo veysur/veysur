@@ -7,6 +7,10 @@ A publication records the event of publishing a survey. When you create a public
 
 Each publication is tied to exactly one snapshot, but the same snapshot can be shared by more than one publication. This happens automatically when a survey is republished without any changes: rather than creating a duplicate snapshot, VeySur reuses the existing one and records a new publication against it.
 
+## Responses and versions
+
+Each response stays bound to the snapshot it was answered under, so editing a published survey never alters earlier responses. See [Edit a Published Survey](/guides/edit-a-published-survey/).
+
 ## Publication list
 
 The list displays the following columns:
