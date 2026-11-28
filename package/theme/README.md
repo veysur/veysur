@@ -27,4 +27,4 @@ Package-specific variables (alert palette, sidebar, hero gradients, etc.) remain
 
 ## No build step
 
-This package exports its CSS source directly — there is nothing to compile. Changes to `src/tokens.css` take effect in consuming packages on their next build or dev server restart.
+This package exports its CSS source directly, there is nothing to compile. Changes to `src/tokens.css` take effect in consuming packages on their next build or dev server restart.

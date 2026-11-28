@@ -255,51 +255,51 @@ Use `--context-lookup "*"` with `--concurrency <n>` to run a `project`-datasourc
 pnpm run migrate -- --datasource project --context-lookup "*" --concurrency 5
 ```
 
-Every invocation — single-database or batch — prints a **Run ID** at the start and in the
+Every invocation, single-database or batch, prints a **Run ID** at the start and in the
 final summary. If any databases fail, use it to retry only what's outstanding:
 
 ```bash
 pnpm run migrate -- --resume <runId> --concurrency 5
 ```
 
-`--resume` works at any concurrency and skips every database that already succeeded —
-their connections are never touched again — retrying only the pending/failed ones. See
+`--resume` works at any concurrency and skips every database that already succeeded,
+their connections are never touched again, retrying only the pending/failed ones. See
 [Migration Run Tracking](#migration-run-tracking-migrationlog) below for how this is
 implemented.
 
 **Patch idempotency caveat**: resuming is correct at the *database* level, but not
 necessarily at the *patch* level. If a database's run failed mid-patch and that patch
 isn't idempotent (e.g. a raw `DROP INDEX` with no `IF EXISTS`), `--resume` re-attempts the
-same patch and can hit the same error again — fix the patch or correct the bad state
+same patch and can hit the same error again, fix the patch or correct the bad state
 manually before retrying.
 
 ## Migration Run Tracking (`migrationLog`)
 
 Every `pnpm run migrate` invocation (single-database or batch) writes to a `migrationLog`
-table in the account database — one row per target database (account or project) it
+table in the account database, one row per target database (account or project) it
 touches, keyed by `runId` + `contextKey` (`'account'` for the static datasource, the
 `projectId` for a project database). This is a **run/job ledger**, separate from
 `migrationMeta`:
 
 | Table | Lives in | Answers |
 |-------|----------|---------|
-| `migrationMeta` | Each target database | "Has this patch been applied to *this* database?" — the canonical version state |
-| `migrationLog` | Account database | "What happened to *this database* in *this run*?" — status, per-patch detail, timing, error |
+| `migrationMeta` | Each target database | "Has this patch been applied to *this* database?", the canonical version state |
+| `migrationLog` | Account database | "What happened to *this database* in *this run*?", status, per-patch detail, timing, error |
 
 Each `migrationLog` row records `status` (`pending`/`running`/`success`/`failed`),
 `previousVersion`/`currentVersion`, `totalPatches`/`successCount`/`failedCount`/`skippedCount`,
 a `patchResults` array (per-patch version/description/status/duration/error), `duration`,
 and a top-level `error` for failures that happen before any patch runs (e.g. a connection
-failure). A dry run (`--dry-run`) never writes to `migrationLog` — it's preview-only.
+failure). A dry run (`--dry-run`) never writes to `migrationLog`, it's preview-only.
 
 `--resume <runId>` reads the rows for that run, retries every one that isn't `success`
-(including a `running` row left behind by a crashed process — safe to retry since
+(including a `running` row left behind by a crashed process, safe to retry since
 `migrationMeta` is idempotent per patch), and leaves successful databases untouched. No
-distributed locking is involved — a single CLI process drives all concurrency for one
+distributed locking is involved, a single CLI process drives all concurrency for one
 invocation, so `migrationLog` writes are just status updates from that process.
 
 `migrationLog` is designed to also back a future platform-admin monitoring view (not yet
-built) — it's queryable by `runId`, `status`, and `dataSourceName`.
+built), it's queryable by `runId`, `status`, and `dataSourceName`.
 
 ## Related Documentation
 

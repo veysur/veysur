@@ -73,11 +73,11 @@ When both Markdown and Raw HTML are turned off, survey text renders as plain tex
 | Prevent repeat submissions     | Stop the same browser completing an open survey more than once. VeySur records completion in the participant's browser storage, per site for embedded surveys. Enabled by default. Clearing site data, private browsing or another browser bypasses it. Participants with a token are limited by their token instead.      |
 | Allowed Websites for Embedding | The websites that may show this survey as an embedded survey, one per line. A website also covers its subdomains. A survey inherits the project default unless it sets its own list, and an empty list allows any website. Turn embedding on in the Share tab. See [Embed a Survey in a Website](/guides/embed-a-survey/). |
 
-<!-- CAPTCHA for Registration is not yet implemented — re-add this row to the table above once it ships.
+<!-- CAPTCHA for Registration is not yet implemented, re-add this row to the table above once it ships.
 | CAPTCHA for Registration | Add CAPTCHA bot protection to the public registration form. Only relevant when Public Registration is enabled. |
 -->
 
-<!-- Index (public survey index on the project homepage) is not yet implemented — re-add this row to the table above once it ships.
+<!-- Index (public survey index on the project homepage) is not yet implemented, re-add this row to the table above once it ships.
 | Index | List the survey in the public index on your homepage. |
 -->
 

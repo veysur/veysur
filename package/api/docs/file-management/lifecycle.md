@@ -36,7 +36,7 @@ Files progress through these states during their lifecycle:
 
 **Implementation**: `ServiceFileUpload.generateUploadUrl()` and `confirmUpload()` in `package/api/src/model/service/core/ServiceFile/`
 
-> **Image set uploads** (used by `imageSelect` questions) use a different flow: the server creates the file record and marks it as `uploaded` immediately when the URL is requested — no confirm step. The `imageSetId` is the SHA256 hash of the edited blob, computed client-side. The `edited` variant is deduplicated by hash + surveyId + fileContext; soft-deleted records are resurrected on a match (all three variants). `original` and `thumb` are not hashed. Edit and undo operations produce a new `imageSetId` only when the edited content differs — old file records are cleaned up by survey-patch reference cleanup. See [api-guide.md — Image Set Upload](./api-guide.md#image-set-upload).
+> **Image set uploads** (used by `imageSelect` questions) use a different flow: the server creates the file record and marks it as `uploaded` immediately when the URL is requested, no confirm step. The `imageSetId` is the SHA256 hash of the edited blob, computed client-side. The `edited` variant is deduplicated by hash + surveyId + fileContext; soft-deleted records are resurrected on a match (all three variants). `original` and `thumb` are not hashed. Edit and undo operations produce a new `imageSetId` only when the edited content differs, old file records are cleaned up by survey-patch reference cleanup. See [api-guide.md, Image Set Upload](./api-guide.md#image-set-upload).
 
 ## Deletion Workflows
 
@@ -79,9 +79,9 @@ DELETE /api/file/hard/PT1H
 DELETE /api/file/hard/P1D?fileContext=temp
 ```
 
-**Regular files**: Automated — task manager runs hourly, deletes files soft-deleted >1 hour ago (`hardDeleteAll` action on `fileDeletion` service). S3 errors are tracked per-file (`totalStorageErrors`) but don't block DB cleanup.
+**Regular files**: Automated, task manager runs hourly, deletes files soft-deleted >1 hour ago (`hardDeleteAll` action on `fileDeletion` service). S3 errors are tracked per-file (`totalStorageErrors`) but don't block DB cleanup.
 
-**Temp files**: NOT automatic — must run hard delete manually (see Temp Files section)
+**Temp files**: NOT automatic, must run hard delete manually (see Temp Files section)
 
 ### Resurrection
 
@@ -126,7 +126,7 @@ Check references
 └─────────────┴──────────────┘
 ```
 
-**Auto-cleanup**: System automatically removes stale survey references (files no longer in questions) before checking protection. Survey reference checks use `answerOption.imageFileId` for image files — the `files[]` array no longer exists on answer options.
+**Auto-cleanup**: System automatically removes stale survey references (files no longer in questions) before checking protection. Survey reference checks use `answerOption.imageFileId` for image files, the `files[]` array no longer exists on answer options.
 
 ## Temp Files
 

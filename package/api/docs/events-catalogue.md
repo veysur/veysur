@@ -3,25 +3,25 @@
 All event actions tracked by the API, grouped by category.
 
 **Data source key:**
-- `account` — written to the account DB (no `projectId` on the log call)
-- `project` — written to the project's own DB (`projectId` passed to `log()`)
+- `account`: written to the account DB (no `projectId` on the log call)
+- `project`: written to the project's own DB (`projectId` passed to `log()`)
 
-Metadata fields marked `†` are redacted before storage — see [event-log.md](event-log.md#metadata-redaction).
+Metadata fields marked `†` are redacted before storage, see [event-log.md](event-log.md#metadata-redaction).
 
 ## Authentication
 
 | Action | Data source | Metadata | Service |
 |---|---|---|---|
-| `user.login` | account | — | ServiceAuthEmailPassword |
-| `user.login.2fa` | account | — | ServiceTwoFactor |
-| `user.login.2fa.setup` | account | — | ServiceTwoFactor |
-| `user.logout` | account | — | ServiceAuth |
-| `user.2fa.enabled` | account | — | ServiceTwoFactor |
-| `user.2fa.disabled` | account | — | ServiceTwoFactor |
-| `user.sessionsRevoked` | account | — | ServiceAuth |
-| `user.accountDeleted` | account | — | ServiceUser |
-| `user.accountRestored` | account | — | ServiceUser |
-| `user.anonymized` | account | — | ServiceUser |
+| `user.login` | account | - | ServiceAuthEmailPassword |
+| `user.login.2fa` | account | - | ServiceTwoFactor |
+| `user.login.2fa.setup` | account | - | ServiceTwoFactor |
+| `user.logout` | account | - | ServiceAuth |
+| `user.2fa.enabled` | account | - | ServiceTwoFactor |
+| `user.2fa.disabled` | account | - | ServiceTwoFactor |
+| `user.sessionsRevoked` | account | - | ServiceAuth |
+| `user.accountDeleted` | account | - | ServiceUser |
+| `user.accountRestored` | account | - | ServiceUser |
+| `user.anonymized` | account | - | ServiceUser |
 
 ## User Profile
 
@@ -29,8 +29,8 @@ Metadata fields marked `†` are redacted before storage — see [event-log.md](
 |---|---|---|---|
 | `user.email.updated` | account | `email`† | ServiceUser |
 | `user.name.updated` | account | `nameFirst`, `nameLast` | ServiceUser |
-| `user.password.updated` | account | — | ServiceUser |
-| `user.password.reset` | account | — | ServicePassword |
+| `user.password.updated` | account | - | ServiceUser |
+| `user.password.reset` | account | - | ServicePassword |
 
 ## Projects
 

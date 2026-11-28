@@ -78,16 +78,16 @@ import { ClipboardList, Plus } from 'lucide-react'
 
 - Entity list page with zero records and a clear creation CTA
 - Stat/analytics view with no data yet (omit `action`)
-- Do **not** use for inline empty states within a card or table row — use `EmptyState` there instead
+- Do **not** use for inline empty states within a card or table row, use `EmptyState` there instead
 
 ### Key Files
 
-- `src/component/GoldenEmptyState/GoldenEmptyState.tsx` — component source
-- `src/appAdmin/component/Survey/SurveyListView.tsx` — list + CTA example
-- `src/appAdmin/page/PageSurveyEdit/PageSurveyEditParticipant.tsx` — list + CTA example
-- `src/appAdmin/page/PageSurveyEdit/PageSurveyEditPublication.tsx` — no CTA example
-- `src/appAdmin/component/SurveyStat/SurveyStatEmptyState.tsx` — no CTA example
-- `src/appAccount/page/PageProjectList.tsx` — account app example
+- `src/component/GoldenEmptyState/GoldenEmptyState.tsx`: component source
+- `src/appAdmin/component/Survey/SurveyListView.tsx`: list + CTA example
+- `src/appAdmin/page/PageSurveyEdit/PageSurveyEditParticipant.tsx`: list + CTA example
+- `src/appAdmin/page/PageSurveyEdit/PageSurveyEditPublication.tsx`: no CTA example
+- `src/appAdmin/component/SurveyStat/SurveyStatEmptyState.tsx`: no CTA example
+- `src/appAccount/page/PageProjectList.tsx`: account app example
 
 ---
 
@@ -147,9 +147,9 @@ PageHeader
 
 ### Key Files
 
-- `src/appAdmin/component/PageHeader.tsx` — layout component (left: icon/title, right: slot for buttons)
-- `src/component/shadcn/button-group.tsx` — groups adjacent buttons with seamless borders
-- `src/appAdmin/component/SurveyParticipant/ParticipantPageHeader.tsx` — most complete example (6 buttons, conditional logic)
+- `src/appAdmin/component/PageHeader.tsx`: layout component (left: icon/title, right: slot for buttons)
+- `src/component/shadcn/button-group.tsx`: groups adjacent buttons with seamless borders
+- `src/appAdmin/component/SurveyParticipant/ParticipantPageHeader.tsx`: most complete example (6 buttons, conditional logic)
 - `src/appAdmin/page/PageSurvey/PageSurvey.tsx`
 - `src/appAdmin/page/PageSurveyEdit/PageSurveyEditResponse.tsx`
 - `src/appAdmin/page/PageSurveyEdit/PageSurveyEditPublication.tsx`
@@ -250,15 +250,15 @@ SurveyResponseFilterToolbar
 | Page                     | Filter Types            | Paired With          |
 | ------------------------ | ----------------------- | -------------------- |
 | `PageSurveyEditResponse` | Completion + Date Range | `ResponseMassAction` |
-| `PageSurveyEditStat`     | Completion + Date Range | —                    |
-| `PageSurvey`             | Date Range only         | —                    |
+| `PageSurveyEditStat`     | Completion + Date Range | - |
+| `PageSurvey`             | Date Range only         | - |
 
 ### Key Files
 
 - `src/appAdmin/component/SurveyResponse/SurveyResponseFilterToolbar.tsx`
-- `src/appAdmin/component/SurveyResponse/hook/useSurveyPageFilters.ts` — URL-aware filter state
-- `src/appAdmin/component/Survey/hook/useDateFilter.ts` — simpler date-only variant
-- `src/appAdmin/component/SurveyStat/DateRangeFilterControl.tsx` — reusable date range sub-component
+- `src/appAdmin/component/SurveyResponse/hook/useSurveyPageFilters.ts`: URL-aware filter state
+- `src/appAdmin/component/Survey/hook/useDateFilter.ts`: simpler date-only variant
+- `src/appAdmin/component/SurveyStat/DateRangeFilterControl.tsx`: reusable date range sub-component
 - `src/appAdmin/page/PageSurveyEdit/PageSurveyEditResponse.tsx` (layout reference)
 
 ---
@@ -276,7 +276,7 @@ const [searchQuery, setSearchQuery] = useState('')
 const debouncedSearch = useDebounce(searchQuery) // 300ms default
 ```
 
-`useDebounce<T>(value: T, delay?: number): T` — delays the returned value by `delay` ms (default 300). The hook lives in `src/common/useDebounce.ts` and is exported from `src/common/index.ts`.
+`useDebounce<T>(value: T, delay?: number): T`, delays the returned value by `delay` ms (default 300). The hook lives in `src/common/useDebounce.ts` and is exported from `src/common/index.ts`.
 
 ### Resetting pagination on search change
 

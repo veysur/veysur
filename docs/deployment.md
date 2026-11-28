@@ -71,7 +71,7 @@ sends `frame-ancestors *` for that path only. A proxy that adds `X-Frame-Options
 
 ## Install from source
 
-No tarball, no registry pull — clone the repository and build the two images locally:
+No tarball, no registry pull, clone the repository and build the two images locally:
 
 ```bash
 git clone https://github.com/veysur/veysur.git && cd veysur/deploy
@@ -120,7 +120,7 @@ docker login ghcr.io
 ```
 
 Builds `veysur/api` and `veysur/nginx`, pushes them to `ghcr.io/veysur`, and writes the thin
-`dist/veysur-1.2.0.tar.gz` (about 16 KB) — installs pull the images from there. `--push` is independent of
+`dist/veysur-1.2.0.tar.gz` (about 16 KB), installs pull the images from there. `--push` is independent of
 `--images`/`--build-images`: add `--images` (bundle already-built images) or `--build-images` (build them
 first, implies `--images`) instead of/alongside `--push` to also produce the larger
 (~456 MB) `-with-images` variant for air-gapped installs with no registry access.

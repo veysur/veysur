@@ -8,7 +8,7 @@ expressions against the same participant/answers/response data:
   [survey-conditions.md](survey-conditions.md#available-variables) for the full semantic
   write-up of `answers`/`participant`/`response` and condition-specific behaviour
   (forward-reference rules, fail-safe display, structural change detection).
-- **Embedded text expressions** — `{{expression}}` tokens in survey text — see
+- **Embedded text expressions**: `{{expression}}` tokens in survey text, see
   [template-variables.md](template-variables.md#system-4--embedded-expressions-in-survey-text).
 
 The engine was extracted out of `SurveyCondition/` into this sibling module once text
@@ -30,7 +30,7 @@ interface ExpressionContext {
 ```
 
 Built by `ExpressionContextBuilder.build()` (`ExpressionContext.ts`) from participant
-data, the answers collected so far, and survey question metadata — seeding every
+data, the answers collected so far, and survey question metadata, seeding every
 question code as a real key (empty object/`undefined` as appropriate to the question
 shape) so property access on an unanswered question returns `undefined`/falsy instead of
 throwing. `buildEmpty()` returns a context with no data, used for structural validation
@@ -68,14 +68,14 @@ Per-question-type `answerLabels` resolution (see `resolveAnswerLabels.ts` and it
 | choice with "Other" | `{OTHER_VALUE:"custom"}` | `"custom"` | `.OTHER_VALUE` → `"custom"` |
 | matrix | `{S001:{A001:true}}` | `""` (a matrix has no single value) | resolved per row, by the row's cell type: checkbox → selected column label(s) (`.S001` → `"Agree"`, `.S001.A001` → `"Agree"`); yes/no → `.S001` → `"Yes"`/`"No"`; text/number/date/time → the raw cell value (`.S001.A001` → `"42"`, a numeric `0` kept). Empty cells omitted; `matrixComposite` resolves each row by its own type |
 | multi-part | `{P001:"x", P002:true}` | `"x, Yes"` (each part via its part type: Yes/No, per-point caption or number, else the raw value) | `.P001` → `"x"` |
-| yesNo | `true` | option label (`"Yes"`) | — |
-| starRating / point5 / point10 | `4` | per-point label if set, else `"4"` | — |
-| text / number / date / time | `"42"` / ISO string | `String(value)` (no locale/timezone formatting in v1) | — |
+| yesNo | `true` | option label (`"Yes"`) | - |
+| starRating / point5 / point10 | `4` | per-point label if set, else `"4"` | - |
+| text / number / date / time | `"42"` / ISO string | `String(value)` (no locale/timezone formatting in v1) | - |
 | unanswered | `undefined` | `""` | member access → `undefined` |
 
 `answerLabels.*` obeys the **forward-reference rule** (a question at or after the referring
 element's position is rejected at admin-save and not offered by the variable picker), like
-`answers.*`. `labels.*` does **not** — it is static survey-structure text that leaks no
+`answers.*`. `labels.*` does **not**, it is static survey-structure text that leaks no
 participant/answer data, so any question/group label is usable from any field (including
 the welcome message, which renders before every question). `validateTextExpressions` takes
 a position-filtered list for the `answerLabels.*` / `answers.*` check and the full survey
@@ -94,14 +94,14 @@ rules (`__proto__`/`constructor`/`prototype`) still apply.
 ## Execution model
 
 Expressions are not compiled as JavaScript. `SafeExpressionInterpreter.ts` parses them
-with jsep (a restricted expression-only grammar — no statements, assignment, `new`,
+with jsep (a restricted expression-only grammar, no statements, assignment, `new`,
 arrow functions, or template literals) and interprets the resulting AST with a
 hand-written walker that only implements the operations below. Every path to
 `window`/`Function`/`eval`/global scope is unreachable because there is no code path to
 it, not because it is pattern-matched and rejected.
 
 Permitted:
-- **Roots**: `answers`, `answerLabels`, `labels`, `participant`, `response` only — no other
+- **Roots**: `answers`, `answerLabels`, `labels`, `participant`, `response` only, no other
   identifier resolves to anything (`answerLabels`/`labels` only carry data when the context
   was built with question text/answer-options)
 - **Member access**: dotted or bracketed property access on an already-resolved value,
@@ -117,7 +117,7 @@ Not permitted: assignment, `new`, function/arrow-function expressions, template
 literals, and any identifier, member, or call outside the list above.
 
 `SafeExpressionInterpreter` exposes both `interpret()` (runtime evaluation) and
-`staticCheck()` (structural preflight without evaluating — used for admin-time
+`staticCheck()` (structural preflight without evaluating, used for admin-time
 validation, e.g. forward-reference checks, before a value even exists to evaluate
 against). The two used to hand-copy the same "is this operator/call known" logic; it is
 now centralised in shared allowlist checks (`isKnownBinaryOperator`,
@@ -131,19 +131,19 @@ now centralised in shared allowlist checks (`isKnownBinaryOperator`,
   any error or structural invalidity. See
   [survey-conditions.md](survey-conditions.md#behaviour) for full behaviour.
 - **`resolveTextExpressions`/`validateTextExpressions`** (`resolveTextExpressions.ts`)
-  scan HTML for `{{expression}}` tokens (via a shared, exported token pattern —
-  `EXPRESSION_TOKEN_SOURCE`/`createExpressionTokenPattern()` — so the admin app's live
+  scan HTML for `{{expression}}` tokens (via a shared, exported token pattern,
+  `EXPRESSION_TOKEN_SOURCE`/`createExpressionTokenPattern()`, so the admin app's live
   pill decoration can never drift out of sync with what actually counts as a token),
   evaluate each with `evaluateJsExpression`, and splice the result back in. An unsafe
   expression, a runtime error, or a `null`/`undefined` result leaves the token as literal
-  text (fail open — a bad expression never blanks out survey text). The resolved value is
+  text (fail open, a bad expression never blanks out survey text). The resolved value is
   HTML-escaped by default (`escape: 'html' | 'none'`), since the token scan runs on raw
-  HTML before `sanitizeHtml`/DOMPurify — this is what stops an expression's *output*
+  HTML before `sanitizeHtml`/DOMPurify, this is what stops an expression's *output*
   becoming a script-injection vector. `validateTextExpressions` structurally checks
   every token without evaluating it: it extracts each predefined-variable reference
   with `extractVariablePaths` (a full jsep-AST walk, so the *entire* member chain is
   captured) and validates it end-to-end with `validateVariablePath`
-  (`SurveyCondition/variablePathValidation.ts`) — unknown question/group code, forward
+  (`SurveyCondition/variablePathValidation.ts`), unknown question/group code, forward
   reference, a path of the wrong depth for the question type, a matrix reference that
   omits the sub-question code, or trailing nonsense segments are all rejected.
   `ConditionValidator.validate` still runs for JS syntax and operator grammar.
@@ -153,14 +153,14 @@ now centralised in shared allowlist checks (`isKnownBinaryOperator`,
   data-policy text), so an invalid path **blocks publishing** the same way an invalid
   condition does, and is listed in the editor's "Cannot Publish Survey" panel.
 
-- [resolveAnswerLabels.ts](../src/model/service/SurveyExpression/resolveAnswerLabels.ts) —
+- [resolveAnswerLabels.ts](../src/model/service/SurveyExpression/resolveAnswerLabels.ts),
   `resolveAnswerLabelValue`, `makeStringNode` (the `String`-wrapper node helper)
 
 ## Key files
 
-- [SurveyExpression/index.ts](../src/model/service/SurveyExpression/index.ts) — barrel export
-- [types.ts](../src/model/service/SurveyExpression/types.ts) — `ExpressionContext`, `ExpressionResult`
-- [ExpressionContext.ts](../src/model/service/SurveyExpression/ExpressionContext.ts) — `ExpressionContextBuilder.build()`/`buildEmpty()`
-- [ExpressionEvaluator.ts](../src/model/service/SurveyExpression/ExpressionEvaluator.ts) — `evaluateJsExpression`/`isSafeExpression`
-- [SafeExpressionInterpreter.ts](../src/model/service/SurveyExpression/SafeExpressionInterpreter.ts) — jsep-based parser + interpreter + static checker
-- [resolveTextExpressions.ts](../src/model/service/SurveyExpression/resolveTextExpressions.ts) — `resolveTextExpressions`/`validateTextExpressions`, shared token pattern
+- [SurveyExpression/index.ts](../src/model/service/SurveyExpression/index.ts): barrel export
+- [types.ts](../src/model/service/SurveyExpression/types.ts): `ExpressionContext`, `ExpressionResult`
+- [ExpressionContext.ts](../src/model/service/SurveyExpression/ExpressionContext.ts): `ExpressionContextBuilder.build()`/`buildEmpty()`
+- [ExpressionEvaluator.ts](../src/model/service/SurveyExpression/ExpressionEvaluator.ts): `evaluateJsExpression`/`isSafeExpression`
+- [SafeExpressionInterpreter.ts](../src/model/service/SurveyExpression/SafeExpressionInterpreter.ts): jsep-based parser + interpreter + static checker
+- [resolveTextExpressions.ts](../src/model/service/SurveyExpression/resolveTextExpressions.ts): `resolveTextExpressions`/`validateTextExpressions`, shared token pattern

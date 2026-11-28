@@ -13,7 +13,7 @@ Two different mechanisms transfer auth state between browser contexts, for two d
 | **BroadcastChannel**                | used (Flows 5 & 6)                                | not possible, channels are scoped per-origin          |
 | **mint token + redirect + redeem**  | not needed, same-origin already shares storage    | used (Flows 1, 2, 4, 7, and Flow 5/8's final step)    |
 
-A right-click "open in new tab" produces a tab with no `window.opener` — but that's no longer load-bearing, since the cross-origin leg is a plain top-level redirect, not a popup, and never depends on `window.opener`. `AuthBroadcastProvider`'s same-origin `BroadcastChannel` still exists purely to avoid an unnecessary round trip through the auth domain when the target is same-origin. Flow 5 uses **both**: `BroadcastChannel` for instant same-origin discovery (steps 3–5), then the mint/redirect/redeem handoff for the actual cross-domain transfer (step 6).
+A right-click "open in new tab" produces a tab with no `window.opener`, but that's no longer load-bearing, since the cross-origin leg is a plain top-level redirect, not a popup, and never depends on `window.opener`. `AuthBroadcastProvider`'s same-origin `BroadcastChannel` still exists purely to avoid an unnecessary round trip through the auth domain when the target is same-origin. Flow 5 uses **both**: `BroadcastChannel` for instant same-origin discovery (steps 3–5), then the mint/redirect/redeem handoff for the actual cross-domain transfer (step 6).
 
 ## Cold-tab restoration
 
@@ -28,38 +28,38 @@ render nothing until restoration completes, before making any redirect decision.
 
 ## Flow 9: Direct Deep Link (Cold Tab, e.g. Email Invite Link)
 
-Unlike Flows 1–8, this flow doesn't originate from a click inside the app — the browser has no
+Unlike Flows 1–8, this flow doesn't originate from a click inside the app, the browser has no
 prior tab to broadcast to. Example: a team-invite email links straight to
 `/team-invite/accept?code=...&email=...`.
 
 1. User opens the link in a tab with no in-memory app state (new window, new profile, or an
    email client's embedded browser)
 2. `AuthGate` waits for `useIsRestoring()` to resolve, then checks `isAuthed`
-3. **If a valid session restores in time**: `AuthGate` renders the target page directly — no
+3. **If a valid session restores in time**: `AuthGate` renders the target page directly, no
    redirect happens
 4. **If unauthenticated** (including a "not yet restored, and never will be" cold tab) and no
    auth domain is configured, or the app itself _is_ the auth domain: `AuthGate` pushes the
    current path + query to `RedirectPending` (keyed `'authGate'`) and navigates to `/login`.
-   Once `isAuthed` becomes true — from a fresh login/signup submission or, after this fix, from
-   restoration completing — `useAuthLoginRedirect`'s `checkRedirectPending` option
+   Once `isAuthed` becomes true, from a fresh login/signup submission or, after this fix, from
+   restoration completing, `useAuthLoginRedirect`'s `checkRedirectPending` option
    (`PageLogin`/`PageSignup`) reads the pending entry and navigates back to the original deep
    link
 5. **If unauthenticated and a separate auth domain is configured** (`AuthGate`'s
    `hasAuthDomain() && !onAuthDomain()` branch): `AuthDomain.redirectToAuthDomain(deepLink)`
    carries the current path + query as `returnTo` instead of the fixed auth home path.
-   `RedirectPending` can't help here — it's scoped to this origin's session/local storage and
-   doesn't survive the cross-domain hop — so `returnTo` is the only carrier
+   `RedirectPending` can't help here, it's scoped to this origin's session/local storage and
+   doesn't survive the cross-domain hop, so `returnTo` is the only carrier
 
 ## Flow 1: New Login
 
 1. User visits domain X and needs authentication
-2. Redirected to auth domain (`PUBLIC_AUTHENTICATION_DOMAIN`) with `returnTo` parameter — either
+2. Redirected to auth domain (`PUBLIC_AUTHENTICATION_DOMAIN`) with `returnTo` parameter, either
    the current deep link (`AuthGate`'s cold-tab redirect, see Flow 9) or an explicit target
    (`AuthLink`, Flows 5/6/8)
 3. User logs in via form submission; the form handler calls `AuthDomain.markLoginSubmitted()`
 4. Once authenticated, `useAuthLoginRedirect` sees `consumeLoginJustSubmitted()` return `true` and
    proceeds immediately (no "Continue" button)
-5. `AuthDomain` mints a handoff token from the auth domain (`POST /auth-handoff` — the server
+5. `AuthDomain` mints a handoff token from the auth domain (`POST /auth-handoff`, the server
    derives `{ auth, rememberMe }` from the caller's own request, never from client input) and
    shows a loading overlay while the request is in flight
 6. Browser is redirected to `<domain X>?auth-handoff=<token>` (plain top-level navigation)
@@ -99,7 +99,7 @@ prior tab to broadcast to. Example: a team-invite email links straight to
 6. Project domain X redeems the token before rendering; auth is immediately available
 
 > **Failure path:** if minting or redeeming the token fails (network error, expired token), the
-> browser still navigates to the target domain, which simply renders unauthenticated — the user
+> browser still navigates to the target domain, which simply renders unauthenticated, the user
 > can log in normally from there. There is no window to get stuck open.
 
 ## Flow 5: Right-Click "Open in New Tab" (Cross-Domain Link)
@@ -133,7 +133,7 @@ Symmetric to Flow 4, in reverse: project domain (admin app) -> account app.
 5. Browser is redirected to `<account domain>?auth-handoff=<token>`
 6. Account domain redeems the token before rendering; auth is immediately available
 
-> **Scope:** left-click only. Right-click "open in new tab" falls through to `/admin/login?returnTo=<account-url>` — see Flow 8 for how that's handled.
+> **Scope:** left-click only. Right-click "open in new tab" falls through to `/admin/login?returnTo=<account-url>`, see Flow 8 for how that's handled.
 
 ## Flow 8: Right-Click "Open in New Tab" (Cross-Origin to Account App)
 

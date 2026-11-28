@@ -2,7 +2,7 @@
 
 **Status:** superseded by [auth-domain-redirect-handoff](./2026-09-28_auth-domain-redirect-handoff.md)
 **Decided:** 2026-05-11
-**Scope:** package/app — `AuthDomainMessaging`, `AuthWaitingPopup`
+**Scope:** package/app, `AuthDomainMessaging`, `AuthWaitingPopup`
 
 ## Context
 
@@ -20,7 +20,7 @@
 
 ## Key reasons
 
-- The happy-path `popup-ready` / `auth-complete` event messages are not throttled — only the fallback timers are affected. The `focus` listener restores near-instant recovery for the fallback case without touching the happy path.
+- The happy-path `popup-ready` / `auth-complete` event messages are not throttled, only the fallback timers are affected. The `focus` listener restores near-instant recovery for the fallback case without touching the happy path.
 - `finish()` on early popup close ensures the main window always navigates, even if auth data was not transferred.
 - 30 s is generous enough to cover slow networks and heavy browser throttling while still being actionable.
 
@@ -35,7 +35,7 @@
 
 ## Revisit when
 
-- `Cross-Origin-Opener-Policy` headers are added to the admin app (would nullify `window.opener`, breaking the popup approach — requires a different auth transfer strategy).
+- `Cross-Origin-Opener-Policy` headers are added to the admin app (would nullify `window.opener`, breaking the popup approach, requires a different auth transfer strategy).
 
 ## Related
 

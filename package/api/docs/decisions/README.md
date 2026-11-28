@@ -1,4 +1,4 @@
-# Decisions — package/api
+# Decisions: package/api
 
 Decisions scoped to the API package. Cross-cutting decisions spanning multiple packages
 live in the repo root's `docs/decisions/`.

@@ -21,8 +21,8 @@ The API sends ISO-8601 UTC strings. The frontend never parses a naive (zone-less
 zone for date-range day boundaries, so every viewer of a shared project filters against the same
 calendar day.
 
-- Backend: `package/api/src/common/dateFilterUtils.ts` — `buildDateRangeQuery({ timezone })`.
-- Frontend: `package/app/src/component/DateRangeFilter/dateRangePresets.ts` — `getPresetDates(preset, timezone)`.
+- Backend: `package/api/src/common/dateFilterUtils.ts`, `buildDateRangeQuery({ timezone })`.
+- Frontend: `package/app/src/component/DateRangeFilter/dateRangePresets.ts`, `getPresetDates(preset, timezone)`.
 - Edited at `/admin/setting/project` (`ProjectTimezoneForm`); captured from the browser at project
   creation.
 

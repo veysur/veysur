@@ -46,16 +46,16 @@ Key characteristics:
 
 When a **token-identified** participant re-authenticates (e.g. clicking their
 survey link again after saving partial answers), `auth()` doesn't blindly issue
-a JWT for whatever publication is currently live — it resolves against the
+a JWT for whatever publication is currently live, it resolves against the
 participant's own in-progress response, so an in-progress response never
 becomes unreachable just because the survey was republished:
 
 1. **No in-progress response with a saved answer, or its snapshot matches the
-   current live one** — JWT is issued for the current live
+   current live one**, JWT is issued for the current live
    publication/snapshot as normal. A `SurveyResponse` document is created as
    soon as the participant clicks "Start" (see
    `Survey.tsx`'s `handleWelcomeContinue`), before they've answered anything,
-   so its mere existence isn't evidence of progress worth resuming — `auth()`
+   so its mere existence isn't evidence of progress worth resuming, `auth()`
    only treats it as in-progress once `answers` is non-empty. Anyone who
    hasn't saved an actual answer yet always lands on the current live
    publication rather than resuming an earlier one. This
@@ -63,12 +63,12 @@ becomes unreachable just because the survey was republished:
    resuming the same response, and their next save refreshes its
    `publicationId` to the new live one (see `ServiceSurveyParticipantResponse.save()`).
 2. **In-progress response references a different snapshot, and that snapshot
-   still exists** — the JWT is issued for that **original**
+   still exists**, the JWT is issued for that **original**
    `snapshotId`/`publicationId` instead of the current live one, so the
    participant keeps answering (and can submit) against the survey structure
    they started with, even though it's no longer the live publication.
 3. **In-progress response references a different snapshot that no longer
-   exists** — there is no structure left to resume the saved answers against.
+   exists**, there is no structure left to resume the saved answers against.
    The JWT is issued for the current live publication/snapshot (a fresh start)
    and the response includes `reset: true`, which the frontend
    (`appSurvey/hook/useSurveyAuth.ts`) surfaces to the participant as a notice
@@ -76,18 +76,18 @@ becomes unreachable just because the survey was republished:
 
 This only applies to token-identified participants (looked up by
 `RepoSurveyParticipant`). Anonymous/open-access participants (no token) never
-re-hit this endpoint to "return" — the frontend simply keeps using the JWT
+re-hit this endpoint to "return", the frontend simply keeps using the JWT
 (and its `sessionId`) it was already issued, since `auth()` mints a fresh
 `sessionId` on every call when no token is supplied.
 
-In practice, case 3 shouldn't be reachable via normal admin actions today —
+In practice, case 3 shouldn't be reachable via normal admin actions today,
 deleting a publication or snapshot (`ServiceSurveyPublication.deleteMany`,
 `ServiceSurveySnapshot.deleteMany`) already cascades to delete any responses
 tied to it in the same transaction. The check exists as defence-in-depth.
 
 See also:
-- [Publication Response Merge](../../../docs/publication-response-merge.md) —
+- [Publication Response Merge](../../../docs/publication-response-merge.md),
   a distinct, explicit admin action for consolidating responses across
   snapshots, as opposed to this automatic per-participant resume behaviour.
-- [Survey Publishing](../../../docs/survey-publishing.md) — the republishing
+- [Survey Publishing](../../../docs/survey-publishing.md): the republishing
   workflow that triggers the scenarios above.

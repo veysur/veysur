@@ -1,12 +1,12 @@
 # Temp File Security
 
-## Status: Fully resolved — no disk writes
+## Status: Fully resolved: no disk writes
 
 Neither import nor export writes any temporary files to the pod's local filesystem.
 
 ## How it works
 
-**Import** — fully streaming, zero disk writes:
+**Import**, fully streaming, zero disk writes:
 
 - S3 download streams directly through `zlib.createGunzip()` → `tar-stream` extract
 - JSON entries are buffered in memory (typically &lt; 1 MB each)
@@ -14,7 +14,7 @@ Neither import nor export writes any temporary files to the pod's local filesyst
 - File hash and byte count are computed inline via a `PassThrough` tap
 - Temp S3 keys are cleaned up by `ArchiveReader.cleanup()` in the `finally` block of `runImport()` (called inline by `processImport()`, or off-request by `processQueue()` for async-eligible formats)
 
-**Export** — fully streaming, zero disk writes:
+**Export**, fully streaming, zero disk writes:
 
 - `TarGzFormatHandler.serialize()` returns a `Readable` (tar+gz stream); no file is written to disk
 - `JsonFormatHandler` and `CsvFormatHandler` return in-memory `Readable.from([buf])` streams

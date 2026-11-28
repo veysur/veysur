@@ -1,4 +1,4 @@
-# Cookie Consent — App
+# Cookie Consent: App
 
 ## Cookie Inventory
 
@@ -6,8 +6,8 @@
 | --------------- | --------------------------- | -------- | ---------- | ------------------------------ |
 | `veysur-theme`  | Light/dark theme preference | 1 year   | Functional | `component/ThemeProvider.tsx`  |
 | `sidebar_state` | Sidebar expanded/collapsed  | 7 days   | Functional | `component/shadcn/sidebar.tsx` |
-| `_ga`           | GA — distinguishes users    | 6 months | Analytics  | Google Analytics (gtag.js)     |
-| `_ga_*`         | GA — maintains session      | 6 months | Analytics  | Google Analytics (gtag.js)     |
+| `_ga`           | GA, distinguishes users    | 6 months | Analytics  | Google Analytics (gtag.js)     |
+| `_ga_*`         | GA, maintains session      | 6 months | Analytics  | Google Analytics (gtag.js)     |
 
 ## Persistence
 
@@ -67,14 +67,14 @@ When `hasConsented === true`, `CookieConsentBanner` renders a fixed cookie icon 
 
 ## Key Source Files
 
-- `src/component/CookieConsent/useCookieConsent.ts` — consent state, React Query persistence, mutations
-- `src/component/CookieConsent/CookieConsentBanner.tsx` — banner UI and fixed cookie icon button (shadcn/ui)
-- `src/component/CookieConsent/cookieCatalog.ts` — cookie catalog data (names, descriptions, durations)
-- `src/component/GoogleAnalytics/GoogleAnalytics.tsx` — GA consent mode integration
-- `src/registry/getExtraGtagConfigs.ts` — extra gtag destinations registered by an extension
-- `src/component/ThemeProvider.tsx` — gates `veysur-theme` cookie
-- `src/component/shadcn/sidebar.tsx` — gates `sidebar_state` cookie
-- `src/common/keyState.ts` — `KEY_STATE_COOKIE_CONSENT` query key
+- `src/component/CookieConsent/useCookieConsent.ts`: consent state, React Query persistence, mutations
+- `src/component/CookieConsent/CookieConsentBanner.tsx`: banner UI and fixed cookie icon button (shadcn/ui)
+- `src/component/CookieConsent/cookieCatalog.ts`: cookie catalog data (names, descriptions, durations)
+- `src/component/GoogleAnalytics/GoogleAnalytics.tsx`: GA consent mode integration
+- `src/registry/getExtraGtagConfigs.ts`: extra gtag destinations registered by an extension
+- `src/component/ThemeProvider.tsx`: gates `veysur-theme` cookie
+- `src/component/shadcn/sidebar.tsx`: gates `sidebar_state` cookie
+- `src/common/keyState.ts`: `KEY_STATE_COOKIE_CONSENT` query key
 
 ## Env Vars
 

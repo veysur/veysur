@@ -61,26 +61,26 @@ real example.
 - Use for: the top nav bar and page footer only.
 - These are **not** an alias of `--card`. Header/footer chrome is permanently
   ink-dark in both light and dark mode (the same value as `--ink` in light
-  mode; darker still than `--card` in dark mode) — a deliberate visual
+  mode; darker still than `--card` in dark mode), a deliberate visual
   signature, not a mode-following surface. `--footer` aliases `--header`.
 - Any component rendered inside header/footer chrome must use
   `text-header-foreground` / `text-footer-foreground` for its text, never
-  `text-foreground` / `text-muted-foreground` — those track the *page's*
+  `text-foreground` / `text-muted-foreground`, those track the *page's*
   mode, not the chrome's, and will go low-contrast against it. Likewise the
   VeySur logo must render its light-wordmark (`-dark.svg`) variant
-  unconditionally on these surfaces, not gated on `.dark` — see
+  unconditionally on these surfaces, not gated on `.dark`, see
   `NavbarBrand.tsx` for the reference pattern.
 
 ### `ink` / `ink-foreground`
 
 - Utilities: `bg-ink`, `text-ink-foreground`.
-- Use for: the design system's deliberate *second* colour — a near-black /
+- Use for: the design system's deliberate *second* colour, a near-black /
   near-white neutral (not the brand hue) for high-contrast buttons, active
   states, and chart series, so the brand green isn't the only thing that
   reads as accented.
 - Unlike `header`/`footer`, this token **inverts per mode**: a dark chip in
   light mode, a light chip in dark mode (`--ink-dark`/`--ink-light` in
-  `brand.css`) — it always reads as the highest-contrast neutral against
+  `brand.css`), it always reads as the highest-contrast neutral against
   whatever it sits on.
 - Example: the "New survey" button in `NavbarBrand.tsx`.
 
@@ -194,7 +194,7 @@ The most-used token. Two distinct jobs:
 - Note: neutral warm-88, a touch darker than `--border` for visible definition
   on interactive controls. Was green-tinted (`oklch(0.62 0.08 155)`, matching
   `--success-base`) in light mode until it read as a permanent focus/error
-  ring on every input — fixed. Effectively `package/app` only.
+  ring on every input, fixed. Effectively `package/app` only.
 
 ### `ring`
 
@@ -268,21 +268,21 @@ Current drift to be aware of: selected rows appear as `bg-muted`, `bg-muted/70` 
 
 A checklist for follow-up cleanup tasks. None of these are addressed by this doc.
 
-- ~~`package/app/src/component/shadcn/progress.tsx:19` hard-codes `bg-lime-700`~~ —
+- ~~`package/app/src/component/shadcn/progress.tsx:19` hard-codes `bg-lime-700`~~,
   fixed, now `bg-primary`.
-- ~~Invalid `hsl(var(--token))` wrapping where the token is `oklch`~~ — fixed.
+- ~~Invalid `hsl(var(--token))` wrapping where the token is `oklch`~~, fixed.
   `html-content.css` was already using `var(--muted)` directly (this entry was
   stale); `sidebar.tsx`'s `shadow-[...hsl(var(--sidebar-border))...]` /
   `hsl(var(--sidebar-accent))` moved to plain `var(...)`.
-- ~~`--field-error-bg` is defined only in `.dark`~~ — not actually a bug: its
+- ~~`--field-error-bg` is defined only in `.dark`~~, not actually a bug: its
   only consumer (`FieldError.tsx`) only ever reads it inside a `dark:` variant
   (`dark:bg-[var(--field-error-bg)]`); light mode uses `bg-destructive/8`
   directly and never touches the var.
 - ~~Around seven delete-confirm dialogs hand-roll `className="bg-destructive
-  text-white hover:bg-destructive/90"`~~ — fixed. `AlertDialogAction` now
+  text-white hover:bg-destructive/90"`~~, fixed. `AlertDialogAction` now
   accepts and forwards a `variant` prop; all six call sites use
   `variant="destructive"`.
-- ~~Roughly thirty raw `amber-*` / `green-*` / `red-*` status pills~~ — mostly
+- ~~Roughly thirty raw `amber-*` / `green-*` / `red-*` status pills~~, mostly
   fixed: mapped onto `border-destructive`/`text-destructive` (invalid fields,
   required-field asterisk), `text-success`/`bg-success` (checkmarks, status
   pills), and the new `text-warning`/`bg-warning` (warning icons, notification
@@ -290,7 +290,7 @@ A checklist for follow-up cleanup tasks. None of these are addressed by this doc
   rewritten to use `<Alert variant="warning"|"destructive"|"info">` instead of
   hand-rolling equivalent styling. Left alone, deliberately: two decorative
   blue stat values in `MergeStatistics.tsx` (not worth a new `info` token for
-  two usages — `palette.css` already makes raw one-off accents safe), and
+  two usages, `palette.css` already makes raw one-off accents safe), and
   `PageTestFileUpload.tsx` (an obscure `/test/file-upload` QA-harness route).
 - `--radius` is duplicated as a literal `0.45rem` in
   `package/docsite/src/styles/custom.css:45`; a theme radius change misses the docsite.

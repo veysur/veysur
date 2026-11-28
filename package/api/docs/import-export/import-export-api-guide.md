@@ -295,7 +295,7 @@ Current support matrix:
 | `survey` | `vsst` | Yes | Import and export; full survey state with embedded answer-option images. Suitable for sharing survey templates across projects. |
 | `surveyResponse` | `json` | No | Export-only; requires `options.publicationId` |
 | `surveyPublication` | `vssp` | Yes | Import and export; requires `options.publicationId` for export; tar+gz archive contains JSON files + embedded binary images for answer options |
-| `surveyFull` | `vssa` | Yes | Import and export; flat tar+gz archive — survey + all publications in a single streaming archive |
+| `surveyFull` | `vssa` | Yes | Import and export; flat tar+gz archive, survey + all publications in a single streaming archive |
 
 Future additions require implementing new handlers - no code changes to core system.
 

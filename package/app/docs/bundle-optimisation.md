@@ -9,12 +9,12 @@ described here ensures each app's bundle contains only what it actually uses.
 
 Every `Router.tsx` file use `lazyWithChunkReload` (`common/lazyWithChunkReload.ts`) for route-level imports. This wraps `React.lazy()` and auto-reloads the page once on `ChunkLoadError`, preventing blank screens after a deployment invalidates old chunk hashes.
 
-- **Routes** — each `Router.tsx` lazy-loads all page components. Each app's `App.tsx` wraps `RouterProvider` in `<Suspense fallback={<RouteLoading />}>` to show a spinner while the initial route chunk fetches.
-- **Question type components** — `component/SurveyQuestionType/getQuestionType.ts` uses `React.lazy()` for every registry entry. Each type (including the heavy `QuestionTypeRanking` with dnd-kit, and `QuestionTypeMatrix`) becomes its own chunk fetched only when a question of that type is first rendered. `SurveyQuestionRenderer` provides a per-question `Suspense` boundary that catches these suspensions.
+- **Routes**: each `Router.tsx` lazy-loads all page components. Each app's `App.tsx` wraps `RouterProvider` in `<Suspense fallback={<RouteLoading />}>` to show a spinner while the initial route chunk fetches.
+- **Question type components**: `component/SurveyQuestionType/getQuestionType.ts` uses `React.lazy()` for every registry entry. Each type (including the heavy `QuestionTypeRanking` with dnd-kit, and `QuestionTypeMatrix`) becomes its own chunk fetched only when a question of that type is first rendered. `SurveyQuestionRenderer` provides a per-question `Suspense` boundary that catches these suspensions.
 
 **Suspense fallback rule:** a component used as a Suspense fallback above `RouterProvider` renders outside Router context. Do not use components that call `useNavigate`, `useParams`, or any other Router hook there. Use `<NavbarBrand href="/" />` (plain `<a>` tag) instead of `<NavbarBrandAdmin />` for any loading shell that must appear before the router mounts.
 
-RSBuild handles the chunking automatically — no configuration changes are needed when adding new lazy imports.
+RSBuild handles the chunking automatically, no configuration changes are needed when adding new lazy imports.
 
 ## Separate bundles per app
 
@@ -59,7 +59,7 @@ The `package/common/package.json` `exports` field routes each consumer to the ri
 ```
 
 **Why ESM matters for tree-shaking:** RSBuild (Rspack) can only statically analyse `import`/`export`
-statements. CJS `require()` calls are opaque at build time — the bundler must include the entire
+statements. CJS `require()` calls are opaque at build time, the bundler must include the entire
 module. With an ESM build, RSBuild can trace exactly which exports are used per entry point and
 eliminate the rest.
 
@@ -77,7 +77,7 @@ equivalent type resolution for the subpath exports (see below) for that older re
 
 These packages have CJS-only builds. When an ESM barrel does `export * from '@datacapy/schema'`, the
 bundler cannot statically enumerate what `@datacapy/schema` exports (it's a CJS module), so it includes
-the entire package — even for bundles that use none of those symbols.
+the entire package, even for bundles that use none of those symbols.
 
 By removing the re-exports:
 
@@ -100,7 +100,7 @@ package does not have an ESM build, barrel re-exporting it defeats tree-shaking 
 
 **`model/constructor` and `model/schema`** exist because the API imports these namespaces directly
 (e.g. `import * as schemasCommon from 'veysur-common/model/schema'` to enumerate all schema
-classes). These are CJS-only subpaths — they are not needed by browser bundles.
+classes). These are CJS-only subpaths, they are not needed by browser bundles.
 
 **`util/generateSurveyHash`** is intentionally excluded from the main index. It uses Node.js
 `crypto` and must never be bundled into a browser build. Exposing it as a subpath keeps it
@@ -113,7 +113,7 @@ available server-side while keeping it out of the browser barrel.
 - **Do not** remove `"module"` field from `package/common/package.json`
 - **Do not** render components that call Router hooks (`useNavigate`, `useParams`, etc.) as Suspense fallbacks above `RouterProvider`
 - **Do** add a subpath export (not a main index export) for any new server-only utility in
-  `veysur-common` that uses Node.js built-ins — follow the `generateSurveyHash` pattern
+  `veysur-common` that uses Node.js built-ins, follow the `generateSurveyHash` pattern
 - **Do** add a subpath export if the API needs namespace-level access to a new directory of exports
 - **Do** use `lazyWithChunkReload` when adding new route-level lazy imports in `Router.tsx` files
 - **Do** use `React.lazy()` when adding new question type components to `getQuestionType.ts`

@@ -271,7 +271,7 @@ interface UsePatchableStateConfig<TData, TPatch> {
 
   // Callbacks
   onPatchBufferChange?: (buffer) => void // Buffer state changes
-  onPersistSuccess?: () => void | Promise<void> // Successful persist — return a promise (e.g. from queryClient.invalidateQueries) and the hook awaits it before considering the persist complete; see mutation-cache-invalidation.md
+  onPersistSuccess?: () => void | Promise<void> // Successful persist, return a promise (e.g. from queryClient.invalidateQueries) and the hook awaits it before considering the persist complete; see mutation-cache-invalidation.md
   onPersistError?: (error) => void // Failed persist
 }
 ```

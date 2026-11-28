@@ -6,8 +6,8 @@ Survey L10n fields (question text, answer option labels, etc.) are stored per-la
 
 Instead, every survey GET request returns L10n objects populated with **at most two language variants**:
 
-- The **default language** — always included as the fallback
-- The **active language** — the language currently being edited or taken
+- The **default language**, always included as the fallback
+- The **active language**, the language currently being edited or taken
 
 Components call `L10n.getLang(activeLang, defaultLang)` to display text; the fallback to the default is automatic if a translation is missing.
 
@@ -17,8 +17,8 @@ Components call `L10n.getLang(activeLang, defaultLang)` to display text; the fal
 
 `GET /survey/:id?lang=fr&defaultLang=en`
 
-- `lang` — the language the caller wants to view or edit
-- `defaultLang` — the survey's configured default language (used as fallback)
+- `lang`: the language the caller wants to view or edit
+- `defaultLang`: the survey's configured default language (used as fallback)
 
 `ServiceSurvey.getOne()` delegates to `ServiceSurveyLanguage.getSurveyWithLanguages()`:
 
@@ -35,9 +35,9 @@ getSurveyWithLanguages(survey, projectId, lang, defaultLang)
 When `lang === defaultLang`, only one language record is fetched and the L10n objects contain a single variant.
 
 Key files:
-- `package/api/src/model/service/core/ServiceSurveyLanguage.ts` — `getSurveyWithLanguages()`
-- `package/common/src/util/mergeSurveyLanguageIntoSurvey.ts` — merge logic
-- `package/common/src/model/constructor/L10n.ts` — sparse language dictionary
+- `package/api/src/model/service/core/ServiceSurveyLanguage.ts`: `getSurveyWithLanguages()`
+- `package/common/src/util/mergeSurveyLanguageIntoSurvey.ts`: merge logic
+- `package/common/src/model/constructor/L10n.ts`: sparse language dictionary
 
 ---
 
@@ -61,7 +61,7 @@ Changing `langFetch` changes the key, which React Query treats as a new query an
 
 **When the user selects a language in `SurveyLanguageSelector`:**
 
-1. If the selected language is already loaded (`langDefault` or `langFetch`), only `langEditing` is updated — no fetch occurs.
+1. If the selected language is already loaded (`langDefault` or `langFetch`), only `langEditing` is updated, no fetch occurs.
 2. If the selected language is new, the current cache entry is pre-seeded under the new key (to avoid a blank flash), `langFetch` is updated to the new language, and `langEditing` is updated. The changed key triggers a fresh API call with `lang=<new>` and `defaultLang=<default>`.
 
 This means switching between the default language and any single non-default language never triggers more than one extra fetch, and switching back to the default language is always instant.
@@ -103,5 +103,5 @@ Key files:
 ## Related
 
 - [ADR: survey language lazy loading](decisions/2026/2026-04-30_survey-language-lazy-loading.md)
-- [Survey publishing](survey-publishing.md) — how `SurveyLanguageSnapshot` records are created at publish time
-- [Import/export](../package/api/docs/import-export/import-export-system.md) — how all language variants are handled in bulk exports
+- [Survey publishing](survey-publishing.md): how `SurveyLanguageSnapshot` records are created at publish time
+- [Import/export](../package/api/docs/import-export/import-export-system.md): how all language variants are handled in bulk exports

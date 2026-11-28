@@ -388,7 +388,7 @@ useEffect(() => {
 
 ### Auth Token Refresh
 
-Auth token refresh is handled automatically by the `RestClient` pre-request interceptor — no explicit `authRefreshWithRetry()` call is needed in `persistPatchesFn`:
+Auth token refresh is handled automatically by the `RestClient` pre-request interceptor, no explicit `authRefreshWithRetry()` call is needed in `persistPatchesFn`:
 
 ```typescript
 // In useSurveyPatchableState.ts

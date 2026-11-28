@@ -13,7 +13,7 @@ Only the admin-triggered bulk paths go through the queue:
 (`POST /survey-participant/:surveyId/send-invites` / `/send-reminders`).
 
 `ServiceAuthParticipant._sendRegistrationEmail()` and
-`ServiceSurveyCompletionEmail.sendCompletionEmails()` remain synchronous — both send to a
+`ServiceSurveyCompletionEmail.sendCompletionEmails()` remain synchronous, both send to a
 single participant per call as part of a user-facing flow, not a bulk campaign.
 
 ## Mechanics
@@ -43,7 +43,7 @@ RepoEmail row persisted                              │
   `spreadWindowHours = batch.length / perProjectMaxPerHour`. A small batch gets a short
   window and sends almost immediately; a large one spreads proportionally further. Each
   page of a multi-page send-invites/send-reminders call computes its own window from its
-  own page size — consecutive pages chain closely enough in practice to hold the overall
+  own page size, consecutive pages chain closely enough in practice to hold the overall
   campaign near the target rate.
 - `SurveyParticipant.inviteQueuedAt` / `reminderQueuedAt` are set at enqueue time;
   `inviteSentAt` / `reminderSentAt` are set later, by `processQueue`, on actual dispatch.
@@ -62,34 +62,34 @@ RepoEmail row persisted                              │
   configured rate is an actual enforced ceiling, not just advisory scheduling.
 - **Aggregate inter-row pacing**: the per-project cap above bounds each project's own
   volume, but says nothing about _how fast_ a run fires its dispatches. Normally this
-  doesn't matter — few projects have due rows in any given tick. But if the relay or the
+  doesn't matter, few projects have due rows in any given tick. But if the relay or the
   task manager itself goes offline and recovers, many projects can become due
   simultaneously; without pacing, a run would fire up to `processBatchSize` (200) sends
   back-to-back in a few seconds, bursting the relay right when it may be most fragile.
   `processQueue` guards against this by spreading a run's dispatch attempts (success or
-  failure — both are a real relay hit) evenly across the tick interval:
+  failure, both are a real relay hit) evenly across the tick interval:
   `dispatchDelayMs = floor(tickIntervalMs / dispatchBudget)`, where `dispatchBudget` is
   the sum, over every project with due rows, of
-  `min(dueRowsForProject, project's maxPerRun)` — i.e. what will actually be attempted
+  `min(dueRowsForProject, project's maxPerRun)`, i.e. what will actually be attempted
   this run, capped at `processBatchSize`. This is deliberately **not** the raw candidate
-  count: a single backlogged project capped at a low `maxPerRun` (the common case — one
+  count: a single backlogged project capped at a low `maxPerRun` (the common case, one
   project with a large backlog draining slowly over many ticks) must still be paced
   across the full tick, not treated as if all its due rows were about to fire. This is
-  aggregate protection _on top of_, not instead of, the per-project cap — a run with few
+  aggregate protection _on top of_, not instead of, the per-project cap, a run with few
   actual attempts is barely paced at all, while a run with many projects simultaneously
   hitting their caps is spread across close to the full 60s tick. See the
   [pacing ADR](decisions/2026/2026-08-24_mail-queue-dispatch-pacing.md) for why this
   lives at the API layer rather than the Postfix relay. One consequence: a full-batch run
   can now take close to 60s wall-clock instead of a few seconds, which can cause the
-  _next_ scheduled tick to be skipped — see
+  _next_ scheduled tick to be skipped, see
   [task-manager.md](task-manager.md#concurrency-control).
-- **Pause/quota gate — core has none.** Self-hosted's single project is a static,
+- **Pause/quota gate, core has none.** Self-hosted's single project is a static,
   config-sourced value (see `model/service/ServiceProject.ts`), not a database row, so
   there is no `emailSendingPaused`/`emailDailyQuota`/`emailDailySent` concept in core at
-  all — `ServiceEmail.processQueue` and `ServiceSurveyParticipantEmail._sendEmail`
+  all, `ServiceEmail.processQueue` and `ServiceSurveyParticipantEmail._sendEmail`
   dispatch unconditionally, gated only by the `EMAIL_SEND_RATE_PER_HOUR` cap described
   below. This is a deliberate simplification (core has no `RepoProject`/multi-tenant
-  project machinery — see `model/service/ServiceProject.ts`), not an oversight —
+  project machinery, see `model/service/ServiceProject.ts`), not an oversight,
   self-hosted's mail volume is the operator's own concern.
 
 ## Configuration
@@ -114,10 +114,10 @@ docker compose exec -T -e API_TASK=email -e API_ACTION=processQueue api pnpm exe
 ```
 
 This prints a full summary (`[MailQueue] N due candidate(s) found...` /
-`Run complete: X dispatched, Y failed...`) — see task-manager.md's "Mail queue processing"
+`Run complete: X dispatched, Y failed...`), see task-manager.md's "Mail queue processing"
 example for a full sample run. A run against a large backlog will now visibly take up to
 ~60s to complete (inter-row pacing, see Mechanics above) rather than finishing near-
-instantly — this is expected, not a hang.
+instantly, this is expected, not a hang.
 
 To inspect queue state directly, open a MySQL session from `deploy/` with
 `docker compose exec mysql mysql -u root -p` and query the `email` table's JSON document
@@ -132,4 +132,4 @@ ORDER BY jdoc->>'$.scheduledAt';
 ```
 
 Per-row dispatch failures are recorded on `RepoEmail.error` (row stays `status: 'error'`,
-not retried automatically) — visible via the query above but not proactively alerted on.
+not retried automatically), visible via the query above but not proactively alerted on.

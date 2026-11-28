@@ -16,7 +16,7 @@ Response merging serves to:
 
 ### Snapshots and Publications
 
-Survey snapshots capture the complete survey structure at a specific point in time. Each response is linked to a snapshot, ensuring data consistency even as the survey evolves. A Publication records the event of publishing a snapshot — each Publication references exactly one Snapshot, but a single Snapshot may be referenced by many Publications (for example, when republishing unchanged content reuses the existing snapshot). This cardinality is why merges are described in terms of source/target *publications* below rather than snapshots directly — the merge always resolves to a specific Publication on the target snapshot.
+Survey snapshots capture the complete survey structure at a specific point in time. Each response is linked to a snapshot, ensuring data consistency even as the survey evolves. A Publication records the event of publishing a snapshot, each Publication references exactly one Snapshot, but a single Snapshot may be referenced by many Publications (for example, when republishing unchanged content reuses the existing snapshot). This cardinality is why merges are described in terms of source/target *publications* below rather than snapshots directly, the merge always resolves to a specific Publication on the target snapshot.
 
 ### Compatibility
 
@@ -207,8 +207,8 @@ Different question types are handled appropriately:
 #### Matrix Questions
 
 - **Answer structure**: Nested object `{ [optionCode]: { [subquestionCode]: cellValue } }`
-- **Axis-A** = answer option codes (`answerOptions`) — can be displayed as rows or columns depending on survey configuration
-- **Axis-B** = subquestion codes (`subquestions`) — the other axis
+- **Axis-A** = answer option codes (`answerOptions`), can be displayed as rows or columns depending on survey configuration
+- **Axis-B** = subquestion codes (`subquestions`), the other axis
 - **Logic**: Filter each axis-A entry and axis-B cell against target option/subquestion collections
 - **Partial drops**: Individual axis-A entries missing from target are silently dropped; individual axis-B cells missing from target are silently dropped
 - **Skip if**:
@@ -218,17 +218,17 @@ Different question types are handled appropriately:
 
 #### Subquestions
 
-Subquestion mapping is handled within matrix question processing (see Matrix Questions above). Subquestion codes appear as axis-B keys inside the nested answer object — they are not stored as separate top-level answer keys.
+Subquestion mapping is handled within matrix question processing (see Matrix Questions above). Subquestion codes appear as axis-B keys inside the nested answer object, they are not stored as separate top-level answer keys.
 
 #### Multi-Part Questions
 
-- **Answer structure**: Flat object `{ [partCode]: value }` — no answer-option axis to nest under, unlike Matrix
+- **Answer structure**: Flat object `{ [partCode]: value }`, no answer-option axis to nest under, unlike Matrix
 - **Logic**: Filter each part against the target question's `subquestions` collection
 - **Partial drops**: Individual parts missing from target are silently dropped
 - **Skip if**: No valid parts remain after filtering → `missing_subquestion`
 - **Merge even if**: Some parts are dropped, as long as at least one part maps to a valid target part
 
-Handled by `ResponseMapper.validateMultiPartAnswer` — simpler than matrix mapping, since there is no answer-option axis to cross-reference.
+Handled by `ResponseMapper.validateMultiPartAnswer`, simpler than matrix mapping, since there is no answer-option axis to cross-reference.
 
 ### Metadata Keys
 
@@ -538,9 +538,9 @@ The fix ensures that:
 
 ### Participant-Based Deduplication
 
-Lineage tracking (above) only prevents *re-merging the same response*. It does not cover the case where a participant responds twice independently — once to the source snapshot, once to the target snapshot — with no merge ever connecting the two responses. A participant can respond to a survey as long as they have not already responded to the *current* snapshot; if they had previously responded to an older snapshot, that earlier response and the new one are unrelated as far as `origResponseId` lineage is concerned, but they still represent the same participant.
+Lineage tracking (above) only prevents *re-merging the same response*. It does not cover the case where a participant responds twice independently, once to the source snapshot, once to the target snapshot, with no merge ever connecting the two responses. A participant can respond to a survey as long as they have not already responded to the *current* snapshot; if they had previously responded to an older snapshot, that earlier response and the new one are unrelated as far as `origResponseId` lineage is concerned, but they still represent the same participant.
 
-To prevent a participant ending up with two responses in one snapshot after a merge, the system additionally skips a source response if its `participantId` already has a response in the target snapshot — regardless of merge lineage:
+To prevent a participant ending up with two responses in one snapshot after a merge, the system additionally skips a source response if its `participantId` already has a response in the target snapshot, regardless of merge lineage:
 
 ```
 Participant P responds to Snapshot A → Response X
@@ -554,7 +554,7 @@ This check is applied in addition to, not instead of, the `origResponseId`-based
 1. First, a source response is skipped if its original ID (`origResponseId` or `_id`) is already present in target (existing lineage check).
 2. Otherwise, it is skipped if its `participantId` is non-null and already present among target responses.
 3. Responses with no `participantId` (anonymous responses) are never skipped by this rule.
-4. Within a single merge, if multiple source responses share a `participantId` that is not yet in target, only the first one (in source order) is merged — the rest are skipped, so a merge never introduces more than one response per participant into the target snapshot.
+4. Within a single merge, if multiple source responses share a `participantId` that is not yet in target, only the first one (in source order) is merged, the rest are skipped, so a merge never introduces more than one response per participant into the target snapshot.
 
 Skipped counts are tracked separately from lineage-based skips, under `stats.responsesSkippedParticipantDuplicate`, so the two skip reasons remain distinguishable in the merge preview and result.
 
@@ -873,7 +873,7 @@ If you need to force a re-merge (e.g., for testing), you would need to delete th
 ### Merge statistics show "Participant Already Responded" / `responsesSkippedParticipantDuplicate` count
 
 **Cause**: The participant already has a response in the target snapshot, even though that response has no merge lineage connecting it to the skipped source response (for example, the participant responded independently to both snapshots).
-**Solution**: This is expected behaviour — a participant should have at most one response per snapshot. The source response was skipped to avoid creating a second response for that participant in the target. If you need the source response's data preserved instead of the target's, you would need to delete the existing target response first and re-run the merge.
+**Solution**: This is expected behaviour, a participant should have at most one response per snapshot. The source response was skipped to avoid creating a second response for that participant in the target. If you need the source response's data preserved instead of the target's, you would need to delete the existing target response first and re-run the merge.
 
 ## See Also
 

@@ -14,7 +14,7 @@ The survey publishing system allows administrators to:
 
 ## Data Model
 
-The publishing system uses three separate but related entities. Note the naming overlap between the last two — `SurveySnapshotPartial` and `SurveySnapshot` are distinct classes:
+The publishing system uses three separate but related entities. Note the naming overlap between the last two, `SurveySnapshotPartial` and `SurveySnapshot` are distinct classes:
 
 ### SurveySnapshotPartial ("the snapshot")
 The entity referred to as "the snapshot" everywhere else in this document. Immutable metadata + structure capture of a survey at a point in time. Contains:
@@ -22,7 +22,7 @@ The entity referred to as "the snapshot" everywhere else in this document. Immut
 - Optional label and notes
 - Creation timestamp
 - **contentHash** - SHA-256 composite hash of structural content + all language hashes, for deduplication
-- A populated `publications` array — every `SurveyPublication` that currently references this snapshot
+- A populated `publications` array, every `SurveyPublication` that currently references this snapshot
 
 ### SurveySnapshot (full survey data)
 A second, differently-scoped entity holding the complete denormalized survey document (`survey: Survey`) for a given snapshot, keyed by the `SurveySnapshotPartial._id` as `snapshotId`. This is the "diff-free" copy used to render the survey exactly as published; it is not what administrators see when browsing "snapshots" in the UI.
@@ -35,7 +35,7 @@ Immutable captures of language translation content, frozen at publication time a
 Changes to live language content after publishing do not affect existing `SurveyLanguageSnapshot` records.
 
 ### SurveyPublication
-Records the event of publishing a snapshot — i.e. when a survey was made available (or stopped) to participants. Each `SurveyPublication` contains:
+Records the event of publishing a snapshot, i.e. when a survey was made available (or stopped) to participants. Each `SurveyPublication` contains:
 - **snapshotId** - Reference to the `SurveySnapshotPartial` being published
 - **published** - Timestamp when the publication was created (survey made available)
 - **stopped** - Timestamp when the publication was stopped (null if currently active)
@@ -77,7 +77,7 @@ When republishing an already-published survey:
 5. **New snapshot and publication created** if republishing proceeds
 
 **In-progress participant responses**: republishing without structural changes
-(same snapshot) is transparent to a participant already mid-survey — they keep
+(same snapshot) is transparent to a participant already mid-survey, they keep
 resuming their saved response. Republishing with structural changes (new
 snapshot) resumes the participant against the *original* snapshot they started
 on, as long as it still exists; they're only reset onto the new snapshot (with
@@ -253,7 +253,7 @@ const {
 API below) to compare the live survey's content hash against the active publication's snapshot
 hash, rather than comparing `survey.updatedAt` to `publication.publishedAt`. The timestamp
 approach was replaced because every autosave bumps `updatedAt` regardless of whether the
-resulting content actually changed — e.g. moving a question away and back to its original
+resulting content actually changed, e.g. moving a question away and back to its original
 position produced two autosaves but no net content change, yet still showed "Re-publish".
 ```typescript
 const {
@@ -342,10 +342,10 @@ const {
 **Get Published Status**: Returns the currently active publication (where `stopped` is null)
 
 **Has Unpublished Changes**: `GET /survey-publication/:surveyId/has-unpublished-changes`
-(`ServicePublication.hasUnpublishedChanges()`) — returns `{ hasChanges: boolean }`. Reuses the
+(`ServicePublication.hasUnpublishedChanges()`), returns `{ hasChanges: boolean }`. Reuses the
 same `generateSurveyStructuralHash`/`generateSnapshotContentHash` logic `publish()` uses (via a
 shared private `computeContentHash()` helper), so this stays consistent with what an actual
-publish would produce — no separate diff/traversal, just a hash comparison against the active
+publish would produce, no separate diff/traversal, just a hash comparison against the active
 publication's snapshot `contentHash`. Returns `hasChanges: false` when nothing is published yet.
 
 ### Query Invalidation Strategy
@@ -434,7 +434,7 @@ refetchOnMount: 'always'  // Always fetch fresh comparison when modal opens
 4. Comparison runs against Snapshot 1 (most recent snapshot)
 5. Alert: "🔵 No changes since last snapshot - will create new snapshot"
 6. Button enabled: "Publish Survey"
-7. User can publish to create Publication 2 with new `publishedAt` timestamp, reusing Snapshot 1 since content is identical — demonstrating that one Snapshot can be referenced by many Publications
+7. User can publish to create Publication 2 with new `publishedAt` timestamp, reusing Snapshot 1 since content is identical, demonstrating that one Snapshot can be referenced by many Publications
 8. Creates audit trail of publish → unpublish → republish with complete timestamp history
 
 ### Scenario 8: Move an Item Away and Back (No Net Change)
@@ -449,7 +449,7 @@ refetchOnMount: 'always'  // Always fetch fresh comparison when modal opens
    the original `elementIds` order) → sidebar dot and `PublishButton` correctly revert to
    "Published", without a full page reload
 6. If the user opens the publish modal anyway, `SurveyCompare` independently confirms
-   `isEquivalent: true` — the badge and the modal agree
+   `isEquivalent: true`, the badge and the modal agree
 
 ## Compatibility Rules
 

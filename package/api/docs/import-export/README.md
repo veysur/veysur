@@ -62,7 +62,7 @@ Step 3: Client → POST /api/import/process/:fileId
 |--------|-----------|-------------|
 | VSST | `.vsst` | Live survey template + embedded answer-option images (tar+gz archive) |
 | VSSP | `.vssp` | Single publication snapshot + responses + images (tar+gz archive); responses split into `responses/batch-00000N.json` files of 1000 |
-| VSSA | `.vssa` | Combined snapshot — flat tar+gz archive; survey template + all publications; responses at `responses/{pubId}/batch-00000N.json` |
+| VSSA | `.vssa` | Combined snapshot, flat tar+gz archive; survey template + all publications; responses at `responses/{pubId}/batch-00000N.json` |
 | JSON | `.json` | Generic JSON (response export) |
 | CSV | `.csv` | Survey response data (export/import) |
 
@@ -85,4 +85,4 @@ Step 3: Client → POST /api/import/process/:fileId
   size (`ImportExport/format/importArchiveLimits.ts`); `.vssp`/`.vssa` export is capped on
   bundled response-file count/total size (`ImportExport/handlers/util/responseFileExportLimits.ts`,
   enforced per-publication and, for `.vssa`, again across the combined archive)
-- **Temp file security**: See [temp-file-security.md](./temp-file-security.md) — import disk exposure eliminated via streaming tar+gz; export temp file is short-lived
+- **Temp file security**: See [temp-file-security.md](./temp-file-security.md), import disk exposure eliminated via streaming tar+gz; export temp file is short-lived

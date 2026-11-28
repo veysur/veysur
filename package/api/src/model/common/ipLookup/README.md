@@ -8,16 +8,16 @@ Converts a public IP address to standardised location data via a swappable provi
 
 ```
 ipLookup/
-  IpLocation.ts           — canonical result interface
-  IpLookupProvider.ts     — provider interface + isPublicIp utility
-  IpLookupService.ts      — service class; guards private IPs, delegates to provider
-  ipUtils.ts              — CIDR/IP-to-integer/hex conversion utilities
+  IpLocation.ts, canonical result interface
+  IpLookupProvider.ts, provider interface + isPublicIp utility
+  IpLookupService.ts, service class; guards private IPs, delegates to provider
+  ipUtils.ts, CIDR/IP-to-integer/hex conversion utilities
   provider/
-    IpApiProvider.ts      — ip-api.com HTTP adapter (default)
-    IpDbProvider.ts       — local MySQL database adapter (country-only)
-  index.ts                — exports + default singleton (ipLookupService, lookupIp)
-  ipLookup.test.ts        — unit tests for core service and IpApiProvider
-  ipUtils.test.ts         — unit tests for IP conversion utilities
+    IpApiProvider.ts, ip-api.com HTTP adapter (default)
+    IpDbProvider.ts, local MySQL database adapter (country-only)
+  index.ts, exports + default singleton (ipLookupService, lookupIp)
+  ipLookup.test.ts, unit tests for core service and IpApiProvider
+  ipUtils.test.ts, unit tests for IP conversion utilities
 ```
 
 ## Data shape
@@ -72,7 +72,7 @@ export const ipLookupService = new IpLookupService(new MaxMindProvider())
 ## IpDbProvider
 
 Queries two local MySQL tables populated from the [iplocate ip-to-country dataset](https://github.com/iplocate/ip-address-databases).
-Returns `country` and `countryCode` only — `region`, `city`, `lat`, `lon`, and `timezone` are empty/zero.
+Returns `country` and `countryCode` only, `region`, `city`, `lat`, `lon`, and `timezone` are empty/zero.
 
 ### Setup
 

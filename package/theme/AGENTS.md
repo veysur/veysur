@@ -1,8 +1,8 @@
-# AGENTS.md — veysur-theme
+# AGENTS.md: veysur-theme
 
 Shared CSS design token package. A single source of truth for shadcn/Tailwind colour tokens, the brand colour, and the base/reset layer used by `package/app`, `package/website`, and `package/blogsite`.
 
-**Not a Node.js package** — no build step, no TypeScript, no `node_modules` build output. The CSS source is exported directly.
+**Not a Node.js package**, no build step, no TypeScript, no `node_modules` build output. The CSS source is exported directly.
 
 ## What lives here
 
@@ -12,7 +12,7 @@ Shared CSS design token package. A single source of truth for shadcn/Tailwind co
 
 - Core: `--dim-brightness`, `--radius`
 - Colours: `--background`, `--foreground`, `--card`, `--card-foreground`, `--popover`, `--popover-foreground`
-- Chrome surfaces: `--header`, `--header-foreground`, `--footer`, `--footer-foreground` (both default to `--card`) — the page header and footer bar in app and website
+- Chrome surfaces: `--header`, `--header-foreground`, `--footer`, `--footer-foreground` (both default to `--card`), the page header and footer bar in app and website
 - Brand: `--primary-base`, `--primary`, `--primary-foreground-base`, `--primary-foreground`, `--primary`, `--brand-gradient`
 - Palette: `--secondary`, `--secondary-foreground`, `--muted`, `--muted-foreground`, `--accent`, `--accent-foreground`
 - Semantic: `--destructive-base`, `--destructive`, `--destructive-foreground`, `--success-base`, `--success`, `--success-foreground`
@@ -39,7 +39,7 @@ Package-specific variables stay in their own CSS files:
 
 ## Updating tokens
 
-Edit `src/tokens.css` directly — no build step required. Consuming packages pick up changes automatically on their next build or dev server restart.
+Edit `src/tokens.css` directly, no build step required. Consuming packages pick up changes automatically on their next build or dev server restart.
 
 ## Brand colour
 

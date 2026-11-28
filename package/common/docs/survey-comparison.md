@@ -121,7 +121,7 @@ const newSurvey = {
 1. **Missing question** - Question exists in survey-a but not in survey-b
 2. **Incompatible type** - Question type changed between surveys
 3. **Missing answer option** - Answer option removed from question
-4. **Missing subquestion** - Subquestion removed from a matrix or Multi-Part question. `subquestions` is the same underlying collection for both families (Matrix rows/columns and Multi-Part "parts"), so `missing_subquestion` covers a removed Multi-Part part too — there is no separate "missing part" reason.
+4. **Missing subquestion** - Subquestion removed from a matrix or Multi-Part question. `subquestions` is the same underlying collection for both families (Matrix rows/columns and Multi-Part "parts"), so `missing_subquestion` covers a removed Multi-Part part too, there is no separate "missing part" reason.
 
 ```typescript
 // Example: Incompatible surveys
@@ -296,7 +296,7 @@ interface IncompatibilityDetail {
 - `missing_question` - Question in survey-a doesn't exist in survey-b
 - `incompatible_type` - Question type changed incompatibly
 - `missing_answer_option` - Answer option in survey-a removed in survey-b
-- `missing_subquestion` - Subquestion in survey-a removed in survey-b (matrix row/column or Multi-Part part — same collection, same reason code)
+- `missing_subquestion` - Subquestion in survey-a removed in survey-b (matrix row/column or Multi-Part part, same collection, same reason code)
 - `incompatible_required_constraint` - Target requires answer but source didn't (applies to questions and participant attributes)
 - `incompatible_choice_constraint` - Target has stricter min/max choices (multiple choice)
 - `incompatible_length_constraint` - Target has stricter min/max length (text)
@@ -486,8 +486,8 @@ Currently, question types must match exactly for compatibility. Future enhanceme
 
 ## Key Files
 
-- [SurveyCompare/index.ts](../src/model/service/SurveyCompare/index.ts) — Entry point and main `compare()` method
-- [CompatibilityChecker.ts](../src/model/service/SurveyCompare/CompatibilityChecker.ts) — Compatibility validation logic
-- [ParticipantAttributeComparator.ts](../src/model/service/SurveyCompare/ParticipantAttributeComparator.ts) — Participant attribute difference detection
-- [types.ts](../src/model/service/SurveyCompare/types.ts) — Type definitions
-- [SurveyCompare.test.ts](../src/model/service/SurveyCompare.test.ts) — Test suite
+- [SurveyCompare/index.ts](../src/model/service/SurveyCompare/index.ts): Entry point and main `compare()` method
+- [CompatibilityChecker.ts](../src/model/service/SurveyCompare/CompatibilityChecker.ts): Compatibility validation logic
+- [ParticipantAttributeComparator.ts](../src/model/service/SurveyCompare/ParticipantAttributeComparator.ts): Participant attribute difference detection
+- [types.ts](../src/model/service/SurveyCompare/types.ts): Type definitions
+- [SurveyCompare.test.ts](../src/model/service/SurveyCompare.test.ts): Test suite

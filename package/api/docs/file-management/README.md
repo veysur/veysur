@@ -5,15 +5,15 @@ The Veysur platform uses an S3-based file management system that provides direct
 
 ## Storage Architecture
 
-The system uses the `s3-adaptor` library which provides a **unified local/S3 backend** — no separate storage service pod is needed.
+The system uses the `s3-adaptor` library which provides a **unified local/S3 backend**, no separate storage service pod is needed.
 
 **Backends** (configured via `API_S3_TYPE`):
 - **`local`** (the self-hosted default): stores files on a volume at `API_S3_LOCAL_PATH` (`/data/files`, the `veysur-files` Docker volume). Files are served by the API's built-in Express middleware at `/storage/:bucket/*`, proxied through nginx.
 - **`s3`**: stores files in an S3-compatible store using `API_S3_ACCESS_KEY_ID`/`API_S3_SECRET_ACCESS_KEY`. Set `API_S3_ENDPOINT` and `API_S3_FORCE_PATH_STYLE=true` for path-style stores such as Garage.
 
 **Two logical buckets** separate file access levels:
-- **Public Bucket** (`veysur-files`) — General file uploads, served without token
-- **Private Bucket** (`veysur-private`) — Sensitive files (import/export), require HMAC token
+- **Public Bucket** (`veysur-files`), General file uploads, served without token
+- **Private Bucket** (`veysur-private`), Sensitive files (import/export), require HMAC token
 
 **Upload flow** (s3 mode): Client requests a presigned URL → API generates a presigned S3 PUT URL → Client `PUT`s file body directly to the presigned URL → Garage/S3 stores the object.
 
@@ -90,7 +90,7 @@ Project (proj_123/)
 ## Security
 
 - All file operations require `projectAdmin` role
-- Project isolation enforced by routing to the project's own database (`X-Project-Id` → `DataSourceContext`) — the `File` collection has no `projectId` field
+- Project isolation enforced by routing to the project's own database (`X-Project-Id` → `DataSourceContext`), the `File` collection has no `projectId` field
 - **Public bucket** files are accessible via public URLs (Nginx doesn't check auth)
 - **Private bucket** files used for import/export operations with presigned URL access
 - S3 credentials stored as private values, never exposed to client

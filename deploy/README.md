@@ -37,7 +37,7 @@ docker build -f deploy/docker/Dockerfile.api -t ghcr.io/veysur/api .
 docker build -f deploy/docker/Dockerfile.nginx -t ghcr.io/veysur/nginx .
 ```
 
-Or, more simply, `docker compose build` from `deploy/` — see [deployment.md](../docs/deployment.md#install-from-source).
+Or, more simply, `docker compose build` from `deploy/`, see [deployment.md](../docs/deployment.md#install-from-source).
 
 ## Testing a release package
 

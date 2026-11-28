@@ -9,7 +9,7 @@
 The mail relay handles both transactional email (verify, password reset) and project survey invitations/reminders. When an admin triggers a bulk
 "send invites" or "send reminders" batch, all recipients were emailed essentially at
 once. If a project's list has spam-trap or complaint issues, the entire batch went out
-before any feedback-loop report could arrive — putting the shared mail relay's sender
+before any feedback-loop report could arrive, putting the shared mail relay's sender
 reputation at risk for all projects, not just the offending one.
 
 The goal is to spread a given project's invitation/reminder batch over several hours,
@@ -41,7 +41,7 @@ infrastructure:
 
 Only the admin-triggered bulk paths (`ServiceSurveyParticipantEmail.send()`/
 `.sendReminders()`) are changed. `ServiceAuthParticipant._sendRegistrationEmail()` and
-`ServiceSurveyCompletionEmail.sendCompletionEmails()` stay synchronous — both are
+`ServiceSurveyCompletionEmail.sendCompletionEmails()` stay synchronous, both are
 single-participant-per-call, user-facing flows, not bulk campaigns.
 
 See [../../mail-queue-pacing.md](../../mail-queue-pacing.md) for the operational detail.
@@ -56,14 +56,14 @@ See [../../mail-queue-pacing.md](../../mail-queue-pacing.md) for the operational
 
 ## Consequence
 
-`SendInvitesResult.sent` was renamed to `queued` — a breaking response-shape change for
+`SendInvitesResult.sent` was renamed to `queued`, a breaking response-shape change for
 `POST /survey-participant/:surveyId/send-invites`/`/send-reminders`, updated in the
 `appAdmin` frontend consumer alongside this change. Failed sends do not retry
 automatically (matches prior synchronous behaviour); a transient SMTP failure
 permanently skips that participant until an admin manually re-triggers, visible via
 `RepoEmail.error` but not proactively alerted on. The enqueue-time spread window has no
 maximum cap, so a very large campaign against a low rate limit can compute a
-multi-day window — accepted as intended, since holding the configured rate is the whole
+multi-day window, accepted as intended, since holding the configured rate is the whole
 point regardless of campaign size.
 
 ## Related

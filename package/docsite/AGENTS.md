@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This file provides guidance for creating and maintaining content in the `veysur-docsite` package — an Astro Starlight (a documentation framework built on Astro) site served at `docs.veysur.com`.
+This file provides guidance for creating and maintaining content in the `veysur-docsite` package, an Astro Starlight (a documentation framework built on Astro) site served at `docs.veysur.com`.
 
 This documentation site is used to document VeySur project functionality. It must not be used to document account related functionality.
 
@@ -14,7 +14,7 @@ Content files live under `src/content/docs/`. Place new files in the appropriate
 |---|---|
 | `getting-started/` | First-use walkthroughs for new administrators |
 | `guides/` | Task-oriented procedures (e.g. publishing a survey) |
-| `reference/` | Feature reference — survey editor, question types, import/export |
+| `reference/` | Feature reference, survey editor, question types, import/export |
 
 ## Adding a Page
 

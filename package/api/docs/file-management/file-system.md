@@ -129,9 +129,9 @@ https://{host}/{bucket-name}/{s3-path}
 - `package/common/src/uploadFile.ts` - Client upload utility
 
 **Database**:
-- Collection: `File` (project-scoped — no `projectId` field; isolation comes from routing to the project's own database)
+- Collection: `File` (project-scoped, no `projectId` field; isolation comes from routing to the project's own database)
 - Key fields: `hash`, `surveyId`, `responseId`, `fileContext`, `bucketType`, `uploadedAt`, `deletedAt`, `imageSetId`, `imageVariant`
-- `imageSetId` — groups the 3 image set variants together
-- `imageVariant` — `'original' | 'edited' | 'thumb'`
+- `imageSetId`: groups the 3 image set variants together
+- `imageVariant`: `'original' | 'edited' | 'thumb'`
 - `bucketType`: `'public' | 'private'` - Determines which S3 bucket stores the file (defaults to `'public'`)
 - Indexes: `hash` (for deduplication), `surveyId`/`responseId`/`fileContext` (for queries)

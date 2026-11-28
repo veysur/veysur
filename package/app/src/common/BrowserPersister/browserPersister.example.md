@@ -49,7 +49,7 @@ useQuery({
 
 ## Default Behaviour
 
-`BrowserPersister` is configured in `queryClient.ts` with `storageType: 'session'` as the static default. Queries without an explicit `meta.persistence.storageType` persist to **sessionStorage** and are cleared when the browser closes — this is the right default for API data.
+`BrowserPersister` is configured in `queryClient.ts` with `storageType: 'session'` as the static default. Queries without an explicit `meta.persistence.storageType` persist to **sessionStorage** and are cleared when the browser closes, this is the right default for API data.
 
 A small set of `queryKey[0]` values (`rememberableQueryKeyPrefixes`) follows the "Remember me" choice instead:
 
@@ -96,7 +96,7 @@ useQuery({
   queryKey: ['paginationPerPage', key],
   queryFn: async () => defaultValue,
   staleTime: Infinity,
-  meta: { persistence: { storageType: 'local' } }, // UI pref — always persist
+  meta: { persistence: { storageType: 'local' } }, // UI pref, always persist
 })
 ```
 
@@ -106,11 +106,11 @@ useQuery({
 // model/service/RedirectPending.ts
 queryClient.setQueryDefaults([KEY_STATE_REDIRECT_PENDING], {
   staleTime: Infinity,
-  meta: { persistence: { storageType: 'session' } }, // Transient — session only
+  meta: { persistence: { storageType: 'session' } }, // Transient, session only
 })
 ```
 
-### Auth state (rememberable — no explicit meta)
+### Auth state (rememberable: no explicit meta)
 
 ```typescript
 // hook/useAuth.ts
@@ -118,7 +118,7 @@ useQuery({
   queryKey: [KEY_STATE_AUTH],
   queryFn: async () => null,
   staleTime: Infinity,
-  // No meta.persistence — KEY_STATE_AUTH is in rememberableQueryKeyPrefixes, so it
+  // No meta.persistence, KEY_STATE_AUTH is in rememberableQueryKeyPrefixes, so it
   // goes to localStorage when "Remember me" is checked, sessionStorage otherwise.
 })
 ```
@@ -137,8 +137,8 @@ queryClient.setQueryDefaults([KEY_STATE_REMEMBER_ME], {
 
 `restoreClient` discards a store's blob when its persisted `timestamp` is older than the store's cap:
 
-- `sessionMaxAge` (24h) — sessionStorage already clears on browser close; this only bounds stale application data in a tab left open for days.
-- `localMaxAge` (180 days) — caps the remembered auth session at the API access-token horizon (`API_JWT_ACCESS_TOKEN_TTL_SECONDS` default). The server rejects an expired token before then anyway, and `useAuth.authRefresh` calls `logout()` on rejection.
+- `sessionMaxAge` (24h), sessionStorage already clears on browser close; this only bounds stale application data in a tab left open for days.
+- `localMaxAge` (180 days), caps the remembered auth session at the API access-token horizon (`API_JWT_ACCESS_TOKEN_TTL_SECONDS` default). The server rejects an expired token before then anyway, and `useAuth.authRefresh` calls `logout()` on rejection.
 
 The `PersistQueryClientProvider` `maxAge` is set to `Infinity` in every app root (`appAccount`, `appAdmin`, `appSurvey`). The provider default (24h) drops **both** stores together via `removeClient()`, which is what previously logged out remembered users after a day; the per-store caps above replace it.
 
@@ -163,7 +163,7 @@ new BrowserPersister(localStorage, sessionStorage, {
 })
 ```
 
-The project sets `storageKey: 'veysur.queryCache'` (configured in `queryClient.ts`) so it falls under the `veysur.` prefix convention — see Logout Clearing below.
+The project sets `storageKey: 'veysur.queryCache'` (configured in `queryClient.ts`) so it falls under the `veysur.` prefix convention, see Logout Clearing below.
 
 On restore, `BrowserPersister` reads from both storages and merges the results into a single client state.
 
@@ -191,7 +191,7 @@ export function clearVeysurStorage(): void {
 
 ## Version-Aware Restore Filtering
 
-Every persisted blob is stamped with a `veysurBuildVersion` field (storage-only — not part of the `PersistedClient` shape) equal to the `buildVersion` constructor option, which the app sets to `process.env.BUILD_VERSION`:
+Every persisted blob is stamped with a `veysurBuildVersion` field (storage-only, not part of the `PersistedClient` shape) equal to the `buildVersion` constructor option, which the app sets to `process.env.BUILD_VERSION`:
 
 ```typescript
 // common/queryClient.ts
@@ -212,16 +212,16 @@ export const browserPersister = new BrowserPersister(
 )
 ```
 
-On `restoreClient`, if a blob's `veysurBuildVersion` does not match the running app's `buildVersion` — including blobs with no stamp at all, e.g. written before this feature existed — every query is dropped except those whose `queryKey[0]` appears in `protectedQueryKeyPrefixes`. Dropped queries are not deleted forever; they simply are not rehydrated and refetch normally once the app mounts.
+On `restoreClient`, if a blob's `veysurBuildVersion` does not match the running app's `buildVersion`, including blobs with no stamp at all, e.g. written before this feature existed, every query is dropped except those whose `queryKey[0]` appears in `protectedQueryKeyPrefixes`. Dropped queries are not deleted forever; they simply are not rehydrated and refetch normally once the app mounts.
 
-This exists because a deploy that changes a query's response shape would otherwise leave the old cached blob rehydrated verbatim, breaking the UI until the user manually cleared storage. Auth and survey auth are protected because their tokens are unrecoverable if lost; cookie consent must not silently reset; `rememberMe` is protected because `isRemembered` reads it to decide where new writes (including auth's own re-persist) go — losing it would silently downgrade a "remembered" user to session-scoped storage on the next persist cycle.
+This exists because a deploy that changes a query's response shape would otherwise leave the old cached blob rehydrated verbatim, breaking the UI until the user manually cleared storage. Auth and survey auth are protected because their tokens are unrecoverable if lost; cookie consent must not silently reset; `rememberMe` is protected because `isRemembered` reads it to decide where new writes (including auth's own re-persist) go, losing it would silently downgrade a "remembered" user to session-scoped storage on the next persist cycle.
 
-**Convention:** any future query key that must survive a deploy no matter what must be added to `protectedQueryKeyPrefixes` in `queryClient.ts` — do not rely on the default filtering behaviour to keep it.
+**Convention:** any future query key that must survive a deploy no matter what must be added to `protectedQueryKeyPrefixes` in `queryClient.ts`, do not rely on the default filtering behaviour to keep it.
 
 ## Implementation
 
 Source: `common/BrowserPersister/BrowserPersister.ts`
 
-1. `persistClient` — examines each query's `meta.persistence`; falls back to the rememberable-prefix rule (`isRemembered`) then the static `storageType` default; routes to localStorage or sessionStorage; stamps the blob with `veysurBuildVersion`
-2. `restoreClient` — reads both storages via `readStoredClient` (drops a blob past its `sessionMaxAge` / `localMaxAge`), filters each via `filterStaleClient` (see Version-Aware Restore Filtering above), merges queries
-3. `removeClient` — removes the cache key from both storages (available but not used directly; prefer `clearVeysurStorage()`)
+1. `persistClient`: examines each query's `meta.persistence`; falls back to the rememberable-prefix rule (`isRemembered`) then the static `storageType` default; routes to localStorage or sessionStorage; stamps the blob with `veysurBuildVersion`
+2. `restoreClient`: reads both storages via `readStoredClient` (drops a blob past its `sessionMaxAge` / `localMaxAge`), filters each via `filterStaleClient` (see Version-Aware Restore Filtering above), merges queries
+3. `removeClient`: removes the cache key from both storages (available but not used directly; prefer `clearVeysurStorage()`)

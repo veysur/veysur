@@ -39,16 +39,16 @@ This allows adding new entity types or formats independently without modifying c
 
 **Current implementations**:
 
-- **SurveyEntityHandler** — Survey import/export (.vsst). Exports live survey structure + embedded answer-option images. On export, streams each image from S3 into the archive. On import, binary images are streamed from the archive to temp S3 keys by the parser, then copied to final destinations before the DB transaction; creates survey, sections, elements, and File records in a single transaction. ID collision detection and optional force-repair via `SurveyImportIdTranslator` / `SurveyImportRepairer`.
+- **SurveyEntityHandler**: Survey import/export (.vsst). Exports live survey structure + embedded answer-option images. On export, streams each image from S3 into the archive. On import, binary images are streamed from the archive to temp S3 keys by the parser, then copied to final destinations before the DB transaction; creates survey, sections, elements, and File records in a single transaction. ID collision detection and optional force-repair via `SurveyImportIdTranslator` / `SurveyImportRepairer`.
 
   Implemented as a thin orchestrator delegating to four focused collaborators:
 
   ```
   SurveyEntityHandler (orchestrator)
-  ├── VsstExportCollector  — fetch survey + image metadata from repos
-  ├── VsstImportParser     — validate archive structure; extract survey.json + manifest
-  ├── VsstImportResolver   — ID translation, validation, file resolution → VsstResolvedContext
-  └── VsstImportPersister  — copy images from temp S3 keys, persist everything in one transaction
+  ├── VsstExportCollector, fetch survey + image metadata from repos
+  ├── VsstImportParser, validate archive structure; extract survey.json + manifest
+  ├── VsstImportResolver, ID translation, validation, file resolution → VsstResolvedContext
+  └── VsstImportPersister, copy images from temp S3 keys, persist everything in one transaction
   ```
 
   See: `/package/api/src/model/service/core/ImportExport/handlers/SurveyEntityHandler/`
@@ -61,9 +61,9 @@ This allows adding new entity types or formats independently without modifying c
   ├── surveyLanguages/
   │   └── {languageCode}.json  { languageCode, data }
   ├── participantAttributes/
-  │   └── {name}.json          { name, required, example, languages } — survey-tier participant attribute definitions
+  │   └── {name}.json          { name, required, example, languages }, survey-tier participant attribute definitions
   ├── templates/
-  │   └── {type}-{lang}.json   { type, lang, subject, body } — survey-tier email templates only
+  │   └── {type}-{lang}.json   { type, lang, subject, body }, survey-tier email templates only
   └── files/
       ├── manifest.json        { version, files: [...] }
       └── {imageSetId}/
@@ -72,7 +72,7 @@ This allows adding new entity types or formats independently without modifying c
           └── thumb.jpg
   ```
 
-- **ProjectEntityHandler** — Project-wide settings import/export (.vsps tar+gz, entity id is the project id). Always synchronous. Import applies only the parts named in `options.apply` (`timezone`, `settings`, `templates`; all by default) through the `project`, `settingSurvey` and `emailTemplate` services, so an extension's overrides and plan guards apply. The `.vsps` archive carries neither the Google Maps key nor the bot-protection block (`settingProject`); an older archive that has them imports with a warning and skips them. Validation is shared with the app via `ProjectSettingsImportValidator` in `veysur-common`.
+- **ProjectEntityHandler**: Project-wide settings import/export (.vsps tar+gz, entity id is the project id). Always synchronous. Import applies only the parts named in `options.apply` (`timezone`, `settings`, `templates`; all by default) through the `project`, `settingSurvey` and `emailTemplate` services, so an extension's overrides and plan guards apply. The `.vsps` archive carries neither the Google Maps key nor the bot-protection block (`settingProject`); an older archive that has them imports with a warning and skips them. Validation is shared with the app via `ProjectSettingsImportValidator` in `veysur-common`.
 
   ```
   project-settings.vsps (tar+gz)
@@ -80,18 +80,18 @@ This allows adding new entity types or formats independently without modifying c
   ├── settings/
   │   └── survey.json          project survey defaults; no _id, timestamps, schedule or stats
   └── templates/
-      └── {type}-{lang}.json   { type, lang, subject, body } — project-tier email templates only
+      └── {type}-{lang}.json   { type, lang, subject, body }, project-tier email templates only
   ```
 
   Import result carries per-part outcomes in `details` (`{ part, status: 'applied' | 'failed', message? }`). Parts are independent: one failing (for example a plan limit on settings) does not stop the others, and the import fails only when every attempted part fails.
 
-- **SurveyFullEntityHandler** — Combined survey + all publications import/export (.vssa flat tar+gz). Exports all data into a flat native hierarchy with structural deduplication — images stored once in `files/`, snapshot data stored once per unique snapshot in `snapshotData/`. On import, restores the survey first then synthesizes a `VsspParsedBundle` per publication using the shared `parsedData` and per-snapshot data, then resolves and persists each publication linked to the newly created survey.
+- **SurveyFullEntityHandler**: Combined survey + all publications import/export (.vssa flat tar+gz). Exports all data into a flat native hierarchy with structural deduplication, images stored once in `files/`, snapshot data stored once per unique snapshot in `snapshotData/`. On import, restores the survey first then synthesizes a `VsspParsedBundle` per publication using the shared `parsedData` and per-snapshot data, then resolves and persists each publication linked to the newly created survey.
 
   ```
   SurveyFullEntityHandler (orchestrator)
-  ├── VssaExportCollector  — collect survey + pub data via child handler fetchForExport();
+  ├── VssaExportCollector, collect survey + pub data via child handler fetchForExport();
   │                          deduplicates images and snapshot data natively in flat structure
-  └── VssaImportParser     — parse flat tar+gz stream; return typed VssaParsedData with shared parsedData
+  └── VssaImportParser, parse flat tar+gz stream; return typed VssaParsedData with shared parsedData
   ```
 
   See: `/package/api/src/model/service/core/ImportExport/handlers/SurveyFullEntityHandler/`
@@ -130,25 +130,25 @@ This allows adding new entity types or formats independently without modifying c
           └── batch-000001.json       ← response batch (1000 responses per file)
   ```
 
-- **SurveyResponseEntityHandler** — Survey response export (.json/.csv). Export-only; filtered by publicationId. CSV export/import degrades `fileUpload`-question answers: export writes the referenced fileIds comma-joined (never the file bytes — CSV has no binary channel), and import silently skips a `fileUpload` column rather than writing a bogus answer from a bare id string. Only `.vssp`/`.vssa` import restores actual files. See [response-csv.md](response-csv.md).
-- **SurveyPublicationEntityHandler** — Composite import/export (.vssp). Bundles `surveyPublication.json` + `surveySnapshotData.json` + `surveySnapshot.json` + `responses/batch-00000N.json` (batched, 1000 responses per file) + language snapshot records + binary image files for answer options + binary files for `fileUpload`-question answers. On export, streams each image (and each response file) from S3 into the archive one-by-one; a `MAX_RESPONSE_EXPORT_FILE_COUNT`/`MAX_RESPONSE_EXPORT_TOTAL_SIZE` guardrail (see `handlers/util/responseFileExportLimits.ts`) rejects an export whose bundled response files would be too large for a single archive (checked per-publication here, and again across the combined archive in `SurveyFullEntityHandler`/`VssaExportCollector` for `.vssa`). `.vssp`/`.vssa` exports estimate size from response count, see [Async eligibility](#async-eligibility-the-data-transfer-job-pipeline) below. On import, binary images and response files are streamed from the archive to temp S3 keys by the parser, then copied to final destinations before the DB transaction; creates survey (optional), snapshot (with contentHash deduplication), publication, and File records in a single transaction; responses are inserted one batch at a time (O(batch_size) peak memory) with participant resolution and response-ID-collision detection performed inline per batch — each batch is freed from memory after insertion. Section, element, `sectionIds`, and `elementIds` are always assigned fresh IDs on import to prevent collisions.
+- **SurveyResponseEntityHandler**: Survey response export (.json/.csv). Export-only; filtered by publicationId. CSV export/import degrades `fileUpload`-question answers: export writes the referenced fileIds comma-joined (never the file bytes, CSV has no binary channel), and import silently skips a `fileUpload` column rather than writing a bogus answer from a bare id string. Only `.vssp`/`.vssa` import restores actual files. See [response-csv.md](response-csv.md).
+- **SurveyPublicationEntityHandler**: Composite import/export (.vssp). Bundles `surveyPublication.json` + `surveySnapshotData.json` + `surveySnapshot.json` + `responses/batch-00000N.json` (batched, 1000 responses per file) + language snapshot records + binary image files for answer options + binary files for `fileUpload`-question answers. On export, streams each image (and each response file) from S3 into the archive one-by-one; a `MAX_RESPONSE_EXPORT_FILE_COUNT`/`MAX_RESPONSE_EXPORT_TOTAL_SIZE` guardrail (see `handlers/util/responseFileExportLimits.ts`) rejects an export whose bundled response files would be too large for a single archive (checked per-publication here, and again across the combined archive in `SurveyFullEntityHandler`/`VssaExportCollector` for `.vssa`). `.vssp`/`.vssa` exports estimate size from response count, see [Async eligibility](#async-eligibility-the-data-transfer-job-pipeline) below. On import, binary images and response files are streamed from the archive to temp S3 keys by the parser, then copied to final destinations before the DB transaction; creates survey (optional), snapshot (with contentHash deduplication), publication, and File records in a single transaction; responses are inserted one batch at a time (O(batch_size) peak memory) with participant resolution and response-ID-collision detection performed inline per batch, each batch is freed from memory after insertion. Section, element, `sectionIds`, and `elementIds` are always assigned fresh IDs on import to prevent collisions.
 
-  Response files are handled as a parallel, additive pipeline kept deliberately separate from the answer-option image-set machinery (`FileResolution`/`imageSetIdMap`), since a response file has none of the image-set model's concepts (no `imageSetId`/`imageVariant`/`answerOptionId`). Manifest entries live in their own `files/response-manifest.json` (type `ResponseFileManifestEntry`, see `SurveyPublicationEntityHandler/types.ts`) rather than being folded into the shared `EntityEmbeddedFileManifestEntry` list. On import, dedup is scoped to `(surveyId, hash, fileContext: 'response')` — deliberately broader than the per-response scoping `ServiceFileUpload` uses at normal upload time — so re-importing the same archive (or a file whose bytes match one already imported for a different response in the same survey) reuses the existing `File` record instead of creating a duplicate.
+  Response files are handled as a parallel, additive pipeline kept deliberately separate from the answer-option image-set machinery (`FileResolution`/`imageSetIdMap`), since a response file has none of the image-set model's concepts (no `imageSetId`/`imageVariant`/`answerOptionId`). Manifest entries live in their own `files/response-manifest.json` (type `ResponseFileManifestEntry`, see `SurveyPublicationEntityHandler/types.ts`) rather than being folded into the shared `EntityEmbeddedFileManifestEntry` list. On import, dedup is scoped to `(surveyId, hash, fileContext: 'response')`, deliberately broader than the per-response scoping `ServiceFileUpload` uses at normal upload time, so re-importing the same archive (or a file whose bytes match one already imported for a different response in the same survey) reuses the existing `File` record instead of creating a duplicate.
 
   Implemented as a thin orchestrator (~50 lines) delegating to five focused collaborators:
 
   ```
   SurveyPublicationEntityHandler (orchestrator)
-  ├── VsspExportCollector  — fetch publication, snapshot, responses, image metadata from repos
-  ├── VsspImportParser     — validate archive structure; extract JSON files into VsspParsedBundle
-  ├── VsspImportResolver   — resolve survey/snapshot/publication IDs without side effects → ResolvedImportContext
-  ├── VsspImportPersister  — copy images from temp S3 keys; persist in one transaction; resolves
+  ├── VsspExportCollector, fetch publication, snapshot, responses, image metadata from repos
+  ├── VsspImportParser, validate archive structure; extract JSON files into VsspParsedBundle
+  ├── VsspImportResolver, resolve survey/snapshot/publication IDs without side effects → ResolvedImportContext
+  ├── VsspImportPersister, copy images from temp S3 keys; persist in one transaction; resolves
   │                          participants + response-ID collisions per batch; frees each batch after insert;
   │                          always forces the persisted publication into a stopped state (preserving an
   │                          already-stopped timestamp, otherwise stamping `stopped = now`) so imports never
-  │                          activate a publication — matches the "one active publication per survey" invariant
+  │                          activate a publication, matches the "one active publication per survey" invariant
   │                          enforced by `ServiceSurveyPublication.publish()`/`republish()`
-  └── SnapshotDataRemapper — deep-clone snapshot data; remap survey/section/element/image IDs
+  └── SnapshotDataRemapper, deep-clone snapshot data; remap survey/section/element/image IDs
   ```
 
   See: `/package/api/src/model/service/core/ImportExport/handlers/SurveyPublicationEntityHandler/`
@@ -166,11 +166,11 @@ See: `/package/api/src/model/service/core/ImportExport/EntityHandlerInterface.ts
 
 **Current implementations**:
 
-- **VsstFormatHandler** — tar+gz archive format (.vsst). Survey template with embedded images. Extends `TarGzFormatHandler`.
-- **JsonFormatHandler** — Generic JSON serialization (.json)
-- **VsspFormatHandler** — tar+gz archive format (.vssp). Extends `TarGzFormatHandler`. Archives contain `surveyPublication.json` + `surveySnapshotData.json` + `surveySnapshot.json` + `responses/batch-00000N.json` (1000 responses per batch) + `surveyLanguageSnapshots/` + optional `files/manifest.json` and binary images + optional `files/response-manifest.json` and binary `fileUpload`-question answer files.
-- **VssaFormatHandler** — tar+gz archive format (.vssa). Extends `TarGzFormatHandler`. Flat archive (no nested archives); all survey and publication data in a single streaming pass.
-- **TarGzFormatHandler** — Abstract base class providing streaming tar+gz serialize/parse. Both import and export are zero-disk: export returns a `Readable` stream piped directly to S3; import streams through the tar parser with JSON in memory and binary entries piped to temp S3 keys. See: `/package/api/src/model/service/core/ImportExport/format/TarGzFormatHandler.ts`, `ArchiveReader.ts`
+- **VsstFormatHandler**: tar+gz archive format (.vsst). Survey template with embedded images. Extends `TarGzFormatHandler`.
+- **JsonFormatHandler**: Generic JSON serialization (.json)
+- **VsspFormatHandler**: tar+gz archive format (.vssp). Extends `TarGzFormatHandler`. Archives contain `surveyPublication.json` + `surveySnapshotData.json` + `surveySnapshot.json` + `responses/batch-00000N.json` (1000 responses per batch) + `surveyLanguageSnapshots/` + optional `files/manifest.json` and binary images + optional `files/response-manifest.json` and binary `fileUpload`-question answer files.
+- **VssaFormatHandler**: tar+gz archive format (.vssa). Extends `TarGzFormatHandler`. Flat archive (no nested archives); all survey and publication data in a single streaming pass.
+- **TarGzFormatHandler**: Abstract base class providing streaming tar+gz serialize/parse. Both import and export are zero-disk: export returns a `Readable` stream piped directly to S3; import streams through the tar parser with JSON in memory and binary entries piped to temp S3 keys. See: `/package/api/src/model/service/core/ImportExport/format/TarGzFormatHandler.ts`, `ArchiveReader.ts`
 
 See: `/package/api/src/model/service/core/ImportExport/format/FormatHandlerInterface.ts`
 
@@ -217,13 +217,13 @@ See: `/package/api/src/model/service/core/ImportExport/format/FormatHandlerInter
      immediately; `processQueue()` later runs `compileExport()` off-request. `enqueueExport()`
      also creates a related `Notification` (`ServiceNotification.create()`), which
      `processOne()` updates to `success`/`error` on completion/failure
-     (`ServiceNotification.updateForDataTransferJob()`) — the notification bell/panel polls
+     (`ServiceNotification.updateForDataTransferJob()`), the notification bell/panel polls
      `GET /notification/list`, not the job endpoint directly. See
      [Notifications](#notifications) below.
 4. **Fetch Entity** → EntityHandler.fetchForExport()
 5. **Lookup Format** → FormatRegistry.getByFormat(format)
 6. **Serialize** → EntityHandler.prepareExportData() → FormatHandler.serialize() → `Readable`
-7. **Stream to S3** → ServiceFileTempDownload.createTempDownloadFromStream() — no disk write; hash/size computed inline
+7. **Stream to S3** → ServiceFileTempDownload.createTempDownloadFromStream(), no disk write; hash/size computed inline
 8. **Generate URL** → Presigned download URL
 9. **Return** → { downloadUrl, filename, expiresAt }
 
@@ -242,7 +242,7 @@ See: `/package/api/src/model/service/core/ImportExport/format/FormatHandlerInter
        `runImport()` off-request and the client polls `GET /import-export/import/status/:fileId`
        (not the generic `GET /file/:fileId`, which 404s pre-completion, see below)
    - **runImport()**:
-     - Stream from S3 directly through tar+gz parser — no disk writes
+     - Stream from S3 directly through tar+gz parser, no disk writes
      - Hash and byte count computed inline via PassThrough
      - Parse via FormatHandler (JSON in memory; binary → temp S3 keys)
      - Validate via EntityHandler
@@ -260,21 +260,21 @@ size exceeds `ASYNC_TRANSFER_SIZE_THRESHOLD_BYTES` (1MB, see
 - **Export**: `EntityHandlerInterface.estimateExportSize()` (optional) gives a cheap estimate:
   - `SurveyEntityHandler` (`.vsst`) has no response data, so its `collect()` fetch is already
     cheap (survey + embedded answer-option images + templates/attributes, nothing scaling
-    with response count) — `estimateExportSize` just runs it and sums the actual embedded
+    with response count), `estimateExportSize` just runs it and sums the actual embedded
     image sizes.
   - `SurveyPublicationEntityHandler` (`.vssp`) sums two components per publication: a response
     count times `ESTIMATED_BYTES_PER_RESPONSE` (an exact response-file figure would cost almost
-    as much as doing the export — it requires walking every response's answers to find embedded
+    as much as doing the export, it requires walking every response's answers to find embedded
     files, the same work `VsspExportCollector.collect()` already does), **plus** the actual
     embedded answer-option image size for that publication's snapshot
     (`VsspExportCollector.estimateSize()`, reusing the same image-set lookup `collect()` uses),
-    since that's cheap regardless of response volume — bounded by the number of images in the
+    since that's cheap regardless of response volume, bounded by the number of images in the
     survey, not by responses. With no `publicationId` (used by `SurveyFullEntityHandler` below),
     it sums this across every publication for the survey.
   - `SurveyFullEntityHandler` (`.vssa`) sums **two independent sources**, matching
     `VssaExportCollector.collect()`'s own structure: `SurveyEntityHandler.estimateExportSize()`
     for the *live* survey's embedded images (`VssaExportCollector.collect()` always starts from
-    `surveyHandler.fetchForExport()`, unconditionally — even a survey with zero publications
+    `surveyHandler.fetchForExport()`, unconditionally, even a survey with zero publications
     still bundles its own answer-option images) **plus**
     `SurveyPublicationEntityHandler.estimateExportSize()` (no `publicationId`) for every
     publication's own snapshot images and responses. The two aren't deduped against each other;
@@ -284,7 +284,7 @@ size exceeds `ASYNC_TRANSFER_SIZE_THRESHOLD_BYTES` (1MB, see
     ran a multi-megabyte `.vssa` export inline.
   - `SurveyResponseEntityHandler` (`.json`/`.csv`) has no embedded images, only the
     response-count component.
-- **Import**: no handler method needed — decided from the real uploaded object's size in S3
+- **Import**: no handler method needed, decided from the real uploaded object's size in S3
   (`common/getObjectSize()`), since the file is already fully uploaded by the time
   `processImport()` runs.
 
@@ -382,19 +382,19 @@ See: `/package/api/src/model/service/core/ServiceNotification.ts`
 `DataTransferNotificationBell` (`/package/app/src/appAdmin/component/DataTransferNotification/`)
 and its hooks are the frontend counterpart to the notification backend above:
 
-- **`useNotifications()`** — the bell/panel's data source: lists the calling admin's
+- **`useNotifications()`**: the bell/panel's data source: lists the calling admin's
   notifications via `getNotificationApi().listNotifications()` and polls every 15s
   (`POLL_INTERVAL_MS`) only while at least one listed notification's
-  `dataTransferJobStatus` is still `pending`/`processing` — otherwise polling stops. It also
+  `dataTransferJobStatus` is still `pending`/`processing`, otherwise polling stops. It also
   fires a one-off toast the first time a given notification is observed moving to a settled
   `level` (`'success'`/`'error'`), independent of the persistent panel record, which never
   disappears just because a toast was missed.
-- **`useDismissNotification()`** — calls `dismiss()` (`DELETE /notification/:notificationId`)
+- **`useDismissNotification()`**: calls `dismiss()` (`DELETE /notification/:notificationId`)
   and optimistically removes the row from the TanStack Query cache in `onMutate` (rolling
   back on failure) so the panel updates instantly rather than waiting for the round trip.
-  Never touches the related `DataTransferJob` row — see
+  Never touches the related `DataTransferJob` row, see
   [Notifications](#notifications) above for who owns that.
-- **`useMarkNotificationRead()`** — calls `markRead()` for each unread notification visible
+- **`useMarkNotificationRead()`**: calls `markRead()` for each unread notification visible
   when the panel opens; the server's `status` field is the source of truth for the unread
   badge count (supersedes an earlier localStorage-based approach).
 

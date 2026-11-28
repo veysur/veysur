@@ -32,7 +32,7 @@ When a project is created, the system:
 2. Creates a new database: `veysurProject_{projectId}`
 3. Initializes all project-scoped repo tables and indexes in the new database
 
-#### Step 3 — Automatic table and index initialisation
+#### Step 3: Automatic table and index initialisation
 
 `ServiceProject.create()` calls (`ServiceProject.ts:62-67`):
 
@@ -42,13 +42,13 @@ await this.modelManager.initDynamicReposForDataSource('project', context)
 
 This triggers the following chain:
 
-- `DataSourceManager.initDynamicReposForDataSource()` (`data-source-manager.ts:292-311`) — collects every repo where `dataSource === 'project'`
+- `DataSourceManager.initDynamicReposForDataSource()` (`data-source-manager.ts:292-311`), collects every repo where `dataSource === 'project'`
 - For each repo, `DataSourceManager.initDynamicRepo()` (`data-source-manager.ts:249-283`) resolves the actual datasource connection for the new project database, then calls `actualDS.createIndex()` for every entry in `repo.config.indexes`
-- With a MySQL datasource, `createIndex()` implicitly creates the table if it does not already exist — so a single call both creates the table and adds the index
+- With a MySQL datasource, `createIndex()` implicitly creates the table if it does not already exist, so a single call both creates the table and adds the index
 
 All tables and indexes are created inline during project creation. No separate migration run is required for initial setup.
 
-> **Migration script vs. initial setup**: The migration script (`script/migrate.ts`) uses the same `createIndexes()` path but targets *existing* project databases. It is used on deployment to apply new schema changes — not for bootstrapping new projects.
+> **Migration script vs. initial setup**: The migration script (`script/migrate.ts`) uses the same `createIndexes()` path but targets *existing* project databases. It is used on deployment to apply new schema changes, not for bootstrapping new projects.
 
 ### Request Routing
 Each request flows through multiple layers to resolve the correct project database:
@@ -143,7 +143,7 @@ vs:datasource:doc:project:{projectId}
 vs:subdomain:doc:{subdomain}
 ```
 
-The `collectionName` for each cache instance is configured in its constructor — `DataSourceLookupProjectRedis.ts` and `RedisSubdomainCache.ts`.
+The `collectionName` for each cache instance is configured in its constructor, `DataSourceLookupProjectRedis.ts` and `RedisSubdomainCache.ts`.
 
 ## VeySur Service Patterns
 
@@ -247,7 +247,7 @@ server.modelManager.setDataSourceLookup('project', lookup)
 - Idle timeout: 30 minutes
 - Eviction and idle-close skip any DataSource with an active transaction lease (`hasActiveLeases()`)
 - Concurrent `getOrCreate()` calls for a key with no cached entry yet (first access, or right
-  after an eviction) are deduplicated onto a single in-flight creation — only one connection pool
+  after an eviction) are deduplicated onto a single in-flight creation, only one connection pool
   is opened per key even under a burst of simultaneous requests for the same project
 
 ### Connection-Level Pooling
@@ -263,7 +263,7 @@ Each API pod's theoretical worst-case MySQL connection ceiling is
 `registry.maxSize × connectionLimit × 2` (the `×2` accounts for the bulk-write
 pool once a project has used `bulkWrite()`), plus the two fixed pools
 (`account`, `ipLocation`). At `maxSize: 20` / `connectionLimit: 5` that's
-`20 × 5 × 2 + 2 × 5 ≈ 210` connections per pod — well down from the previous
+`20 × 5 × 2 + 2 × 5 ≈ 210` connections per pod, well down from the previous
 `maxSize: 50` / `connectionLimit: 10` setting's ~1020/pod ceiling, but still
 capable of exceeding the MySQL server's `max_connections` (200 in
 `deploy/mysql/custom.cnf`) if more than one API instance runs and a meaningful
@@ -273,7 +273,7 @@ This is a soft, probabilistic constraint, not a guarantee: `mysql2` queues
 callers when a pool is exhausted rather than erroring, and hitting the
 server-wide ceiling requires many *distinct* projects across *multiple* pods
 to be maxing out concurrent connections at the same instant. There is
-currently no alerting on MySQL connection utilisation — before raising either
+currently no alerting on MySQL connection utilisation, before raising either
 `connectionLimit` or `maxSize` again, add monitoring on
 `SHOW STATUS LIKE 'Threads_connected'` (or the equivalent Prometheus MySQL
 exporter metric) so future sizing decisions are based on observed peak
@@ -284,13 +284,13 @@ concurrency rather than the theoretical worst case.
 datasource to stay under `maxSize` if it can find an entry with
 `refCount === 0` (no active queries/leases). If every cached project
 datasource is busy when a new project needs a slot, eviction fails, a
-warning is logged, and `getOrCreate()` creates the new datasource anyway —
+warning is logged, and `getOrCreate()` creates the new datasource anyway,
 the registry silently grows past `maxSize` rather than blocking or erroring.
 So the ~210-connections/pod figure above is the *typical-case* footprint
 with `maxSize: 20`, not a guaranteed maximum: under sustained load with more
 than 20 distinct busy projects per pod, actual connection count can exceed
 it. This is what the `Threads_connected` monitoring recommendation above is
-for — it would catch this case in practice.
+for, it would catch this case in practice.
 
 ### Per-project concurrency (`connectionLimit`)
 
@@ -298,7 +298,7 @@ for — it would catch this case in practice.
 project on a single pod: at most 5 concurrent MySQL operations for that
 project's main pool (plus up to 5 more once it starts using `bulkWrite()`,
 via the separate bulk pool). A 6th concurrent request against the same
-project doesn't fail — `mysql2` queues it until a connection frees up — but
+project doesn't fail, `mysql2` queues it until a connection frees up, but
 it does add latency proportional to how long the other 5 hold their
 connections (e.g. transaction length).
 
@@ -307,14 +307,14 @@ short, single-query operations, so 5 connections comfortably absorb far more
 than 5 concurrent participants. It becomes a real limit for a project running
 many concurrent long-lived transactions (e.g. bulk import, migration,
 several admins editing simultaneously) on the same project database at the
-same time — those queue behind each other on the 5-connection pool. If a
+same time, those queue behind each other on the 5-connection pool. If a
 specific project needs a higher ceiling, `connectionLimit` is currently a
 single value shared by all projects (`DataSourceLookupProject.ts` /
 `DataSourceLookupProjectRedis.ts`), not configurable per project.
 
 ## Transactions
 
-All `package/api` services use `repo.transaction(context, fn)` — never call
+All `package/api` services use `repo.transaction(context, fn)`, never call
 `transactionStart()`/`transactionCommit()`/`transactionRollback()` directly.
 Each transactional caller gets its own dedicated connection lease, so
 concurrent requests against the same project database cannot clobber each

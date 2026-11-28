@@ -1,6 +1,6 @@
-# Implementation Patterns — VeySur App src/
+# Implementation Patterns: VeySur App src/
 
-Reference for the recurring patterns used across all four sub-apps. Auto-discovered by Claude Code when working inside `src/` — not loaded in unrelated (API, infra) conversations.
+Reference for the recurring patterns used across all four sub-apps. Auto-discovered by Claude Code when working inside `src/`, not loaded in unrelated (API, infra) conversations.
 
 ## API Class Pattern
 
@@ -61,7 +61,7 @@ Reference implementations: `appAdmin/component/AdminSurvey/model/api/SurveyApi.t
 
 ## Factory and Registry Pattern
 
-Singleton Registry with factory functions for dependency injection — ensures one instance per API class.
+Singleton Registry with factory functions for dependency injection, ensures one instance per API class.
 
 ```typescript
 // registry/getEntityApi.ts
@@ -78,7 +78,7 @@ export const getEntityApi = (): EntityApi =>
   Registry.getInstance().get(KEY_REGISTRY_API_ENTITY, createEntityApi)
 ```
 
-Registry keys are centralized constants in `appAdmin/common/keyRegistry.ts` (or the equivalent for each app). Use `getXxxApi()` in hooks — never instantiate directly.
+Registry keys are centralized constants in `appAdmin/common/keyRegistry.ts` (or the equivalent for each app). Use `getXxxApi()` in hooks, never instantiate directly.
 
 **Creating new API classes**: (1) create class extending `Api`, (2) add registry key to `keyRegistry.ts`, (3) create factory file with `createXxxApi()` and `getXxxApi()`.
 
@@ -133,22 +133,22 @@ Reference: `component/LoginForm/LoginForm.tsx`, `appAccount/page/PageVerifyEmail
 
 ### Other
 
-- **DataTable** (`component/DataTable`) — table with selection, loading states, pagination
-- **Pagination** (`component/Pagination`) — pagination controls
-- **PageHeader** (`component/PageHeader`) — page headers with icons, descriptions, and a back button (see Back Navigation Pattern below)
-- **Shadcn/ui** (`component/shadcn/*`) — Button, Card, Alert, etc.
-- **TimezoneNotice** (`component/TimezoneNotice`) — one-line caption stating which zone a page's timestamps are shown in; pair with the `useDisplayTimezone()` hook and the `common/formatDateTime.ts` helpers (see [/docs/timestamps.md](../../../docs/timestamps.md))
+- **DataTable** (`component/DataTable`), table with selection, loading states, pagination
+- **Pagination** (`component/Pagination`), pagination controls
+- **PageHeader** (`component/PageHeader`), page headers with icons, descriptions, and a back button (see Back Navigation Pattern below)
+- **Shadcn/ui** (`component/shadcn/*`), Button, Card, Alert, etc.
+- **TimezoneNotice** (`component/TimezoneNotice`), one-line caption stating which zone a page's timestamps are shown in; pair with the `useDisplayTimezone()` hook and the `common/formatDateTime.ts` helpers (see [/docs/timestamps.md](../../../docs/timestamps.md))
 
 ## Back Navigation Pattern
 
-`PageHeader`'s `backUrl` prop renders a `BackButton` (`component/BackButton.tsx`). Don't build ad-hoc back buttons with `navigate('/some/fixed/path')` — use `PageHeader backUrl={...}` instead, unless the page doesn't otherwise use `PageHeader`.
+`PageHeader`'s `backUrl` prop renders a `BackButton` (`component/BackButton.tsx`). Don't build ad-hoc back buttons with `navigate('/some/fixed/path')`, use `PageHeader backUrl={...}` instead, unless the page doesn't otherwise use `PageHeader`.
 
-`BackButton` does not simply link to `backUrl`. On click it checks `hasInAppBackHistory()` (`common/navigationHistory.ts`, backed by a sessionStorage stack that `useTrackNavigationHistory()` maintains on every route change). Each sub-app's root layout must call `useTrackNavigationHistory()` once for this to work — it's wired up in `AdminPageLayout`, `AccountPageLayout`, and `PlatformPageLayout` (`appSurvey` has no back navigation, so it's omitted there). sessionStorage is origin-scoped, and each sub-app runs on its own subdomain (`project-*.veysur.local`, `account.veysur.local`, `platform.veysur.local`), so the tracked history — and therefore `navigate(-1)` — never crosses between apps, only within a single app's own navigation in the current tab:
+`BackButton` does not simply link to `backUrl`. On click it checks `hasInAppBackHistory()` (`common/navigationHistory.ts`, backed by a sessionStorage stack that `useTrackNavigationHistory()` maintains on every route change). Each sub-app's root layout must call `useTrackNavigationHistory()` once for this to work, it's wired up in `AdminPageLayout`, `AccountPageLayout`, and `PlatformPageLayout` (`appSurvey` has no back navigation, so it's omitted there). sessionStorage is origin-scoped, and each sub-app runs on its own subdomain (`project-*.veysur.local`, `account.veysur.local`, `platform.veysur.local`), so the tracked history, and therefore `navigate(-1)`, never crosses between apps, only within a single app's own navigation in the current tab:
 
 - **In-app history exists** (user navigated here via React Router from another page in this tab) → `navigate(-1)`, returning to the actual previous page, regardless of which page that was.
-- **No in-app history** (fresh tab, direct deep link, page refresh) → `navigate(backUrl)`, the fallback — if one was provided.
+- **No in-app history** (fresh tab, direct deep link, page refresh) → `navigate(backUrl)`, the fallback, if one was provided.
 
-`backUrl` is only used as a fallback; it does not need to encode "where the user actually came from". `PageHeader` shows the back button whenever **either** condition holds — `hasInAppBackHistory()` is true **or** `backUrl` is a non-empty string — and hides it only when both are absent (fresh tab / direct link with no fallback given). So a page can pass `backUrl` when it has an obvious parent (e.g. an edit page always goes back to its list), pass nothing when there's no sensible fallback and in-app history alone is enough, or pass a fallback anyway to also support fresh tabs / direct links.
+`backUrl` is only used as a fallback; it does not need to encode "where the user actually came from". `PageHeader` shows the back button whenever **either** condition holds, `hasInAppBackHistory()` is true **or** `backUrl` is a non-empty string, and hides it only when both are absent (fresh tab / direct link with no fallback given). So a page can pass `backUrl` when it has an obvious parent (e.g. an edit page always goes back to its list), pass nothing when there's no sensible fallback and in-app history alone is enough, or pass a fallback anyway to also support fresh tabs / direct links.
 
 Example: a list page linked from both a project view page (`?projectId=`) and a user view page (`?userId=`). A helper computes a fallback from whichever ID is present, defaulting to a top-level list if neither is set:
 
@@ -199,16 +199,16 @@ Usage: pass `setError: form.setError` from the component. Field errors are set b
 
 ## Cache Invalidation Pattern
 
-Build every mutation hook that invalidates a query with `useInvalidatingMutation` (`/package/app/src/hook/useInvalidatingMutation.ts`), not a raw `useMutation` with a manual `onSuccess: () => { queryClient.invalidateQueries(...) }` — see [docs/mutation-cache-invalidation.md](../docs/mutation-cache-invalidation.md) for why (a forgotten `return` on that pattern lets `mutateAsync` resolve before the refetch lands) and the full API.
+Build every mutation hook that invalidates a query with `useInvalidatingMutation` (`/package/app/src/hook/useInvalidatingMutation.ts`), not a raw `useMutation` with a manual `onSuccess: () => { queryClient.invalidateQueries(...) }`, see [docs/mutation-cache-invalidation.md](../docs/mutation-cache-invalidation.md) for why (a forgotten `return` on that pattern lets `mutateAsync` resolve before the refetch lands) and the full API.
 
-A get-hook and every mutate-hook that touches its data must import the same `KEY_STATE_*` constant — never re-type the query key as a string literal in more than one place. This is what lets a reviewer trust that "invalidate X" in a mutation actually matches what a `useQuery` elsewhere is reading; a hand-typed duplicate can silently drift and leave stale data on screen with no error.
+A get-hook and every mutate-hook that touches its data must import the same `KEY_STATE_*` constant, never re-type the query key as a string literal in more than one place. This is what lets a reviewer trust that "invalidate X" in a mutation actually matches what a `useQuery` elsewhere is reading; a hand-typed duplicate can silently drift and leave stale data on screen with no error.
 
 ```typescript
-// keyState.ts — the single source of truth for this entity's query keys
+// keyState.ts, the single source of truth for this entity's query keys
 export const KEY_STATE_SURVEY_RESPONSE_GET = 'surveyResponseGet'
 export const KEY_STATE_SURVEY_RESPONSE_LIST = 'surveyResponseList'
 
-// useSurveyResponseGet.ts — the read hook
+// useSurveyResponseGet.ts, the read hook
 import { KEY_STATE_SURVEY_RESPONSE_GET } from 'appAdmin/common'
 
 useQuery({
@@ -216,7 +216,7 @@ useQuery({
   // ...
 })
 
-// useSurveyResponseUpdate.ts — the mutate hook imports the SAME constants
+// useSurveyResponseUpdate.ts, the mutate hook imports the SAME constants
 import {
   KEY_STATE_SURVEY_RESPONSE_GET,
   KEY_STATE_SURVEY_RESPONSE_LIST,
@@ -233,9 +233,9 @@ useInvalidatingMutation({
 })
 ```
 
-Invalidate **every** cache the mutation affects, not just the one the current page happens to show — a mutation for entity X often has both a list view and a detail view reading it elsewhere. The `SurveyParticipant` hook family (`appAdmin/component/SurveyParticipant/hook/`) is the most consistent multi-hook example in the codebase — all 9 create/update/delete/import hooks invalidate the same shared list constant.
+Invalidate **every** cache the mutation affects, not just the one the current page happens to show, a mutation for entity X often has both a list view and a detail view reading it elsewhere. The `SurveyParticipant` hook family (`appAdmin/component/SurveyParticipant/hook/`) is the most consistent multi-hook example in the codebase, all 9 create/update/delete/import hooks invalidate the same shared list constant.
 
-When one mutation must invalidate several unrelated keys at once (e.g. publishing a survey affects the publication list, the snapshot compare view, and the recent-snapshots view), extract a small named helper that returns `QueryKey[]` — never one that calls `queryClient.invalidateQueries` itself — rather than repeating the array inline. See `publicationQueryKeys.ts` (`appAdmin/component/SurveyEditorPublish/hook/`) or `billingHistoryQueryKeys.ts` (`appAccount/hook/`).
+When one mutation must invalidate several unrelated keys at once (e.g. publishing a survey affects the publication list, the snapshot compare view, and the recent-snapshots view), extract a small named helper that returns `QueryKey[]`, never one that calls `queryClient.invalidateQueries` itself, rather than repeating the array inline. See `publicationQueryKeys.ts` (`appAdmin/component/SurveyEditorPublish/hook/`) or `billingHistoryQueryKeys.ts` (`appAccount/hook/`).
 
 ## State Management with Zustand
 
@@ -255,7 +255,7 @@ export const Child = () => {
 }
 ```
 
-Fine-grained subscriptions prevent unnecessary re-renders — only components subscribed to a specific slice re-render when it changes.
+Fine-grained subscriptions prevent unnecessary re-renders, only components subscribed to a specific slice re-render when it changes.
 
 Reference: `appAdmin/component/SurveyEditor/SurveySaveStatus.tsx`, `appAdmin/component/SurveyEditor/SurveySetting.tsx`
 

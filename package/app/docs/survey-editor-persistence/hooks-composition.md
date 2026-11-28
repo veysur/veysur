@@ -307,7 +307,7 @@ Balances responsiveness with validation efficiency. Too short validates every ke
 
 **Language state fields:**
 
-The store holds three language fields that work together to drive on-demand language loading. The API returns L10n objects populated with only the active and default languages — not all languages — so the editor must re-fetch when the user switches to a language not currently loaded.
+The store holds three language fields that work together to drive on-demand language loading. The API returns L10n objects populated with only the active and default languages, not all languages, so the editor must re-fetch when the user switches to a language not currently loaded.
 
 | Field         | Purpose                                                                                |
 | ------------- | -------------------------------------------------------------------------------------- |

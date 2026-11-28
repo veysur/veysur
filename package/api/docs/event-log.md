@@ -4,7 +4,7 @@ Non-blocking event recording system for API traceability, using a dual-buffer ar
 
 ## Usage
 
-Call `log()` from any service. The call returns in under 5ms — database writes happen asynchronously.
+Call `log()` from any service. The call returns in under 5ms, database writes happen asynchronously.
 
 ```typescript
 // Project-scoped event → written to project DB
@@ -22,7 +22,7 @@ await this.modelManager.services.eventLog.log({
 })
 ```
 
-Returns `{ id: string }` — the assigned event ID.
+Returns `{ id: string }`, the assigned event ID.
 
 **Fields:**
 
@@ -35,10 +35,10 @@ Returns `{ id: string }` — the assigned event ID.
 
 ## Metadata Redaction
 
-Sensitive string fields in `metadata` are redacted before the event enters the pipeline — memory buffer, Redis WAL, and database all receive the already-redacted entry.
+Sensitive string fields in `metadata` are redacted before the event enters the pipeline, memory buffer, Redis WAL, and database all receive the already-redacted entry.
 
 - Field names are matched against `Logger.DEFAULT_REDACT_PATTERNS`: `/password/i`, `/authorization/i`, `/token/i`, `/private/i`, `/secure/i`, `/email/i`, `/phone/i`, `/postcode/i`, `/zipcode/i`
-- Values are partially masked (first chars retained + `█` padding) — length and prefix remain visible for audit tracing
+- Values are partially masked (first chars retained + `█` padding), length and prefix remain visible for audit tracing
 - Nested objects and arrays are traversed recursively
 - Source: `Logger.serialize()` in [`package/common/src/Logger.ts`](../../common/src/Logger.ts)
 
@@ -57,7 +57,7 @@ log()
 
 **Normal path:** Events accumulate in memory and flush to the database in batches. On successful DB write, the corresponding Redis WAL entries are deleted.
 
-**Crash recovery:** If the process dies, the in-memory buffer is lost but Redis WAL survives. On next startup, WAL entries are replayed to the database before the server begins accepting requests. Each WAL key is claimed atomically via `GETDEL`, so in a multi-pod deployment only one pod processes each entry — concurrent startups do not produce duplicate events.
+**Crash recovery:** If the process dies, the in-memory buffer is lost but Redis WAL survives. On next startup, WAL entries are replayed to the database before the server begins accepting requests. Each WAL key is claimed atomically via `GETDEL`, so in a multi-pod deployment only one pod processes each entry, concurrent startups do not produce duplicate events.
 
 **WAL index:** every WAL entry is also a member of the `wal:index` sorted set (member `<bufferKey>:<id>`, score the time written). The flush and startup recovery read the oldest `REDIS_BATCH_SIZE` members from the index, never scanning the keyspace: a `SCAN` costs time proportional to every key in Redis, and ran on every pod every few seconds. Do not add a `SCAN` or `KEYS` over this keyspace. A failed entry is re-scored to the back so it cannot starve newer ones, and members older than the TTL are pruned. Entries written before the index existed are not indexed and expire on their own TTL.
 
@@ -105,7 +105,7 @@ If a project's backoff queue exceeds `MAX_BACKLOG_QUEUE_SIZE`, the overflow move
 | Scenario | Behaviour |
 |---|---|
 | Project DB down | Memory buffer accumulates with backoff; WAL acts as overflow; auto-recovers when DB returns |
-| Process crash | Memory buffer lost; Redis WAL retained; replayed atomically at next startup — each WAL entry claimed by exactly one pod via `GETDEL` |
+| Process crash | Memory buffer lost; Redis WAL retained; replayed atomically at next startup, each WAL entry claimed by exactly one pod via `GETDEL` |
 | Redis down | WAL writes skipped silently; memory-only operation; events flush direct to DB |
 | Both DB and Redis down | `log()` returns 503; no events accepted |
 
@@ -154,13 +154,13 @@ Run once after deployment to create the system event log table in the account DB
 pnpm migrate
 ```
 
-The project-scoped `event_log` table is created automatically when a project database is initialised — no separate migration needed.
+The project-scoped `event_log` table is created automatically when a project database is initialised, no separate migration needed.
 
 ## Key Files
 
-- [events-catalogue.md](events-catalogue.md) — Full catalogue of all tracked event actions
-- [ServiceEventLog.ts](../src/model/service/ServiceEventLog.ts) — Core service: buffers, flush logic, backoff, DLQ, health
-- [RepoEventLog.ts](../src/model/repo/core/RepoEventLog.ts) — Project-scoped repo (`dataSource: 'project'`)
-- [RepoEventLogSystem.ts](../src/model/repo/RepoEventLogSystem.ts) — System-wide repo (`dataSource: 'account'`)
-- [endpoint/shared/event-log.ts](../src/endpoint/shared/event-log.ts) — Ingest endpoint
-- [config/default.ts](../src/config/default.ts) — `app.eventLog` config block
+- [events-catalogue.md](events-catalogue.md): Full catalogue of all tracked event actions
+- [ServiceEventLog.ts](../src/model/service/ServiceEventLog.ts): Core service: buffers, flush logic, backoff, DLQ, health
+- [RepoEventLog.ts](../src/model/repo/core/RepoEventLog.ts): Project-scoped repo (`dataSource: 'project'`)
+- [RepoEventLogSystem.ts](../src/model/repo/RepoEventLogSystem.ts): System-wide repo (`dataSource: 'account'`)
+- [endpoint/shared/event-log.ts](../src/endpoint/shared/event-log.ts): Ingest endpoint
+- [config/default.ts](../src/config/default.ts): `app.eventLog` config block

@@ -119,7 +119,7 @@ Stream from S3 (no disk writes)
    └─ Update File record
    ↓
 Parse
-   ├─ FormatHandler.parse(stream) — JSON in memory; binary → temp S3 keys
+   ├─ FormatHandler.parse(stream), JSON in memory; binary → temp S3 keys
    └─ Extract entity data
    ↓
 Validate
@@ -160,15 +160,15 @@ Import files may contain IDs that collide with existing entities. The system aut
 
 ### Survey (.vsst) imports
 
-Uses `SurveyImportIdTranslator` — checks survey/section/element IDs for collisions and generates new IDs where needed. Translation map included in response: `hasIdTranslations: true`.
+Uses `SurveyImportIdTranslator`, checks survey/section/element IDs for collisions and generates new IDs where needed. Translation map included in response: `hasIdTranslations: true`.
 
 See: `/package/common/src/util/SurveyImportIdTranslator.ts`
 
 ### Survey publication (.vssp) imports
 
-Handled by `VsspImportResolver` (no side effects — pure resolution pass):
+Handled by `VsspImportResolver` (no side effects, pure resolution pass):
 
-`surveyId` is required — a `.vssp` file can only be imported into an existing survey, never used to create one (a publication has no editable template, so a survey created purely from it would open to an empty editor).
+`surveyId` is required, a `.vssp` file can only be imported into an existing survey, never used to create one (a publication has no editable template, so a survey created purely from it would open to an empty editor).
 
 | Entity | Strategy |
 |---|---|
@@ -176,10 +176,10 @@ Handled by `VsspImportResolver` (no side effects — pure resolution pass):
 | Snapshot | Dedup by `contentHash` on the target survey; reuse existing or create new |
 | Publication | New ID if collision; keep original ID otherwise |
 | Sections / Elements | Fresh IDs only when creating a new survey (`createSurvey === true`) |
-| Participants | Deduplicated across responses (same `participantId` processed once); matched by email on the target survey — reuse existing or create new with a fresh ID |
+| Participants | Deduplicated across responses (same `participantId` processed once); matched by email on the target survey, reuse existing or create new with a fresh ID |
 | Responses | New ID on collision with an existing response |
 | Files (images) | `imageSetId` derived from file hash (first 16 chars) or generated; resurrects soft-deleted records if a matching hash is found |
-| Files (`fileUpload` response answers) | Deduped by `(surveyId, hash, fileContext: 'response')`, ignoring `responseId` — reuses an existing `File` if one with matching content already exists anywhere in the target survey; created inline in the per-response persistence loop (see below) since the final `responseId` is only known there |
+| Files (`fileUpload` response answers) | Deduped by `(surveyId, hash, fileContext: 'response')`, ignoring `responseId`, reuses an existing `File` if one with matching content already exists anywhere in the target survey; created inline in the per-response persistence loop (see below) since the final `responseId` is only known there |
 
 **S3 uploads happen before the DB transaction** (in `VsspImportPersister`) so the transaction never contains a partial image set. Response-file uploads are the one exception: they happen inside the per-batch response loop (still within the transaction) because each one needs the response's final `_id`, which is only assigned at insert time (a response-ID collision reassigns it to a fresh id).
 

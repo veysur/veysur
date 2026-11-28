@@ -35,7 +35,7 @@ When a survey is published, the system:
 - Created/updated timestamps
 - Creator user ID
 - Snapshot label and notes
-- All L10n/translation text — language content is stored in separate `SurveyLanguageSnapshot` records, each carrying their own `contentHash` via `generateSurveyLanguageHash`
+- All L10n/translation text, language content is stored in separate `SurveyLanguageSnapshot` records, each carrying their own `contentHash` via `generateSurveyLanguageHash`
 
 The overall snapshot content hash is a composite of the structural hash plus all per-language hashes, computed by `generateSnapshotContentHash`.
 
@@ -146,16 +146,16 @@ Server logs track hash operations for debugging:
 **Location**: `package/common/src/util/generateSurveyHash.ts`
 
 ```typescript
-// Structural hash — excludes all L10n text
+// Structural hash, excludes all L10n text
 export function generateSurveyStructuralHash(
   survey: Survey,
   settingSurvey: SettingSurvey,
 ): string { ... }
 
-// Per-language hash — hashes a single SurveyLanguage record's text
+// Per-language hash, hashes a single SurveyLanguage record's text
 export function generateSurveyLanguageHash(surveyLanguage: SurveyLanguage): string { ... }
 
-// Composite snapshot hash — combines structural + sorted language hashes
+// Composite snapshot hash, combines structural + sorted language hashes
 export function generateSnapshotContentHash(
   structuralHash: string,
   languageHashes: string[],
@@ -166,7 +166,7 @@ Note: `generateSurveyHash` is a deprecated alias for `generateSurveyStructuralHa
 
 ### Database Schema
 
-Two distinct classes are involved — do not confuse them. **`SurveySnapshotPartial`** is the metadata/dedup record (what this document and `survey-publishing.md` call "the snapshot"); **`SurveySnapshot`** is a second, separate class holding the full denormalized survey document keyed by the partial's `_id`.
+Two distinct classes are involved, do not confuse them. **`SurveySnapshotPartial`** is the metadata/dedup record (what this document and `survey-publishing.md` call "the snapshot"); **`SurveySnapshot`** is a second, separate class holding the full denormalized survey document keyed by the partial's `_id`.
 
 **SurveySnapshotPartial** with `contentHash` field:
 
@@ -181,7 +181,7 @@ export class SurveySnapshotPartial {
   surveyPartial: Survey
   created: Date
   updated: Date
-  publications?: SurveyPublication[] // Populated relation — every Publication referencing this snapshot
+  publications?: SurveyPublication[] // Populated relation, every Publication referencing this snapshot
 }
 ```
 
@@ -274,7 +274,7 @@ async publish({
     await repoSurveySnapshotPartial.insertOne(snapshotPartial)
   }
 
-  // 4. ALWAYS CREATE NEW PUBLICATION — one Snapshot can back many Publications
+  // 4. ALWAYS CREATE NEW PUBLICATION, one Snapshot can back many Publications
   const publication = new SurveyPublication({
     snapshotId: snapshotPartial._id,
     surveyId,

@@ -40,7 +40,7 @@ and `entityAttributeMethods.ts` are applied to `SurveyElementBase`
 (question + content), `SurveySection` and `SurveySubquestion`, all composed over
 the `ImmutableEntity` base whose `withChanges()` primitive replaces per-class
 `new Self({ ...this, patch })` boilerplate. Do not reach for a mixin for a
-one- or two-class overlap — a concrete method or a free function is clearer there.
+one- or two-class overlap, a concrete method or a free function is clearer there.
 
 ### Required Components
 

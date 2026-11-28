@@ -7,7 +7,7 @@ IP-based fixed-window rate limiter protecting all API endpoints, backed by Redis
 
 Middleware runs before routing and increments a per-IP counter in Redis for each request. When the counter exceeds the tier limit within the window, the request is rejected with HTTP 429.
 
-Rules in `appConfig.rateLimit.rules` are evaluated in order — first match wins. Paths not matched by any rule fall through to the `default` tier.
+Rules in `appConfig.rateLimit.rules` are evaluated in order, first match wins. Paths not matched by any rule fall through to the `default` tier.
 
 ## Rules and defaults
 
@@ -20,7 +20,7 @@ Configured in `config/default.ts`:
 | Geo country | `^/geo/detect-country$` | limit | 30 requests | 1 hour (3600 s) |
 | Default tier | _(no match)_ | limit | 300 requests | 1 min (60 s) |
 
-Auth refresh is split from login/signup because it fires before every authenticated request (multi-tab sessions, long-lived tabs, retry backoff) and is low-risk — unlike login/signup, which are brute-force-sensitive and share one tighter budget. `DELETE /auth/` (logout) matches none of these and falls through to the default tier, since it requires an existing valid session.
+Auth refresh is split from login/signup because it fires before every authenticated request (multi-tab sessions, long-lived tabs, retry backoff) and is low-risk, unlike login/signup, which are brute-force-sensitive and share one tighter budget. `DELETE /auth/` (logout) matches none of these and falls through to the default tier, since it requires an existing valid session.
 
 `OPTIONS` requests (CORS preflight) are always skipped regardless of rules.
 
@@ -79,9 +79,9 @@ Evaluate rules in order (first match wins)
 
 ### Adding a path-specific rule
 
-Edit `appConfig.rateLimit.rules` in `config/default.ts` — no middleware changes needed. Rules are evaluated in order; place more specific rules before broader ones.
+Edit `appConfig.rateLimit.rules` in `config/default.ts`, no middleware changes needed. Rules are evaluated in order; place more specific rules before broader ones.
 
-Example — limit `/report/` to 50 req / 5 min:
+Example, limit `/report/` to 50 req / 5 min:
 
 ```typescript
 {
@@ -105,12 +105,12 @@ Each rule supports:
 ## Redis / fallback behaviour
 
 - **Redis available:** An atomic Lua script executes `INCR` + conditional `EXPIRE` + `TTL` in a single round-trip. Counters are shared across all pods.
-- **Redis unavailable:** Falls back to a per-process in-memory `Map` with timestamp-based expiry. Soft protection only — counters are not shared across pods.
-- **Redis error mid-request:** Fails open — the request is allowed through.
+- **Redis unavailable:** Falls back to a per-process in-memory `Map` with timestamp-based expiry. Soft protection only, counters are not shared across pods.
+- **Redis error mid-request:** Fails open, the request is allowed through.
 
 ## Key files
 
-- [RedisRateLimiter.ts](../src/service/rate-limit/RedisRateLimiter.ts) — Core algorithm: fixed-window Lua script and in-memory fallback
-- [07-rate-limit.ts](../src/init/00-init/07-rate-limit.ts) — Middleware registration and Redis wiring (stage 00-init / 01-model-initialised)
-- [config/default.ts](../src/config/default.ts) — `app.rateLimit` config block with rules array
-- [config/types.ts](../src/config/types.ts) — `RateLimitRule` and `AppConfig.rateLimit` types
+- [RedisRateLimiter.ts](../src/service/rate-limit/RedisRateLimiter.ts): Core algorithm: fixed-window Lua script and in-memory fallback
+- [07-rate-limit.ts](../src/init/00-init/07-rate-limit.ts): Middleware registration and Redis wiring (stage 00-init / 01-model-initialised)
+- [config/default.ts](../src/config/default.ts): `app.rateLimit` config block with rules array
+- [config/types.ts](../src/config/types.ts): `RateLimitRule` and `AppConfig.rateLimit` types

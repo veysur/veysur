@@ -46,7 +46,7 @@ The `uploadFile()` utility handles:
 
 ## Image Set Upload
 
-An image set is a group of related file variants (e.g. original, edited, thumb) stored under a shared `imageSetId`. The `imageSetId` is the SHA256 hash of the edited blob, computed client-side before upload — identical edited content always maps to the same `imageSetId`. Each variant is uploaded separately via the same `POST /file/upload-url` endpoint, passing `imageSetId` and `imageVariant` in the request body.
+An image set is a group of related file variants (e.g. original, edited, thumb) stored under a shared `imageSetId`. The `imageSetId` is the SHA256 hash of the edited blob, computed client-side before upload, identical edited content always maps to the same `imageSetId`. Each variant is uploaded separately via the same `POST /file/upload-url` endpoint, passing `imageSetId` and `imageVariant` in the request body.
 
 ### Flow
 
@@ -60,8 +60,8 @@ Repeat for each variant. Callers decide which fileId/filePath to retain for thei
 
 ### Key differences from standard upload
 
-- For the `edited` variant, pass a SHA256 `fileHash`. If a match is found (same hash + surveyId + fileContext), server returns `existingFile: true, uploadUrl: null` and the existing `filePath` — skip all 3 S3 uploads and use the returned paths directly. Soft-deleted matches are resurrected automatically. For `original` and `thumb`, pass `fileHash: ''`.
-- No confirm step — server marks `uploaded` on URL request
+- For the `edited` variant, pass a SHA256 `fileHash`. If a match is found (same hash + surveyId + fileContext), server returns `existingFile: true, uploadUrl: null` and the existing `filePath`, skip all 3 S3 uploads and use the returned paths directly. Soft-deleted matches are resurrected automatically. For `original` and `thumb`, pass `fileHash: ''`.
+- No confirm step, server marks `uploaded` on URL request
 - Survey ref added automatically to the `edited` variant when surveyId is provided
 - Re-uploading to an existing imageSetId + imageVariant returns the existing fileId + a fresh URL
 
@@ -236,19 +236,19 @@ Environment variables in `package/api/src/config/default.ts`:
 ## Security
 
 - All `/file/*` operations require `projectAdmin` role
-- Project isolation enforced by routing to the project's own database (`X-Project-Id` → `DataSourceContext`) — the `File` collection has no `projectId` field
+- Project isolation enforced by routing to the project's own database (`X-Project-Id` → `DataSourceContext`), the `File` collection has no `projectId` field
 - File URLs are public once uploaded (nginx doesn't check auth)
 
 ### Participant-writable exception: `fileUpload` question answers
 
 `/survey-participant-file/*` (`ServiceSurveyParticipantFile`) is the one file-upload path
 open to the `participant` role, for a `fileUpload` question's answer. It never trusts a
-client-supplied `surveyId`/`responseId`/`projectId` — every scoping identifier is taken
+client-supplied `surveyId`/`responseId`/`projectId`, every scoping identifier is taken
 from `aclContext`, which the participant ACL role assessor populates from the verified
 participant JWT (mirroring `ServiceSurveyParticipantResponse`). The service:
 
 - Resolves the caller's own in-progress response by `(surveyId, snapshotId,
-  participantId | sessionId)` from the JWT — never by a client-passed `responseId` — and
+  participantId | sessionId)` from the JWT, never by a client-passed `responseId`, and
   requires it already exist (created by a prior `saveSurveyParticipantResponse` call).
 - Loads the target question's `fileUploadOptions` attribute (`maxFileSize`,
   `allowedMimeTypes`, `maxFileCount`) from the survey snapshot and enforces them

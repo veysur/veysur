@@ -28,7 +28,7 @@ before the persisted session cache has finished restoring. Each app root mounts
 
 This matters because `useAuth()`'s query has a near-instant `queryFn` (`async () => null`). On a
 cold tab, if that query is allowed to fetch before restoration completes, it resolves with a
-fresh `dataUpdatedAt` that beats the persisted (older) snapshot — TanStack Query's `hydrate()`
+fresh `dataUpdatedAt` that beats the persisted (older) snapshot, TanStack Query's `hydrate()`
 only overwrites a query when the persisted data is _newer_, so the live `null` resolution wins
 and a real, already-logged-in session is silently discarded. See `common/queryClient.test.ts`
 for a reproduction of both the bug and the fix. `AuthGate` and `useAuthLoginRedirect` also gate

@@ -6,7 +6,7 @@ The API uses `@sentry/node` to capture unhandled exceptions and report them to a
 
 Set `BUGSINK_DSN` in the API's environment. The Compose stack ships it empty (`deploy/compose.yaml`), so a self-hosted install reports nothing unless an operator sets it.
 
-When `BUGSINK_DSN` is empty, `Sentry.init` runs with `enabled: false` — no network calls are made.
+When `BUGSINK_DSN` is empty, `Sentry.init` runs with `enabled: false`, no network calls are made.
 
 ## Initialisation
 
@@ -14,8 +14,8 @@ When `BUGSINK_DSN` is empty, `Sentry.init` runs with `enabled: false` — no net
 
 ## Error capture points
 
-- **`unhandledRejection`** handler in `server.ts` — calls `Sentry.captureException` for unhandled promise rejections.
-- **@datacapy/server request errors** — framework-level HTTP errors are handled by @datacapy/server internally; errors that propagate past all handlers trigger the `unhandledRejection` path.
+- **`unhandledRejection`** handler in `server.ts`, calls `Sentry.captureException` for unhandled promise rejections.
+- **@datacapy/server request errors**: framework-level HTTP errors are handled by @datacapy/server internally; errors that propagate past all handlers trigger the `unhandledRejection` path.
 
 To add explicit capture in a service method:
 

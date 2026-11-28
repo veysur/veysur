@@ -44,7 +44,7 @@ Use this for values you populate via import or API that participants should not 
 
 ## Attributes in conditions
 
-Both system and custom attribute names — including internal ones — are the identifiers
+Both system and custom attribute names, including internal ones, are the identifiers
 used when building a display condition. See
 [Conditional Questions](/reference/survey-editor/conditional-questions/) for how to
 reference them.
