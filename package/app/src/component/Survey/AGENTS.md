@@ -66,7 +66,7 @@ Content elements (`SurveyContent.tsx`, `SurveyContentRenderer.tsx`) sit in the s
 - **Welcome Screen**: Configurable welcome message, privacy policy, legal notice
 - **Progress Tracking**: Format-aware progress calculation
 - **Navigation**: Back/forward navigation with countdown delays
-- **Responsive Layout**: Bootstrap-based responsive design
+- **Responsive Layout**: Tailwind-based responsive design
 - **Answer Storage**: Captures user responses keyed by `question.code`
 
 ## Component Structure
@@ -227,7 +227,7 @@ type ValidationErrors = {
   - **Objects** for questions with subquestions (nested data)
   - **Numbers** for numeric input questions
   - **Strings** for text and other question types
-- **Error Display**: Shows validation messages below each question using Bootstrap styling
+- **Error Display**: Shows validation messages below each question using Tailwind styling
 - **Error Format**: Arrays of error strings joined with commas for display
 - **Performance Optimization**: Synchronous navigation when no required fields present, async only when validation needed
 

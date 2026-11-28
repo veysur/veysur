@@ -28,7 +28,7 @@ React application built with TypeScript, RSBuild, and Jest. This is the main fro
 
 - React 19.1.1 with TypeScript
 - RSBuild for bundling
-- Bootstrap + React Bootstrap for UI
+- Tailwind CSS v4 + Radix UI primitives for UI
 - TanStack Query for data fetching and mutations
 - Zustand for state management
 - React Router for navigation

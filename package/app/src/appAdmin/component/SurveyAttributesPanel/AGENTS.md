@@ -104,7 +104,7 @@ A question element. Content elements have their own entity type below.
 
 - Built-in validation using `SchemaSpec` with real-time feedback
 - Custom validation rules (required, regex patterns, type checking)
-- Visual feedback with Bootstrap invalid states
+- Visual feedback with invalid-state styling (Tailwind)
 
 ### Operations Integration
 
@@ -151,7 +151,7 @@ Create specialized input components in `component/` directory:
 
 - Follow `AttributeConfig['component']` interface
 - Handle validation display with `isValid` and `errors` props
-- Use Bootstrap form components for consistency
+- Use the shared form components (Tailwind + Radix) for consistency
 
 ## Best Practices
 
